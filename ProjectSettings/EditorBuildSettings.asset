@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Main.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/Jonathan/Scenes/Lobby.unity
+    guid: 1bb365a223957734ab5b8a87113b5dcf
+  - enabled: 1
+    path: Assets/Jonathan/Scenes/Waiting Room.unity
+    guid: 47373e85f34bdcf40af640eb4dfb3d51
+  - enabled: 1
+    path: Assets/Jonathan/Scenes/Arena.unity
+    guid: 096fec62dc8ffcc499f863dd88f1bc83
   m_configObjects: {}
