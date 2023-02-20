@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Jonathan/Scenes/Arena.unity
     guid: 096fec62dc8ffcc499f863dd88f1bc83
+  - enabled: 1
+    path: Assets/Juniper/Scenes/connecting.unity
+    guid: 476e1b7ee436be4499a21cd75eec545f
   m_configObjects: {}
