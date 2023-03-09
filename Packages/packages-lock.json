@@ -92,7 +92,6 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
-<<<<<<< Updated upstream
     "com.unity.nuget.newtonsoft-json": {
       "version": "3.0.2",
       "depth": 2,
@@ -102,10 +101,6 @@
     },
     "com.unity.purchasing": {
       "version": "4.5.2",
-=======
-    "com.unity.probuilder": {
-      "version": "5.0.6",
->>>>>>> Stashed changes
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -147,7 +142,6 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
-<<<<<<< Updated upstream
     "com.unity.services.analytics": {
       "version": "4.3.0",
       "depth": 1,
@@ -168,13 +162,6 @@
         "com.unity.nuget.newtonsoft-json": "3.0.2",
         "com.unity.modules.androidjni": "1.0.0"
       },
-=======
-    "com.unity.settings-manager": {
-      "version": "1.0.3",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {},
->>>>>>> Stashed changes
       "url": "https://packages.unity.com"
     },
     "com.unity.shadergraph": {
