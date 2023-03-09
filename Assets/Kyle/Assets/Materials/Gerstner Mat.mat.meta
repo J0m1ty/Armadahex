@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Kyle/Assets/Materials/Gerstner Mat.mat.meta
 guid: 5b5fa2fb395b16e40a79c661dc30ee92
+========
+guid: cfa7b2279d6a1c14ea27a926494619b5
+>>>>>>>> main:Assets/Jonathan/Materials/Accent.mat.meta
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 2100000
