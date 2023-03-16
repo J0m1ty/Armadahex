@@ -6,12 +6,21 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Jonathan/Scenes/Old/Lobby.unity
-    guid: 1bb365a223957734ab5b8a87113b5dcf
+    path: Assets/Jonathan/Scenes/0 Title.unity
+    guid: 8c6514e90b11a284d8a08d2808932b9a
   - enabled: 1
-    path: Assets/Jonathan/Scenes/Old/Waiting Room.unity
-    guid: 47373e85f34bdcf40af640eb4dfb3d51
+    path: Assets/Jonathan/Scenes/1 Account.unity
+    guid: b27d3c1064ebbdc4aa073000e915dce0
   - enabled: 1
-    path: Assets/Jonathan/Scenes/Old/Arena.unity
-    guid: 096fec62dc8ffcc499f863dd88f1bc83
+    path: Assets/Jonathan/Scenes/2 Menu.unity
+    guid: cdb6310f61ed6134aaa6e65ddace99a4
+  - enabled: 1
+    path: Assets/Jonathan/Scenes/3 Multiplayer.unity
+    guid: fe73750d4242f264c9ce31c7c89f988b
+  - enabled: 1
+    path: Assets/Jonathan/Scenes/4 Custom Game.unity
+    guid: bf1d797ef044e0145874b245ce192299
+  - enabled: 1
+    path: Assets/Jonathan/Scenes/5 Info.unity
+    guid: e0f61306e9103e5408c2efee6bed2cd6
   m_configObjects: {}
