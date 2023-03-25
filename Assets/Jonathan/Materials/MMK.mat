@@ -42,7 +42,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Distance: 686.66675
+    - _Distance: 1925.3574
     - _DistanceScale: 1980
     - _SubScale: 1
     - _Timer: 52.538174
