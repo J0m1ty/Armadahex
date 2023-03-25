@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Terrain
   m_Shader: {fileID: -6465566751694194690, guid: 416d313abe489884caeaccc9db582f78, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 2
@@ -17,6 +19,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -25,27 +28,27 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_504f248c30d0471c9d55bc9e7bd2a0fb_Texture_1:
-        m_Texture: {fileID: 2800000, guid: 8a2f949e85fdaac4188d3a9b23fe6e1a, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_651db766fcbb4ce1becced0b3090de0b_Texture_1:
-        m_Texture: {fileID: 2800000, guid: d9f0198ea6ea01041a958141ea0714d6, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_7a01254f0fcc4de781657644bc667357_Texture_1:
-        m_Texture: {fileID: 2800000, guid: e1afb4392dbd64749b2110bfd3139609, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_8eb7e596fd0b4fd5b1980f3f05aa5611_Texture_1:
-        m_Texture: {fileID: 2800000, guid: 818b1be9e1157ab4f9637afd65bf1565, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_bb7c595443eb426d9c8113c5127a5499_Texture_1:
-        m_Texture: {fileID: 2800000, guid: 454cd71141f212b479d49eb77b1d8c5b, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_ff529b38bd5049edb34af02054812eab_Texture_1:
-        m_Texture: {fileID: 2800000, guid: 54d41b149e6d4e3458ead33da1fc7193, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TerrainStep_633d34d4951a46b6b8f367c0663e4aac_Normal_1378257146:
@@ -100,4 +103,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 5
+  version: 7
