@@ -18,8 +18,10 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
 
     #region MonoBehaviour CallBacks
     void Awake() {
+        PhotonNetwork.AutomaticallySyncScene = true;
+        
         noticeManager = GetComponent<NoticeManager>();
-        noticeManager.SetState(State.Default);
+        noticeManager.SetState(NoticeState.Default);
 
         formManager = GetComponent<FormManager>();
         formManager.isEnabled = true;
@@ -56,7 +58,7 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
         if (data.ContainsKey("Token")) {
             string token = (string)data["Token"];
             Debug.Log("Token loaded: " + token);
-            PlayerPrefs.SetString(Constants.tokenPrefKey, token);
+            PlayerPrefs.SetString(Constants.TOKEN_PREF_KEY, token);
         }
         else {
             Debug.Log("No token");
@@ -65,15 +67,20 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
         if (data.ContainsKey("UserID")) {
             string username = (string)data["UserID"];
             Debug.Log("Username loaded: " + username);
-            PlayerPrefs.SetString(Constants.playerNamePrefKey, username);
             
-            if (!PlayerPrefs.HasKey(Constants.nickNamePrefKey)) {
+            if (PlayerPrefs.HasKey(Constants.PLAYER_NAME_PREF_KEY) && PlayerPrefs.GetString(Constants.PLAYER_NAME_PREF_KEY) != username) {
+                PlayerPrefs.DeleteKey(Constants.NICK_NAME_PREF_KEY);
+            }
+
+            PlayerPrefs.SetString(Constants.PLAYER_NAME_PREF_KEY, username);
+            
+            if (!PlayerPrefs.HasKey(Constants.NICK_NAME_PREF_KEY)) {
                 PhotonNetwork.NickName = username;
 
-                PlayerPrefs.SetString(Constants.nickNamePrefKey, username);
+                PlayerPrefs.SetString(Constants.NICK_NAME_PREF_KEY, username);
             }
             else {
-                PhotonNetwork.NickName = PlayerPrefs.GetString(Constants.nickNamePrefKey);
+                PhotonNetwork.NickName = PlayerPrefs.GetString(Constants.NICK_NAME_PREF_KEY);
             }
         }
         else {
@@ -88,7 +95,7 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
         if (isQuickConnecting) {
             isQuickConnecting = false;
 
-            PlayerPrefs.DeleteKey(Constants.tokenPrefKey);
+            PlayerPrefs.DeleteKey(Constants.TOKEN_PREF_KEY);
 
             if (debugMessage.Contains("Version mismatch")) {
                 Debug.Log("Outdated version error");
@@ -113,7 +120,7 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
             else if (debugMessage.Contains("Token invalid or expired")) {
                 noticeManager.SetError("Please try again.");
 
-                PlayerPrefs.DeleteKey(Constants.tokenPrefKey);
+                PlayerPrefs.DeleteKey(Constants.TOKEN_PREF_KEY);
             }
             else {
                 noticeManager.SetError("An unknown error occurred.");
@@ -128,12 +135,12 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
             return;
         }
 
-        noticeManager.SetState(State.Connecting);
+        noticeManager.SetState(NoticeState.Connecting);
 
-        if (PlayerPrefs.HasKey(Constants.tokenPrefKey) && PlayerPrefs.HasKey(Constants.playerNamePrefKey)) {
+        if (PlayerPrefs.HasKey(Constants.TOKEN_PREF_KEY) && PlayerPrefs.HasKey(Constants.PLAYER_NAME_PREF_KEY)) {
             Debug.Log("Token and username found, attempting to quick connect");
 
-            QuickConnect(PlayerPrefs.GetString(Constants.playerNamePrefKey), PlayerPrefs.GetString(Constants.tokenPrefKey));
+            QuickConnect(PlayerPrefs.GetString(Constants.PLAYER_NAME_PREF_KEY), PlayerPrefs.GetString(Constants.TOKEN_PREF_KEY));
         }
         else {
             Debug.Log("Token and username not found, redirecting to quick connect");
@@ -147,7 +154,7 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
             return;
         }
 
-        noticeManager.SetState(State.Connecting);
+        noticeManager.SetState(NoticeState.Connecting);
         
         string username = formManager.username;
         string password = formManager.password;

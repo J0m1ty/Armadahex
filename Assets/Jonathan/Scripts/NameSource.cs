@@ -9,7 +9,7 @@ public class NameSource : MonoBehaviour
 {
     private TMP_Text nameText;
 
-    void Start() {
+    void Awake() {
         nameText = GetComponent<TMP_Text>();
 
         nameText.text = PhotonNetwork.NickName;

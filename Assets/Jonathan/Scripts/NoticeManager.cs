@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public enum State
+public enum NoticeState
 {
     None,
     Default,
@@ -19,19 +19,19 @@ public class NoticeManager : MonoBehaviour
     [Serializable]
     public struct Notice {
         public TMP_Text text;
-        public State state;
-        public State[] paralells;
+        public NoticeState state;
+        public NoticeState[] paralells;
         public bool disableForm;
     }
 
-    public State state { get; private set; }
+    public NoticeState state { get; private set; }
 
     [SerializeField]
     private Notice[] notices;
 
-    public bool fatal => state == State.Fatal;
+    public bool fatal => state == NoticeState.Fatal;
 
-    public void SetState(State state) {
+    public void SetState(NoticeState state) {
         this.state = state;
         
         bool disable = false;
@@ -53,10 +53,10 @@ public class NoticeManager : MonoBehaviour
     }
 
     public void SetError(string error, bool fatal = false) {
-        SetState(fatal ? State.Fatal : State.Error);
+        SetState(fatal ? NoticeState.Fatal : NoticeState.Error);
 
         foreach (Notice notice in notices) {
-            if ((fatal && notice.state == State.Fatal) || (!fatal && notice.state == State.Error)) {
+            if ((fatal && notice.state == NoticeState.Fatal) || (!fatal && notice.state == NoticeState.Error)) {
                 notice.text.text = error;
             }
         }

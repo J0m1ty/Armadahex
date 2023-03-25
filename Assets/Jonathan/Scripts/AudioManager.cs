@@ -14,6 +14,12 @@ public class AudioManager : MonoBehaviour
 
     private void Awake()
     {
+        if (musicClips.Length == 0) {
+            Debug.Log("No music clips found!");
+            Destroy(gameObject);
+            return;
+        }
+
         if (instance == null) {
             instance = this;
             DontDestroyOnLoad(gameObject);
