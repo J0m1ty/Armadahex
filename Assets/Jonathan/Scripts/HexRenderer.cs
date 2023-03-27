@@ -17,6 +17,7 @@ public class HexRenderer : MonoBehaviour
 
     [Header("Map Integration")]
     public GridUnit gridRef;
+    public HexGrid hexMap;
 
     private void Awake() {
         meshFilter = GetComponent<MeshFilter>();

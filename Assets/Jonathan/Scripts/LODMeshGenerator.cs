@@ -77,8 +77,11 @@ public class LODMeshGenerator : MonoBehaviour
     public Mesh mesh { get; private set; }
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
+
+    [Header("Saved Mesh")]
+    public Mesh savedMesh;
     
-    [Header("Terrain Settings")]
+    [Header("Mesh Settings")]
     public Material material;
     public Gradient step;
     public int exp = 9;
@@ -93,8 +96,15 @@ public class LODMeshGenerator : MonoBehaviour
         meshFilter = GetComponent<MeshFilter>();
         meshRenderer = GetComponent<MeshRenderer>();
 
+        if (savedMesh) {
+            mesh = savedMesh;
+            meshFilter.mesh = mesh;
+            meshRenderer.material = material;
+            return;
+        }
+
         mesh = new Mesh();
-        mesh.name = "Terrain Mesh";
+        mesh.name = "LOD Mesh";
 
         meshFilter.mesh = mesh;
         
@@ -102,6 +112,8 @@ public class LODMeshGenerator : MonoBehaviour
     }
 
     private void OnEnable() {
+        if (savedMesh) return;
+        
         GenerateCells();
     }
 

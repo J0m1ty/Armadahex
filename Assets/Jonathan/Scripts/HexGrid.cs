@@ -4,13 +4,16 @@ using UnityEngine;
 using System;
 using MyBox;
 
+[Serializable]
 public class GridUnit {
     public CoordinateSystem coords;
     public HexRenderer hexRenderer;
+    public ShipSegment shipSegment;
 
     public GridUnit(CoordinateSystem coords, HexRenderer hex) {
         this.coords = coords;
         this.hexRenderer = hex;
+        this.shipSegment = null;
 
         hexRenderer.gridRef = this;
     }
@@ -154,6 +157,7 @@ public class HexGrid : MonoBehaviour
         hex.SetMaterial(m);
         hex.size = size;
         hex.isFlatTopped = isFlatTopped;
+        hex.hexMap = this;
         hex.GenerateMesh();
 
         MeshCollider meshCollider = tile.AddComponent<MeshCollider>();
@@ -164,5 +168,22 @@ public class HexGrid : MonoBehaviour
 
     public GridUnit FromCoordinates(CoordinateSystem coords) {
         return hexes.Find(hex => hex.coords.Equals(coords));
+    }
+
+    public GridUnit FromPosition(Vector3 position) {
+        return hexes.Find(hex => hex.hexRenderer.transform.position == position);
+    }
+
+    public GridUnit ClosestTo(Vector3 position, out float closestDistance) {
+        GridUnit closest = null;
+        closestDistance = float.MaxValue;
+        foreach (GridUnit hex in hexes) {
+            float distance = Vector3.Distance(hex.hexRenderer.transform.position, position);
+            if (distance < closestDistance) {
+                closest = hex;
+                closestDistance = distance;
+            }
+        }
+        return closest;
     }
 }
