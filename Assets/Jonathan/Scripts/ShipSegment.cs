@@ -6,19 +6,14 @@ public class ShipSegment : MonoBehaviour {
     public Ship parent;
 
     public GridUnit gridRef;
+    
+    public bool isAlive;
 
-    private bool _isAlive = true;
-    public bool isAlive {
-        get {
-            return _isAlive;
-        }
-        set {
-            _isAlive = value;
-            if (value) {
-                gameObject.SetActive(false);
-            } else {
-                gameObject.SetActive(true);
-            }
-        }
+    public GameObject fireEffect;
+
+    public void Destroy() {
+        isAlive = false;
+        fireEffect.SetActive(true);
+        parent.UpdateStatus();
     }
 }

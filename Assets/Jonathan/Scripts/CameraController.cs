@@ -22,6 +22,7 @@ public class CameraController : MonoBehaviour
 
     [Header("General Settings")]
     public bool allowZoomKeys;
+    public bool allowMousePanning;
     public float movementTime;
     public bool isOrthographic;
     [ConditionalField("isOrthographic", false, true)]
@@ -54,6 +55,13 @@ public class CameraController : MonoBehaviour
     private Vector3 dragCurrentPosition;
     private Vector3 rotateStartPosition;
     private Vector3 rotateCurrentPosition;
+    
+    [Header("Center")]
+    [SerializeField]
+    private Vector3 center;
+    private Vector3 newCenter;
+    [SerializeField]
+    private float transportTime;
 
     void Start() {
         cameraChild = transform.GetChild(0).gameObject;
@@ -72,6 +80,8 @@ public class CameraController : MonoBehaviour
     }
 
     void LateUpdate() {
+        transform.position -= center;
+
         HandleMouseInput();
         HandleKeyboardInput();
 
@@ -92,6 +102,10 @@ public class CameraController : MonoBehaviour
 
         float offset = Mathf.Lerp(angleOffset[0], angleOffset[1], Mathf.InverseLerp(zoomRange.Min, zoomRange.Max, cameraChild.transform.localPosition.magnitude - distanceOffset));
         cameraChild.transform.rotation *= Quaternion.AngleAxis(offset, Vector3.right);
+
+        center = Vector3.Lerp(center, newCenter, Time.deltaTime * transportTime);
+
+        transform.position += center;
     }
 
     void HandleMouseInput() {
@@ -99,26 +113,28 @@ public class CameraController : MonoBehaviour
             newZoom += Input.mouseScrollDelta.y * zoomAmount;
         }
 
-        if (Input.GetMouseButtonDown(0)) {
-            Plane plane = new Plane(Vector3.up, Vector3.zero);
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (allowMousePanning) {
+            if (Input.GetMouseButtonDown(0)) {
+                Plane plane = new Plane(Vector3.up, Vector3.zero);
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            float entry;
+                float entry;
 
-            if (plane.Raycast(ray, out entry)) {
-                dragStartPosition = ray.GetPoint(entry);
+                if (plane.Raycast(ray, out entry)) {
+                    dragStartPosition = ray.GetPoint(entry);
+                }
             }
-        }
 
-        if (Input.GetMouseButton(0)) {
-            Plane plane = new Plane(Vector3.up, Vector3.zero);
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Input.GetMouseButton(0)) {
+                Plane plane = new Plane(Vector3.up, Vector3.zero);
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            float entry;
+                float entry;
 
-            if (plane.Raycast(ray, out entry)) {
-                dragCurrentPosition = ray.GetPoint(entry);
-                newPosition = transform.position + dragStartPosition - dragCurrentPosition;
+                if (plane.Raycast(ray, out entry)) {
+                    dragCurrentPosition = ray.GetPoint(entry);
+                    newPosition = transform.position + dragStartPosition - dragCurrentPosition;
+                }
             }
         }
 
@@ -179,5 +195,9 @@ public class CameraController : MonoBehaviour
             }
         }
         
+    }
+
+    public void MoveTo(Vector3 position) {
+        newCenter = position;
     }
 }

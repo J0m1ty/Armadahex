@@ -7,24 +7,28 @@ using UnityEngine;
 public class HexBorder : MonoBehaviour
 {
     public Mesh mesh { get; private set; }
+    [MyBox.AutoProperty]
     private MeshFilter meshFilter;
+    [MyBox.AutoProperty]
     private MeshRenderer meshRenderer;
     
     public Material borderMaterial;
 
     public float height;
-    public HexRenderer hexRenderer;
+    public HexGrid hexGrid;
 
     private void Awake() {
         meshFilter = GetComponent<MeshFilter>();
         meshRenderer = GetComponent<MeshRenderer>();
-
+        
         mesh = new Mesh();
         mesh.name = "Hex Border Mesh";
 
         meshFilter.mesh = mesh;
         
         SetMaterial(borderMaterial ?? new Material(Shader.Find("Universal Render Pipeline/Lit")));
+
+        GenerateMesh();
     }
 
     public void SetMaterial(Material material) {
@@ -32,12 +36,13 @@ public class HexBorder : MonoBehaviour
         meshRenderer.material = material;
     }
 
-    void OnGUI()
-    {
-        if (GUI.Button(new Rect(10, 10, 150, 100), "Generate Mesh"))
-        {
-            GenerateMesh();
-        }
+    public void SetColor(Color color) {
+        borderMaterial.SetColor("_Color", color);
+    }
+
+    public void SetHeight(float height) {
+        this.height = height;
+        //GenerateMesh();
     }
 
     public void GenerateMesh() {
@@ -46,8 +51,8 @@ public class HexBorder : MonoBehaviour
         List<Vector2> uvs = new List<Vector2>();
 
         for (int i = 0; i < 6; i++) {
-            vertices.Add(GetVertex(hexRenderer.size, 0, i, hexRenderer.isFlatTopped));
-            vertices.Add(GetVertex(hexRenderer.size, height, i, hexRenderer.isFlatTopped));
+            vertices.Add(GetVertex(hexGrid.size, 0, i, hexGrid.isFlatTopped));
+            vertices.Add(GetVertex(hexGrid.size, height, i, hexGrid.isFlatTopped));
 
             triangles.Add(i * 2);
             triangles.Add(i * 2 + 1);

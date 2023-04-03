@@ -10,6 +10,9 @@ public class GridUnit {
     public HexRenderer hexRenderer;
     public ShipSegment shipSegment;
 
+    public bool isEdge;
+    public bool preventShips;
+
     public GridUnit(CoordinateSystem coords, HexRenderer hex) {
         this.coords = coords;
         this.hexRenderer = hex;
@@ -34,14 +37,22 @@ public class HexGrid : MonoBehaviour
     public Vector2Int gridSize;
     [ConditionalField("gridType", false, GridType.Hexagon)]
     public int gridRadius;
+    
+    [Header("Culling Settings")]
+    public int cullDepth;
 
     [Header("Hex Settings")]
     public float size;
     public bool isFlatTopped;
     public Material material;
+    [Layer]
+    public int layer;
 
     [Header("Hexes")]
     public List<GridUnit> hexes;
+
+    [Header("Team Integration")]
+    public TeamBase teamBase;
 
     private void Awake() {
         Generate();
@@ -124,16 +135,16 @@ public class HexGrid : MonoBehaviour
                 int r = layer == 0 ? 0 : Polar.FromSpiral(new Spiral(i)).layer;
                 int p = layer == 0 ? 0 : Polar.FromSpiral(new Spiral(i)).position;
 
-                bool corner = layer <= 1 ? true : (Polar.Mod(p, r) == r - 1);
+                bool corner = layer <= 1 ? true : (CoordinateSystem.Mod(p, r) == r - 1);
                 
                 if (p == layerSize - 1) {
                     direction = 5;
                 }
                 else if (corner && direction != 5) {
-                    direction = Polar.Mod(direction + 1, 6);
+                    direction = CoordinateSystem.Mod(direction + 1, 6);
                 }
 
-                AddHex($"Hex {i}", i, new Vector3(drawPointer.x, 0f, drawPointer.y));
+                AddHex($"Hex {i}", i, new Vector3(drawPointer.x, 0f, drawPointer.y), r == gridRadius - 1);
 
                 float theta = direction * Mathf.PI / 3f + (isFlatTopped ? Mathf.PI / 6f : 0f);
                 drawPointer.x += size * Mathf.Cos(theta) * Mathf.Sqrt(3);
@@ -146,10 +157,11 @@ public class HexGrid : MonoBehaviour
         }
     }
 
-    private void AddHex(string name, int index, Vector3 position) {
+    private void AddHex(string name, int index, Vector3 position, bool isEdge = false) {
         GameObject tile = new GameObject(name, typeof(HexRenderer));
         tile.transform.SetParent(transform, true);
         tile.transform.position = transform.position + position;
+        tile.layer = layer;
         
         HexRenderer hex = tile.GetComponent<HexRenderer>();
         var m = new Material(material);
@@ -163,11 +175,49 @@ public class HexGrid : MonoBehaviour
         MeshCollider meshCollider = tile.AddComponent<MeshCollider>();
         meshCollider.sharedMesh = hex.mesh;
 
-        hexes.Add(new GridUnit(new CoordinateSystem(new Spiral(index)), hex));
+        var gridUnit = new GridUnit(new CoordinateSystem(new Spiral(index)), hex);
+        gridUnit.isEdge = isEdge;
+        hexes.Add(gridUnit);
+    }
+
+    public void CheckTerrain() {
+        foreach (GridUnit hex in hexes) {
+            CheckTerrain(hex);
+        }
+    }
+
+    private void CheckTerrain(GridUnit hex) {
+        var pos = hex.hexRenderer.transform.position;
+        
+        var distToCheck = 150f;
+        var allow = true;
+
+        var vertices = hex.hexRenderer.GetVerticesInWorld();
+
+        foreach (var vertex in vertices) {
+            if (Physics.Linecast(vertex, vertex + Vector3.down * distToCheck, out RaycastHit hitPoint, 1 << 3)) {
+                if (hitPoint.distance < cullDepth) {
+                    allow = false;
+                    break;
+                }
+            }
+            else {
+                allow = false;
+                break;
+            }
+        }
+
+        if (!allow) {
+            hex.preventShips = true;
+            hex.hexRenderer.gameObject.SetActive(false);
+        }
     }
 
     public GridUnit FromCoordinates(CoordinateSystem coords) {
-        return hexes.Find(hex => hex.coords.Equals(coords));
+        if (coords.index >= hexes.Count || coords.index < 0)
+            return null;
+
+        return hexes[coords.index];
     }
 
     public GridUnit FromPosition(Vector3 position) {
@@ -175,10 +225,14 @@ public class HexGrid : MonoBehaviour
     }
 
     public GridUnit ClosestTo(Vector3 position, out float closestDistance) {
+        var posXZ = new Vector2(position.x, position.z);
+
         GridUnit closest = null;
         closestDistance = float.MaxValue;
         foreach (GridUnit hex in hexes) {
-            float distance = Vector3.Distance(hex.hexRenderer.transform.position, position);
+            var hexXZ = new Vector2(hex.hexRenderer.transform.position.x, hex.hexRenderer.transform.position.z);
+
+            float distance = Vector2.Distance(posXZ, hexXZ);
             if (distance < closestDistance) {
                 closest = hex;
                 closestDistance = distance;

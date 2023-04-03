@@ -1,0 +1,246 @@
+fileFormatVersion: 2
+guid: 36f5cbe7ff245a24aa8ea06d09e935a2
+ModelImporter:
+  serializedVersion: 22200
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BackDeck_backDeck.png
+    second: {fileID: 2100000, guid: d4a201427dd6932418421e1fc3ce819f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Back_heliPad.png
+    second: {fileID: 2100000, guid: 182d3cff0fd79484ead9964f0ace5f39, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Boat_boat.png
+    second: {fileID: 2100000, guid: 7338cf5f3338fbb488afdcdcf7a046d4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: FrontDeck_frontDeck.png
+    second: {fileID: 2100000, guid: 1fe761128577aa74382902c811c7bc30, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Front_front.png
+    second: {fileID: 2100000, guid: 41f5e2695c05f0949bf7af59e6a3ca03, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: MainGuns_MainGuns.png
+    second: {fileID: 2100000, guid: 23af87cc67e19f14586d256b1a8f2619, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: MainHull_mainHull.png
+    second: {fileID: 2100000, guid: ea81261f8de182343939caaef5669d73, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Middle.001_middle.png
+    second: {fileID: 2100000, guid: c2980ac1f965e7549a03bc2d591828d4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: None_flagbox.png
+    second: {fileID: 2100000, guid: 910e7be68587c8f4080907796d27f780, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: None_flagboxAO.png
+    second: {fileID: 2100000, guid: 5842fe8339742cc4da4adda908482a00, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SubGuns_SubGuns.png
+    second: {fileID: 2100000, guid: c5ccd3a50f651ad40ad483b408ee4247, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: antennas_Antennas.png
+    second: {fileID: 2100000, guid: 401d7105056991749b0e1822c765f8a8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: barrels_Barrels.png
+    second: {fileID: 2100000, guid: 4ae83d1fa08f40e4e84dd3a037aad2f9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: bridge_Bridge.png
+    second: {fileID: 2100000, guid: 77c87cc27ad0dd643b98c435f5be7767, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: doubleHatch_Hatch.png
+    second: {fileID: 2100000, guid: d32e33b0d0f842a4fabfd3562f160e45, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: flagBox_flagbox.png
+    second: {fileID: 2100000, guid: d4494e7f931200f4ebac62fd2f43391a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: glass_glass.png
+    second: {fileID: 2100000, guid: 15fd87b044e3bf84d8d044e1c15b9f3e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: handRails_HandRails.png
+    second: {fileID: 2100000, guid: b8de995b61b432347a91c5d0d4e544f3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: handrail_Handrail1.png
+    second: {fileID: 2100000, guid: 17d98bfb865d8b74db164fb40683d482, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: net_Net.png
+    second: {fileID: 2100000, guid: f19e68b68fb43334c8f286f0f5a4fe11, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: null
+    second: {fileID: 2100000, guid: 812b81a878c12c4489de2eb23a715be6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: others_Others.png
+    second: {fileID: 2100000, guid: 1c72e05506b073a4c8c19079db6a91bd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: radar_radar.png
+    second: {fileID: 2100000, guid: a305578f3362a8f4e85372f4093b2661, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: rocket4Launcher_Rocket4Luncher.png
+    second: {fileID: 2100000, guid: 7fdf4f61adcec4540a9351f11f895bcd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: roundAntennas_Antennas.png
+    second: {fileID: 2100000, guid: d82889561d8d5424180db838941dba8b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: singleHatch_SingleHatch.png
+    second: {fileID: 2100000, guid: 24339433e146c6b48938d25d32fdb1c8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sphericalTanks_SphericalTanks.png
+    second: {fileID: 2100000, guid: 859c167f1e15e904392366116009ee46, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: vls
+    second: {fileID: 2100000, guid: 33c77e976dd69f640be4bd92c50fd4d0, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  importBlendShapeDeformPercent: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
