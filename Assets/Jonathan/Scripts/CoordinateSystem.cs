@@ -11,7 +11,7 @@ public abstract class CoordinateSystemBase {
     public virtual int s { get; set; } = 0;
 }
 
-public class Spiral : CoordinateSystemBase  {
+public class Spiral : CoordinateSystemBase {
     public override int index { get; set; }
 
     public Spiral(int index) {
@@ -25,9 +25,10 @@ public class Spiral : CoordinateSystemBase  {
     public static Spiral FromPolar(Polar polar) {
         int layer = polar.layer;
         int position = polar.position;
-        int index = 3 * layer * (layer - 1) + 1 + position;
 
-        return new Spiral(index);
+        if (layer == 0) return new Spiral(0);
+
+        return new Spiral(3 * layer * (layer - 1) + 1 + position);
     }
 
     public static Spiral FromCube(Cube cube) {
@@ -39,7 +40,7 @@ public class Polar : CoordinateSystemBase {
     public override int layer { get; set; }
     public override int position { get; set; }
 
-    public Polar(int layer, int position) {
+    public Polar(int layer, int position)  {
         this.layer = layer;
         this.position = position;
     }
@@ -48,7 +49,7 @@ public class Polar : CoordinateSystemBase {
         if (spiral.index == 0) return new Polar(0, 0);
         
         int index = spiral.index;
-        int layer = (int) Mathf.Floor((3 + Mathf.Sqrt(12 * index - 3)) / 6);
+        int layer = (int) Mathf.Floor((3f + Mathf.Sqrt(12f * index - 3f)) / 6f);
         int position = index - 3 * layer * (layer - 1) - 1;
 
         return new Polar(layer, position);
@@ -69,12 +70,11 @@ public class Polar : CoordinateSystemBase {
         else if (y >= 0 && z >= 0) { p = 4 * layer + y; }
         else if (x < 0 && z < 0) { p = 5 * layer - z; }
 
-        return new Polar(layer, Polar.Mod(((3 * (layer - 1)) + 2) - p, layer * 6));
+        return new Polar(layer, CoordinateSystem.Mod(((3 * (layer - 1)) + 2) - p, layer * 6));
     }
 
-    public static int Mod(int x, int y) {
-        if (y == 0) { return 0; }
-        return ((x % y) + y) % y;
+    public int ToIndex() {
+        return Spiral.FromPolar(new Polar(layer, position)).index;
     }
 }
 
@@ -112,11 +112,13 @@ public class Cube : CoordinateSystemBase {
     }
 
     public static Cube FromPolar(Polar polar) {
+        if (polar.layer == 0) return new Cube(0, 0, 0);
+
         int layer = polar.layer;
         int position = polar.position;
         
-        int k = Polar.Mod((int) Mathf.Floor(position / layer), 6);
-        int j = Polar.Mod(position, layer);
+        int k = CoordinateSystem.Mod((int) Mathf.Floor(position / layer), 6);
+        int j = CoordinateSystem.Mod(position, layer);
 
         int x = 0, y = 0, z = 0;
 
@@ -182,6 +184,12 @@ public class CoordinateSystem : CoordinateSystemBase {
     private Polar polar;
     private Cube cube;
 
+    public CoordinateSystem(int i) {
+        this.spiral = new Spiral(i);
+        this.polar = Polar.FromSpiral(spiral);
+        this.cube = Cube.FromSpiral(spiral);
+    }
+
     public CoordinateSystem(Spiral spiral) {
         this.spiral = spiral;
         this.polar = Polar.FromSpiral(spiral);
@@ -209,5 +217,10 @@ public class CoordinateSystem : CoordinateSystemBase {
 
     public bool Equals(CoordinateSystem other) {
         return this.index == other.index;
+    }
+
+    public static int Mod(int x, int y) {
+        if (y == 0) { return 0; }
+        return ((x % y) + y) % y;
     }
 }

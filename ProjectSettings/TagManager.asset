@@ -3,24 +3,25 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Ship
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Terrain
   - Water
   - UI
-  - 
+  - ShipDefault
   - Outline
+  - Highlight
+  - 
+  - PlayerHex
+  - EnemyHex
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Clouds
   - 
   - 
   - 

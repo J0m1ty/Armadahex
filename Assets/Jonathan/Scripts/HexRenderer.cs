@@ -17,6 +17,7 @@ public class HexRenderer : MonoBehaviour
 
     [Header("Map Integration")]
     public GridUnit gridRef;
+    public HexGrid hexMap;
 
     private void Awake() {
         meshFilter = GetComponent<MeshFilter>();
@@ -46,8 +47,8 @@ public class HexRenderer : MonoBehaviour
             vertices.Add(vertex);
 
             triangles.Add(0);
-            triangles.Add(Polar.Mod(i, 6) + 1);
-            triangles.Add(Polar.Mod(i + 1, 6) + 1);
+            triangles.Add(CoordinateSystem.Mod(i, 6) + 1);
+            triangles.Add(CoordinateSystem.Mod(i + 1, 6) + 1);
         }
 
         triangles.Reverse();
@@ -63,5 +64,13 @@ public class HexRenderer : MonoBehaviour
     private Vector3 GetVertex(int i) {
         float angle = Mathf.Deg2Rad * (60 * i - (isFlatTopped ? 0 : 30));
         return new Vector3(size * Mathf.Cos(angle), 0, size * Mathf.Sin(angle));
+    }
+
+    public Vector3[] GetVerticesInWorld() {
+        Vector3[] vertices = new Vector3[6];
+        for (int i = 0; i < 6; i++) {
+            vertices[i] = transform.TransformPoint(GetVertex(i));
+        }
+        return vertices;
     }
 }
