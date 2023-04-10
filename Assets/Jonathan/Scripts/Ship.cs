@@ -11,6 +11,13 @@ public enum Rotation {
 }
 
 [Serializable]
+public enum IndexRotation {
+    One = 0,
+    Two = 1,
+    Three = 2,
+}
+
+[Serializable]
 public class AttackDirection {
     public Rotation rotation;
     public bool reverse;
@@ -114,8 +121,9 @@ public class Ship : MonoBehaviour
 
     // Data
     public GridUnit gridRef;
+    public ShipInternals internals;
 
-    void Start() {
+    public void EnableShip() {
         if (segments.Length != shipModel.length) {
             LoadSegments();
         }
@@ -129,7 +137,13 @@ public class Ship : MonoBehaviour
             };
         }
 
-        transform.name = shipModel.name;
+        transform.name = (team.isPlayer ? "Player" : "Enemy") + " " + shipModel.name;
+
+        transform.parent = team.teamBase.transform;
+
+        internals = GetComponentInChildren<ShipInternals>();
+
+        UpdateVisibility();
     }
 
     public void LoadSegments() {
@@ -137,24 +151,7 @@ public class Ship : MonoBehaviour
 
         foreach (var segment in segments) {
             segment.parent = this;
-        }
-    }
-
-    public void UpdateStatus() {
-        // check if ship is dead
-        var alive = false;
-        for (int i = 0; i < segments.Length; i++) {
-            if (segments[i].isAlive) {
-                alive = true;
-            }
-        }
-        
-        if (!alive) {
-            // destroy ship
-            Destroy(gameObject);
-
-            // TODO: add death animation
-            // clear fog of war
+            segment.isAlive = true;
         }
     }
 
@@ -162,7 +159,7 @@ public class Ship : MonoBehaviour
         if (segments.Length != shipModel.length) {
             LoadSegments();
         }
-
+  
         gridRef = grid;
 
         var hex = gridRef.hexRenderer;
@@ -182,11 +179,45 @@ public class Ship : MonoBehaviour
                 valid = false;
                 break;
             }
+        }
 
-            segment.gridRef = closestTo;
-            closestTo.shipSegment = segment;
+        if (valid) {
+            foreach (var segment in segments) {
+                var closestTo = hex.hexMap.ClosestTo(segment.transform.position, out float dist);
+
+                segment.gridRef = closestTo;
+                closestTo.shipSegment = segment;
+            }
         }
 
         return valid;
+    }
+
+    public void UpdateVisibility() {
+        // in order to be hidden, the ship must not be a player ship, and must not have any alive segments
+        var hidden = !isPlayer;
+        var destroyed = !isAlive;
+
+        if (internals == null) {
+            return;
+        }
+        
+        internals.shipMesh.SetActive(false);
+        internals.sunkMesh.SetActive(false);
+        
+        if (destroyed) {
+            internals.sunkMesh.SetActive(true);
+            
+            foreach (var segment in segments) {
+                segment.isAlive = false;
+
+                segment.gridRef.hexRenderer.ClearFog();
+
+                segment.gridRef.hexRenderer.DisableFlames();
+            }
+
+        } else if (!destroyed && !hidden) {
+            internals.shipMesh.SetActive(true);
+        }
     }
 }

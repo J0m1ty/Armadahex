@@ -14,7 +14,8 @@ public class AttackUIManager : MonoBehaviour
         SelectTarget,
         SelectAttackOption,
         SelectAttackPattern,
-        Confirm
+        Confirm,
+        AttackOver
     }
     
     public AttackState attackState;
@@ -56,19 +57,8 @@ public class AttackUIManager : MonoBehaviour
     public TMP_Text infoText;
     public Button cancelButton;
 
-    void Start() {
+    void Awake() {
         selector = GetComponent<Selector>();
-
-        TurnManager.instance.OnTurnChange += ChangeTurn;
-    }
-
-    public void ChangeTurn(Team team) {
-        if (team.isPlayer) {
-            SetState(AttackState.SelectShip);
-        }
-        else {
-            SetState(AttackState.None);
-        }
     }
 
     public void SetState(AttackState state) {
@@ -82,8 +72,11 @@ public class AttackUIManager : MonoBehaviour
             attackPatternsUI.SetActive(false);
             confirmUI.SetActive(false);
         }
-        selector.allowSelectingGrids = false;
-        selector.allowSelectingShips = false;
+
+        if (state != AttackState.None) {
+            selector.allowSelectingGrids = false;
+            selector.allowSelectingShips = false;
+        }
 
         switch (state) {
             case AttackState.SelectShip:
@@ -109,6 +102,8 @@ public class AttackUIManager : MonoBehaviour
                 break;
             case AttackState.Confirm:
                 confirmUI.SetActive(true);
+                break;
+            case AttackState.AttackOver:
                 break;
             default:
                 break;
@@ -160,13 +155,17 @@ public class AttackUIManager : MonoBehaviour
     }
     
     public void GenerateAttackOptions() {
-        selectedShipText.text = selectedShip.name + " selected : choose weapon";
+        selectedShipText.text = selectedShip.shipModel.name + " selected : choose weapon";
 
         foreach (Transform child in optionsParent.transform) {
             Destroy(child.gameObject);
         }
 
         foreach (Attack attack in selectedShip.attacks) {
+            if (attack.ammoLeft <= 0 && !attack.info.unlimited) {
+                continue;
+            }
+
             GameObject option = Instantiate(optionPrefab, optionsParent.transform);
             option.GetComponentInChildren<TMP_Text>().text = attack.info.name;
             option.GetComponent<Button>().onClick.AddListener(() => SelectAttackOption(attack));
@@ -225,18 +224,91 @@ public class AttackUIManager : MonoBehaviour
     public void ConfirmAttack() {
         if (attackState == AttackState.Confirm) {
             // do and show the attach, then end turn
+
+            // if the attack is not unlimited, remove ammo
+            if (!selectedOption.info.unlimited) {
+                selectedOption.ammoLeft--;
+            }
+
+            // calculate each hex that will be hit
+            List<HexRenderer> targets = new List<HexRenderer>();
+            if (selectedPattern == null) {
+                targets.Add(selectedTarget.hexRenderer);
+            }
+            else {
+                if (selectedPattern.attackCenter) {
+                    targets.Add(selectedTarget.hexRenderer);
+                }
+
+                foreach (AttackDirection direction in selectedPattern.directions) {
+                    var origin = selectedTarget;
+
+                    if (selectedPattern.doOffset) {
+                        // go back until we reach get null from .GetNeighbor
+                        while (true) {
+                            var next = origin.GetNeighbor(Convert(direction.rotation, !direction.reverse));
+                            if (next != null) {
+                                origin = next;
+                            }
+                            else {
+                                break;
+                            }
+                        }
+                    }
+                    
+                    var n = 0;
+                    while (true) {
+                        origin = origin.GetNeighbor(Convert(direction.rotation, direction.reverse));
+                        
+                        if (origin != null) {
+                            targets.Add(origin.hexRenderer);
+                        }
+                        else {
+                            break;
+                        }
+
+                        if (!direction.noRange && ++n >= direction.length) {
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            for (int i = 0; i < targets.Count; i++) {
+                var target = targets[i];
+                
+                if (target.gridRef.shipSegment == null) {
+                    target.ClearFog();
+                    OnAttack?.Invoke(false);
+                }
+                else if (target.gridRef.shipSegment.isAlive) {
+                    target.EnableFlames();
+                    target.gridRef.shipSegment.Destroy();
+                    OnAttack?.Invoke(true);
+                }
+            }
+
+            SetState(AttackState.AttackOver);
         }
     }
+
+    public delegate void AttackEvent(bool hit);
+
+    public event AttackEvent OnAttack;
 
     public void GoBackToAttackPattern() {
         if (attackState == AttackState.Confirm) {
             selectedPattern = null;
-
-            // go back further if there is only one attack option
+            
             SetState(AttackState.SelectAttackPattern);
 
-            if (selectedOption.info.options.Length == 1 || selectedOption.info.options.Length == 0) {
+            // go back further if there is only one or no attack options
+            // or if the current attack option has no ammo left
+            if (selectedOption.info.options.Length == 1 || selectedOption.info.options.Length == 0 || (selectedOption.ammoLeft <= 0 && !selectedOption.info.unlimited)) {
                 GoBackToAttackOption();
+            }
+            else {
+                GenerateAttackPatterns();
             }
         }
     }
@@ -247,17 +319,26 @@ public class AttackUIManager : MonoBehaviour
 
             SetState(AttackState.SelectAttackOption);
 
-            // go back further if there is only one attack option
-            if (selectedShip.attacks.Length == 1) {
+            // go back further if there is only one or none attack option
+            if (selectedShip.remainingAttacks.Length == 1) {
                 GoBackToTarget();
+            }
+            else {
+                GenerateAttackOptions();
             }
         }
     }
 
     public void GoBackToTarget() {
         if (attackState == AttackState.SelectAttackOption) {
-            SetState(AttackState.SelectTarget);
             selectedTarget = null;
+
+            SetState(AttackState.SelectTarget);
+
+            // go back further if the ship is out of ammo completely
+            if (selectedShip.remainingAttacks.Length == 0) {
+                GoBackToSelection();
+            }
         }
     }
 
@@ -266,5 +347,29 @@ public class AttackUIManager : MonoBehaviour
             SetState(AttackState.SelectShip);
             selectedShip = null;
         }
+    }
+
+    public static int Convert(Rotation r, bool reverse) {
+        var num = 0;
+
+        switch (r) {
+            case Rotation.One:
+                num = 0;
+                break;
+            case Rotation.Two:
+                num = 1;
+                break;
+            case Rotation.Three:    
+                num = 2;
+                break;
+            default:
+                break;
+        }
+
+        if (reverse) {
+            num += 3;
+        }
+
+        return num;
     }
 }

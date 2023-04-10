@@ -15,7 +15,7 @@ TagManager:
   - ShipDefault
   - Outline
   - Highlight
-  - 
+  - VFX
   - PlayerHex
   - EnemyHex
   - 
@@ -41,4 +41,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Fog
+    uniqueID: 1296566717
     locked: 0

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VFX;
 
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
@@ -18,6 +19,27 @@ public class HexRenderer : MonoBehaviour
     [Header("Map Integration")]
     public GridUnit gridRef;
     public HexGrid hexMap;
+    public CoordinateSystem coords {
+        get { return gridRef.coords; }
+        set {
+            q = value.q;
+            r = value.r;
+            s = value.s;
+            layer = value.layer;
+            position = value.position;
+            index =value.index;
+        }
+    }
+    public int q;
+    public int r;
+    public int s;
+    public int layer;
+    public int position;
+    public int index;
+
+    [Header("VFX Integration")]
+    public ParticleSystem fogEffect;
+    public FlameMaker fire;
 
     private void Awake() {
         meshFilter = GetComponent<MeshFilter>();
@@ -31,9 +53,40 @@ public class HexRenderer : MonoBehaviour
         SetMaterial(material ?? new Material(Shader.Find("Universal Render Pipeline/Lit")));
     }
 
+    void Start() {
+        fogEffect = GetComponentInChildren<ParticleSystem>();
+    }
+
     public void SetMaterial(Material material) {
         this.material = material;
         meshRenderer.material = material;
+    }
+
+    public void ClearFog() {
+        if (!fogEffect) return;
+        
+        var emission = fogEffect.emission;
+        emission.rateOverTime  = 0;
+
+        // increase speed of all particles
+        var main = fogEffect.main;
+        main.simulationSpeed = 10;
+
+        // start coroutine to turn off fog
+        StartCoroutine(TurnOffFog());
+    }
+
+    public void EnableFlames() {
+        fire.EnableFlames();
+    }
+
+    public void DisableFlames() {
+        fire.DisableFlames();
+    }
+    
+    public IEnumerator TurnOffFog() {
+        yield return new WaitForSeconds(3);
+        fogEffect.gameObject.SetActive(false);
     }
 
     public void GenerateMesh() {

@@ -6,6 +6,9 @@ using MyBox;
 
 [Serializable]
 public class HighlightInfo {
+    public GameObject hexHighlight;
+    [HideInInspector]
+    public HexBorder hexBorder;
     [Layer]
     public int layer;
     public Color color;
@@ -28,9 +31,6 @@ public class Selector : MonoBehaviour
 
     public Ship selectedShip;
 
-    public GameObject hexHighlight;
-    private HexBorder hexBorder;
-
     [MyBox.MustBeAssigned]
     public HighlightInfo friendly;
     [MyBox.MustBeAssigned]
@@ -46,13 +46,15 @@ public class Selector : MonoBehaviour
     private AttackUIManager attackUIManager;
 
     void Awake() {
-        hexBorder = hexHighlight.GetComponent<HexBorder>();
+        friendly.hexBorder = friendly.hexHighlight.GetComponent<HexBorder>();
+        enemy.hexBorder = enemy.hexHighlight.GetComponent<HexBorder>();
         attackUIManager = GetComponent<AttackUIManager>();
     }
 
     void Start()
     {
-        hexHighlight.SetActive(false);
+        friendly.hexHighlight.SetActive(false);
+        enemy.hexHighlight.SetActive(false);
         
         lockedIn = false;
         lastMovedFrames = 0;
@@ -60,14 +62,28 @@ public class Selector : MonoBehaviour
     }
 
     public void SetTeam(Team team) {
+        if (selectedShip != null) {
+            SetLayerAllChildren(selectedShip.transform, outlineLayer, shipLayer);
+        }
+
+        if (lockedIn) {
+            lockedIn = false;
+            current.hexBorder.SetColor(current.color);
+            current.hexBorder.SetHeight(current.height);
+        }
+
+        friendly.hexHighlight.SetActive(false);
+        enemy.hexHighlight.SetActive(false);
+
         if (team.isPlayer) {
             current = friendly;
         } else {
             current = enemy;
         }
 
-        hexBorder.SetColor(current.color);
-        hexBorder.SetHeight(current.height);
+        current.hexBorder.SetColor(current.color);
+        current.hexBorder.SetHeight(current.height);
+        current.hexBorder.hexGrid = team.teamBase.hexMap;
     }
 
     void Update()
@@ -79,6 +95,14 @@ public class Selector : MonoBehaviour
         } else {
             lastMovedFrames++;
         }
+        
+        if (current == null) {
+            return;
+        }
+
+        Debug.Log("Current team: " + TurnManager.instance.currentTeam.teamType);
+
+        Debug.Log("Allowing selecting grids: " + allowSelectingGrids);
         
         if (allowSelectingGrids) {
             SelectGrids();
@@ -95,15 +119,15 @@ public class Selector : MonoBehaviour
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 1000, 1 << current.layer)) {
                 var hex = hit.transform.GetComponent<HexRenderer>();
 
-                hexHighlight.SetActive(true);
-                hexHighlight.transform.position = hex.transform.position;
+                current.hexHighlight.SetActive(true);
+                current.hexHighlight.transform.position = hex.transform.position;
             } else {
-                hexHighlight.SetActive(false);
+                current.hexHighlight.SetActive(false);
             }
         }
         
         if (Input.GetMouseButtonDown(0)) {
-            if (hexHighlight.activeSelf) {
+            if (current.hexHighlight.activeSelf) {
                 RaycastHit hit;
                 HexRenderer hex = null;
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 1000, 1 << current.layer)) {
@@ -112,19 +136,19 @@ public class Selector : MonoBehaviour
                     attackUIManager.SelectTarget(hex.gridRef);
                 }
 
-                // if (lockedIn) {
-                //     if (hex == lockedInGrid) {
-                //         lockedIn = false;
-                //         hexBorder.SetColor(current.color);
-                //         hexBorder.SetHeight(current.height);
-                //     }
-                // } else {
-                //     if (current.allowedToLockIn) {
-                //         lockedIn = true;
-                //         hexBorder.SetColor(current.lockedInColor);
-                //         lockedInGrid = hex;
-                //     }
-                // }
+                if (lockedIn) {
+                    if (hex == lockedInGrid) {
+                        lockedIn = false;
+                        current.hexBorder.SetColor(current.color);
+                        current.hexBorder.SetHeight(current.height);
+                    }
+                } else {
+                    if (current.allowedToLockIn) {
+                        lockedIn = true;
+                        current.hexBorder.SetColor(current.lockedInColor);
+                        lockedInGrid = hex;
+                    }
+                }
             }
         }
     }
@@ -142,15 +166,15 @@ public class Selector : MonoBehaviour
 
                 if (ship != selectedShip) {
                     if (selectedShip != null) {
-                        SetLayerAllChildren(selectedShip.transform, shipLayer);
+                        SetLayerAllChildren(selectedShip.transform, outlineLayer, shipLayer);
                     }
 
                     selectedShip = ship;
-                    SetLayerAllChildren(selectedShip.transform, outlineLayer);
+                    SetLayerAllChildren(selectedShip.transform, shipLayer, outlineLayer);
                 }
             } else {
                 if (selectedShip != null) {
-                    SetLayerAllChildren(selectedShip.transform, shipLayer);
+                    SetLayerAllChildren(selectedShip.transform, outlineLayer, shipLayer);
                     selectedShip = null;
                 }
             }
@@ -164,10 +188,12 @@ public class Selector : MonoBehaviour
     }
 
     // from https://forum.unity.com/threads/help-with-layer-change-in-all-children.779147/
-    public void SetLayerAllChildren(Transform root, int layer) {
+    public void SetLayerAllChildren(Transform root, int from, int layer) {
         var children = root.GetComponentsInChildren<Transform>(includeInactive: true);
         foreach (var child in children) {
-            child.gameObject.layer = layer;
+            if (child.gameObject.layer == from) {
+                child.gameObject.layer = layer;
+            }
         }
     }
 }

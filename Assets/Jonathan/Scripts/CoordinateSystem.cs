@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public abstract class CoordinateSystemBase {
     public virtual int index { get; set; } = 0;
@@ -11,6 +12,7 @@ public abstract class CoordinateSystemBase {
     public virtual int s { get; set; } = 0;
 }
 
+[Serializable]
 public class Spiral : CoordinateSystemBase {
     public override int index { get; set; }
 
@@ -36,6 +38,7 @@ public class Spiral : CoordinateSystemBase {
     }
 }
 
+[Serializable]
 public class Polar : CoordinateSystemBase {
     public override int layer { get; set; }
     public override int position { get; set; }
@@ -78,6 +81,7 @@ public class Polar : CoordinateSystemBase {
     }
 }
 
+[Serializable]
 public class Cube : CoordinateSystemBase {
     public override int q { get; set; }
     public override int r { get; set; }
@@ -115,9 +119,9 @@ public class Cube : CoordinateSystemBase {
         if (polar.layer == 0) return new Cube(0, 0, 0);
 
         int layer = polar.layer;
-        int position = polar.position;
+        int position = polar.position - (layer - 1);
         
-        int k = CoordinateSystem.Mod((int) Mathf.Floor(position / layer), 6);
+        int k = CoordinateSystem.Mod(Mathf.FloorToInt((float)position / (float)layer), 6);
         int j = CoordinateSystem.Mod(position, layer);
 
         int x = 0, y = 0, z = 0;
@@ -155,7 +159,7 @@ public class Cube : CoordinateSystemBase {
                 break;
         }
 
-        return new Cube(x, y, z);
+        return new Cube(-z, -y, -x);
     }
 
     public static Cube Round(Frac frac) {
@@ -206,6 +210,19 @@ public class CoordinateSystem : CoordinateSystemBase {
         this.spiral = Spiral.FromCube(cube);
         this.polar = Polar.FromCube(cube);
         this.cube = cube;
+    }
+
+    public CoordinateSystem GetNeighbor(int direction) {
+        var directionVectors = new Cube[6]{
+            new Cube(1, -1, 0),
+            new Cube(1, 0, -1),
+            new Cube(0, 1, -1),
+            new Cube(-1, 1, 0),
+            new Cube(-1, 0, 1),
+            new Cube(0, -1, 1)
+        };
+        
+        return new CoordinateSystem(new Cube(cube.q + directionVectors[direction].q, cube.r + directionVectors[direction].r, cube.s + directionVectors[direction].s));
     }
 
     public override int index { get { return spiral.index; } }

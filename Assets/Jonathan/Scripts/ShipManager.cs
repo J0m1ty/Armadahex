@@ -11,10 +11,18 @@ public class ShipManager : MonoBehaviour
 
     public List<Rotation> rotations;
 
+    public List<Ship> ships;
+
+    public List<Ship> playerShips => ships.FindAll(s => s.team == TurnManager.instance.playerTeam);
+    
+    public List<Ship> enemyShips => ships.FindAll(s => s.team != TurnManager.instance.playerTeam);
+
     private void GenerateShip(ShipModel model, Team team) {
         var obj = Instantiate(model.shipPrefab, transform) as GameObject;
 
         var ship = obj.GetComponent<Ship>();
+        
+        ships.Add(ship);
 
         ship.shipModel = model;
         ship.team = team;
@@ -53,6 +61,12 @@ public class ShipManager : MonoBehaviour
     public void GenerateShips(Team team) {
         foreach (var ship in shipBlueprints) {
             GenerateShip(ship, team);
+        }
+    }
+
+    public void EnableShips() {
+        foreach (var ship in ships) {
+            ship.EnableShip();
         }
     }
 }

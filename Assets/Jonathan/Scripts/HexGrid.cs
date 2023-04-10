@@ -20,6 +20,10 @@ public class GridUnit {
 
         hexRenderer.gridRef = this;
     }
+
+    public GridUnit GetNeighbor(int dir, bool reverse = false) {
+        return hexRenderer.hexMap.FromCoordinatesBrute(coords.GetNeighbor(dir));
+    }
 }
 
 public class HexGrid : MonoBehaviour
@@ -53,6 +57,22 @@ public class HexGrid : MonoBehaviour
 
     [Header("Team Integration")]
     public TeamBase teamBase;
+
+    [Header("VFX Integration")]
+    public bool useFog;
+    [ConditionalField("useFog", false, true)]
+    public MinMaxFloat fogHeight;
+    [ConditionalField("useFog", false, true)]
+    public GameObject fogPrefab;
+    public bool useFlames;
+    [ConditionalField("useFlames", false, true)]
+    public int flameCount;
+    [ConditionalField("useFlames", false, true)]
+    public GameObject flamePrefab;
+    [ConditionalField("useFlames", false, true)]
+    public int flameHeight;
+    [ConditionalField("useFlames", false, true)]
+    public MinMaxFloat fireSize;
 
     private void Awake() {
         Generate();
@@ -146,7 +166,7 @@ public class HexGrid : MonoBehaviour
 
                 AddHex($"Hex {i}", i, new Vector3(drawPointer.x, 0f, drawPointer.y), r == gridRadius - 1);
 
-                float theta = direction * Mathf.PI / 3f + (isFlatTopped ? Mathf.PI / 6f : 0f);
+                float theta = (Mathf.PI * 2f) - (direction * Mathf.PI / 3f + (isFlatTopped ? Mathf.PI / 6f : 0f));
                 drawPointer.x += size * Mathf.Cos(theta) * Mathf.Sqrt(3);
                 drawPointer.y += size * Mathf.Sin(theta) * Mathf.Sqrt(3);
 
@@ -162,14 +182,28 @@ public class HexGrid : MonoBehaviour
         tile.transform.SetParent(transform, true);
         tile.transform.position = transform.position + position;
         tile.layer = layer;
+
+        if (useFog) {
+            var fog = Instantiate(fogPrefab, tile.transform);
+            fog.transform.localPosition = Vector3.zero + Vector3.up * (UnityEngine.Random.Range(fogHeight.Min, fogHeight.Max));
+            fog.transform.localRotation = Quaternion.identity * Quaternion.Euler(90f, 0f, 0f);
+            fog.transform.localScale = Vector3.one;
+        }
         
         HexRenderer hex = tile.GetComponent<HexRenderer>();
         var m = new Material(material);
-        m.color = Color.HSVToRGB(UnityEngine.Random.Range(0f, 1f), 1f, 1f);
+        hex.coords = new CoordinateSystem(new Spiral(index));
+
+        var cubeTest = new CoordinateSystem(new Cube(new CoordinateSystem(new Spiral(index)).q, new CoordinateSystem(new Spiral(index)).r, new CoordinateSystem(new Spiral(index)).s));
+        m.color = Color.Lerp(Color.red, Color.blue, cubeTest.index / 60f);
+
+        // m.color = Color.HSVToRGB(UnityEngine.Random.Range(0f, 1f), 1f, 1f);
+
         hex.SetMaterial(m);
         hex.size = size;
         hex.isFlatTopped = isFlatTopped;
         hex.hexMap = this;
+        hex.fire = tile.AddComponent<FlameMaker>();
         hex.GenerateMesh();
 
         MeshCollider meshCollider = tile.AddComponent<MeshCollider>();
@@ -219,6 +253,11 @@ public class HexGrid : MonoBehaviour
 
         return hexes[coords.index];
     }
+    
+    public GridUnit FromCoordinatesBrute(CoordinateSystem coords) {
+        return hexes.Find(hex => hex.coords.index == coords.index);
+    }
+
 
     public GridUnit FromPosition(Vector3 position) {
         return hexes.Find(hex => hex.hexRenderer.transform.position == position);

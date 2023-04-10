@@ -36,9 +36,17 @@ public class TeamManager : MonoBehaviour {
     }
 
     void Start() {
+        Debug.Log("Generating random terrain");
         GenerateTerrain();
+        Debug.Log("Generating random ships");
         GenerateShips();
+        Debug.Log("Loading teams");
         TurnManager.instance.LoadTeams(teams);
+        Debug.Log("Randomizing teams");
+        TurnManager.instance.RandomizeTeams();
+        Debug.Log("Enabiling ships");
+        shipManager.EnableShips();
+        Debug.Log("Setting turn");
         TurnManager.instance.SetTurn(TurnManager.instance.playerTeam);
     }
 

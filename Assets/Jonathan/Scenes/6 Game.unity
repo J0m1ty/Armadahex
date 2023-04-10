@@ -487,11 +487,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 35338129}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -2000, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2097605040}
+  m_Father: {fileID: 2142142762}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &35338131
@@ -508,7 +508,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   borderMaterial: {fileID: 2100000, guid: 0f9ac4718799f564fb1e303975f9b1e1, type: 2}
   height: 10
-  hexGrid: {fileID: 563923219}
+  hexGrid: {fileID: 895064671}
 --- !u!23 &35338132
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -948,6 +948,7 @@ GameObject:
   - component: {fileID: 224746698}
   - component: {fileID: 224746697}
   - component: {fileID: 224746699}
+  - component: {fileID: 224746700}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1234,6 +1235,7 @@ MonoBehaviour:
         isInstant: 0
       isAllowed: 0
   rotations: 000000003c000000c4ffffff
+  ships: []
 --- !u!4 &224746696
 Transform:
   m_ObjectHideFlags: 0
@@ -1302,7 +1304,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af217d35b273d3446a448c889140d8ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackManager: {fileID: 1007787192}
   cameraRig: {fileID: 2115144128}
+--- !u!114 &224746700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 224746694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60ac051ce192f5743952b3281b87c81a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackManager: {fileID: 1007787192}
 --- !u!1 &228263551
 GameObject:
   m_ObjectHideFlags: 0
@@ -1885,6 +1901,18 @@ MonoBehaviour:
     isEdge: 0
     preventShips: 0
   teamBase: {fileID: 0}
+  useFog: 0
+  fogHeight:
+    Min: 0
+    Max: 0
+  fogPrefab: {fileID: 3513207802703692830, guid: 1e3da4ca8e0c9f54cb8d07b71e621c58, type: 3}
+  useFlames: 0
+  flameCount: 0
+  flamePrefab: {fileID: 0}
+  flameHeight: 0
+  fireSize:
+    Min: 0
+    Max: 0
 --- !u!1 &574121440
 GameObject:
   m_ObjectHideFlags: 0
@@ -2086,6 +2114,105 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 604732334}
   m_CullTransparentMesh: 1
+--- !u!1 &732198080
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 732198081}
+  - component: {fileID: 732198084}
+  - component: {fileID: 732198083}
+  - component: {fileID: 732198082}
+  m_Layer: 8
+  m_Name: Highlighted
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &732198081
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 732198080}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1095367284}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &732198082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 732198080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8d311eca56e8ec4bb8b6646ed47390c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  borderMaterial: {fileID: 2100000, guid: 0f9ac4718799f564fb1e303975f9b1e1, type: 2}
+  height: 10
+  hexGrid: {fileID: 563923219}
+--- !u!23 &732198083
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 732198080}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &732198084
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 732198080}
+  m_Mesh: {fileID: 0}
 --- !u!1 &812669184
 GameObject:
   m_ObjectHideFlags: 0
@@ -2654,6 +2781,18 @@ MonoBehaviour:
     isEdge: 0
     preventShips: 0
   teamBase: {fileID: 0}
+  useFog: 1
+  fogHeight:
+    Min: 7
+    Max: 7
+  fogPrefab: {fileID: 1992851727522141621, guid: a79707d6d84c4974395e8b22c7f456d9, type: 3}
+  useFlames: 1
+  flameCount: 3
+  flamePrefab: {fileID: 2910044951922928334, guid: 1c841e2174b46984c86d7de08c01e3ce, type: 3}
+  flameHeight: 12
+  fireSize:
+    Min: 25
+    Max: 35
 --- !u!1 &1007787190
 GameObject:
   m_ObjectHideFlags: 0
@@ -2739,8 +2878,9 @@ MonoBehaviour:
   shipLayer: 6
   outlineLayer: 7
   selectedShip: {fileID: 0}
-  hexHighlight: {fileID: 35338129}
   friendly:
+    hexHighlight: {fileID: 732198080}
+    hexBorder: {fileID: 0}
     layer: 10
     color: {r: 1, g: 0.48748046, b: 0, a: 0}
     height: 5
@@ -2748,9 +2888,11 @@ MonoBehaviour:
     lockedInHeight: 0
     allowedToLockIn: 0
   enemy:
+    hexHighlight: {fileID: 35338129}
+    hexBorder: {fileID: 0}
     layer: 11
     color: {r: 0, g: 0.12209177, b: 1, a: 0}
-    height: 15
+    height: 30
     lockedInColor: {r: 1, g: 0, b: 0, a: 0}
     lockedInHeight: 0
     allowedToLockIn: 1
@@ -2766,7 +2908,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e2ff3218ced38e4cb46d7dd82a6ec1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showUI: 1
+  showUI: 0
   pregameUI: {fileID: 1856084829}
   position: {x: 2160, y: 0}
   gotoPosition: {x: 0, y: 0}
@@ -2890,6 +3032,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 732198081}
   - {fileID: 563923218}
   - {fileID: 221873464}
   m_Father: {fileID: 2097605040}
@@ -2913,7 +3056,7 @@ MonoBehaviour:
   team:
     teamType: 0
     teamBase: {fileID: 0}
-    isPlayer: 0
+    isPlayer: 1
 --- !u!1 &1117273355
 GameObject:
   m_ObjectHideFlags: 0
@@ -5755,7 +5898,6 @@ Transform:
   - {fileID: 9732568}
   - {fileID: 1095367284}
   - {fileID: 2142142762}
-  - {fileID: 35338130}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -6244,6 +6386,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 35338130}
   - {fileID: 895064670}
   - {fileID: 134771632}
   m_Father: {fileID: 2097605040}
@@ -6265,7 +6408,7 @@ MonoBehaviour:
   terrainContainer: {fileID: 134771631}
   offset: {x: -500, y: -500}
   team:
-    teamType: 0
+    teamType: 1
     teamBase: {fileID: 0}
     isPlayer: 0
 --- !u!1 &2251230038440946709
