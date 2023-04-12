@@ -10,15 +10,12 @@ public class TurnManager : MonoBehaviour
     private List<Team> teams;
 
     public AttackUIManager attackManager;
+    public Selector selector;
 
-    private Team _currentTeam;
-    public Team currentTeam { 
-        get => _currentTeam;
-        private set {
-            _currentTeam = value;
-            OnTurnChange?.Invoke(value);
-        }
-    }
+    [SerializeField]
+    private TurnUIManager turnUI;
+    
+    public Team currentTeam;
     public Team otherTeam {
         get {
             if (currentTeam == null) {
@@ -28,7 +25,9 @@ public class TurnManager : MonoBehaviour
             return teams.Find(t => t != currentTeam);
         }
     }
+
     public Team playerTeam => teams.Find(t => t.isPlayer);
+    public Team enemyTeam => teams.Find(t => !t.isPlayer);
 
     public CameraController cameraRig;
 
@@ -36,8 +35,6 @@ public class TurnManager : MonoBehaviour
         instance = this;
 
         currentTeam = null;
-
-        attackManager.OnAttack += OnPlayerAttack;
     }
 
     public void LoadTeams(List<Team> teams) {
@@ -55,16 +52,18 @@ public class TurnManager : MonoBehaviour
         }
     }
     
-    public delegate void TurnChange(Team team);
+    public delegate void TurnEvent(Team newTeam);
 
-    public event TurnChange OnTurnChange;
+    public event TurnEvent OnTurnOver;
 
-    public void OnPlayerAttack(bool hit) {
+    public void TurnOver() {
         StartCoroutine(NextTurnAfterDelay(3f));
     }
 
     public void SetTurn(Team team) {
         currentTeam = team;
+        
+        turnUI.ChangeTurn(currentTeam);
 
         if (currentTeam.isPlayer) {
             OnPlayerTurn();
@@ -75,13 +74,14 @@ public class TurnManager : MonoBehaviour
 
     private void OnPlayerTurn() {
         attackManager.SetState(AttackUIManager.AttackState.SelectShip);
+        cameraRig.MoveTo(TurnManager.instance.playerTeam.teamBase.transform.position);
     }
 
     private void OnEnemyTurn() {
         attackManager.SetState(AttackUIManager.AttackState.None);
-        // selector.allowSelectingGrids = true;
-        // selector.allowSelectingShips = false;
-        // selector.SetTeam(TurnManager.instance.playerTeam);
+        selector.allowSelectingGrids = false;
+        selector.allowSelectingShips = false;
+        selector.SetTeam(TurnManager.instance.playerTeam);
         cameraRig.MoveTo(TurnManager.instance.playerTeam.teamBase.transform.position);
     }
 
@@ -94,6 +94,8 @@ public class TurnManager : MonoBehaviour
         }
 
         SetTurn(teams[index]);
+
+        OnTurnOver?.Invoke(currentTeam);
     }
 
     IEnumerator NextTurnAfterDelay(float delay) {

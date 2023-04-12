@@ -141,33 +141,44 @@ public class Matchmaker : MonoBehaviourPunCallbacks
         Debug.Log("Joined room");
         
         if (PhotonNetwork.CurrentRoom.PlayerCount != Constants.ROOM_NUM_EXPECTED_PLAYERS) {
-            Debug.Log("Waiting for other player");
-
             if (cancelAction) {
                 PhotonNetwork.LeaveRoom();
                 
                 Cancel();
-                return;
+            }
+            else {
+                Debug.Log("Waiting for other player");
+
+                PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
             }
         } else {
             stage = MatchmakingStage.Found;
 
             matchmakingText = "Match found!";
 
-            Debug.Log("Starting game");
+            Invoke("StartGame", 2f);
+        }
+    }
+    
+    public override void OnPlayerEnteredRoom(Player newPlayer) {
+        Debug.Log("Player joined room");
+
+        if (PhotonNetwork.CurrentRoom.PlayerCount == Constants.ROOM_NUM_EXPECTED_PLAYERS) {
+            stage = MatchmakingStage.Found;
+
+            matchmakingText = "Match found!";
             Invoke("StartGame", 2f);
         }
     }
 
     public override void OnJoinRandomFailed(short returnCode, string message) {
-        Debug.Log("Failed to join random room: " + message);
-
         if (message != "No match found") {
             Error("Matchmaking error: 1", 2.5f);
             return;
         }
 
         RoomOptions roomOptions = new RoomOptions();
+        
         roomOptions.CustomRoomPropertiesForLobby = new string[] { Constants.GAME_MODE_PROP_KEY };
         roomOptions.CustomRoomProperties = new Hashtable() {
             { Constants.GAME_MODE_PROP_KEY, gameMode.ToString() }
@@ -204,6 +215,17 @@ public class Matchmaker : MonoBehaviourPunCallbacks
 
         if (lifetime > 0) {
             Invoke("Cancel", lifetime);
+        }
+    }
+
+    private void StartGame() {
+        PhotonNetwork.AutomaticallySyncScene = true;
+        PhotonNetwork.QuickResends = 3;
+        PhotonNetwork.MaxResendsBeforeDisconnect = 7;
+        PhotonNetwork.CurrentRoom.IsVisible = false;
+        Debug.Log("Starting game");
+        if (PhotonNetwork.IsMasterClient) {
+            PhotonNetwork.LoadLevel("6 Game");
         }
     }
 }

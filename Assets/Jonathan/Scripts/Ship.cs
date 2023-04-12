@@ -66,6 +66,13 @@ public class Attack {
     public int ammoLeft;
 }
 
+public class NetworkingShip {
+    public string shipModelName;
+    public int teamTypeIndex;
+    public int rotation;
+    public bool reverse;
+    public int hexIndex;
+}
 
 [RequireComponent(typeof(CapsuleCollider))]
 public class Ship : MonoBehaviour

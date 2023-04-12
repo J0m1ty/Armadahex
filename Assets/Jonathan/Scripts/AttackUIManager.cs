@@ -21,6 +21,8 @@ public class AttackUIManager : MonoBehaviour
     public AttackState attackState;
     private Selector selector;
     public CameraController cameraRig;
+    [SerializeField]
+    private TeamManager teamManager;
 
     [Header("Error Text")]
     public TMP_Text errorText;
@@ -279,20 +281,35 @@ public class AttackUIManager : MonoBehaviour
                 
                 if (target.gridRef.shipSegment == null) {
                     target.ClearFog();
-                    OnAttack?.Invoke(false);
+                    OnAttack?.Invoke(TurnManager.instance.enemyTeam, false, target.coords.index);
                 }
                 else if (target.gridRef.shipSegment.isAlive) {
                     target.EnableFlames();
                     target.gridRef.shipSegment.Destroy();
-                    OnAttack?.Invoke(true);
+                    OnAttack?.Invoke(TurnManager.instance.enemyTeam, true, target.coords.index);
                 }
             }
 
             SetState(AttackState.AttackOver);
+            
+            TurnManager.instance.TurnOver();
         }
     }
 
-    public delegate void AttackEvent(bool hit);
+    public void GetAttackFromEnemy(TeamType target, int hexIndex) {
+        var targetTeam = TurnManager.instance.playerTeam;
+        var grid = targetTeam.teamBase.hexMap;
+        var hex = grid.FromCoordinates(new CoordinateSystem(hexIndex)).hexRenderer;
+        
+        if (hex.gridRef.shipSegment == null) {
+            
+        }
+        else if (hex.gridRef.shipSegment.isAlive) {
+            hex.gridRef.shipSegment.Destroy();
+        }
+    }
+
+    public delegate void AttackEvent(Team against, bool hit, int hexIndex);
 
     public event AttackEvent OnAttack;
 

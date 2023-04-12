@@ -15,13 +15,13 @@ public class TurnUIManager : MonoBehaviour
     public string playerTurnText = "Your Turn";
     public string enemyTurnText = "Enemy's Turn";
 
-    void Start() {
-        TurnManager.instance.OnTurnChange += ChangeTurn;
-
+    void Awake() {
         turnUIText = turnUI.GetComponentInChildren<TMP_Text>();
 
         turnUIText.alpha = 0f;
         turnUI.SetActive(false);
+
+        //TurnManager.instance.OnTurnOver += ChangeTurn;
     }
 
     public void ChangeTurn(Team team) {

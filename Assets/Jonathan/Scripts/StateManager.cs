@@ -65,7 +65,7 @@ public class StateManager : MonoBehaviour
             if (state.select != null) {
                 state.select.onClick.AddListener(() => {
                     SetState(state.name);
-                    Debug.Log("Clicked " + state.name);
+                    //Debug.Log("Clicked " + state.name);
                 });
             }
 

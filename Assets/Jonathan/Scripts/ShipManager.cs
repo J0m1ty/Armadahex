@@ -17,7 +17,14 @@ public class ShipManager : MonoBehaviour
     
     public List<Ship> enemyShips => ships.FindAll(s => s.team != TurnManager.instance.playerTeam);
 
-    private void GenerateShip(ShipModel model, Team team) {
+    private TeamManager teamManager;
+
+    void Awake() {
+        shipBlueprints.Sort((a, b) => a.name.CompareTo(b.name));
+        teamManager = GetComponent<TeamManager>();
+    }
+
+    private NetworkingShip GenerateShip(ShipModel model, Team team) {
         var obj = Instantiate(model.shipPrefab, transform) as GameObject;
 
         var ship = obj.GetComponent<Ship>();
@@ -31,39 +38,65 @@ public class ShipManager : MonoBehaviour
 
         var grid = team.teamBase.hexMap;
         
-        var attempts = 100;
-        while (attempts > 0) {
-            var hex = grid.hexes[Random.Range(0, grid.hexes.Count)];
+        var hex = grid.hexes[Random.Range(0, grid.hexes.Count)];
+        while (true) {
+            hex = grid.hexes[Random.Range(0, grid.hexes.Count)];
 
             ship.rotation = rotations[Random.Range(0, rotations.Count)];
             ship.reverse = Random.Range(0, 2) == 0;
             
-            var result = ship.SetOnGrid(hex);
+            if (ship.SetOnGrid(hex)) break;
+        }
 
-            if (result) {
-                break;
-            }
+        return new NetworkingShip {
+            shipModelName = model.name,
+            teamTypeIndex = (int) team.teamType,
+            rotation = rotations.IndexOf(ship.rotation),
+            reverse = ship.reverse,
+            hexIndex = hex.coords.index
+        };
+    }
 
-            attempts--;
+    private void GenerateShipFromData(NetworkingShip data, Team team) {
+        var shipModel = shipBlueprints.Find(s => s.name == data.shipModelName);
+        var obj = Instantiate(shipModel.shipPrefab, transform) as GameObject;
 
-            if (attempts == 0) {
-                Debug.Log("Failed to place ship");
+        var ship = obj.GetComponent<Ship>();
+        
+        ships.Add(ship);
 
-                Destroy(obj);
-            }
+        ship.shipModel = shipModel;
+        ship.team = team;
+        ship.rotation = rotations[data.rotation];
+        ship.reverse = data.reverse;
+
+        var grid = team.teamBase.hexMap;
+        
+        var hex = grid.hexes[data.hexIndex];
+
+        if (!ship.SetOnGrid(hex)) {
+            Debug.Log("Failed to place ship from data");
+            
+            Destroy(obj);
         }
     }
 
-    void Awake() {
-        shipBlueprints.Sort((a, b) => a.name.CompareTo(b.name));
-    }
-
-    public void GenerateShips(Team team) {
+    public List<NetworkingShip> GenerateShips(Team team) {
+        var shipInfo = new List<NetworkingShip>();
         foreach (var ship in shipBlueprints) {
-            GenerateShip(ship, team);
+            if (ship.length != 3) continue;
+            shipInfo.Add(GenerateShip(ship, team));
         }
+        return shipInfo;
     }
 
+    public void GenerateShipsFromData(List<NetworkingShip> data) {
+        foreach (var ship in data) {
+            var team = teamManager.teams.Find(t => (int) t.teamType == ship.teamTypeIndex);
+            GenerateShipFromData(ship, team);
+        }
+    }
+    
     public void EnableShips() {
         foreach (var ship in ships) {
             ship.EnableShip();

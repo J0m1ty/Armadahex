@@ -1,42 +1,127 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+using UnityEngine.SceneManagement;
+using Photon.Pun;
+
+public enum WinType {
+    None = 0,
+    Conquest = 1,
+    Abandonment = 2,
+    Surrender = 3,
+}
+
+public class WinInfo {
+    public TeamType playerTeam;
+    public TeamType winningTeam;
+    public string playerName;
+    public string enemyName;
+    public WinType winType;
+    public int? winnerXpGain;
+    public int? loserXpLoss;
+    public double? matchTime;
+    public float? playerTeamAccuracy;
+    public int? playerTeamShipsLost;
+    public int? playerTeamAdvancedAttacksUsed;
+}
 
 public class GameOver : MonoBehaviour
 {
+    public static GameOver instance { get; private set; }
+
+    [MyBox.Scene]
+    [SerializeField]
+    private string gameScene;
+    
+    [MyBox.Scene]
+    [SerializeField]
+    private string gameOverScene;
+
+    public string enemyName;
+    
+    public WinInfo winInfo { get; private set; }
+
+    [SerializeField]
     private ShipManager shipManager;
 
-    public AttackUIManager attackManager;
+    [SerializeField]
+    private AttackUIManager attackManager;
+
+    private void Awake() {
+        if (SceneManager.GetActiveScene().name != gameScene && SceneManager.GetActiveScene().name != gameOverScene) {
+            Destroy(gameObject);
+            return;
+        }
+
+        if (instance != null) {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+
+        DontDestroyOnLoad(gameObject);
+
+        OnGameOver += OnWin;
+    }
+
+    public delegate void GameOverEvent(TeamType win, WinType winType);
+
+    public event GameOverEvent OnGameOver;
 
     void Start() {
-        shipManager = GetComponent<ShipManager>();
-
         attackManager.OnAttack += CheckIfGameOver;
     }
 
-    public void CheckIfGameOver(bool hit)
+    public void CheckIfGameOver(Team against, bool hit, int hexIndex)
     {
         if (!hit) return;
 
-        var redAlive = false;
-        var blueAlive = false;
+        var shipCounts = new Dictionary<TeamType, int>();
+
         foreach (var ship in shipManager.ships) {
-            if (ship.team.teamType == TeamType.Red && ship.isAlive)
-                redAlive = true;
-            if (ship.team.teamType == TeamType.Blue && ship.isAlive)
-                blueAlive = true;
+            if (!ship.isAlive) continue;
+
+            if (!shipCounts.ContainsKey(ship.team.teamType)) {
+                shipCounts.Add(ship.team.teamType, 0);
+            }
+
+            shipCounts[ship.team.teamType]++;
         }
 
-        if (!redAlive) {
-            OnGameOver?.Invoke(TeamType.Blue);
-        }
-
-        if (!blueAlive) {
-            OnGameOver?.Invoke(TeamType.Red);
+        Debug.Log("Ship counts: " + string.Join(", ", shipCounts.Select(kvp => kvp.Key + ": " + kvp.Value).ToArray()));
+        Debug.Log(shipCounts.Keys.Count);
+        
+        if (shipCounts.Keys.Count == 1) {
+            var win = shipCounts.First().Key;
+            
+            OnGameOver?.Invoke(win, WinType.Conquest);
         }
     }
 
-    public delegate void GameOverEvent(TeamType win);
+    public void EnemyAbandonment() {
+        OnGameOver?.Invoke(TurnManager.instance.playerTeam.teamType, WinType.Abandonment);
+    }
 
-    public event GameOverEvent OnGameOver;
+    public void OnWin(TeamType win, WinType winType) {
+        Debug.Log("Game over");
+
+        winInfo = new WinInfo {
+            playerTeam = TurnManager.instance.playerTeam.teamType,
+            winningTeam = win,
+            playerName = PhotonNetwork.NickName,
+            enemyName = enemyName,
+            winType = winType,
+            winnerXpGain = 100,
+            loserXpLoss = 50,
+            matchTime = Time.timeSinceLevelLoadAsDouble,
+            playerTeamAccuracy = 15f, //attackManager.accuracy
+            playerTeamShipsLost = shipManager.playerShips.FindAll(s => !s.isAlive).Count,
+            playerTeamAdvancedAttacksUsed = 0, //attackManager.advancedAttacksUsed
+        };
+        
+        PhotonNetwork.AutomaticallySyncScene = false;
+        PhotonNetwork.LoadLevel(gameOverScene);
+    }
 }

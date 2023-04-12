@@ -99,10 +99,6 @@ public class Selector : MonoBehaviour
         if (current == null) {
             return;
         }
-
-        Debug.Log("Current team: " + TurnManager.instance.currentTeam.teamType);
-
-        Debug.Log("Allowing selecting grids: " + allowSelectingGrids);
         
         if (allowSelectingGrids) {
             SelectGrids();

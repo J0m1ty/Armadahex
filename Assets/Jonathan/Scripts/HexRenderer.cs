@@ -63,7 +63,7 @@ public class HexRenderer : MonoBehaviour
     }
 
     public void ClearFog() {
-        if (!fogEffect) return;
+        if (!fogEffect || !gameObject.activeSelf) return;
         
         var emission = fogEffect.emission;
         emission.rateOverTime  = 0;
