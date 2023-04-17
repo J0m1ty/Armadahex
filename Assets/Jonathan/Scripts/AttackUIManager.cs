@@ -459,14 +459,14 @@ public class AttackUIManager : MonoBehaviour
                     target.SetColor(AttackColor.miss);
                     target.SetFogColorInstant(FogColor.Miss, false);
                     target.ClearFog();
-                    OnAttack?.Invoke(TurnManager.instance.enemyTeam, false, target.coords.index);
+                    OnAttack?.Invoke(TurnManager.instance.enemyTeam, false, target.coords.index, i == targets.Count - 1);
                 }
                 else if (target.gridRef.shipSegment.isAlive) {
                     target.SetColor(AttackColor.hit);
                     target.SetFogColorInstant(FogColor.Hit, false);
                     target.EnableFlames();
                     destroyed = target.gridRef.shipSegment.Destroy();
-                    OnAttack?.Invoke(TurnManager.instance.enemyTeam, true, target.coords.index);
+                    OnAttack?.Invoke(TurnManager.instance.enemyTeam, true, target.coords.index, i == targets.Count - 1);
 
                     hit = true;
                 }
@@ -501,7 +501,7 @@ public class AttackUIManager : MonoBehaviour
         }
     }
 
-    public void GetAttackFromEnemy(TeamType target, int hexIndex) {
+    public void GetAttackFromEnemy(TeamType target, int hexIndex, bool finalAttack) {
         var targetTeam = TurnManager.instance.playerTeam;
         var grid = targetTeam.teamBase.hexMap;
         var hex = grid.FromCoordinates(new CoordinateSystem(hexIndex)).hexRenderer;
@@ -517,11 +517,15 @@ public class AttackUIManager : MonoBehaviour
             hit = true;
         }
         
-        attackPanel.SetAttackInfo(hit, destroyed, null, null);
-        attackPanel.QuickActivate();
+        if (finalAttack) {
+            attackPanel.SetAttackInfo(hit, destroyed, null, null);
+            attackPanel.QuickActivate();
+            
+            GameOver.instance.CheckIfGameOver(TurnManager.instance.playerTeam, hit, hex.coords.index, true);
+        }
     }
 
-    public delegate void AttackEvent(Team against, bool hit, int hexIndex);
+    public delegate void AttackEvent(Team against, bool hit, int hexIndex, bool finalAttack = false);
 
     public event AttackEvent OnAttack;
 

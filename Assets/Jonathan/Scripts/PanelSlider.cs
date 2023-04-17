@@ -137,12 +137,12 @@ public class PanelSlider : MonoBehaviour
         connectedText.text = text;
     }
 
-    public void SetAttackInfo(bool hitStatus, bool? shipStatus, string attkIdent, int? ammoRemain) {
+    public void SetAttackInfo(bool hitStatus, bool? shipDestroyed, string attkIdent, int? ammoRemain) {
         if (!hasAttackIntent) return;
 
         this.connectedText.text = hitStatus ? "> HIT <" : "> MISS <";
-        this.connectedText.color = hitStatus ? new Color(1f/204f, 1f/24f, 1f/11f) : new Color(0.9f, 0.9f, 0.9f);
-        this.shipStatus.text = shipStatus == null ? "N/A" : ((bool)shipStatus ? "ALIVE" : "DESTROYED");
+        this.connectedText.color = hitStatus ? new Color(204f/255f, 24f/255f, 11f/255f) : new Color(0.9f, 0.9f, 0.9f);
+        this.shipStatus.text = shipDestroyed == null ? "N/A" : ((bool)shipDestroyed ? "DESTROYED" : "ALIVE");
         this.fleetStatus.text = "ACTIVE";
         this.attkIdent.text = attkIdent == null ? "UNKNOWN" : attkIdent;
         this.ammoRemain.text = ammoRemain == null ? "UNKNOWN" : (ammoRemain <= 0 ? "FALSE" : (ammoRemain > 100 ? "UNLIMITED" : ammoRemain.ToString()));

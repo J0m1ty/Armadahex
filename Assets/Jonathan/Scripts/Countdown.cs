@@ -32,6 +32,7 @@ public class Countdown : MonoBehaviour
         StopAllCoroutines();
 
         countdownText.text = resetTime.ToString() + "s";
+        countdownText.color = Color.black;
         StartCoroutine(CountdownCoroutine());
         resetTime = normalResetTime;
     }
@@ -44,6 +45,7 @@ public class Countdown : MonoBehaviour
         var time = resetTime;
         while (time > 0) {
             countdownText.text = time.ToString() + "s";
+            countdownText.color = time < 5 ? Color.Lerp(Color.red, Color.black, 0.5f) : Color.black;
             yield return new WaitForSeconds(1);
             time--;
         }

@@ -2053,8 +2053,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17ea71bf42c474e4cbbd56228aa8b4e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  firstTurnTime: 5
-  normalResetTime: 2
+  firstTurnTime: 30
+  normalResetTime: 25
   attackManager: {fileID: 1007787192}
 --- !u!1 &221873463
 GameObject:
@@ -2790,7 +2790,7 @@ MonoBehaviour:
   speedOut: 0.1
   speedIn: 0.15
   infinite: 0
-  duration: 5
+  duration: 10
 --- !u!1 &260729955
 GameObject:
   m_ObjectHideFlags: 0

@@ -80,9 +80,9 @@ public class GameOver : MonoBehaviour
         attackManager.OnAttack += CheckIfGameOver;
     }
 
-    public void CheckIfGameOver(Team against, bool hit, int hexIndex)
+    public void CheckIfGameOver(Team against, bool hit, int hexIndex, bool finalAttack)
     {
-        if (!hit) return;
+        if (!hit || !finalAttack) return;
 
         var shipCounts = new Dictionary<TeamType, int>();
 

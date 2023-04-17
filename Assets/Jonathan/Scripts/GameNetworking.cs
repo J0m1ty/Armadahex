@@ -119,13 +119,13 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
         shipManager.EnableShips();
     }
 
-    public void OnAttack(Team against, bool hit, int hexIndex) {
-        photonView.RPC("OnAttackRPC", RpcTarget.Others, (int)against.teamType, hit, hexIndex);
+    public void OnAttack(Team against, bool hit, int hexIndex, bool finalAttack) {
+        photonView.RPC("OnAttackRPC", RpcTarget.Others, (int)against.teamType, hit, hexIndex, finalAttack);
     }
 
     [PunRPC]
-    public void OnAttackRPC(int against, bool hit, int hexIndex) {
-        attackManager.GetAttackFromEnemy((TeamType)against, hexIndex);
+    public void OnAttackRPC(int against, bool hit, int hexIndex, bool finalAttack) {
+        attackManager.GetAttackFromEnemy((TeamType)against, hexIndex, finalAttack);
     }
 
     public void AdvanceTurn(Team newTeam) {
