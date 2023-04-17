@@ -22,7 +22,8 @@ Texture2D:
   m_MipCount: 1
   m_IsReadable: 0
   m_IsPreProcessed: 0
-  m_IgnoreMasterTextureLimit: 0
+  m_IgnoreMipmapLimit: 0
+  m_MipmapLimitGroupName: 
   m_StreamingMipmaps: 0
   m_StreamingMipmapsPriority: 0
   m_VTOnly: 0
@@ -56,6 +57,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Lucida Console SDF Material
   m_Shader: {fileID: 4800000, guid: 68e6db2ebdc24f95958faec2be5558d6, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -64,6 +67,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -134,7 +138,7 @@ Material:
     - _TextureWidth: 1024
     - _UnderlayDilate: 0
     - _UnderlayOffsetX: 0
-    - _UnderlayOffsetY: 0
+    - _UnderlayOffsetY: 1
     - _UnderlaySoftness: 0
     - _VertexOffsetX: 0
     - _VertexOffsetY: 0
@@ -161,17 +165,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
+  m_Script: {fileID: 19001, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: Lucida Console
   m_EditorClassIdentifier: 
-  hashCode: -311219871
-  material: {fileID: -1613656560524579402}
-  materialHashCode: 1007432225
   m_Version: 1.1.0
+  m_Material: {fileID: -1613656560524579402}
   m_SourceFontFileGUID: 125c3767589ba7e4fbb5feabd4cce1df
-  m_SourceFontFile_EditorRef: {fileID: 12800000, guid: 125c3767589ba7e4fbb5feabd4cce1df, type: 3}
   m_SourceFontFile: {fileID: 0}
+  m_SourceFontFilePath: 
   m_AtlasPopulationMode: 0
+  InternalDynamicOS: 0
   m_FaceInfo:
     m_FaceIndex: 0
     m_FamilyName: Lucida Console
@@ -2044,6 +2047,10 @@ MonoBehaviour:
   m_AtlasTextureIndex: 0
   m_IsMultiAtlasTexturesEnabled: 0
   m_ClearDynamicDataOnBuild: 0
+  m_AtlasWidth: 1024
+  m_AtlasHeight: 1024
+  m_AtlasPadding: 5
+  m_AtlasRenderMode: 4165
   m_UsedGlyphRects:
   - m_X: 0
     m_Y: 0
@@ -2754,56 +2761,30 @@ MonoBehaviour:
     m_Y: 828
     m_Width: 70
     m_Height: 21
-  m_fontInfo:
-    Name: 
-    PointSize: 0
-    Scale: 0
-    CharacterCount: 0
-    LineHeight: 0
-    Baseline: 0
-    Ascender: 0
-    CapHeight: 0
-    Descender: 0
-    CenterLine: 0
-    SuperscriptOffset: 0
-    SubscriptOffset: 0
-    SubSize: 0
-    Underline: 0
-    UnderlineThickness: 0
-    strikethrough: 0
-    strikethroughThickness: 0
-    TabWidth: 0
-    Padding: 0
-    AtlasWidth: 0
-    AtlasHeight: 0
-  atlas: {fileID: 0}
-  m_AtlasWidth: 1024
-  m_AtlasHeight: 1024
-  m_AtlasPadding: 5
-  m_AtlasRenderMode: 4165
-  m_glyphInfoList: []
-  m_KerningTable:
-    kerningPairs: []
   m_FontFeatureTable:
+    m_MultipleSubstitutionRecords: []
+    m_LigatureSubstitutionRecords: []
     m_GlyphPairAdjustmentRecords: []
-  fallbackFontAssets: []
+    m_MarkToBaseAdjustmentRecords: []
+    m_MarkToMarkAdjustmentRecords: []
   m_FallbackFontAssetTable: []
-  m_CreationSettings:
-    sourceFontFileName: 
-    sourceFontFileGUID: 125c3767589ba7e4fbb5feabd4cce1df
+  m_fontAssetCreationEditorSettings:
+    sourceFontFileGUID: 
+    faceIndex: 0
     pointSizeSamplingMode: 0
-    pointSize: 164
-    padding: 5
+    pointSize: 0
+    padding: 0
+    paddingMode: 0
     packingMode: 0
-    atlasWidth: 1024
-    atlasHeight: 1024
+    atlasWidth: 0
+    atlasHeight: 0
     characterSetSelectionMode: 0
-    characterSequence: 32 - 126, 160, 8203, 8230, 9633
+    characterSequence: 
     referencedFontAssetGUID: 
     referencedTextAssetGUID: 
     fontStyle: 0
     fontStyleModifier: 0
-    renderMode: 4165
+    renderMode: 0
     includeFontFeatures: 0
   m_FontWeightTable:
   - regularTypeface: {fileID: 0}
@@ -2826,10 +2807,9 @@ MonoBehaviour:
     italicTypeface: {fileID: 0}
   - regularTypeface: {fileID: 0}
     italicTypeface: {fileID: 0}
-  fontWeights: []
-  normalStyle: 0
-  normalSpacingOffset: 0
-  boldStyle: 0.75
-  boldSpacing: 7
-  italicStyle: 35
-  tabSize: 10
+  m_RegularStyleWeight: 0
+  m_RegularStyleSpacing: 0
+  m_BoldStyleWeight: 0.75
+  m_BoldStyleSpacing: 7
+  m_ItalicStyleSlant: 35
+  m_TabMultiple: 10

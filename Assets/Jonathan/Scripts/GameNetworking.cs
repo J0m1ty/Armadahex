@@ -52,7 +52,9 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
         GameOver.instance.OnGameOver += OnGameOver;
 
-        GameOver.instance.enemyName = PhotonNetwork.CurrentRoom.Players.Where(p => p.Value != PhotonNetwork.LocalPlayer).First().Value.NickName;
+        if (PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.PlayerCount > 1) {
+            GameOver.instance.enemyName = PhotonNetwork.CurrentRoom.Players.Where(p => p.Value != PhotonNetwork.LocalPlayer).First().Value.NickName;
+        }
     }
 
     public override void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged) {
@@ -83,6 +85,9 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
             TurnManager.instance.LoadTeams(teamManager.teams);
             TurnManager.instance.SetTurn(teamManager.teams.Find(t => t.teamType == (TeamType)propertiesThatChanged["FirstTeam"]));
+
+            teamManager.Colorize();
+            
             var ships = shipManager.GenerateShips(teamManager.teams.Find(t => t.teamType == playerTeam));
             photonView.RPC("GenerateShipsRPC", RpcTarget.Others, 
                 (int)playerTeam,

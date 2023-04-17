@@ -45,6 +45,8 @@ public class Selector : MonoBehaviour
 
     private AttackUIManager attackUIManager;
 
+    private GameObject fogHide;
+
     void Awake() {
         friendly.hexBorder = friendly.hexHighlight.GetComponent<HexBorder>();
         enemy.hexBorder = enemy.hexHighlight.GetComponent<HexBorder>();
@@ -74,6 +76,11 @@ public class Selector : MonoBehaviour
 
         friendly.hexHighlight.SetActive(false);
         enemy.hexHighlight.SetActive(false);
+
+        if (fogHide != null) {
+            fogHide.SetActive(true);
+            fogHide = null;
+        }
 
         if (team.isPlayer) {
             current = friendly;
@@ -115,10 +122,22 @@ public class Selector : MonoBehaviour
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 1000, 1 << current.layer)) {
                 var hex = hit.transform.GetComponent<HexRenderer>();
 
+                if (fogHide != null) {
+                    fogHide.SetActive(true);
+                }
+                
+                fogHide = hex.fog.ps.gameObject;
+                fogHide.SetActive(false);
+
                 current.hexHighlight.SetActive(true);
                 current.hexHighlight.transform.position = hex.transform.position;
             } else {
                 current.hexHighlight.SetActive(false);
+
+                if (fogHide != null) {
+                    fogHide.SetActive(true);
+                    fogHide = null;
+                }
             }
         }
         
@@ -128,8 +147,6 @@ public class Selector : MonoBehaviour
                 HexRenderer hex = null;
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 1000, 1 << current.layer)) {
                     hex = hit.transform.GetComponent<HexRenderer>();
-                    
-                    attackUIManager.SelectTarget(hex.gridRef);
                 }
 
                 if (lockedIn) {
@@ -137,13 +154,26 @@ public class Selector : MonoBehaviour
                         lockedIn = false;
                         current.hexBorder.SetColor(current.color);
                         current.hexBorder.SetHeight(current.height);
+                        hex.RemoveFogOverrideColor();
                     }
                 } else {
-                    if (current.allowedToLockIn) {
+                    if (current.allowedToLockIn && hex != null) {
                         lockedIn = true;
                         current.hexBorder.SetColor(current.lockedInColor);
+                        current.hexBorder.SetHeight(current.lockedInHeight);
+                        hex.SetFogColorInstant(FogColor.Selected, true);
                         lockedInGrid = hex;
+
+                        // remove fog hide
+                        if (fogHide != null) {
+                            fogHide.SetActive(true);
+                            fogHide = null;
+                        }
                     }
+                }
+
+                if (hex != null) {
+                    attackUIManager.SelectTarget(hex.gridRef);
                 }
             }
         }

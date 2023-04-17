@@ -30,6 +30,12 @@ public class GameOver : MonoBehaviour
 {
     public static GameOver instance { get; private set; }
 
+    [Header("Ships Remaining")]
+    [SerializeField]
+    public TMPro.TMP_Text friendlyShipsRemainingText;
+    [SerializeField]
+    public TMPro.TMP_Text enemyShipsRemainingText;
+
     [MyBox.Scene]
     [SerializeField]
     private string gameScene;
@@ -90,13 +96,33 @@ public class GameOver : MonoBehaviour
             shipCounts[ship.team.teamType]++;
         }
 
-        Debug.Log("Ship counts: " + string.Join(", ", shipCounts.Select(kvp => kvp.Key + ": " + kvp.Value).ToArray()));
-        Debug.Log(shipCounts.Keys.Count);
+        // Debug.Log("Ship counts: " + string.Join(", ", shipCounts.Select(kvp => kvp.Key + ": " + kvp.Value).ToArray()));
+        // Debug.Log(shipCounts.Keys.Count);
+
+        UpdateShipCounts(shipCounts);
         
         if (shipCounts.Keys.Count == 1) {
             var win = shipCounts.First().Key;
             
             OnGameOver?.Invoke(win, WinType.Conquest);
+        }
+    }
+
+    public void Surrender() {
+        OnGameOver?.Invoke(TurnManager.instance.otherTeam.teamType, WinType.Surrender);
+    }
+
+    public void UpdateShipCounts(Dictionary<TeamType, int> shipCounts) {
+        var s = "Ships remaining: ";
+        if (friendlyShipsRemainingText != null && enemyShipsRemainingText != null) {
+            foreach (var kvp in shipCounts) {
+                if (kvp.Key == TurnManager.instance.playerTeam.teamType) {
+                    friendlyShipsRemainingText.text = s + kvp.Value.ToString();
+                }
+                else {
+                    enemyShipsRemainingText.text = s + kvp.Value.ToString();
+                }
+            }
         }
     }
 
@@ -107,6 +133,14 @@ public class GameOver : MonoBehaviour
     public void OnWin(TeamType win, WinType winType) {
         Debug.Log("Game over");
 
+        float accuracy;
+        if (attackManager.shotsFired == 0) {
+            accuracy = 0;
+        }
+        else {
+            accuracy = (float)attackManager.shotsHit / (float)attackManager.shotsFired;
+        }
+
         winInfo = new WinInfo {
             playerTeam = TurnManager.instance.playerTeam.teamType,
             winningTeam = win,
@@ -116,9 +150,9 @@ public class GameOver : MonoBehaviour
             winnerXpGain = 100,
             loserXpLoss = 50,
             matchTime = Time.timeSinceLevelLoadAsDouble,
-            playerTeamAccuracy = 15f, //attackManager.accuracy
+            playerTeamAccuracy = accuracy * 100f,
             playerTeamShipsLost = shipManager.playerShips.FindAll(s => !s.isAlive).Count,
-            playerTeamAdvancedAttacksUsed = 0, //attackManager.advancedAttacksUsed
+            playerTeamAdvancedAttacksUsed = attackManager.advancedShotsFired,
         };
         
         PhotonNetwork.AutomaticallySyncScene = false;

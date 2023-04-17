@@ -84,7 +84,7 @@ public class ShipManager : MonoBehaviour
     public List<NetworkingShip> GenerateShips(Team team) {
         var shipInfo = new List<NetworkingShip>();
         foreach (var ship in shipBlueprints) {
-            if (ship.length != 3) continue;
+            //if (ship.length != 3) continue;
             shipInfo.Add(GenerateShip(ship, team));
         }
         return shipInfo;

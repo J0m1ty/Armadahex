@@ -34,6 +34,8 @@ public class AttackPattern {
     public bool doOffset;
     [MyBox.ConditionalField(nameof(doOffset), true)]
     public bool attackCenter;
+    [MyBox.ConditionalField(nameof(doOffset), false)]
+    public bool autoOptimize;
     public bool isInstant;
 }
 
@@ -51,6 +53,7 @@ public class AttackInfo {
 [Serializable]
 public class ShipModel {
     public string name;
+    public string attackName;
     public GameObject shipPrefab;
     public int length;
     public AttackInfo[] attacks;
@@ -200,13 +203,13 @@ public class Ship : MonoBehaviour
         return valid;
     }
 
-    public void UpdateVisibility() {
+    public bool UpdateVisibility() {
         // in order to be hidden, the ship must not be a player ship, and must not have any alive segments
         var hidden = !isPlayer;
         var destroyed = !isAlive;
 
         if (internals == null) {
-            return;
+            return false;
         }
         
         internals.shipMesh.SetActive(false);
@@ -226,5 +229,7 @@ public class Ship : MonoBehaviour
         } else if (!destroyed && !hidden) {
             internals.shipMesh.SetActive(true);
         }
+
+        return destroyed;
     }
 }

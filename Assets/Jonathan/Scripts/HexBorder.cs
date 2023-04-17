@@ -28,7 +28,9 @@ public class HexBorder : MonoBehaviour
         
         SetMaterial(borderMaterial ?? new Material(Shader.Find("Universal Render Pipeline/Lit")));
 
-        GenerateMesh();
+        if (hexGrid != null && height > 0) {
+            GenerateMesh(height, hexGrid);
+        }
     }
 
     public void SetMaterial(Material material) {
@@ -42,10 +44,12 @@ public class HexBorder : MonoBehaviour
 
     public void SetHeight(float height) {
         this.height = height;
-        //GenerateMesh();
+        if (hexGrid != null && mesh != null) {
+            GenerateMesh(height, hexGrid);
+        }
     }
 
-    public void GenerateMesh() {
+    public void GenerateMesh(float height, HexGrid hexGrid) {
         List<Vector3> vertices = new List<Vector3>();
         List<int> triangles = new List<int>();
         List<Vector2> uvs = new List<Vector2>();

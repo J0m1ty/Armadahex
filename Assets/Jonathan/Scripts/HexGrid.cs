@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using MyBox;
+using Random = UnityEngine.Random;
 
 [Serializable]
 public class GridUnit {
@@ -23,6 +24,21 @@ public class GridUnit {
 
     public GridUnit GetNeighbor(int dir, bool reverse = false) {
         return hexRenderer.hexMap.FromCoordinatesBrute(coords.GetNeighbor(dir));
+    }
+
+    public int RangeInDirection(int dir, bool activeOnly) {
+        int range = 0;
+        GridUnit current = this;
+        while (current != null) {
+            current = current.GetNeighbor(dir);
+
+            if (current == null) break;
+
+            if (!(activeOnly && current.hexRenderer.gameObject.activeSelf == false)) {
+                range++;
+            }
+        }
+        return range;
     }
 }
 
@@ -51,6 +67,13 @@ public class HexGrid : MonoBehaviour
     public Material material;
     [Layer]
     public int layer;
+    public bool hasHeight;
+    [ConditionalField("hasHeight", false, true)]
+    public float height;
+    [ConditionalField("hasHeight", false, true)]
+    public float noiseScale;
+    [ConditionalField("hasHeight", false, true)]
+    public MinMaxFloat heightVariation;
 
     [Header("Hexes")]
     public List<GridUnit> hexes;
@@ -178,28 +201,40 @@ public class HexGrid : MonoBehaviour
     }
 
     private void AddHex(string name, int index, Vector3 position, bool isEdge = false) {
+        float noise = LODMeshGenerator.Map(Mathf.PerlinNoise(position.x * noiseScale, position.z * noiseScale), 0f, 1f, heightVariation.Min, heightVariation.Max);
+
         GameObject tile = new GameObject(name, typeof(HexRenderer));
         tile.transform.SetParent(transform, true);
-        tile.transform.position = transform.position + position;
+        tile.transform.position = transform.position + position + Vector3.up * noise;
         tile.layer = layer;
+
+        HexRenderer hex = tile.GetComponent<HexRenderer>();
+        var m = new Material(material);
+        m.name = "Hex Material";
+        m.color = Color.white; //placeholder, gets set by team type in teamManager
+        hex.SetMaterial(m);
 
         if (useFog) {
             var fog = Instantiate(fogPrefab, tile.transform);
             fog.transform.localPosition = Vector3.zero + Vector3.up * (UnityEngine.Random.Range(fogHeight.Min, fogHeight.Max));
             fog.transform.localRotation = Quaternion.identity * Quaternion.Euler(90f, 0f, 0f);
             fog.transform.localScale = Vector3.one;
+            hex.fog = new Fog(fog.GetComponent<ParticleSystem>());
         }
-        
-        HexRenderer hex = tile.GetComponent<HexRenderer>();
-        var m = new Material(material);
+
+        if (hasHeight) {
+            var border = new GameObject("Height", typeof(HexBorder));
+            border.transform.SetParent(tile.transform, true);
+            border.transform.localPosition = new Vector3(0f, -height, 0f);
+
+            var borderRenderer = border.GetComponent<HexBorder>();
+            borderRenderer.hexGrid = this;
+            borderRenderer.height = height;
+            borderRenderer.SetMaterial(m);
+            borderRenderer.SetHeight(height);
+        }
+
         hex.coords = new CoordinateSystem(new Spiral(index));
-
-        var cubeTest = new CoordinateSystem(new Cube(new CoordinateSystem(new Spiral(index)).q, new CoordinateSystem(new Spiral(index)).r, new CoordinateSystem(new Spiral(index)).s));
-        m.color = Color.Lerp(Color.red, Color.blue, cubeTest.index / 60f);
-
-        // m.color = Color.HSVToRGB(UnityEngine.Random.Range(0f, 1f), 1f, 1f);
-
-        hex.SetMaterial(m);
         hex.size = size;
         hex.isFlatTopped = isFlatTopped;
         hex.hexMap = this;

@@ -198,6 +198,7 @@ public class CameraController : MonoBehaviour
     }
 
     public void MoveTo(Vector3 position) {
-        newCenter = position;
+        var localPosFromNewCenter = transform.position - center;
+        newCenter = position - localPosFromNewCenter;
     }
 }

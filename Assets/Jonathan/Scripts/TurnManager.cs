@@ -13,7 +13,10 @@ public class TurnManager : MonoBehaviour
     public Selector selector;
 
     [SerializeField]
-    private TurnUIManager turnUI;
+    private PanelSlider panelSlider;
+
+    [SerializeField]
+    private Countdown countdown;
     
     public Team currentTeam;
     public Team otherTeam {
@@ -63,12 +66,16 @@ public class TurnManager : MonoBehaviour
     public void SetTurn(Team team) {
         currentTeam = team;
         
-        turnUI.ChangeTurn(currentTeam);
+        panelSlider.QuickActivate();
+
+        countdown.StartCountdown();
 
         if (currentTeam.isPlayer) {
             OnPlayerTurn();
+            panelSlider.connectedText.text = "Your turn! Select a ship to attack with.";
         } else {
             OnEnemyTurn();
+            panelSlider.connectedText.text = "Enemy turn! Waiting for enemy's move.";
         }
     }
 

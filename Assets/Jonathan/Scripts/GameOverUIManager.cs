@@ -94,11 +94,11 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
 
         if (winInfo.matchTime != null) {
             var timeSpan = TimeSpan.FromSeconds((double)winInfo.matchTime);
-            matchTimeText.text = timeSpan.Minutes + ":" + timeSpan.Seconds + "m";
+            matchTimeText.text = timeSpan.Minutes + ":" + String.Format("{00}", timeSpan.Seconds) + "m";
         }
 
         if (winInfo.playerTeamAccuracy != null) {
-            accuracyText.text = winInfo.playerTeamAccuracy + "%";
+            accuracyText.text = ((int)winInfo.playerTeamAccuracy) + "%";
         }
 
         if (winInfo.playerTeamShipsLost != null) {
