@@ -7,6 +7,9 @@ using TMPro;
 public class Countdown : MonoBehaviour
 {
     private TMP_Text countdownText;
+
+    [SerializeField]
+    private bool doCountdown = true;
     
     [SerializeField]
     private int firstTurnTime = 30;
@@ -29,6 +32,8 @@ public class Countdown : MonoBehaviour
     // and ienumerator that counts down every second
 
     public void StartCountdown() {
+        if (!doCountdown) return;
+
         StopAllCoroutines();
 
         countdownText.text = resetTime.ToString() + "s";
@@ -38,6 +43,8 @@ public class Countdown : MonoBehaviour
     }
 
     public void StopCountdown() {
+        if (!doCountdown) return;
+
         StopAllCoroutines();
     }
     

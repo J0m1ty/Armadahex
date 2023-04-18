@@ -35,6 +35,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _ColorBelowWater_b5f109de63864e778e4a0ca63c30c114_foamMask_2407784841:
+        m_Texture: {fileID: 2800000, guid: 0af82ea11bc178745bcd5e9c2b8b3b38, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Derivative_Heightmap:
         m_Texture: {fileID: 2800000, guid: 301edc7f927ca9a4eb0a2f346ad2a6b3, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -57,6 +61,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _Flowmap:
         m_Texture: {fileID: 2800000, guid: 27d3d6f0947847b47b9541d090da18bb, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FoamMask:
+        m_Texture: {fileID: 2800000, guid: 0af82ea11bc178745bcd5e9c2b8b3b38, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
@@ -101,6 +109,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_852ac94a2d0e44f1bd168283755bdcd9_Texture_1:
         m_Texture: {fileID: 2800000, guid: 301edc7f927ca9a4eb0a2f346ad2a6b3, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_9f82da04a73e4b978049dcac2fea1aa8_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 0af82ea11bc178745bcd5e9c2b8b3b38, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_bef38f3be9ef447e9e96ffb18b5206e0_Texture_1:
@@ -185,7 +197,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EnvironmentReflections: 1
-    - _Fog_param: -0.17
+    - _Fog_param: -0.25
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -203,30 +215,39 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _RefractionStrength: 0.35
     - _Scaling: 20
-    - _Smoothness: 0.64
+    - _Smoothness: 0.66
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _Speed: 0.1
     - _SrcBlend: 1
-    - _Strength: 0.02
+    - _Strength: 0.04
     - _Surface: 0
     - _Tiles: 20
     - _Tiling: 1
     - _WorkflowMode: 1
     - _ZWrite: 1
+    - _edgeFalloffBias: -0.29
+    - _edgePatternScale: 0.26
+    - _edgePatternScroll: 0
+    - _falloffDistance: 1
+    - _foamFalloffmult: 0.26
+    - _leadingEdgeFalloff: 1
+    - _timeMult: 0.1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Base_color: {r: 0.0779192, g: 0.5700633, b: 0.9716981, a: 1}
+    - _Base_color: {r: 0.0045834924, g: 0.52734804, b: 0.9716981, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Dir_1: {r: 0.3, g: 0, b: 0.5, a: 0}
     - _Dir_2: {r: 0.28, g: 0, b: 0.4, a: 0}
     - _Dir_3: {r: 0.5, g: 0, b: 0.5, a: 0}
     - _Dir_4: {r: -0.5, g: 0, b: 0.2, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _Jump: {r: 0.1, g: 0.1, b: 0, a: 0}
+    - _Jump: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _Tiling: {r: 4, g: 4, b: 0, a: 0}
+    - _edgeFalloffColor: {r: 0.6084906, g: 0.98206824, b: 1, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &5269401364437940169
 MonoBehaviour:

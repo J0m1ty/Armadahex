@@ -43,7 +43,9 @@ public class AttackUIManager : MonoBehaviour
 
     [Header("Multi Use")]
     public TMP_Text directiveText;
+    public Image selectionDisplay;
     public GameObject selectionUI;
+    public GameObject backButtonParent;
     public Button backButton;
     public GameObject bottomUI;
 
@@ -80,6 +82,9 @@ public class AttackUIManager : MonoBehaviour
     public int shotsHit;
     public int advancedShotsFired;
 
+    [Header("Other")]
+    public GameObject skipButton;
+
     void Awake() {
         selector = GetComponent<Selector>();
 
@@ -92,7 +97,7 @@ public class AttackUIManager : MonoBehaviour
         attackState = state;
 
         backButton.onClick.RemoveAllListeners();
-        backButton.GetComponent<TMP_Text>().text = "> BACK <";
+        backButtonParent.GetComponent<TMP_Text>().text = "> BACK <";
 
         if (state != AttackState.Error) {
             directiveText.gameObject.SetActive(false);
@@ -101,13 +106,17 @@ public class AttackUIManager : MonoBehaviour
             selectedOptionText.gameObject.SetActive(false);
             confirmUI.SetActive(false);
             arrowGroup.gameObject.SetActive(false);
-            backButton.gameObject.SetActive(false);
+            backButtonParent.SetActive(false);
+            skipButton.SetActive(false);
         }
 
         if (state != AttackState.None) {
             selector.allowSelectingGrids = false;
             selector.allowSelectingShips = false;
-            bottomUI.SetActive(true);
+            
+            if (state != AttackState.AttackOver) {
+                skipButton.SetActive(true);
+            }
         }
         else {
             bottomUI.SetActive(false);
@@ -119,7 +128,7 @@ public class AttackUIManager : MonoBehaviour
                 directiveText.text = "DIRECTIVE: SELECT A SHIP";
                 selector.allowSelectingShips = true;
                 selector.SetTeam(TurnManager.instance.currentTeam);
-                cameraRig.MoveTo(TurnManager.instance.currentTeam.teamBase.transform.position);
+                CameraManager.instance.MoveToOnce(TurnManager.instance.currentTeam.teamBase.transform.position);
                 break;
             case AttackState.Error:
                 errorText.gameObject.SetActive(true);
@@ -129,11 +138,11 @@ public class AttackUIManager : MonoBehaviour
                 directiveText.text = "DIRECTIVE: SELECT A TARGET";
                 selector.allowSelectingGrids = true;
                 selector.SetTeam(TurnManager.instance.otherTeam);
-                cameraRig.MoveTo(TurnManager.instance.otherTeam.teamBase.transform.position);
+                CameraManager.instance.MoveToOnce(TurnManager.instance.otherTeam.teamBase.transform.position);
                 backButton.onClick.AddListener(() => {
                     GoBackToSelection();
                 });
-                backButton.gameObject.SetActive(true);
+                backButtonParent.SetActive(true);
                 break;
             case AttackState.SelectAttackOption:
                 directiveText.gameObject.SetActive(true);
@@ -142,7 +151,7 @@ public class AttackUIManager : MonoBehaviour
                 backButton.onClick.AddListener(() => {
                     GoBackToTarget();
                 });
-                backButton.gameObject.SetActive(true);
+                backButtonParent.SetActive(true);
                 selectionUI.GetComponent<PanelSlider>().SetState(PanelState.Out);
                 break;
             case AttackState.SelectAttackPattern:
@@ -153,7 +162,7 @@ public class AttackUIManager : MonoBehaviour
                 backButton.onClick.AddListener(() => {
                     GoBackToAttackOption();
                 });
-                backButton.gameObject.SetActive(true);
+                backButtonParent.SetActive(true);
                 selectionUI.GetComponent<PanelSlider>().SetState(PanelState.Out);
                 break;
             case AttackState.Confirm:
@@ -164,8 +173,8 @@ public class AttackUIManager : MonoBehaviour
                 backButton.onClick.AddListener(() => {
                     GoBackToAttackPattern();
                 });
-                backButton.GetComponent<TMP_Text>().text = "> CANCEL <";
-                backButton.gameObject.SetActive(true);
+                backButtonParent.GetComponent<TMP_Text>().text = "CANCEL";
+                backButtonParent.SetActive(true);
                 break;
             case AttackState.AttackOver:
                 break;
@@ -219,6 +228,7 @@ public class AttackUIManager : MonoBehaviour
     }
     
     public void GenerateAttackOptions() {
+        selectionDisplay.sprite = selectedShip.shipModel.display;
         selectedShipText.text = selectedShip.shipModel.name;
 
         foreach (Transform child in optionsParent.transform) {
@@ -257,6 +267,7 @@ public class AttackUIManager : MonoBehaviour
     }
 
     public void GenerateAttackPatterns() {
+        selectionDisplay.sprite = selectedShip.shipModel.display;
         selectedShipText.text = selectedShip.shipModel.name;
         selectedOptionText.text = selectedOption.info.name;
 
@@ -264,13 +275,20 @@ public class AttackUIManager : MonoBehaviour
             Destroy(child.gameObject);
         }
 
+        arrowGroup.SetInfo(selectedTarget, selectedOption);
+
         var i = 0;
         foreach (AttackPattern pattern in selectedOption.info.options) {
             GameObject patternObj = Instantiate(patternPrefab, patternsParent.transform);
             patternObj.GetComponentInChildren<TMP_Text>().text = pattern.name;
-            patternObj.GetComponent<Button>().onClick.AddListener(() => SelectAttackPattern(pattern));
 
             var bl = patternObj.AddComponent<ButtonListener>();
+
+            patternObj.GetComponent<Button>().onClick.AddListener(() => {
+                SelectAttackPattern(bl.index);
+                arrowGroup.disableButtons = true;
+            });
+            
             bl.index = i;
             bl.OnMouseEnter += () => {
                 arrowGroup.gameObject.SetActive(true);
@@ -281,6 +299,14 @@ public class AttackUIManager : MonoBehaviour
             };
 
             i++;
+        }
+    }
+
+    public void SelectAttackPattern(int index) {
+        if (attackState == AttackState.SelectAttackPattern) {
+            if (index >= 0 && index < selectedOption.info.options.Length) {
+                SelectAttackPattern(selectedOption.info.options[index]);
+            }
         }
     }
 
@@ -308,7 +334,11 @@ public class AttackUIManager : MonoBehaviour
         }
     }
 
-    public void RandomAttack(AttackState startAt = AttackState.SelectShip) {
+    public void RandomAttack() {
+        RandomAttack(AttackState.SelectShip);
+    }
+
+    public void RandomAttack(AttackState startAt) {
         if (attackState == AttackState.None || attackState == AttackState.AttackOver) {
             return;
         }
@@ -431,9 +461,9 @@ public class AttackUIManager : MonoBehaviour
                     
                     var n = 0;
                     while (true) {
-                        bool isHit = origin?.shipSegment?.isAlive ?? false;
-
                         origin = origin.GetNeighbor(Convert(direction.rotation, reverse));
+
+                        bool isHit = origin?.shipSegment?.isAlive ?? false;
                         
                         if (origin != null) {
                             targets.Add(origin.hexRenderer);
@@ -516,12 +546,13 @@ public class AttackUIManager : MonoBehaviour
             hex.SetColor(AttackColor.hit);
             hit = true;
         }
+
+        GameOver.instance.CheckIfGameOver(TurnManager.instance.playerTeam, hit, hex.coords.index, finalAttack);
+
+        attackPanel.SetAttackInfo_Save(hit, destroyed, null, null);
         
         if (finalAttack) {
-            attackPanel.SetAttackInfo(hit, destroyed, null, null);
             attackPanel.QuickActivate();
-            
-            GameOver.instance.CheckIfGameOver(TurnManager.instance.playerTeam, hit, hex.coords.index, true);
         }
     }
 

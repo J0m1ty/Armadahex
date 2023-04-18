@@ -15,6 +15,8 @@ public class ArrowGroup : MonoBehaviour
     public float height;
     public float arrowOffset;
 
+    public bool disableButtons;
+
     public void Awake() {
         arrows = new List<Arrow>();
     }
@@ -26,6 +28,10 @@ public class ArrowGroup : MonoBehaviour
 
     // For buttons
     public void SetPatternPreview(int i) {
+        if (disableButtons) {
+            return;
+        }
+
         var pattern = selectedOption.info.options[i];
         SetPatternPreview(pattern);
     }
@@ -34,6 +40,10 @@ public class ArrowGroup : MonoBehaviour
     public void SetPatternPreview(GridUnit selectedTarget, Attack selectedOption, AttackPattern selectedPattern) {
         SetInfo(selectedTarget, selectedOption);
         SetPatternPreview(selectedPattern);
+    }
+
+    public void LockIn() {
+        disableButtons = true;
     }
 
     public void SetColor(Color color) {
@@ -81,6 +91,7 @@ public class ArrowGroup : MonoBehaviour
                     }
                 }
 
+                // do offset
                 var originHex = selectedTarget.hexRenderer.gridRef;
                 var activeHexOnly = selectedTarget.hexRenderer.gridRef;
                 while (true) {
@@ -101,6 +112,7 @@ public class ArrowGroup : MonoBehaviour
 
                 transform.position = new Vector3(activeHexOnly.hexRenderer.transform.position.x, height, activeHexOnly.hexRenderer.transform.position.z);
 
+                // color each hex
                 rangeInDirection = 0;
                 while (true) {
                     var thisDistance = Vector3.Magnitude(activeHexOnly.hexRenderer.transform.position - originHex.hexRenderer.transform.position);

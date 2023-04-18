@@ -67,6 +67,8 @@ public class HexGrid : MonoBehaviour
     public Material material;
     [Layer]
     public int layer;
+    [Layer]
+    public int borderLayer;
     public bool hasHeight;
     [ConditionalField("hasHeight", false, true)]
     public float height;
@@ -226,6 +228,7 @@ public class HexGrid : MonoBehaviour
             var border = new GameObject("Height", typeof(HexBorder));
             border.transform.SetParent(tile.transform, true);
             border.transform.localPosition = new Vector3(0f, -height, 0f);
+            border.layer = borderLayer;
 
             var borderRenderer = border.GetComponent<HexBorder>();
             borderRenderer.hexGrid = this;

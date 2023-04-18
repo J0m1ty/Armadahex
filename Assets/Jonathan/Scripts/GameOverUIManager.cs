@@ -42,7 +42,12 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
     private TMP_Text loserNameText;
 
     public void Leave() {
-        PhotonNetwork.LeaveRoom();
+        if (PhotonNetwork.InRoom) {
+            PhotonNetwork.LeaveRoom();
+        }
+        else {
+            OnLeftRoom();
+        }
     }
 
     public override void OnLeftRoom() {
@@ -94,7 +99,7 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
 
         if (winInfo.matchTime != null) {
             var timeSpan = TimeSpan.FromSeconds((double)winInfo.matchTime);
-            matchTimeText.text = timeSpan.Minutes + ":" + String.Format("{00}", timeSpan.Seconds) + "m";
+            matchTimeText.text = timeSpan.Minutes + ":" + timeSpan.Seconds.ToString("D2") + "m";
         }
 
         if (winInfo.playerTeamAccuracy != null) {

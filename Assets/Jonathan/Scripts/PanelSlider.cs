@@ -60,6 +60,9 @@ public class PanelSlider : MonoBehaviour
     private TimeSpan elapsedTime;
     private TimeSpan delay;
 
+    private bool persistingHit;
+    private bool? persistingShipDestroyed;
+
     private void Awake() {
         rectTransform = GetComponent<RectTransform>();
 
@@ -129,12 +132,32 @@ public class PanelSlider : MonoBehaviour
                 state = PanelState.In;
                 elapsedTime = TimeSpan.FromSeconds(0.6f);
                 targetX = inX;
+                ResetData();
             }
         }
     }
 
     public void SetConnectedText(string text) {
         connectedText.text = text;
+    }
+
+    public void SetAttackInfo_Save(bool hitStatus, bool? shipDestroyed, string attkIdent, int? ammoRemain) {
+        if (hitStatus) {
+            persistingHit = true;
+        }
+        // if nothing is set yet
+        if (persistingShipDestroyed == null && shipDestroyed != null) {
+            persistingShipDestroyed = false;
+        }
+        if (shipDestroyed != null && (bool)shipDestroyed) {
+            persistingShipDestroyed = true;
+        }
+        SetAttackInfo(persistingHit, persistingShipDestroyed, attkIdent, ammoRemain);
+    }
+
+    public void ResetData() {
+        persistingHit = false;
+        persistingShipDestroyed = null;
     }
 
     public void SetAttackInfo(bool hitStatus, bool? shipDestroyed, string attkIdent, int? ammoRemain) {
@@ -146,5 +169,7 @@ public class PanelSlider : MonoBehaviour
         this.fleetStatus.text = "ACTIVE";
         this.attkIdent.text = attkIdent == null ? "UNKNOWN" : attkIdent;
         this.ammoRemain.text = ammoRemain == null ? "UNKNOWN" : (ammoRemain <= 0 ? "FALSE" : (ammoRemain > 100 ? "UNLIMITED" : ammoRemain.ToString()));
+
+        CameraManager.instance.Shake(hitStatus);
     }
 }

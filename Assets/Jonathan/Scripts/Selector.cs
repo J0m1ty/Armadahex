@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using MyBox;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 [Serializable]
 public class HighlightInfo {
@@ -106,6 +108,10 @@ public class Selector : MonoBehaviour
         if (current == null) {
             return;
         }
+
+        if (IsPointerOverUIObject()) {
+            return;
+        }
         
         if (allowSelectingGrids) {
             SelectGrids();
@@ -114,6 +120,21 @@ public class Selector : MonoBehaviour
         if (allowSelectingShips) {
             SelectShips();
         }
+    }
+
+    private bool IsPointerOverUIObject() {
+        PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+        eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+        
+        for (int i = results.Count - 1; i >= 0; i--) {
+            if (results[i].gameObject.GetComponent<Button>() == null) {
+                results.RemoveAt(i);
+            }
+        }
+
+        return results.Count > 0;
     }
 
     public void SelectGrids() {

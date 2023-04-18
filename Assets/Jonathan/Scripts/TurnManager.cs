@@ -81,7 +81,7 @@ public class TurnManager : MonoBehaviour
 
     private void OnPlayerTurn() {
         attackManager.SetState(AttackUIManager.AttackState.SelectShip);
-        cameraRig.MoveTo(TurnManager.instance.playerTeam.teamBase.transform.position);
+        CameraManager.instance.MoveTo(TurnManager.instance.playerTeam.teamBase.transform.position);
     }
 
     private void OnEnemyTurn() {
@@ -89,7 +89,7 @@ public class TurnManager : MonoBehaviour
         selector.allowSelectingGrids = false;
         selector.allowSelectingShips = false;
         selector.SetTeam(TurnManager.instance.playerTeam);
-        cameraRig.MoveTo(TurnManager.instance.playerTeam.teamBase.transform.position);
+        CameraManager.instance.MoveTo(TurnManager.instance.playerTeam.teamBase.transform.position);
     }
 
     public void NextTurn() {

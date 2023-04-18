@@ -82,7 +82,7 @@ public class GameOver : MonoBehaviour
 
     public void CheckIfGameOver(Team against, bool hit, int hexIndex, bool finalAttack)
     {
-        if (!hit || !finalAttack) return;
+        if (!hit) return;
 
         var shipCounts = new Dictionary<TeamType, int>();
 

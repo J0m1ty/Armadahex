@@ -55,6 +55,7 @@ public class ShipModel {
     public string name;
     public string attackName;
     public GameObject shipPrefab;
+    public Sprite display;
     public int length;
     public AttackInfo[] attacks;
     
