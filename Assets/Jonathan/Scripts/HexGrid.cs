@@ -231,8 +231,9 @@ public class HexGrid : MonoBehaviour
             border.layer = borderLayer;
 
             var borderRenderer = border.GetComponent<HexBorder>();
-            borderRenderer.hexGrid = this;
             borderRenderer.height = height;
+            borderRenderer.size = size;
+            borderRenderer.isFlatTopped = isFlatTopped;
             borderRenderer.SetMaterial(m);
             borderRenderer.SetHeight(height);
         }

@@ -60,8 +60,8 @@ public class PanelSlider : MonoBehaviour
     private TimeSpan elapsedTime;
     private TimeSpan delay;
 
-    private bool persistingHit;
-    private bool? persistingShipDestroyed;
+    public bool persistingHit { get; set; }
+    public bool? persistingShipDestroyed { get; set; }
 
     private void Awake() {
         rectTransform = GetComponent<RectTransform>();
@@ -169,7 +169,5 @@ public class PanelSlider : MonoBehaviour
         this.fleetStatus.text = "ACTIVE";
         this.attkIdent.text = attkIdent == null ? "UNKNOWN" : attkIdent;
         this.ammoRemain.text = ammoRemain == null ? "UNKNOWN" : (ammoRemain <= 0 ? "FALSE" : (ammoRemain > 100 ? "UNLIMITED" : ammoRemain.ToString()));
-
-        CameraManager.instance.Shake(hitStatus);
     }
 }

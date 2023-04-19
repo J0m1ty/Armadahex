@@ -876,17 +876,17 @@ MonoBehaviour:
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
   m_ScrollSensitivity: 1
-  m_ContentType: 0
+  m_ContentType: 4
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 0
+  m_KeyboardType: 1
   m_LineType: 0
   m_HideMobileInput: 0
   m_HideSoftKeyboard: 0
-  m_CharacterValidation: 0
+  m_CharacterValidation: 4
   m_RegexValue: 
   m_GlobalPointSize: 14
-  m_CharacterLimit: 0
+  m_CharacterLimit: 4
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls: []
@@ -1115,6 +1115,7 @@ GameObject:
   - component: {fileID: 648524620}
   - component: {fileID: 648524622}
   - component: {fileID: 648524621}
+  - component: {fileID: 648524623}
   m_Layer: 5
   m_Name: Information
   m_TagString: Untagged
@@ -1243,6 +1244,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 648524619}
   m_CullTransparentMesh: 1
+--- !u!114 &648524623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 648524619}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7a4400e1004fff4db94fa8cc133c4dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &712666850
 GameObject:
   m_ObjectHideFlags: 0
@@ -1717,6 +1730,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dd914db31d02e94bb20886ff878d34a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  allowLocking: 0
+  lockedIn: 0
   states:
   - gameMode: 0
     name: Default
@@ -1726,6 +1741,7 @@ MonoBehaviour:
     buttonText: 
     showButton: 0
     showInput: 0
+    showStats: 1
     isDefault: 1
   - gameMode: 0
     name: Advanced Combat
@@ -1736,6 +1752,7 @@ MonoBehaviour:
     buttonText: PLAY
     showButton: 1
     showInput: 0
+    showStats: 1
     isDefault: 0
   - gameMode: 1
     name: Classic Battleship
@@ -1747,6 +1764,7 @@ MonoBehaviour:
     buttonText: PLAY
     showButton: 1
     showInput: 0
+    showStats: 1
     isDefault: 0
   - gameMode: 2
     name: Tactical Salvo
@@ -1758,6 +1776,7 @@ MonoBehaviour:
     buttonText: PLAY
     showButton: 1
     showInput: 0
+    showStats: 1
     isDefault: 0
   - gameMode: 3
     name: Custom Game
@@ -1767,6 +1786,7 @@ MonoBehaviour:
     buttonText: JOIN
     showButton: 1
     showInput: 1
+    showStats: 0
     isDefault: 0
   stateName:
     name: {fileID: 1143266246}
@@ -1774,6 +1794,7 @@ MonoBehaviour:
   stateDescription: {fileID: 2082805290}
   stateButton: {fileID: 712666852}
   stateInput: {fileID: 576806870}
+  stateStats: {fileID: 648524619}
 --- !u!114 &749059109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1787,7 +1808,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buttonText: {fileID: 317546973}
+  stateManager: {fileID: 0}
   matchmakingPanel: {fileID: 1742324635}
+  matchmakingColor: {r: 1, g: 0.4627451, b: 0, a: 1}
+  errorColor: {r: 1, g: 0.36335695, b: 0, a: 1}
   hideOnAwake: 1
 --- !u!114 &749059110
 MonoBehaviour:
@@ -1877,7 +1901,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 7
+  m_AdditionalShaderChannelsFlag: 31
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -5511,6 +5535,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5c6d1a7fb4c4c445ae416ce00a27396, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  useEnemyName: 0
 --- !u!114 &3554544395303324453
 MonoBehaviour:
   m_ObjectHideFlags: 0

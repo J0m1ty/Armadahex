@@ -5,108 +5,112 @@ using System;
 using MyBox;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-
-[Serializable]
-public class HighlightInfo {
-    public GameObject hexHighlight;
-    [HideInInspector]
-    public HexBorder hexBorder;
-    [Layer]
-    public int layer;
-    public Color color;
-    public float height;
-    public Color lockedInColor;
-    public float lockedInHeight;
-    public bool allowedToLockIn = false;
-}
+using Photon.Pun;
 
 [RequireComponent(typeof(AttackUIManager))]
 public class Selector : MonoBehaviour
 {
-    public bool allowSelectingGrids = true;
-    public bool allowSelectingShips = true;
+    public static Selector instance;
+
+    private AttackUIManager attackUIManager;
     
+    [Header("Config")]
+    public bool allowSelectingGrids;
+    public bool allowSelectingShips;
+
+    [Header("Networked Highlight")]
+    [SerializeField]
+    private GameObject hexHighlightPrefab;
+
+    private GameObject playerHexHighlight;
+    private HexBorder hexBorder;
+
+    [Header("Display Options")]
+    public Color highlightColor;
+    public float highlightHeight;
+    public Color lockedInColor;
+    public float lockedInHeight;
+
+    [Header("Hex Layers")]
+    [Layer]
+    public int friendlyHexLayer;
+    [Layer]
+    public int enemyHexLayer;
+    
+    [Header("Ship Layers")]
     [Layer]
     public int shipLayer;
     [Layer]
     public int outlineLayer;
+    [Layer]
+    public int deadLayer;
 
-    public Ship selectedShip;
-
-    [MyBox.MustBeAssigned]
-    public HighlightInfo friendly;
-    [MyBox.MustBeAssigned]
-    public HighlightInfo enemy;
-    private HighlightInfo current;
+    public Ship selectedShip { get; private set; }
+    
+    public HexRenderer selectedHex { get; private set; }
+    private GameObject hiddenFog;
 
     bool mouseMoved;
     int lastMovedFrames;
 
-    bool lockedIn;
-    HexRenderer lockedInGrid;
-
-    private AttackUIManager attackUIManager;
-
-    private GameObject fogHide;
+    TeamBase playerTeamBase;
 
     void Awake() {
-        friendly.hexBorder = friendly.hexHighlight.GetComponent<HexBorder>();
-        enemy.hexBorder = enemy.hexHighlight.GetComponent<HexBorder>();
+        if (instance == null) {
+            instance = this;
+        } else {
+            Destroy(gameObject);
+        }
+        
         attackUIManager = GetComponent<AttackUIManager>();
+
+        if (PhotonNetwork.InRoom) {
+            playerHexHighlight = PhotonNetwork.Instantiate(hexHighlightPrefab.name, Vector3.zero, Quaternion.identity);
+        }
+        else {
+            playerHexHighlight = Instantiate(hexHighlightPrefab);
+            playerHexHighlight.name = "Player Hex Highlight";
+        }
+        
+        hexBorder = playerHexHighlight.GetComponent<HexBorder>();
     }
 
-    void Start()
-    {
-        friendly.hexHighlight.SetActive(false);
-        enemy.hexHighlight.SetActive(false);
-        
-        lockedIn = false;
+    void Start() {
         lastMovedFrames = 0;
         mouseMoved = false;
     }
 
-    public void SetTeam(Team team) {
+    public void SetTeam(Team team, TeamBase over) {
         if (selectedShip != null) {
             SetLayerAllChildren(selectedShip.transform, outlineLayer, shipLayer);
+            selectedShip = null;
         }
 
-        if (lockedIn) {
-            lockedIn = false;
-            current.hexBorder.SetColor(current.color);
-            current.hexBorder.SetHeight(current.height);
+        if (selectedHex != null) {
+            selectedHex = null;
         }
 
-        friendly.hexHighlight.SetActive(false);
-        enemy.hexHighlight.SetActive(false);
-
-        if (fogHide != null) {
-            fogHide.SetActive(true);
-            fogHide = null;
+        if (hiddenFog != null) {
+            hiddenFog.SetActive(true);
+            hiddenFog = null;
         }
 
-        if (team.isPlayer) {
-            current = friendly;
-        } else {
-            current = enemy;
-        }
+        hexBorder.SetColor(highlightColor);
+        hexBorder.SetHeight(highlightHeight);
+        
+        hexBorder.SetVisibility(false);
 
-        current.hexBorder.SetColor(current.color);
-        current.hexBorder.SetHeight(current.height);
-        current.hexBorder.hexGrid = team.teamBase.hexMap;
+        playerHexHighlight.transform.SetParent(over.transform);
+        playerHexHighlight.transform.localPosition = Vector3.zero;
     }
 
-    void Update()
-    {
+    void Update() {
         mouseMoved = Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0;
 
         if (mouseMoved) {
             lastMovedFrames = 0;
         } else {
             lastMovedFrames++;
-        }
-        
-        if (current == null) {
-            return;
         }
 
         if (IsPointerOverUIObject()) {
@@ -122,80 +126,61 @@ public class Selector : MonoBehaviour
         }
     }
 
-    private bool IsPointerOverUIObject() {
-        PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
-        eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-        List<RaycastResult> results = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
-        
-        for (int i = results.Count - 1; i >= 0; i--) {
-            if (results[i].gameObject.GetComponent<Button>() == null) {
-                results.RemoveAt(i);
-            }
-        }
-
-        return results.Count > 0;
-    }
-
     public void SelectGrids() {
-        if (lastMovedFrames < (1/Time.deltaTime) * 10f && !lockedIn) {
+        HexRenderer hex = null;
+        if (lastMovedFrames < (1/Time.deltaTime) * 10f && selectedHex == null) {
             RaycastHit hit;
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 1000, 1 << current.layer)) {
-                var hex = hit.transform.GetComponent<HexRenderer>();
+            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 1000, 1 << enemyHexLayer)) {
+                hex = hit.transform.GetComponent<HexRenderer>();
 
-                if (fogHide != null) {
-                    fogHide.SetActive(true);
+                // Show previously hidden fog
+                if (hiddenFog != null) {
+                    hiddenFog.SetActive(true);
                 }
                 
-                fogHide = hex.fog.ps.gameObject;
-                fogHide.SetActive(false);
+                // Hide new fog
+                hiddenFog = hex.fog.ps.gameObject;
+                hiddenFog.SetActive(false);
 
-                current.hexHighlight.SetActive(true);
-                current.hexHighlight.transform.position = hex.transform.position;
+                hexBorder.SetVisibility(true);
+                playerHexHighlight.transform.position = hex.transform.position;
             } else {
-                current.hexHighlight.SetActive(false);
+                hexBorder.SetVisibility(false);
 
-                if (fogHide != null) {
-                    fogHide.SetActive(true);
-                    fogHide = null;
+                // Show previously hidden fog
+                if (hiddenFog != null) {
+                    hiddenFog.SetActive(true);
+                    hiddenFog = null;
                 }
             }
         }
         
-        if (Input.GetMouseButtonDown(0)) {
-            if (current.hexHighlight.activeSelf) {
-                RaycastHit hit;
-                HexRenderer hex = null;
-                if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 1000, 1 << current.layer)) {
-                    hex = hit.transform.GetComponent<HexRenderer>();
+        if (Input.GetMouseButtonDown(0) && hexBorder.isVisible) {
+            if (selectedHex != null) {
+                if (hex == selectedHex) {
+                    selectedHex = null;
+                    hexBorder.SetColor(highlightColor);
+                    hexBorder.SetHeight(highlightHeight);
+                    hex.RemoveFogOverrideColor();
+                }
+            }
+            
+            if (selectedHex == null && hex != null) {
+                selectedHex = hex;
+                hexBorder.SetColor(lockedInColor);
+                hexBorder.SetHeight(lockedInHeight);
+
+                // remove fog hide
+                if (hiddenFog != null) {
+                    hiddenFog.SetActive(true);
+                    hiddenFog = null;
                 }
 
-                if (lockedIn) {
-                    if (hex == lockedInGrid) {
-                        lockedIn = false;
-                        current.hexBorder.SetColor(current.color);
-                        current.hexBorder.SetHeight(current.height);
-                        hex.RemoveFogOverrideColor();
-                    }
-                } else {
-                    if (current.allowedToLockIn && hex != null) {
-                        lockedIn = true;
-                        current.hexBorder.SetColor(current.lockedInColor);
-                        current.hexBorder.SetHeight(current.lockedInHeight);
-                        hex.SetFogColorInstant(FogColor.Selected, true);
-                        lockedInGrid = hex;
+                hex.SetFogColorInstant(FogColor.Selected, true);
+            }
 
-                        // remove fog hide
-                        if (fogHide != null) {
-                            fogHide.SetActive(true);
-                            fogHide = null;
-                        }
-                    }
-                }
-
-                if (hex != null) {
-                    attackUIManager.SelectTarget(hex.gridRef);
-                }
+            if (hex != null) {
+                attackUIManager.SelectTarget(hex.gridRef);
             }
         }
     }
@@ -234,12 +219,34 @@ public class Selector : MonoBehaviour
         }
     }
 
+    private bool IsPointerOverUIObject() {
+        PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+        eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+        
+        for (int i = results.Count - 1; i >= 0; i--) {
+            if (results[i].gameObject.GetComponent<Button>() == null) {
+                results.RemoveAt(i);
+            }
+        }
+
+        return results.Count > 0;
+    }
+
     // from https://forum.unity.com/threads/help-with-layer-change-in-all-children.779147/
-    public void SetLayerAllChildren(Transform root, int from, int layer) {
+    public static void SetLayerAllChildren(Transform root, int? from, int layer) {
         var children = root.GetComponentsInChildren<Transform>(includeInactive: true);
         foreach (var child in children) {
-            if (child.gameObject.layer == from) {
-                child.gameObject.layer = layer;
+            if (from == null) {
+                if (child.gameObject.layer == instance.outlineLayer || child.gameObject.layer == instance.shipLayer) {
+                    child.gameObject.layer = layer;
+                }
+            }
+            else {
+                if (child.gameObject.layer == from) {
+                    child.gameObject.layer = layer;
+                }
             }
         }
     }

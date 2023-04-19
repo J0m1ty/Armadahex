@@ -80,15 +80,16 @@ public class TurnManager : MonoBehaviour
     }
 
     private void OnPlayerTurn() {
+        selector.SetTeam(TurnManager.instance.playerTeam, TurnManager.instance.otherTeam.teamBase);
         attackManager.SetState(AttackUIManager.AttackState.SelectShip);
         CameraManager.instance.MoveTo(TurnManager.instance.playerTeam.teamBase.transform.position);
     }
 
     private void OnEnemyTurn() {
-        attackManager.SetState(AttackUIManager.AttackState.None);
         selector.allowSelectingGrids = false;
         selector.allowSelectingShips = false;
-        selector.SetTeam(TurnManager.instance.playerTeam);
+        selector.SetTeam(TurnManager.instance.otherTeam, TurnManager.instance.playerTeam.teamBase);
+        attackManager.SetState(AttackUIManager.AttackState.None);
         CameraManager.instance.MoveTo(TurnManager.instance.playerTeam.teamBase.transform.position);
     }
 

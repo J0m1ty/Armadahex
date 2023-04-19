@@ -15,7 +15,10 @@ public class HexBorder : MonoBehaviour
     public Material borderMaterial;
 
     public float height;
-    public HexGrid hexGrid;
+    public float size;
+    public bool isFlatTopped;
+
+    public bool isVisible;
 
     private void Awake() {
         meshFilter = GetComponent<MeshFilter>();
@@ -28,35 +31,60 @@ public class HexBorder : MonoBehaviour
         
         SetMaterial(borderMaterial ?? new Material(Shader.Find("Universal Render Pipeline/Lit")));
 
-        if (hexGrid != null && height > 0) {
-            GenerateMesh(height, hexGrid);
-        }
+        GenerateMesh(height, size, isFlatTopped);
+    }
+
+    public void SetVisibility(bool isVisible) {
+        this.isVisible = isVisible;
+        meshRenderer.enabled = isVisible;
     }
 
     public void SetMaterial(Material material) {
-        this.borderMaterial = material;
-        meshRenderer.material = material;
+        this.borderMaterial = new Material(material);
+        meshRenderer.material = this.borderMaterial;
     }
+
+    private Color setColor;
 
     public void SetColor(Color color) {
         borderMaterial.SetColor("_Color", color);
+        setColor = color;
+    }
+
+    public Color GetColor() {
+        return setColor;
     }
 
     public void SetHeight(float height) {
-        this.height = height;
-        if (hexGrid != null && mesh != null) {
-            GenerateMesh(height, hexGrid);
+        var heightChanged = false;
+
+        if (this.height != height) {
+            heightChanged = true;
+        }
+
+        if (heightChanged) {
+            this.height = height;
+            Debug.Log("Setting height to " + height);
+
+            if (borderMaterial != null && Selector.instance != null) {
+                var amount = LODMeshGenerator.Map(height, Selector.instance.lockedInHeight, Selector.instance.highlightHeight, 0.2f, 0.04f);
+                Debug.Log("Setting scale to " + amount);
+                borderMaterial.SetFloat("_Scale", amount);
+            }
+            if (mesh != null) {
+                GenerateMesh(height, size, isFlatTopped);
+            }
         }
     }
 
-    public void GenerateMesh(float height, HexGrid hexGrid) {
+    public void GenerateMesh(float height, float size, bool isFlatTopped) {
         List<Vector3> vertices = new List<Vector3>();
         List<int> triangles = new List<int>();
         List<Vector2> uvs = new List<Vector2>();
 
         for (int i = 0; i < 6; i++) {
-            vertices.Add(GetVertex(hexGrid.size, 0, i, hexGrid.isFlatTopped));
-            vertices.Add(GetVertex(hexGrid.size, height, i, hexGrid.isFlatTopped));
+            vertices.Add(GetVertex(size, 0, i, isFlatTopped));
+            vertices.Add(GetVertex(size, height, i, isFlatTopped));
 
             triangles.Add(i * 2);
             triangles.Add(i * 2 + 1);

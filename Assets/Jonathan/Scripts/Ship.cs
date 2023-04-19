@@ -51,9 +51,21 @@ public class AttackInfo {
 }
 
 [Serializable]
+public enum ShipType {
+    Carrier,
+    Battleship,
+    Cruiser,
+    Submarine,
+    Destroyer,
+    Aircraft
+}
+
+
+[Serializable]
 public class ShipModel {
     public string name;
     public string attackName;
+    public ShipType type;
     public GameObject shipPrefab;
     public Sprite display;
     public int length;
@@ -131,6 +143,7 @@ public class Ship : MonoBehaviour
     }
 
     // Data
+    private bool setToSunk;
     public GridUnit gridRef;
     public ShipInternals internals;
 
@@ -153,6 +166,8 @@ public class Ship : MonoBehaviour
         transform.parent = team.teamBase.transform;
 
         internals = GetComponentInChildren<ShipInternals>();
+
+        setToSunk = false;
 
         UpdateVisibility();
     }
@@ -217,6 +232,12 @@ public class Ship : MonoBehaviour
         internals.sunkMesh.SetActive(false);
         
         if (destroyed) {
+            if (!setToSunk && !GameOver.instance.CheckIfGameOver()) {
+                AudioManager.instance?.PlayShipSound(shipModel.type, isPlayer, 6f);
+
+                setToSunk = true;
+            }
+
             internals.sunkMesh.SetActive(true);
             
             foreach (var segment in segments) {
@@ -226,6 +247,8 @@ public class Ship : MonoBehaviour
 
                 segment.gridRef.hexRenderer.DisableFlames();
             }
+
+            Selector.SetLayerAllChildren(transform, null, Selector.instance.deadLayer);
 
         } else if (!destroyed && !hidden) {
             internals.shipMesh.SetActive(true);

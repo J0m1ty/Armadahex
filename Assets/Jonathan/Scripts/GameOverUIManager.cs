@@ -63,6 +63,8 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
         }
 
         var isWinner = winInfo.winningTeam == winInfo.playerTeam;
+
+        AudioManager.instance?.PlayResultSound(isWinner);
         
         gameOverText.text = isWinner ? "TOTAL VICTORY" : "FULL DEFEAT";
         

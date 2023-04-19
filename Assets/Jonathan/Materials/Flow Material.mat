@@ -197,13 +197,13 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EnvironmentReflections: 1
-    - _Fog_param: -0.25
+    - _Fog_param: -0.18
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Gravity: 9
     - _HeightScale: 0.1
-    - _HeightScaleModulated: 0.9
+    - _HeightScaleModulated: 1.2
     - _Max_fog: 1
     - _Metallic: 0
     - _Min_fog: 0
@@ -215,7 +215,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _RefractionStrength: 0.35
+    - _RefractionStrength: 0.649
     - _Scaling: 20
     - _Smoothness: 0.66
     - _SmoothnessTextureChannel: 0
@@ -229,25 +229,27 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     - _edgeFalloffBias: -0.29
-    - _edgePatternScale: 0.26
+    - _edgePatternScale: 0.25
     - _edgePatternScroll: 0
+    - _extraFoamParam: 0.95
     - _falloffDistance: 1
     - _foamFalloffmult: 0.26
     - _leadingEdgeFalloff: 1
     - _timeMult: 0.1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Base_color: {r: 0.0045834924, g: 0.52734804, b: 0.9716981, a: 1}
+    - _Base_color: {r: 0, g: 0.5803919, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Dir_1: {r: 0.3, g: 0, b: 0.5, a: 0}
     - _Dir_2: {r: 0.28, g: 0, b: 0.4, a: 0}
     - _Dir_3: {r: 0.5, g: 0, b: 0.5, a: 0}
     - _Dir_4: {r: -0.5, g: 0, b: 0.2, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _Jump: {r: 0, g: 0, b: 0, a: 0}
+    - _Fog_color: {r: 0.03470986, g: 0.08998093, b: 0.18867922, a: 1}
+    - _Jump: {r: 0.15, g: 0.15, b: 0, a: 0}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _Tiling: {r: 4, g: 4, b: 0, a: 0}
-    - _edgeFalloffColor: {r: 0.6084906, g: 0.98206824, b: 1, a: 1}
+    - _edgeFalloffColor: {r: 0, g: 0.8489902, b: 1, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &5269401364437940169
 MonoBehaviour:

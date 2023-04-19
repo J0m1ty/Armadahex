@@ -10,6 +10,6 @@ public class MatchmakingShaderUpdater : MonoBehaviour
     public void Update() {
         distance = Mathf.PingPong(Time.time * 1000f, 1980f);
 
-        GetComponent<CanvasRenderer>().GetMaterial().SetFloat("_Distance", distance);
+        GetComponent<CanvasRenderer>()?.GetMaterial()?.SetFloat("_Distance", distance);
     }
 }

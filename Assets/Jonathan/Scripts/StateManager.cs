@@ -35,10 +35,15 @@ public class StateManager : MonoBehaviour
         
         public bool showInput;
 
+        public bool showStats;
+
         public bool isDefault;
     }
 
     public MenuState currentState { get; private set; }
+
+    public bool allowLocking;
+    public bool lockedIn;
 
     [SerializeField]
     private MenuState[] states;
@@ -53,7 +58,10 @@ public class StateManager : MonoBehaviour
     private Button stateButton;
 
     [SerializeField]
-    private TMP_InputField stateInput;
+    public TMP_InputField stateInput;
+
+    [SerializeField]
+    public GameObject stateStats;
 
     private void Start() {
         int i = 0;
@@ -64,6 +72,8 @@ public class StateManager : MonoBehaviour
 
             if (state.select != null) {
                 state.select.onClick.AddListener(() => {
+                    if (allowLocking && lockedIn)
+                        return;
                     SetState(state.name);
                     //Debug.Log("Clicked " + state.name);
                 });
@@ -103,6 +113,12 @@ public class StateManager : MonoBehaviour
         
         stateInput.text = "";
         stateInput.gameObject.SetActive(currentState.showInput);
+
+        stateStats.SetActive(currentState.showStats);
+
+        if (allowLocking) {
+            lockedIn = true;
+        }
     }
 
     public void SetState(string name) {
@@ -114,7 +130,5 @@ public class StateManager : MonoBehaviour
             }
             i++;
         }
-
-        Debug.LogError("Invalid state name!");
     }
 }

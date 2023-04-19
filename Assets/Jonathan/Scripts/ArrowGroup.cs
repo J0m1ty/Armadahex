@@ -28,6 +28,8 @@ public class ArrowGroup : MonoBehaviour
 
     // For buttons
     public void SetPatternPreview(int i) {
+        Debug.Log("Setting pattern preview to " + i + " with buttons at " + disableButtons);
+
         if (disableButtons) {
             return;
         }
@@ -53,6 +55,8 @@ public class ArrowGroup : MonoBehaviour
     }
 
     public void SetPatternPreview(AttackPattern pattern) {
+        Debug.Log("Setting pattern preview to " + pattern.name);
+
         for (int i = 0; i < arrows.Count; i++) {
             Destroy(arrows[i].gameObject);
         }

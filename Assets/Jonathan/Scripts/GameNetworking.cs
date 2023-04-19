@@ -46,6 +46,12 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
             PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
         }
 
+        // get GAME_MODE_PROP_KEY prop from room
+        if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey(Constants.GAME_MODE_PROP_KEY)) {
+            Enum.TryParse((string)PhotonNetwork.CurrentRoom.CustomProperties[Constants.GAME_MODE_PROP_KEY], out GameMode gameMode);
+            Debug.Log("Game mode is " + gameMode);
+        }
+
         attackManager.OnAttack += OnAttack;
 
         TurnManager.instance.OnTurnOver += AdvanceTurn;

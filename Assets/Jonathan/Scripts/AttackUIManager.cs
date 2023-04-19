@@ -117,6 +117,8 @@ public class AttackUIManager : MonoBehaviour
             if (state != AttackState.AttackOver) {
                 skipButton.SetActive(true);
             }
+
+            bottomUI.SetActive(true);
         }
         else {
             bottomUI.SetActive(false);
@@ -127,7 +129,6 @@ public class AttackUIManager : MonoBehaviour
                 directiveText.gameObject.SetActive(true);
                 directiveText.text = "DIRECTIVE: SELECT A SHIP";
                 selector.allowSelectingShips = true;
-                selector.SetTeam(TurnManager.instance.currentTeam);
                 CameraManager.instance.MoveToOnce(TurnManager.instance.currentTeam.teamBase.transform.position);
                 break;
             case AttackState.Error:
@@ -137,7 +138,7 @@ public class AttackUIManager : MonoBehaviour
                 directiveText.gameObject.SetActive(true);
                 directiveText.text = "DIRECTIVE: SELECT A TARGET";
                 selector.allowSelectingGrids = true;
-                selector.SetTeam(TurnManager.instance.otherTeam);
+                selector.SetTeam(TurnManager.instance.playerTeam, TurnManager.instance.otherTeam.teamBase);
                 CameraManager.instance.MoveToOnce(TurnManager.instance.otherTeam.teamBase.transform.position);
                 backButton.onClick.AddListener(() => {
                     GoBackToSelection();
@@ -267,6 +268,8 @@ public class AttackUIManager : MonoBehaviour
     }
 
     public void GenerateAttackPatterns() {
+        Debug.Log("Generating attack patterns");
+
         selectionDisplay.sprite = selectedShip.shipModel.display;
         selectedShipText.text = selectedShip.shipModel.name;
         selectedOptionText.text = selectedOption.info.name;
@@ -283,13 +286,13 @@ public class AttackUIManager : MonoBehaviour
             patternObj.GetComponentInChildren<TMP_Text>().text = pattern.name;
 
             var bl = patternObj.AddComponent<ButtonListener>();
+            bl.index = i;
 
             patternObj.GetComponent<Button>().onClick.AddListener(() => {
                 SelectAttackPattern(bl.index);
                 arrowGroup.disableButtons = true;
             });
             
-            bl.index = i;
             bl.OnMouseEnter += () => {
                 arrowGroup.gameObject.SetActive(true);
                 arrowGroup.SetPatternPreview(bl.index);
@@ -415,6 +418,8 @@ public class AttackUIManager : MonoBehaviour
         if (attackState == AttackState.Confirm) {
             countdown.StopCountdown();
 
+            //AudioManager.instance?.PlayActionSound(ActionType.Fire);
+
             // do and show the attach, then end turn
 
             // if the attack is not unlimited, remove ammo
@@ -516,8 +521,13 @@ public class AttackUIManager : MonoBehaviour
                 hex.hexRenderer.RemoveFogOverrideColor();
             }
 
-            attackPanel.SetAttackInfo(hit, destroyed, selectedShip.shipModel.attackName, selectedOption.info.unlimited ? 1000 : selectedOption.ammoLeft );
-            attackPanel.QuickActivate();
+            if (!GameOver.instance.CheckIfGameOver()) {
+                attackPanel.SetAttackInfo(hit, destroyed, selectedShip.shipModel.attackName, selectedOption.info.unlimited ? 1000 : selectedOption.ammoLeft );
+                CameraManager.instance.Shake(hit);
+                AudioManager.instance?.PlayActionSound(ActionType.Explosion);
+                AudioManager.instance?.PlayHitSound(hit, 3f);
+                attackPanel.QuickActivate();
+            }
 
             SetState(AttackState.AttackOver);
             
@@ -551,7 +561,10 @@ public class AttackUIManager : MonoBehaviour
 
         attackPanel.SetAttackInfo_Save(hit, destroyed, null, null);
         
-        if (finalAttack) {
+        if (finalAttack && !GameOver.instance.CheckIfGameOver()) {
+            CameraManager.instance.Shake(attackPanel.persistingHit);
+            AudioManager.instance?.PlayActionSound(ActionType.Explosion);
+            AudioManager.instance?.PlayHitSound(attackPanel.persistingHit, 3f);
             attackPanel.QuickActivate();
         }
     }
@@ -594,11 +607,12 @@ public class AttackUIManager : MonoBehaviour
             }
 
             selectedOption = null;
+            selectedPattern = null;
 
             SetState(AttackState.SelectAttackOption);
 
             // go back further if there is only one or none attack option
-            if (selectedShip.remainingAttacks.Length == 1) {
+            if (selectedShip.remainingAttacks.Length == 1 || selectedShip.remainingAttacks.Length == 0) {
                 GoBackToTarget();
             }
             else {
@@ -616,6 +630,8 @@ public class AttackUIManager : MonoBehaviour
             }
 
             selectedTarget = null;
+            selectedOption = null;
+            selectedPattern = null;
 
             SetState(AttackState.SelectTarget);
 
