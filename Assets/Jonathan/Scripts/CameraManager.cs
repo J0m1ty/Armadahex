@@ -46,6 +46,17 @@ public class CameraManager : MonoBehaviour
 
     private Vector3 centerPos;
 
+    
+    #if UNITY_EDITOR
+    [Header("Debug Options")]
+    public bool hit;
+    [MyBox.ButtonMethod]
+    public void DebugShake() {
+        Shake(hit);
+    }
+    #endif
+
+
     void Awake() {
         if (instance != null) {
             Destroy(gameObject);

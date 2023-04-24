@@ -5193,7 +5193,7 @@ MonoBehaviour:
     PointListProperties:
     - GeneratorData:
         Generator: 5
-        NeedsUpdate: 0
+        NeedsUpdate: 1
         Center: {x: 0, y: 0}
         Width: 50
         Height: 50
@@ -8917,6 +8917,7 @@ MonoBehaviour:
   missShakeRoughness: 2
   missShakeFadeInTime: 0
   missShakeFadeOutTime: 4
+  hit: 0
 --- !u!1 &1018318959
 GameObject:
   m_ObjectHideFlags: 0
