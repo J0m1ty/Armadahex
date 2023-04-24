@@ -9,11 +9,14 @@ public class ShipSegment : MonoBehaviour {
     
     public bool isAlive;
 
-    public GameObject fireEffect;
+    public GameObject flames;
 
-    public void Destroy() {
+    public bool Destroy() {
         isAlive = false;
-        fireEffect.SetActive(true);
-        parent.UpdateStatus();
+        var destroyed = parent.UpdateVisibility();
+        if (parent.team.isPlayer && flames) {
+            flames.SetActive(true);
+        }
+        return destroyed;
     }
 }

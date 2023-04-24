@@ -9,9 +9,22 @@ public class NameSource : MonoBehaviour
 {
     private TMP_Text nameText;
 
+    [SerializeField]
+    private bool useEnemyName = false;
+
     void Awake() {
         nameText = GetComponent<TMP_Text>();
 
-        nameText.text = PhotonNetwork.NickName;
+        var name = "Player" + (useEnemyName ? "2" : "1");
+
+        if (PhotonNetwork.IsConnected) {
+            name = PhotonNetwork.NickName;
+        }
+
+        if (useEnemyName && PhotonNetwork.InRoom && PhotonNetwork.PlayerListOthers.Length > 0) {
+            name = PhotonNetwork.PlayerListOthers[0].NickName;
+        }
+
+        nameText.text = name;
     }
 }

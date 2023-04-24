@@ -123,6 +123,15 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.recorder": {
+      "version": "4.0.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.timeline": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.render-pipelines.core": {
       "version": "15.0.4",
       "depth": 1,
@@ -151,6 +160,18 @@
       "depth": 2,
       "source": "registry",
       "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.sequences": {
+      "version": "2.1.0-pre.1",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.timeline": "1.6.3",
+        "com.unity.recorder": "2.5.5",
+        "com.unity.settings-manager": "1.0.3",
+        "com.unity.ugui": "1.0.0"
+      },
       "url": "https://packages.unity.com"
     },
     "com.unity.services.analytics": {
@@ -203,7 +224,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.textmeshpro": {
-      "version": "3.0.6",
+      "version": "4.0.0-pre.2",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -278,14 +299,20 @@
       "url": "https://registry.npmjs.org"
     },
     "com.unityfx.outline.urp": {
-      "version": "0.5.0",
+      "version": "file:com.unityfx.outline.urp@0.5.0",
       "depth": 0,
-      "source": "registry",
+      "source": "embedded",
       "dependencies": {
         "com.unityfx.outline": "0.8.5",
         "com.unity.render-pipelines.universal": "7.0.0"
-      },
-      "url": "https://registry.npmjs.org"
+      }
+    },
+    "com.veriorpies.parrelsync": {
+      "version": "https://github.com/VeriorPies/ParrelSync.git?path=/ParrelSync",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "f45424822189ebd875d864a17d7f03b72eafbff7"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",

@@ -11,6 +11,13 @@ public enum Rotation {
 }
 
 [Serializable]
+public enum IndexRotation {
+    One = 0,
+    Two = 1,
+    Three = 2,
+}
+
+[Serializable]
 public class AttackDirection {
     public Rotation rotation;
     public bool reverse;
@@ -27,6 +34,8 @@ public class AttackPattern {
     public bool doOffset;
     [MyBox.ConditionalField(nameof(doOffset), true)]
     public bool attackCenter;
+    [MyBox.ConditionalField(nameof(doOffset), false)]
+    public bool autoOptimize;
     public bool isInstant;
 }
 
@@ -42,9 +51,23 @@ public class AttackInfo {
 }
 
 [Serializable]
+public enum ShipType {
+    Carrier,
+    Battleship,
+    Cruiser,
+    Submarine,
+    Destroyer,
+    Aircraft
+}
+
+
+[Serializable]
 public class ShipModel {
     public string name;
+    public string attackName;
+    public ShipType type;
     public GameObject shipPrefab;
+    public Sprite display;
     public int length;
     public AttackInfo[] attacks;
     
@@ -59,6 +82,13 @@ public class Attack {
     public int ammoLeft;
 }
 
+public class NetworkingShip {
+    public string shipModelName;
+    public int teamTypeIndex;
+    public int rotation;
+    public bool reverse;
+    public int hexIndex;
+}
 
 [RequireComponent(typeof(CapsuleCollider))]
 public class Ship : MonoBehaviour
@@ -113,9 +143,11 @@ public class Ship : MonoBehaviour
     }
 
     // Data
+    private bool setToSunk;
     public GridUnit gridRef;
+    public ShipInternals internals;
 
-    void Start() {
+    public void EnableShip() {
         if (segments.Length != shipModel.length) {
             LoadSegments();
         }
@@ -129,7 +161,15 @@ public class Ship : MonoBehaviour
             };
         }
 
-        transform.name = shipModel.name;
+        transform.name = (team.isPlayer ? "Player" : "Enemy") + " " + shipModel.name;
+
+        transform.parent = team.teamBase.transform;
+
+        internals = GetComponentInChildren<ShipInternals>();
+
+        setToSunk = false;
+
+        UpdateVisibility();
     }
 
     public void LoadSegments() {
@@ -137,24 +177,7 @@ public class Ship : MonoBehaviour
 
         foreach (var segment in segments) {
             segment.parent = this;
-        }
-    }
-
-    public void UpdateStatus() {
-        // check if ship is dead
-        var alive = false;
-        for (int i = 0; i < segments.Length; i++) {
-            if (segments[i].isAlive) {
-                alive = true;
-            }
-        }
-        
-        if (!alive) {
-            // destroy ship
-            Destroy(gameObject);
-
-            // TODO: add death animation
-            // clear fog of war
+            segment.isAlive = true;
         }
     }
 
@@ -162,7 +185,7 @@ public class Ship : MonoBehaviour
         if (segments.Length != shipModel.length) {
             LoadSegments();
         }
-
+  
         gridRef = grid;
 
         var hex = gridRef.hexRenderer;
@@ -182,11 +205,55 @@ public class Ship : MonoBehaviour
                 valid = false;
                 break;
             }
+        }
 
-            segment.gridRef = closestTo;
-            closestTo.shipSegment = segment;
+        if (valid) {
+            foreach (var segment in segments) {
+                var closestTo = hex.hexMap.ClosestTo(segment.transform.position, out float dist);
+
+                segment.gridRef = closestTo;
+                closestTo.shipSegment = segment;
+            }
         }
 
         return valid;
+    }
+
+    public bool UpdateVisibility() {
+        // in order to be hidden, the ship must not be a player ship, and must not have any alive segments
+        var hidden = !isPlayer;
+        var destroyed = !isAlive;
+
+        if (internals == null) {
+            return false;
+        }
+        
+        internals.shipMesh.SetActive(false);
+        internals.sunkMesh.SetActive(false);
+        
+        if (destroyed) {
+            if (!setToSunk && !GameOver.instance.CheckIfGameOver()) {
+                AudioManager.instance?.PlayShipSound(shipModel.type, isPlayer, 6f);
+
+                setToSunk = true;
+            }
+
+            internals.sunkMesh.SetActive(true);
+            
+            foreach (var segment in segments) {
+                segment.isAlive = false;
+
+                segment.gridRef.hexRenderer.ClearFog();
+
+                segment.gridRef.hexRenderer.DisableFlames();
+            }
+
+            Selector.SetLayerAllChildren(transform, null, Selector.instance.deadLayer);
+
+        } else if (!destroyed && !hidden) {
+            internals.shipMesh.SetActive(true);
+        }
+
+        return destroyed;
     }
 }

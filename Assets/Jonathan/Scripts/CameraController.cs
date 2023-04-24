@@ -18,9 +18,11 @@ public struct Vector3Range
 
 public class CameraController : MonoBehaviour
 {
-    public GameObject cameraChild;
+    public GameObject followChild;
+    public Camera newCameraChild;
 
     [Header("General Settings")]
+    //public bool rotationAffectsRigOrCamera;
     public bool allowZoomKeys;
     public bool allowMousePanning;
     public float movementTime;
@@ -64,19 +66,19 @@ public class CameraController : MonoBehaviour
     private float transportTime;
 
     void Start() {
-        cameraChild = transform.GetChild(0).gameObject;
+        followChild = transform.GetChild(0).gameObject;
 
-        cameraChild.GetComponent<Camera>().orthographic = isOrthographic;
+        newCameraChild.GetComponentInChildren<Camera>().orthographic = isOrthographic;
         if (isOrthographic) {
-            cameraChild.GetComponent<Camera>().orthographicSize = OrthoFOV;
+            newCameraChild.GetComponentInChildren<Camera>().orthographicSize = OrthoFOV;
         } else {
-            cameraChild.GetComponent<Camera>().fieldOfView = FOV;
+            newCameraChild.GetComponentInChildren<Camera>().fieldOfView = FOV;
             distanceOffset = 0;
         }
 
         newPosition = transform.position;
         newRotation = transform.rotation;
-        newZoom = cameraChild.transform.localPosition + (zoomAmount * -distanceOffset); 
+        newZoom = followChild.transform.localPosition + (zoomAmount * -distanceOffset); 
     }
 
     void LateUpdate() {
@@ -96,12 +98,12 @@ public class CameraController : MonoBehaviour
         newPosition = new Vector3(Mathf.Clamp(newPosition.x, -maxDist, maxDist), Mathf.Clamp(newPosition.y, -maxDist, maxDist), Mathf.Clamp(newPosition.z, -maxDist, maxDist));
 
         transform.rotation = Quaternion.Lerp(transform.rotation, newRotation, Time.deltaTime * movementTime);
-        cameraChild.transform.localPosition = Vector3.Lerp(cameraChild.transform.localPosition, newZoom, Time.deltaTime * movementTime);
+        followChild.transform.localPosition = Vector3.Lerp(followChild.transform.localPosition, newZoom, Time.deltaTime * movementTime);
 
-        cameraChild.transform.LookAt(transform.position);
+        followChild.transform.LookAt(transform.position);
 
-        float offset = Mathf.Lerp(angleOffset[0], angleOffset[1], Mathf.InverseLerp(zoomRange.Min, zoomRange.Max, cameraChild.transform.localPosition.magnitude - distanceOffset));
-        cameraChild.transform.rotation *= Quaternion.AngleAxis(offset, Vector3.right);
+        float offset = Mathf.Lerp(angleOffset[0], angleOffset[1], Mathf.InverseLerp(zoomRange.Min, zoomRange.Max, followChild.transform.localPosition.magnitude - distanceOffset));
+        followChild.transform.rotation *= Quaternion.AngleAxis(offset, Vector3.right);
 
         center = Vector3.Lerp(center, newCenter, Time.deltaTime * transportTime);
 
@@ -198,6 +200,28 @@ public class CameraController : MonoBehaviour
     }
 
     public void MoveTo(Vector3 position) {
+        newPosition = new Vector3(0, 0, 0);
         newCenter = position;
+    }
+
+    public void InstantMoveTo(Vector3 position) {
+        newPosition = new Vector3(0, 0, 0);
+        newCenter = position;
+        center = newCenter;
+    }
+
+    public bool AlreadyAt(Vector3 centerPos) {
+        return newCenter == centerPos;
+    }
+
+    [SerializeField]
+    private float zoomAmountButton;
+
+    public void ZoomIn() {
+        newZoom += zoomAmountButton * zoomAmount;
+    }
+
+    public void ZoomOut() {
+        newZoom -= zoomAmountButton * zoomAmount;
     }
 }

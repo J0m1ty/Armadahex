@@ -9,7 +9,7 @@ public class TeamBase : MonoBehaviour {
     public Vector2 offset;
     public Team team;
 
-    private TerrainBlock terrainBlock;
+    public TerrainBlock terrainBlock { get; private set; }
 
     void Start() {
         hexMap.teamBase = this;

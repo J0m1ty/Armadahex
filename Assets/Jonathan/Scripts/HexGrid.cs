@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using MyBox;
+using Random = UnityEngine.Random;
 
 [Serializable]
 public class GridUnit {
@@ -19,6 +20,25 @@ public class GridUnit {
         this.shipSegment = null;
 
         hexRenderer.gridRef = this;
+    }
+
+    public GridUnit GetNeighbor(int dir, bool reverse = false) {
+        return hexRenderer.hexMap.FromCoordinatesBrute(coords.GetNeighbor(dir));
+    }
+
+    public int RangeInDirection(int dir, bool activeOnly) {
+        int range = 0;
+        GridUnit current = this;
+        while (current != null) {
+            current = current.GetNeighbor(dir);
+
+            if (current == null) break;
+
+            if (!(activeOnly && current.hexRenderer.gameObject.activeSelf == false)) {
+                range++;
+            }
+        }
+        return range;
     }
 }
 
@@ -47,12 +67,37 @@ public class HexGrid : MonoBehaviour
     public Material material;
     [Layer]
     public int layer;
+    [Layer]
+    public int borderLayer;
+    public bool hasHeight;
+    [ConditionalField("hasHeight", false, true)]
+    public float height;
+    [ConditionalField("hasHeight", false, true)]
+    public float noiseScale;
+    [ConditionalField("hasHeight", false, true)]
+    public MinMaxFloat heightVariation;
 
     [Header("Hexes")]
     public List<GridUnit> hexes;
 
     [Header("Team Integration")]
     public TeamBase teamBase;
+
+    [Header("VFX Integration")]
+    public bool useFog;
+    [ConditionalField("useFog", false, true)]
+    public MinMaxFloat fogHeight;
+    [ConditionalField("useFog", false, true)]
+    public GameObject fogPrefab;
+    public bool useFlames;
+    [ConditionalField("useFlames", false, true)]
+    public int flameCount;
+    [ConditionalField("useFlames", false, true)]
+    public GameObject flamePrefab;
+    [ConditionalField("useFlames", false, true)]
+    public int flameHeight;
+    [ConditionalField("useFlames", false, true)]
+    public MinMaxFloat fireSize;
 
     private void Awake() {
         Generate();
@@ -146,7 +191,7 @@ public class HexGrid : MonoBehaviour
 
                 AddHex($"Hex {i}", i, new Vector3(drawPointer.x, 0f, drawPointer.y), r == gridRadius - 1);
 
-                float theta = direction * Mathf.PI / 3f + (isFlatTopped ? Mathf.PI / 6f : 0f);
+                float theta = (Mathf.PI * 2f) - (direction * Mathf.PI / 3f + (isFlatTopped ? Mathf.PI / 6f : 0f));
                 drawPointer.x += size * Mathf.Cos(theta) * Mathf.Sqrt(3);
                 drawPointer.y += size * Mathf.Sin(theta) * Mathf.Sqrt(3);
 
@@ -158,18 +203,46 @@ public class HexGrid : MonoBehaviour
     }
 
     private void AddHex(string name, int index, Vector3 position, bool isEdge = false) {
+        float noise = LODMeshGenerator.Map(Mathf.PerlinNoise(position.x * noiseScale, position.z * noiseScale), 0f, 1f, heightVariation.Min, heightVariation.Max);
+
         GameObject tile = new GameObject(name, typeof(HexRenderer));
         tile.transform.SetParent(transform, true);
-        tile.transform.position = transform.position + position;
+        tile.transform.position = transform.position + position + Vector3.up * noise;
         tile.layer = layer;
-        
+
         HexRenderer hex = tile.GetComponent<HexRenderer>();
         var m = new Material(material);
-        m.color = Color.HSVToRGB(UnityEngine.Random.Range(0f, 1f), 1f, 1f);
+        m.name = "Hex Material";
+        m.color = Color.white; //placeholder, gets set by team type in teamManager
         hex.SetMaterial(m);
+
+        if (useFog) {
+            var fog = Instantiate(fogPrefab, tile.transform);
+            fog.transform.localPosition = Vector3.zero + Vector3.up * (UnityEngine.Random.Range(fogHeight.Min, fogHeight.Max));
+            fog.transform.localRotation = Quaternion.identity * Quaternion.Euler(90f, 0f, 0f);
+            fog.transform.localScale = Vector3.one;
+            hex.fog = new Fog(fog.GetComponent<ParticleSystem>());
+        }
+
+        if (hasHeight) {
+            var border = new GameObject("Height", typeof(HexBorder));
+            border.transform.SetParent(tile.transform, true);
+            border.transform.localPosition = new Vector3(0f, -height, 0f);
+            border.layer = borderLayer;
+
+            var borderRenderer = border.GetComponent<HexBorder>();
+            borderRenderer.height = height;
+            borderRenderer.size = size;
+            borderRenderer.isFlatTopped = isFlatTopped;
+            borderRenderer.SetMaterial(m);
+            borderRenderer.SetHeight(height);
+        }
+
+        hex.coords = new CoordinateSystem(new Spiral(index));
         hex.size = size;
         hex.isFlatTopped = isFlatTopped;
         hex.hexMap = this;
+        hex.fire = tile.AddComponent<FlameMaker>();
         hex.GenerateMesh();
 
         MeshCollider meshCollider = tile.AddComponent<MeshCollider>();
@@ -219,6 +292,11 @@ public class HexGrid : MonoBehaviour
 
         return hexes[coords.index];
     }
+    
+    public GridUnit FromCoordinatesBrute(CoordinateSystem coords) {
+        return hexes.Find(hex => hex.coords.index == coords.index);
+    }
+
 
     public GridUnit FromPosition(Vector3 position) {
         return hexes.Find(hex => hex.hexRenderer.transform.position == position);

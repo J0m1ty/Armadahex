@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - Ship
+  - PictureCameraOne
+  - PictureCameraTwo
   layers:
   - Default
   - TransparentFX
@@ -15,10 +17,10 @@ TagManager:
   - ShipDefault
   - Outline
   - Highlight
-  - 
+  - VFX
   - PlayerHex
   - EnemyHex
-  - 
+  - GeneralHex
   - 
   - 
   - Clouds
@@ -41,4 +43,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Fog
+    uniqueID: 1296566717
     locked: 0
