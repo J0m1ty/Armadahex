@@ -167,7 +167,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1761160555207580740}
   serializedVersion: 4
-  m_Mass: 5
+  m_Mass: 100
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -200,7 +200,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   density: 500
   slicesPerAxis: 8
-  isConcave: 0
+  isConcave: 1
   voxelsLimit: 32
 --- !u!1 &2139716051109804204
 GameObject:
