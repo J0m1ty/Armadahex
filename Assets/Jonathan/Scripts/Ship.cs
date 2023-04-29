@@ -190,7 +190,7 @@ public class Ship : MonoBehaviour
 
         var hex = gridRef.hexRenderer;
 
-        transform.position = hex.transform.position + (Vector3.up * 3f);
+        transform.position = hex.transform.position;
         transform.rotation = Quaternion.Euler(0, (int)rotation, 0);
 
         if (reverse) {
