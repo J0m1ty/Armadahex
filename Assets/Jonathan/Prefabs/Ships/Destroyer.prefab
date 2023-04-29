@@ -77,6 +77,8 @@ GameObject:
   - component: {fileID: 2803457664954723454}
   - component: {fileID: 2352718060483437168}
   - component: {fileID: 8090611938084067630}
+  - component: {fileID: 2342905112244086640}
+  - component: {fileID: 173590917357770158}
   m_Layer: 6
   m_Name: Destroyer
   m_TagString: Ship
@@ -113,7 +115,7 @@ CapsuleCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 7168
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -137,7 +139,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shipModel:
     name: 
+    attackName: 
+    type: 0
     shipPrefab: {fileID: 0}
+    display: {fileID: 0}
     length: 0
     attacks: []
   team:
@@ -154,6 +159,49 @@ MonoBehaviour:
     isEdge: 0
     preventShips: 0
   internals: {fileID: 0}
+--- !u!54 &2342905112244086640
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1761160555207580740}
+  serializedVersion: 4
+  m_Mass: 5
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 64
+  m_CollisionDetection: 0
+--- !u!114 &173590917357770158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1761160555207580740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63a6c15360b799641b5ae004c5c6d9a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  density: 500
+  slicesPerAxis: 8
+  isConcave: 0
+  voxelsLimit: 32
 --- !u!1 &2139716051109804204
 GameObject:
   m_ObjectHideFlags: 0
@@ -466,6 +514,7 @@ MonoBehaviour:
     isEdge: 0
     preventShips: 0
   isAlive: 0
+  flames: {fileID: 0}
 --- !u!1 &5019255635365012801
 GameObject:
   m_ObjectHideFlags: 0
@@ -692,6 +741,7 @@ MonoBehaviour:
     isEdge: 0
     preventShips: 0
   isAlive: 0
+  flames: {fileID: 0}
 --- !u!1 &8370551544376686374
 GameObject:
   m_ObjectHideFlags: 0
