@@ -7,4 +7,4 @@ Developed in Unity 3d, Armadahex will take advantage of the Universal Render Pip
 Please view the guide on contributing with GitHub on [Google Docs](https://docs.google.com/document/d/1VzWAz2csM-IKl1G8QbqtiLcwP03_bQJLtlkP-rpUkFw/edit#heading=h.1h04ikcp1fg5).
 
 # Releases
-Development is still underway. Expect a public release by April 23rd, 2023.
+Development is still underway. Expect a public release soon TM.
