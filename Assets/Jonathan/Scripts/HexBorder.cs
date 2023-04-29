@@ -7,7 +7,9 @@ using UnityEngine;
 public class HexBorder : MonoBehaviour
 {
     public Mesh mesh { get; private set; }
+    [MyBox.AutoProperty]
     private MeshFilter meshFilter;
+    [MyBox.AutoProperty]
     private MeshRenderer meshRenderer;
     
     public Material borderMaterial;
@@ -29,9 +31,7 @@ public class HexBorder : MonoBehaviour
         
         SetMaterial(borderMaterial ?? new Material(Shader.Find("Universal Render Pipeline/Lit")));
 
-        if (height != 0 && size != 0) {
-            GenerateMesh(height, size, isFlatTopped);
-        }
+        GenerateMesh(height, size, isFlatTopped);
     }
 
     public void SetVisibility(bool isVisible) {
@@ -40,16 +40,14 @@ public class HexBorder : MonoBehaviour
     }
 
     public void SetMaterial(Material material) {
-        this.borderMaterial = material;
+        this.borderMaterial = new Material(material);
         meshRenderer.material = this.borderMaterial;
     }
 
     private Color setColor;
 
     public void SetColor(Color color) {
-        if (borderMaterial.HasColor("_Color")) {
-            borderMaterial.SetColor("_Color", color);
-        }
+        borderMaterial.SetColor("_Color", color);
         setColor = color;
     }
 
@@ -58,15 +56,21 @@ public class HexBorder : MonoBehaviour
     }
 
     public void SetHeight(float height) {
+        var heightChanged = false;
+
         if (this.height != height) {
+            heightChanged = true;
+        }
+
+        if (heightChanged) {
             this.height = height;
+            Debug.Log("Setting height to " + height);
 
-            if (borderMaterial != null && Selector.instance != null && borderMaterial.HasFloat("_Scale")) {
+            if (borderMaterial != null && Selector.instance != null) {
                 var amount = LODMeshGenerator.Map(height, Selector.instance.lockedInHeight, Selector.instance.highlightHeight, 0.2f, 0.04f);
+                Debug.Log("Setting scale to " + amount);
                 borderMaterial.SetFloat("_Scale", amount);
-                Debug.Log("Set scale to " + amount);
             }
-
             if (mesh != null) {
                 GenerateMesh(height, size, isFlatTopped);
             }
