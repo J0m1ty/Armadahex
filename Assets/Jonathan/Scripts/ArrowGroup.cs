@@ -86,6 +86,8 @@ public class ArrowGroup : MonoBehaviour
             if (pattern.doOffset) {
                 arrow.offset = 0;
 
+                Debug.Log("BEFORE: " + rev);
+
                 if (pattern.autoOptimize) {
                     var testOne = selectedTarget.RangeInDirection(AttackUIManager.Convert(dir.rotation, rev), true);
                     var testTwo = selectedTarget.RangeInDirection(AttackUIManager.Convert(dir.rotation, !rev), true);
@@ -95,16 +97,18 @@ public class ArrowGroup : MonoBehaviour
                     }
                 }
 
+                Debug.Log("AFTER: " + rev);
+
                 // do offset
                 var originHex = selectedTarget.hexRenderer.gridRef;
-                var activeHexOnly = selectedTarget.hexRenderer.gridRef;
+                var originActive = selectedTarget.hexRenderer.gridRef;
                 while (true) {
                     var next = originHex.GetNeighbor(AttackUIManager.Convert(dir.rotation, !rev));
                     if (next != null) {
                         originHex = next;
 
                         if (next.hexRenderer.gameObject.activeSelf) {
-                            activeHexOnly = next;
+                            originActive = next;
                         }
                     }
                     else {
@@ -112,57 +116,47 @@ public class ArrowGroup : MonoBehaviour
                     }
                 }
 
-                var overallLength = Vector3.Magnitude(transform.position - activeHexOnly.hexRenderer.transform.position);
+                // find furthest hex in direction, keep origin the same
+                var furthest = originHex;
+                var furthestActive = originHex;
+                while (true) {
+                    var next = furthest.GetNeighbor(AttackUIManager.Convert(dir.rotation, rev));
+                    if (next != null) {
+                        furthest = next;
 
-                transform.position = new Vector3(activeHexOnly.hexRenderer.transform.position.x, height, activeHexOnly.hexRenderer.transform.position.z);
+                        if (next.hexRenderer.gameObject.activeSelf) {
+                            furthestActive = next;
+                        }
+                    }
+                    else {
+                        break;
+                    }
+                }
+
+                var overallLength = Vector3.Magnitude(furthestActive.hexRenderer.transform.position - originActive.hexRenderer.transform.position);
+
+                transform.position = new Vector3(originActive.hexRenderer.transform.position.x, height, originActive.hexRenderer.transform.position.z);
 
                 // color each hex
-                rangeInDirection = 0;
+                var colorHex = originHex;
                 while (true) {
-                    var thisDistance = Vector3.Magnitude(activeHexOnly.hexRenderer.transform.position - originHex.hexRenderer.transform.position);
+                    var thisDistance = Vector3.Magnitude(selectedTarget.hexRenderer.transform.position - colorHex.hexRenderer.transform.position);
 
-                    if (originHex != selectedTarget) {
-                        originHex.hexRenderer.SetCustomFogColor(Color.Lerp(FogState.friendlySelected, FogState.fogNormal, Mathf.Clamp01(LODMeshGenerator.Map(Mathf.Abs(overallLength - thisDistance), 0, overallLength * 2f, 0, 1))));
+                    if (colorHex != selectedTarget) {
+                        colorHex.hexRenderer.SetCustomFogColor(Color.Lerp(FogState.friendlySelected, FogState.fogNormal, Mathf.Clamp01(LODMeshGenerator.Map(Mathf.Abs(overallLength - thisDistance), 0, overallLength, 1, 0))));
                     }
 
-                    var next = originHex.GetNeighbor(AttackUIManager.Convert(dir.rotation, rev));
+                    var next = colorHex.GetNeighbor(AttackUIManager.Convert(dir.rotation, rev));
                     if (next != null) {
-                        rangeInDirection++;
-                        originHex = next;
-                    }
-                    else {
-                        break;
-                    }
-
-                    if (!dir.noRange && rangeInDirection > dir.length) {
-                        break;
-                    }
-                }
-
-                // go back and subtract from rangeInDirection if squares are not active
-                while (true) {
-                    if (!originHex.hexRenderer.gameObject.activeSelf) {
-                        rangeInDirection--;
-
-                        if (rangeInDirection < 0) {
-                            rangeInDirection = 0;
-                        }
-
-                        var next = originHex.GetNeighbor(AttackUIManager.Convert(dir.rotation, !rev));
-                        
-                        if (next != null) {
-                            originHex = next;
-                        }
-                        else {
-                            break;
-                        }
+                        colorHex = next;
                     }
                     else {
                         break;
                     }
                 }
 
-                s = Vector3.Magnitude(originHex.hexRenderer.transform.position - activeHexOnly.hexRenderer.transform.position);
+                s = Vector3.Magnitude(originActive.hexRenderer.transform.position - furthestActive.hexRenderer.transform.position);
+                Debug.DrawLine(originActive.hexRenderer.transform.position, furthestActive.hexRenderer.transform.position, Color.red, 100f);
             }
             else {
                 // color each hex

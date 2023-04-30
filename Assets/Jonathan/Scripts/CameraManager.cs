@@ -15,6 +15,10 @@ public class CameraManager : MonoBehaviour
     [Header("State Info")]
     [SerializeField]
     private CameraState state;
+    [SerializeField]
+    private CameraState editorDefaultState;
+    [SerializeField]
+    private CameraState buildDefaultState;
 
     [Header("Camera Refereces")]
     [SerializeField]
@@ -67,6 +71,13 @@ public class CameraManager : MonoBehaviour
 
         sideCameraController = sideCamera.GetComponent<CameraController>();
         topCameraController = topCamera.GetComponent<CameraController>();
+
+        if (Application.isEditor) {
+            SetCameraState(editorDefaultState, false);
+        }
+        else {
+            SetCameraState(buildDefaultState, false);
+        }
     }
 
     public void Shake(bool hit) {

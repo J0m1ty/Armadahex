@@ -279,6 +279,7 @@ public class AttackUIManager : MonoBehaviour
         }
 
         arrowGroup.SetInfo(selectedTarget, selectedOption);
+        arrowGroup.disableButtons = false;
 
         var i = 0;
         foreach (AttackPattern pattern in selectedOption.info.options) {
@@ -289,8 +290,8 @@ public class AttackUIManager : MonoBehaviour
             bl.index = i;
 
             patternObj.GetComponent<Button>().onClick.AddListener(() => {
-                SelectAttackPattern(bl.index);
                 arrowGroup.disableButtons = true;
+                SelectAttackPattern(bl.index);
             });
             
             bl.OnMouseEnter += () => {
@@ -433,7 +434,7 @@ public class AttackUIManager : MonoBehaviour
                 targets.Add(selectedTarget.hexRenderer);
             }
             else {
-                if (selectedPattern.attackCenter) {
+                if (selectedPattern.attackCenter && !selectedPattern.doOffset) {
                     targets.Add(selectedTarget.hexRenderer);
                 }
 
@@ -462,6 +463,8 @@ public class AttackUIManager : MonoBehaviour
                                 break;
                             }
                         }
+
+                        targets.Add(origin.hexRenderer);
                     }
                     
                     var n = 0;
