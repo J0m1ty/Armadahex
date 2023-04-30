@@ -279,6 +279,7 @@ public class AttackUIManager : MonoBehaviour
         }
 
         arrowGroup.SetInfo(selectedTarget, selectedOption);
+        arrowGroup.disableButtons = false;
 
         var i = 0;
         foreach (AttackPattern pattern in selectedOption.info.options) {
@@ -289,8 +290,8 @@ public class AttackUIManager : MonoBehaviour
             bl.index = i;
 
             patternObj.GetComponent<Button>().onClick.AddListener(() => {
-                SelectAttackPattern(bl.index);
                 arrowGroup.disableButtons = true;
+                SelectAttackPattern(bl.index);
             });
             
             bl.OnMouseEnter += () => {
