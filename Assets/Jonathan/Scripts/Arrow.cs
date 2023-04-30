@@ -47,7 +47,7 @@ public class Arrow : MonoBehaviour
     public void SetLength(float length, SliderPos pos) {
         backTransform.localScale = new Vector3(length, 1, 1);
 
-        totalLength = frontTransform.lossyScale.x + backTransform.lossyScale.x;
+        totalLength = frontTransform.localScale.x + backTransform.localScale.x;
 
         switch (pos) {
             case SliderPos.Front:
