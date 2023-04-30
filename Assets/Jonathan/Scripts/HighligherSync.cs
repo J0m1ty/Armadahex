@@ -61,6 +61,8 @@ public class HighligherSync : MonoBehaviourPun, IPunObservable, IPunInstantiateM
     }
 
     void Update() {
+        if (!PhotonNetwork.InRoom) return;
+
         if (photonView.IsMine) {
             TeamBase teamBase = null;
             
