@@ -140,10 +140,10 @@ public class ArrowGroup : MonoBehaviour
                 // color each hex
                 var colorHex = originHex;
                 while (true) {
-                    var thisDistance = Vector3.Magnitude(originActive.hexRenderer.transform.position - originHex.hexRenderer.transform.position);
+                    var thisDistance = Vector3.Magnitude(selectedTarget.hexRenderer.transform.position - colorHex.hexRenderer.transform.position);
 
                     if (colorHex != selectedTarget) {
-                        colorHex.hexRenderer.SetCustomFogColor(Color.Lerp(FogState.friendlySelected, FogState.fogNormal, Mathf.Clamp01(LODMeshGenerator.Map(Mathf.Abs(overallLength - thisDistance), 0, overallLength * 2f, 0, 1))));
+                        colorHex.hexRenderer.SetCustomFogColor(Color.Lerp(FogState.friendlySelected, FogState.fogNormal, Mathf.Clamp01(LODMeshGenerator.Map(Mathf.Abs(overallLength - thisDistance), 0, overallLength, 1, 0))));
                     }
 
                     var next = colorHex.GetNeighbor(AttackUIManager.Convert(dir.rotation, rev));
@@ -153,13 +153,10 @@ public class ArrowGroup : MonoBehaviour
                     else {
                         break;
                     }
-
-                    if (!dir.noRange && rangeInDirection > dir.length) {
-                        break;
-                    }
                 }
 
                 s = Vector3.Magnitude(originActive.hexRenderer.transform.position - furthestActive.hexRenderer.transform.position);
+                Debug.DrawLine(originActive.hexRenderer.transform.position, furthestActive.hexRenderer.transform.position, Color.red, 100f);
             }
             else {
                 // color each hex
