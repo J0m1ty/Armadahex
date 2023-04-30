@@ -16,7 +16,7 @@ Material:
   m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: 2990
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -213,9 +213,9 @@ Material:
     - _Parallax: 0.005
     - _Phase: 8
     - _QueueControl: 0
-    - _QueueOffset: 0
+    - _QueueOffset: -10
     - _ReceiveShadows: 1
-    - _RefractionStrength: 0.649
+    - _RefractionStrength: 0.3
     - _Scaling: 20
     - _Smoothness: 0.66
     - _SmoothnessTextureChannel: 0
@@ -228,11 +228,11 @@ Material:
     - _Tiling: 1
     - _WorkflowMode: 1
     - _ZWrite: 1
-    - _edgeFalloffBias: -0.29
+    - _edgeFalloffBias: -0.43
     - _edgePatternScale: 0.25
     - _edgePatternScroll: 0
     - _extraFoamParam: 0.95
-    - _falloffDistance: 1
+    - _falloffDistance: 3.51
     - _foamFalloffmult: 0.26
     - _leadingEdgeFalloff: 1
     - _timeMult: 0.1
@@ -249,7 +249,7 @@ Material:
     - _Jump: {r: 0.15, g: 0.15, b: 0, a: 0}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _Tiling: {r: 4, g: 4, b: 0, a: 0}
-    - _edgeFalloffColor: {r: 0, g: 0.8489902, b: 1, a: 1}
+    - _edgeFalloffColor: {r: 0, g: 0.90304947, b: 1, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &5269401364437940169
 MonoBehaviour:

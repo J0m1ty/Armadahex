@@ -10,22 +10,50 @@ public enum SliderPos {
 
 public class Arrow : MonoBehaviour
 {
+    public float offset;
+
+    [SerializeField]
+    private float totalLength;
+
     [SerializeField]
     private GameObject front;
     [SerializeField]
     private GameObject back;
 
+    [SerializeField]
     private GameObject slider;
 
+    [SerializeField]
     private Transform frontTransform;
+    [SerializeField]
     private Transform backTransform;
 
+    [SerializeField]
     private Renderer frontRenderer;
+    [SerializeField]
     private Renderer backRenderer;
 
-    private float totalLength;
+    private float initialFrontLength;
+    private float initialBackLength;
 
-    public float offset;
+    #if UNITY_EDITOR
+    [MyBox.ButtonMethod]
+    public void Setup() {
+        Awake();
+    }
+    [MyBox.ButtonMethod]
+    public void RandomLengthAtFront() {
+        SetLength(Random.Range(20f, 80f), SliderPos.Front);
+    }
+    [MyBox.ButtonMethod]
+    public void RandomLengthAtMiddle() {
+        SetLength(Random.Range(20f, 80f), SliderPos.Middle);
+    }
+    [MyBox.ButtonMethod]
+    public void RandomLengthAtBack() {
+        SetLength(Random.Range(20f, 80f), SliderPos.Back);
+    }
+    #endif
 
     void Awake() {
         frontTransform = front.transform;
@@ -41,23 +69,30 @@ public class Arrow : MonoBehaviour
         frontRenderer.material = material;
         backRenderer.material = material;
 
-        totalLength = frontTransform.localScale.x + backTransform.localScale.x;
+        initialFrontLength = frontRenderer.bounds.size.x;
+        initialBackLength = backRenderer.bounds.size.x;
     }
 
     public void SetLength(float length, SliderPos pos) {
-        backTransform.localScale = new Vector3(length, 1, 1);
+        if (length < initialFrontLength + initialBackLength) {
+            length = initialFrontLength + initialBackLength;
+        }
 
-        totalLength = frontTransform.lossyScale.x + backTransform.lossyScale.x;
+        var scale = Mathf.Abs(length - initialFrontLength) / initialBackLength;
+
+        backTransform.localScale = new Vector3(scale, 1, 1);
+
+        totalLength = initialFrontLength + initialBackLength * scale;
 
         switch (pos) {
             case SliderPos.Front:
-                slider.transform.localPosition = new Vector3(0, 0, 0);
+                slider.transform.localPosition = new Vector3(initialFrontLength + offset, 0, 0);
                 break;
             case SliderPos.Middle:
-                slider.transform.localPosition = new Vector3(-(totalLength + offset) / 2f, 0, 0);
+                slider.transform.localPosition = new Vector3((initialFrontLength - initialBackLength * scale) / 2f, 0, 0);
                 break;
             case SliderPos.Back:
-                slider.transform.localPosition = new Vector3(-(totalLength + offset), 0, 0);
+                slider.transform.localPosition = new Vector3(-(initialBackLength * scale) - offset, 0, 0);
                 break;
         }
     }
