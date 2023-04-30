@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   offset: 0
-  totalLength: 62.224083
+  totalLength: 64.886925
   front: {fileID: 8241226656716688972}
   back: {fileID: 2928297518343022509}
   slider: {fileID: 3651161697697448654}

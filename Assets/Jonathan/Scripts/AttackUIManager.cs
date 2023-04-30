@@ -434,7 +434,7 @@ public class AttackUIManager : MonoBehaviour
                 targets.Add(selectedTarget.hexRenderer);
             }
             else {
-                if (selectedPattern.attackCenter) {
+                if (selectedPattern.attackCenter && !selectedPattern.doOffset) {
                     targets.Add(selectedTarget.hexRenderer);
                 }
 
@@ -463,6 +463,8 @@ public class AttackUIManager : MonoBehaviour
                                 break;
                             }
                         }
+
+                        targets.Add(origin.hexRenderer);
                     }
                     
                     var n = 0;
