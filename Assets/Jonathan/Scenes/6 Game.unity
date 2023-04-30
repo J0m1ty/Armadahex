@@ -4694,8 +4694,8 @@ MonoBehaviour:
   height: 150
   noiseScale: 0.1
   heightVariation:
-    Min: -2
-    Max: 0.5
+    Min: -5
+    Max: -2.5
   hexes:
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
@@ -7341,14 +7341,14 @@ MonoBehaviour:
   size: 25
   isFlatTopped: 1
   material: {fileID: 2100000, guid: 63086aecedbc4ec429d7a47f60a0c0ea, type: 2}
-  layer: 11
-  borderLayer: 11
+  layer: 10
+  borderLayer: 12
   hasHeight: 1
   height: 150
   noiseScale: 0.1
   heightVariation:
-    Min: -2
-    Max: 0.5
+    Min: -5
+    Max: -2.5
   hexes:
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
