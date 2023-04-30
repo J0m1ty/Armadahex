@@ -62,6 +62,10 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
             return;
         }
 
+        Debug.Log("Game over: " + winInfo.winningTeam + " won");
+        Debug.Log("Win type: " + winInfo.winType);
+        Debug.Log("Player team: " + winInfo.playerTeam + " (" + winInfo.playerName + ")" + " vs " + winInfo.enemyName + " (" + winInfo.enemyName + ")");
+
         var isWinner = winInfo.winningTeam == winInfo.playerTeam;
 
         AudioManager.instance?.PlayResultSound(isWinner);
@@ -124,7 +128,7 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
             loserXpGainText.text = "-" + winInfo.loserXpLoss + " XP";
         }
         
-        winnerNameText.text = winInfo.playerName;
-        loserNameText.text = winInfo.enemyName;
+        winnerNameText.text = isWinner ? winInfo.playerName : winInfo.enemyName;
+        loserNameText.text = isWinner ? winInfo.enemyName : winInfo.playerName;
     }
 }
