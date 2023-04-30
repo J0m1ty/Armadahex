@@ -133,7 +133,7 @@ public class GameOver : MonoBehaviour
     }
 
     public void Surrender() {
-        OnGameOver?.Invoke(TurnManager.instance.otherTeam.teamType, WinType.Surrender);
+        OnGameOver?.Invoke(TurnManager.instance.enemyTeam.teamType, WinType.Surrender);
     }
 
     public void UpdateShipCounts(Dictionary<TeamType, int> shipCounts) {

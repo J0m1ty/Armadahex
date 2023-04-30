@@ -127,7 +127,7 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
     public void OnAttack(Team against, bool hit, int hexIndex, bool finalAttack) {
         if (!PhotonNetwork.IsConnectedAndReady) return;
-        
+
         photonView.RPC("OnAttackRPC", RpcTarget.Others, (int)against.teamType, hit, hexIndex, finalAttack);
     }
 
@@ -149,7 +149,7 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
     public void OnGameOver(TeamType winner, WinType winType) {
         if (!PhotonNetwork.IsConnectedAndReady) return;
-
+        
         photonView.RPC("OnWinRPC", RpcTarget.Others, (int)winner, (int)winType);
     }
 
