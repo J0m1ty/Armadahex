@@ -4391,7 +4391,7 @@ MonoBehaviour:
     isEdge: 0
     preventShips: 0
   isAlive: 0
-  fireEffect: {fileID: 0}
+  flames: {fileID: 0}
 --- !u!1 &746219383373802033
 GameObject:
   m_ObjectHideFlags: 0
@@ -4443,7 +4443,7 @@ MonoBehaviour:
     isEdge: 0
     preventShips: 0
   isAlive: 0
-  fireEffect: {fileID: 0}
+  flames: {fileID: 0}
 --- !u!1 &749305121079629147
 GameObject:
   m_ObjectHideFlags: 0
@@ -22516,6 +22516,8 @@ GameObject:
   - component: {fileID: 6408019013914060955}
   - component: {fileID: 7297006778763102028}
   - component: {fileID: 2660047999616389649}
+  - component: {fileID: 3097438502245747905}
+  - component: {fileID: 7053436898252522668}
   m_Layer: 6
   m_Name: Battleship
   m_TagString: Ship
@@ -22552,7 +22554,7 @@ CapsuleCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 7168
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -22576,7 +22578,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shipModel:
     name: Battleship
+    attackName: 
+    type: 0
     shipPrefab: {fileID: 0}
+    display: {fileID: 0}
     length: 0
     attacks: []
   team:
@@ -22593,6 +22598,49 @@ MonoBehaviour:
     isEdge: 0
     preventShips: 0
   internals: {fileID: 0}
+--- !u!54 &3097438502245747905
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3610626180894237609}
+  serializedVersion: 4
+  m_Mass: 100
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 64
+  m_CollisionDetection: 0
+--- !u!114 &7053436898252522668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3610626180894237609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63a6c15360b799641b5ae004c5c6d9a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  density: 500
+  slicesPerAxis: 8
+  isConcave: 1
+  voxelsLimit: 32
 --- !u!1 &3618293339574070923
 GameObject:
   m_ObjectHideFlags: 0
@@ -29749,7 +29797,7 @@ MonoBehaviour:
     isEdge: 0
     preventShips: 0
   isAlive: 0
-  fireEffect: {fileID: 0}
+  flames: {fileID: 0}
 --- !u!1 &4746025654517063272
 GameObject:
   m_ObjectHideFlags: 0
@@ -48998,7 +49046,7 @@ MonoBehaviour:
     isEdge: 0
     preventShips: 0
   isAlive: 0
-  fireEffect: {fileID: 0}
+  flames: {fileID: 0}
 --- !u!1 &7520448465433377444
 GameObject:
   m_ObjectHideFlags: 0

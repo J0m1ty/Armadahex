@@ -1991,6 +1991,8 @@ GameObject:
   - component: {fileID: 5949850896859681936}
   - component: {fileID: 6800179272783602}
   - component: {fileID: 1788848667281543405}
+  - component: {fileID: -7787457391279376649}
+  - component: {fileID: 2953935418540261994}
   m_Layer: 6
   m_Name: Submarine
   m_TagString: Ship
@@ -2027,7 +2029,7 @@ CapsuleCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 7168
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -2051,7 +2053,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shipModel:
     name: 
+    attackName: 
+    type: 0
     shipPrefab: {fileID: 0}
+    display: {fileID: 0}
     length: 0
     attacks: []
   team:
@@ -2084,6 +2089,49 @@ MonoBehaviour:
     isEdge: 0
     preventShips: 0
   internals: {fileID: 0}
+--- !u!54 &-7787457391279376649
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5294468166837700255}
+  serializedVersion: 4
+  m_Mass: 100
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 64
+  m_CollisionDetection: 0
+--- !u!114 &2953935418540261994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5294468166837700255}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63a6c15360b799641b5ae004c5c6d9a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  density: 500
+  slicesPerAxis: 8
+  isConcave: 1
+  voxelsLimit: 32
 --- !u!1 &5581701819059850974
 GameObject:
   m_ObjectHideFlags: 0
