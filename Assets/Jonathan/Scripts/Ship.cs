@@ -90,7 +90,6 @@ public class NetworkingShip {
     public int hexIndex;
 }
 
-[RequireComponent(typeof(CapsuleCollider))]
 public class Ship : MonoBehaviour
 {
     // Info
@@ -103,7 +102,7 @@ public class Ship : MonoBehaviour
         get {
             var list = new List<Attack>();
             foreach (var attack in attacks) {
-                if (attack.ammoLeft > 0 || attack.info.unlimited) {
+                if ((attack.ammoLeft > 0 || attack.info.unlimited) && attack.info.isAllowed) {
                     list.Add(attack);
                 }
             }
@@ -157,8 +156,16 @@ public class Ship : MonoBehaviour
         for (int i = 0; i < shipModel.attacks.Length; i++) {
             attacks[i] = new Attack() {
                 info = shipModel.attacks[i],
-                ammoLeft = shipModel.attacks[i].unlimited ? -1 : shipModel.attacks[i].maxUses
+                ammoLeft = shipModel.attacks[i].unlimited ? -1 : shipModel.attacks[i].maxUses,
             };
+
+            attacks[i].info.isAllowed = true;
+
+            if (!GameModeInfo.instance.IsAdvancedCombat) {
+                if (shipModel.attacks[i].name != "Single Shot") {
+                    attacks[i].info.isAllowed = false;
+                }
+            }
         }
 
         transform.name = (team.isPlayer ? "Player" : "Enemy") + " " + shipModel.name;

@@ -283,6 +283,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneHistory: []
+  IgnoreScenes:
+  - Scene: {fileID: 102900000, guid: d25db74bd29ffb140bbb2a56be4ad620, type: 3}
+    SceneName: 6 Game
+    sceneIndex: 6
+    sceneEnabled: 1
+  - Scene: {fileID: 102900000, guid: 82e3f429c8b22b04bbe0819a92d47408, type: 3}
+    SceneName: 7 Game Over
+    sceneIndex: 7
+    sceneEnabled: 1
+  defaultScene: 2 Menu
 --- !u!4 &311742739
 Transform:
   m_ObjectHideFlags: 0

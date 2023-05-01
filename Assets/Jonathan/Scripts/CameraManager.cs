@@ -159,6 +159,23 @@ public class CameraManager : MonoBehaviour
         }
     }
 
+    // check if already there, if not, move to instant
+    public void MoveToInstant(Vector3 pos) {
+        centerPos = pos;
+        switch (state) {
+            case CameraState.Side:
+                if (sideCameraController.AlreadyAt(pos))
+                    return;
+                sideCameraController.InstantMoveTo(pos);
+                break;
+            case CameraState.Top:
+                if (topCameraController.AlreadyAt(pos))
+                    return;
+                topCameraController.InstantMoveTo(pos);
+                break;
+        }
+    }
+
 
     public void MoveTo(Vector3 pos) {
         centerPos = pos;

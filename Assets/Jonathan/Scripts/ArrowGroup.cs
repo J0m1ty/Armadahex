@@ -28,8 +28,6 @@ public class ArrowGroup : MonoBehaviour
 
     // For buttons
     public void SetPatternPreview(int i) {
-        Debug.Log("Setting pattern preview to " + i + " with buttons at " + disableButtons);
-
         if (disableButtons) {
             return;
         }
@@ -86,8 +84,6 @@ public class ArrowGroup : MonoBehaviour
             if (pattern.doOffset) {
                 arrow.offset = 0;
 
-                Debug.Log("BEFORE: " + rev);
-
                 if (pattern.autoOptimize) {
                     var testOne = selectedTarget.RangeInDirection(AttackUIManager.Convert(dir.rotation, rev), true);
                     var testTwo = selectedTarget.RangeInDirection(AttackUIManager.Convert(dir.rotation, !rev), true);
@@ -96,8 +92,6 @@ public class ArrowGroup : MonoBehaviour
                         rev = !rev;
                     }
                 }
-
-                Debug.Log("AFTER: " + rev);
 
                 // do offset
                 var originHex = selectedTarget.hexRenderer.gridRef;

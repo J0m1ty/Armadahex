@@ -82,10 +82,12 @@ public class CameraController : MonoBehaviour
     }
 
     void LateUpdate() {
-        transform.position -= center;
+        if (TurnManager.instance.gameActive) {
+            HandleMouseInput();
+            HandleKeyboardInput();
+        }
 
-        HandleMouseInput();
-        HandleKeyboardInput();
+        transform.position -= center;
 
         newZoom = newZoom.normalized * Mathf.Clamp(newZoom.magnitude, zoomRange.Min + distanceOffset, zoomRange.Max + distanceOffset);
 

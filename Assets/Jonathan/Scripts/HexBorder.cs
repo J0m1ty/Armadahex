@@ -64,7 +64,6 @@ public class HexBorder : MonoBehaviour
             if (borderMaterial != null && Selector.instance != null && borderMaterial.HasFloat("_Scale")) {
                 var amount = LODMeshGenerator.Map(height, Selector.instance.lockedInHeight, Selector.instance.highlightHeight, 0.2f, 0.04f);
                 borderMaterial.SetFloat("_Scale", amount);
-                Debug.Log("Set scale to " + amount);
             }
 
             if (mesh != null) {

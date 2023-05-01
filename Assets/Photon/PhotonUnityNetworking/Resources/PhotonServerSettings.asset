@@ -40,6 +40,8 @@ MonoBehaviour:
   - GenerateShipsRPC
   - OnAttackRPC
   - OnWinRPC
+  - OnDoneLoadingRPC
+  - ContinueTurnRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

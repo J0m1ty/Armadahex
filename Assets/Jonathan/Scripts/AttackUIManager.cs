@@ -108,6 +108,9 @@ public class AttackUIManager : MonoBehaviour
             arrowGroup.gameObject.SetActive(false);
             backButtonParent.SetActive(false);
             skipButton.SetActive(false);
+
+            confirmButton.onClick.RemoveAllListeners();
+            backButton.onClick.RemoveAllListeners();
         }
 
         if (state != AttackState.None) {
@@ -126,10 +129,15 @@ public class AttackUIManager : MonoBehaviour
 
         switch (state) {
             case AttackState.SelectShip:
-                directiveText.gameObject.SetActive(true);
-                directiveText.text = "DIRECTIVE: SELECT A SHIP";
-                selector.allowSelectingShips = true;
-                CameraManager.instance.MoveToOnce(TurnManager.instance.currentTeam.teamBase.transform.position);
+                if (!GameModeInfo.instance.IsAdvancedCombat) {
+                    SelectRandomShip();
+                }
+                else {
+                    directiveText.gameObject.SetActive(true);
+                    directiveText.text = "DIRECTIVE: SELECT A SHIP";
+                    selector.allowSelectingShips = true;
+                    CameraManager.instance.MoveToOnce(TurnManager.instance.playerTeam.teamBase.transform.position);
+                }
                 break;
             case AttackState.Error:
                 errorText.gameObject.SetActive(true);
@@ -138,12 +146,19 @@ public class AttackUIManager : MonoBehaviour
                 directiveText.gameObject.SetActive(true);
                 directiveText.text = "DIRECTIVE: SELECT A TARGET";
                 selector.allowSelectingGrids = true;
-                selector.SetTeam(TurnManager.instance.playerTeam, TurnManager.instance.otherTeam.teamBase);
-                CameraManager.instance.MoveToOnce(TurnManager.instance.otherTeam.teamBase.transform.position);
-                backButton.onClick.AddListener(() => {
-                    GoBackToSelection();
-                });
-                backButtonParent.SetActive(true);
+                selector.SetTeam(TurnManager.instance.playerTeam, TurnManager.instance.enemyTeam.teamBase);
+                
+                if (GameModeInfo.instance.IsAdvancedCombat) {
+                    backButton.onClick.AddListener(() => {
+                        GoBackToSelection();
+                    });
+                    backButtonParent.SetActive(true);
+                    CameraManager.instance.MoveToOnce(TurnManager.instance.enemyTeam.teamBase.transform.position);
+                }
+                else {
+                    backButtonParent.SetActive(false);
+                    CameraManager.instance.MoveToInstant(TurnManager.instance.enemyTeam.teamBase.transform.position);
+                }
                 break;
             case AttackState.SelectAttackOption:
                 directiveText.gameObject.SetActive(true);
@@ -184,6 +199,29 @@ public class AttackUIManager : MonoBehaviour
         }
     }
 
+    public void SelectRandomShip() {
+        if (attackState == AttackState.SelectShip) {
+            List<Ship> ships = new List<Ship>();
+            foreach (Ship ship in shipManager.ships) {
+                if (ship.team.isPlayer && ship.hasAmmoLeft && ship.isAlive) {
+                    ships.Add(ship);
+                }
+            }
+            
+            if (ships.Count > 0) {
+                selectedShip = ships[Random.Range(0, ships.Count)];
+
+                Debug.Log("Randomly selected ship: " + selectedShip.name);
+                
+                SetState(AttackState.SelectTarget);
+            }
+            else {
+                SetState(AttackState.Error);
+                errorText.text = "No ships have ammo left";
+            }
+        }
+    }
+
     public void SelectShip(Ship ship) {
         if (attackState == AttackState.SelectShip) {
             if (ship.team.isPlayer) {
@@ -207,11 +245,15 @@ public class AttackUIManager : MonoBehaviour
         if (attackState == AttackState.SelectTarget) {
             if (!target.hexRenderer.hexMap.teamBase.team.isPlayer) {
                 selectedTarget = target;
+
                 SetState(AttackState.SelectAttackOption);
+
+                Debug.Log(selectedShip.name + " has ");
+                Debug.Log(selectedShip.remainingAttacks.Length + " attacks left");
                 
                 // dont generate attack options if there is only one
-                if (selectedShip.attacks.Length == 1) {
-                    SelectAttackOption(selectedShip.attacks[0]);
+                if (selectedShip.remainingAttacks.Length == 1) {
+                    SelectAttackOption(selectedShip.remainingAttacks[0]);
                 }
                 else if (selectedShip.attacks.Length == 0) {
                     SetState(AttackState.Error);
@@ -237,7 +279,7 @@ public class AttackUIManager : MonoBehaviour
         }
 
         foreach (Attack attack in selectedShip.attacks) {
-            if (attack.ammoLeft <= 0 && !attack.info.unlimited) {
+            if ((attack.ammoLeft <= 0 && !attack.info.unlimited) || !attack.info.isAllowed) {
                 continue;
             }
 
@@ -338,6 +380,12 @@ public class AttackUIManager : MonoBehaviour
         }
     }
 
+    public void SkipTurn() {
+        if (TurnManager.instance.currentTeam.isPlayer && !countdown.isPaused) {
+            RandomAttack();
+        }
+    }
+
     public void RandomAttack() {
         RandomAttack(AttackState.SelectShip);
     }
@@ -426,7 +474,13 @@ public class AttackUIManager : MonoBehaviour
             // if the attack is not unlimited, remove ammo
             if (!selectedOption.info.unlimited) {
                 selectedOption.ammoLeft--;
+
+                if (selectedOption.ammoLeft <= 0) {
+                    Debug.LogError("Out of ammo");
+                }
             }
+
+            var stopAtHit = false;
 
             // calculate each hex that will be hit
             List<HexRenderer> targets = new List<HexRenderer>();
@@ -439,6 +493,10 @@ public class AttackUIManager : MonoBehaviour
                 }
 
                 foreach (AttackDirection direction in selectedPattern.directions) {
+                    if (direction.stopAtHit) {
+                        stopAtHit = true;
+                    }
+
                     var origin = selectedTarget;
 
                     bool reverse = direction.reverse;
@@ -507,8 +565,15 @@ public class AttackUIManager : MonoBehaviour
                     OnAttack?.Invoke(TurnManager.instance.enemyTeam, true, target.coords.index, i == targets.Count - 1);
 
                     hit = true;
+
+                    if (stopAtHit) {
+                        Debug.Log("Stopping at hit");
+                        break;
+                    }
                 }
             }
+
+            Debug.Log("Shot was " + (hit ? "successful" : "unsuccessful"));
 
             shotsFired++;
 
@@ -534,13 +599,17 @@ public class AttackUIManager : MonoBehaviour
 
             SetState(AttackState.AttackOver);
             
-            TurnManager.instance.TurnOver();
+            if (GameModeInfo.instance.IsSalvo && hit) {
+                TurnManager.instance.ContinueTurnDelay(false);
+            }
+            else {
+                TurnManager.instance.TurnOver();
 
-            // remove everything
-            selectedShip = null;
-            selectedTarget = null;
-            selectedOption = null;
-            selectedPattern = null;
+                selectedShip = null;
+                selectedTarget = null;
+                selectedOption = null;
+                selectedPattern = null;
+            }
         }
     }
 
@@ -560,6 +629,22 @@ public class AttackUIManager : MonoBehaviour
             hit = true;
         }
 
+        if (GameModeInfo.instance.IsSingleplayer) {
+            if (GameModeInfo.instance.IsSalvo) {
+                if (hit) {
+                    TurnManager.instance.ContinueTurnDelay(true);
+                }
+                else {
+                    TurnManager.instance.TurnOver();
+                }
+            }
+            else {
+                TurnManager.instance.TurnOver();
+            }
+
+            attackPanel.ResetData();
+        }
+
         GameOver.instance.CheckIfGameOver(TurnManager.instance.playerTeam, hit, hex.coords.index, finalAttack);
 
         attackPanel.SetAttackInfo_Save(hit, destroyed, null, null);
@@ -568,8 +653,32 @@ public class AttackUIManager : MonoBehaviour
             CameraManager.instance.Shake(attackPanel.persistingHit);
             AudioManager.instance?.PlayActionSound(ActionType.Explosion);
             AudioManager.instance?.PlayHitSound(attackPanel.persistingHit, 3f);
-            attackPanel.QuickActivate();
+            attackPanel.QuickActivate(true, GameModeInfo.instance.IsSingleplayer ? (attackPanel.persistingHit ? 4f : null) : null);
+            
+            // wait until next turn or continue turn to restart or resume the countdown
+            countdown.isPaused = false;
+
+            // reset hit data
+            attackPanel.ResetData();
         }
+    }
+
+    public void RandomBotAttack() {
+        Debug.Log("Random bot attack");
+
+        // var botShips = shipManager.enemyShips;
+        // var botShip = botShips[Random.Range(0, botShips.Count)];
+        // while (!botShip.hasAmmoLeft || !botShip.isAlive) {
+        //     botShip = botShips[Random.Range(0, botShips.Count)];
+        // }
+
+        var botTargets = TurnManager.instance.playerTeam.teamBase.hexMap.hexes;
+        var botTarget = botTargets[Random.Range(0, botTargets.Count)];
+        while (!((botTarget.shipSegment?.isAlive ?? true) && botTarget.hexRenderer.gameObject.activeSelf)) {
+            botTarget = botTargets[Random.Range(0, botTargets.Count)];
+        }
+        
+        GetAttackFromEnemy(TurnManager.instance.playerTeam.teamType, botTarget.coords.index, true);
     }
 
     public delegate void AttackEvent(Team against, bool hit, int hexIndex, bool finalAttack = false);
@@ -591,7 +700,7 @@ public class AttackUIManager : MonoBehaviour
 
             // go back further if there is only one or no attack options
             // or if the current attack option has no ammo left
-            if (selectedOption.info.options.Length == 1 || selectedOption.info.options.Length == 0 || (selectedOption.ammoLeft <= 0 && !selectedOption.info.unlimited)) {
+            if (selectedOption.info.options.Length == 1 || selectedOption.info.options.Length == 0 || (selectedOption.ammoLeft <= 0 && !selectedOption.info.unlimited) || !selectedOption.info.isAllowed) {
                 GoBackToAttackOption();
             }
             else {
@@ -649,6 +758,9 @@ public class AttackUIManager : MonoBehaviour
         if (attackState == AttackState.SelectTarget) {
             SetState(AttackState.SelectShip);
             selectedShip = null;
+            selectedTarget = null;
+            selectedOption = null;
+            selectedPattern = null;
         }
     }
 
