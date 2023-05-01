@@ -10,6 +10,10 @@ using System;
 using Random = UnityEngine.Random;
 
 public class GameNetworking : MonoBehaviourPunCallbacks {
+    public static GameNetworking instance;
+
+    public GameMode gameMode { get; private set; }
+
     [SerializeField]
     private TeamManager teamManager;
 
@@ -18,6 +22,32 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
     [SerializeField]
     private AttackUIManager attackManager;
+    
+    public TeamType firstTeam { get; private set; }
+
+    public bool localDoneLoading = false;
+    public bool enemyDoneLoading = false;
+
+    void Awake() {
+        if (instance == null) {
+            instance = this;
+        } else {
+            Destroy(this);
+        }
+
+        localDoneLoading = false;
+        enemyDoneLoading = false;
+
+        if (!PlayerPrefs.HasKey(Constants.GAME_MODE_PREF_KEY)) {
+            PlayerPrefs.SetInt(Constants.GAME_MODE_PREF_KEY, (int)GameMode.Customs);
+        }
+
+        gameMode = (GameMode)PlayerPrefs.GetInt(Constants.GAME_MODE_PREF_KEY);
+
+        Debug.Log("Game mode is " + gameMode);
+
+        PlayerPrefs.DeleteKey(Constants.GAME_MODE_PREF_KEY);
+    }
 
     void Start() {
         if (PhotonNetwork.IsMasterClient) {
@@ -40,16 +70,21 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
             var clientTerrain = availableTerrain[Random.Range(0, availableTerrain.Count)];
             roomProps.Add("ClientTerrain", clientTerrain.name);
             
-            var firstTeam = Random.Range(0, 2) == 0 ? masterTeam : clientTeam;
-            roomProps.Add("FirstTeam", firstTeam);
+            var firstTeamToGo = Random.Range(0, 2) == 0 ? masterTeam : clientTeam;
+            roomProps.Add("FirstTeam", firstTeamToGo);
 
             PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
         }
 
         // get GAME_MODE_PROP_KEY prop from room
         if (PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey(Constants.GAME_MODE_PROP_KEY)) {
-            Enum.TryParse((string)PhotonNetwork.CurrentRoom.CustomProperties[Constants.GAME_MODE_PROP_KEY], out GameMode gameMode);
-            Debug.Log("Game mode is " + gameMode);
+            Enum.TryParse((string)PhotonNetwork.CurrentRoom.CustomProperties[Constants.GAME_MODE_PROP_KEY], out GameMode setGameMode);
+            if (gameMode == setGameMode) {
+                Debug.Log("Game mode confirmed to be " + gameMode);
+            }
+            else {
+                Debug.LogError("Game mode mismatch, expected " + gameMode + " but got " + setGameMode);
+            }
         }
 
         attackManager.OnAttack += OnAttack;
@@ -90,8 +125,8 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
             }
 
             TurnManager.instance.LoadTeams(teamManager.teams);
-            TurnManager.instance.SetTurn(teamManager.teams.Find(t => t.teamType == (TeamType)propertiesThatChanged["FirstTeam"]));
-
+            firstTeam = (TeamType)propertiesThatChanged["FirstTeam"];
+            
             teamManager.Colorize();
             
             var ships = shipManager.GenerateShips(teamManager.teams.Find(t => t.teamType == playerTeam));
@@ -123,6 +158,32 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
         shipManager.GenerateShipsFromData(ships);
         shipManager.EnableShips();
+
+        OnDoneLoading();
+    }
+
+    public void OnDoneLoading() {
+        if (!PhotonNetwork.IsConnectedAndReady) return;
+
+        photonView.RPC("OnDoneLoadingRPC", RpcTarget.All);
+    }
+
+    [PunRPC]
+    public void OnDoneLoadingRPC(PhotonMessageInfo info) {
+        if (info.Sender == PhotonNetwork.LocalPlayer) {
+            localDoneLoading = true;
+        } else {
+            enemyDoneLoading = true;
+        }
+
+        if (localDoneLoading && enemyDoneLoading) {
+            Debug.Log("Done loading");
+
+            TurnManager.instance.loading = false;
+            TurnManager.instance.gameActive = true;
+
+            TurnManager.instance.SetTurn(teamManager.teams.Find(t => t.teamType == firstTeam));
+        }
     }
 
     public void OnAttack(Team against, bool hit, int hexIndex, bool finalAttack) {
@@ -145,6 +206,17 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
     [PunRPC]
     public void AdvanceTurnRPC(int newTeam) {
         TurnManager.instance.SetTurn(teamManager.teams.Find(t => t.teamType == (TeamType)newTeam));
+    }
+
+    public void ContinueTurn() {
+        if (!PhotonNetwork.IsConnectedAndReady) return;
+
+        photonView.RPC("ContinueTurnRPC", RpcTarget.Others);
+    }
+
+    [PunRPC]
+    public void ContinueTurnRPC() {
+        TurnManager.instance.ContinueTurn();
     }
 
     public void OnGameOver(TeamType winner, WinType winType) {

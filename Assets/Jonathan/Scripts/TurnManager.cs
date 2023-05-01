@@ -34,10 +34,16 @@ public class TurnManager : MonoBehaviour
 
     public CameraController cameraRig;
 
+    public bool loading;
+    public bool gameActive;
+
     private void Awake() {
         instance = this;
 
         currentTeam = null;
+
+        loading = true;
+        gameActive = false;
     }
 
     public void LoadTeams(List<Team> teams) {
@@ -60,7 +66,44 @@ public class TurnManager : MonoBehaviour
     public event TurnEvent OnTurnOver;
 
     public void TurnOver() {
+        if (!GameModeInfo.instance.IsSingleplayer || (GameModeInfo.instance.IsSingleplayer && !currentTeam.isPlayer)) {
+            countdown.isPaused = true;
+        }
+        
         StartCoroutine(NextTurnAfterDelay(3f));
+    }
+
+    public void ContinueTurnDelay(bool isBotTurn = false) {
+        countdown.isPaused = true;
+
+        StartCoroutine(ContinueTurnAfterDelay(3f, isBotTurn));
+    }
+
+    private IEnumerator ContinueTurnAfterDelay(float delay, bool isBotTurn = false) {
+        yield return new WaitForSeconds(delay);
+        
+        GameNetworking.instance.ContinueTurn();
+        ContinueTurn(isBotTurn);
+    }
+
+    public void ContinueTurn(bool isBotTurn = false) {
+        Debug.Log("Continuing Turn");
+        
+        countdown.isPaused = false;
+
+        if (isBotTurn) {
+            countdown.StartCountdownForBot();
+        }
+        else {
+            countdown.AddTime();
+        }
+
+        if (currentTeam.isPlayer) {
+            OnPlayerTurn();
+        }
+        else {
+            OnEnemyTurn();
+        }
     }
 
     public void SetTurn(Team team) {
@@ -68,21 +111,38 @@ public class TurnManager : MonoBehaviour
         
         panelSlider.QuickActivate();
 
-        countdown.StartCountdown();
-
+        countdown.isPaused = false;
         if (currentTeam.isPlayer) {
             OnPlayerTurn();
-            panelSlider.connectedText.text = "Your turn! Select a ship to attack with.";
+            countdown.StartCountdown();
+            if (GameModeInfo.instance.IsAdvancedCombat) {
+                panelSlider.connectedText.text = "Your turn! Select a ship to attack with.";
+            }
+            else {
+                panelSlider.connectedText.text = "Your turn! Select an enemy target to attack.";
+            }
         } else {
             OnEnemyTurn();
             panelSlider.connectedText.text = "Enemy turn! Waiting for enemy's move.";
+            if (GameModeInfo.instance.IsSingleplayer) {
+                Debug.Log("Starting countdown for bot");
+                countdown.StartCountdownForBot();
+            }
+            else {
+                countdown.StartCountdown();
+            }
         }
     }
 
     private void OnPlayerTurn() {
         selector.SetTeam(TurnManager.instance.playerTeam, TurnManager.instance.otherTeam.teamBase);
         attackManager.SetState(AttackUIManager.AttackState.SelectShip);
-        CameraManager.instance.MoveTo(TurnManager.instance.playerTeam.teamBase.transform.position);
+        if (GameModeInfo.instance.IsAdvancedCombat) {
+            CameraManager.instance.MoveTo(TurnManager.instance.playerTeam.teamBase.transform.position);
+        }
+        else {
+            CameraManager.instance.MoveToInstant(TurnManager.instance.enemyTeam.teamBase.transform.position);
+        }
     }
 
     private void OnEnemyTurn() {

@@ -589,10 +589,10 @@ RectTransform:
   m_Father: {fileID: 521965196}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 6.0531006, y: -44.143333}
-  m_SizeDelta: {x: 133.3938, y: 15.01}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 133.3938, y: 0}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &40176226
 MonoBehaviour:
@@ -2125,9 +2125,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17ea71bf42c474e4cbbd56228aa8b4e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doCountdown: 0
-  firstTurnTime: 30
+  doCountdown: 1
+  isPaused: 0
+  isUnlimited: 0
+  singlePlayerAITime: 3
   normalResetTime: 25
+  firstTurnBonusTime: 5
+  salvoAddTime: 15
   attackManager: {fileID: 1007787192}
 --- !u!1 &221873463
 GameObject:
@@ -2173,6 +2177,7 @@ GameObject:
   - component: {fileID: 224746698}
   - component: {fileID: 224746697}
   - component: {fileID: 224746699}
+  - component: {fileID: 224746700}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -2561,6 +2566,45 @@ MonoBehaviour:
     teamBase: {fileID: 0}
     isPlayer: 0
   cameraRig: {fileID: 2115144128}
+  loading: 0
+  gameActive: 0
+--- !u!114 &224746700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 224746694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2879c1c8a55123f49a4ba8deb077db7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameModes:
+  - name: Advanced Combat
+    gameMode: 0
+    isSingleplayer: 0
+    isAdvancedCombat: 1
+    isSalvo: 0
+    turnTimeLimit: 25
+  - name: Classic Battleship
+    gameMode: 1
+    isSingleplayer: 0
+    isAdvancedCombat: 0
+    isSalvo: 0
+    turnTimeLimit: 25
+  - name: Tactical Salvo
+    gameMode: 2
+    isSingleplayer: 0
+    isAdvancedCombat: 0
+    isSalvo: 1
+    turnTimeLimit: 25
+  - name: Custom
+    gameMode: 3
+    isSingleplayer: 0
+    isAdvancedCombat: 1
+    isSalvo: 0
+    turnTimeLimit: 25
 --- !u!1 &248421019
 GameObject:
   m_ObjectHideFlags: 0
@@ -4415,10 +4459,10 @@ RectTransform:
   m_Father: {fileID: 879673734}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 72.75, y: -70.399994}
-  m_SizeDelta: {x: 145.5, y: 60.266663}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &502715898
 MonoBehaviour:
@@ -4539,10 +4583,10 @@ RectTransform:
   m_Father: {fileID: 879673734}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 72.75, y: -30.133331}
-  m_SizeDelta: {x: 145.5, y: 60.266663}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &521965197
 MonoBehaviour:
@@ -5192,7 +5236,7 @@ MonoBehaviour:
     PointListProperties:
     - GeneratorData:
         Generator: 5
-        NeedsUpdate: 1
+        NeedsUpdate: 0
         Center: {x: 0, y: 0}
         Width: 50
         Height: 50
@@ -6534,7 +6578,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1007787192}
         m_TargetAssemblyTypeName: AttackUIManager, Assembly-CSharp
-        m_MethodName: RandomAttack
+        m_MethodName: SkipTurn
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -7804,10 +7848,10 @@ RectTransform:
   m_Father: {fileID: 521965196}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 10.084999, y: -29.133331}
-  m_SizeDelta: {x: 125.33, y: 13.01}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 125.33, y: 0}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &935145935
 MonoBehaviour:
@@ -8637,6 +8681,8 @@ MonoBehaviour:
   teamManager: {fileID: 224746698}
   shipManager: {fileID: 224746695}
   attackManager: {fileID: 1007787192}
+  localDoneLoading: 0
+  enemyDoneLoading: 0
 --- !u!114 &997793327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12088,10 +12134,10 @@ RectTransform:
   m_Father: {fileID: 502715897}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 10.084999, y: -29.133331}
-  m_SizeDelta: {x: 125.33, y: 13.01}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 125.33, y: 0}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &1632184339
 MonoBehaviour:
@@ -14884,10 +14930,10 @@ RectTransform:
   m_Father: {fileID: 502715897}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 17.16875, y: -44.143333}
-  m_SizeDelta: {x: 111.1625, y: 15.01}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 111.1625, y: 0}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &1914236601
 MonoBehaviour:

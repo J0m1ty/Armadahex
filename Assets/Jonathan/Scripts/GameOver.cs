@@ -55,21 +55,29 @@ public class GameOver : MonoBehaviour
     private AttackUIManager attackManager;
 
     private void Awake() {
-        if (SceneManager.GetActiveScene().name != gameScene && SceneManager.GetActiveScene().name != gameOverScene) {
-            Destroy(gameObject);
-            return;
-        }
-
         if (instance != null) {
             Destroy(gameObject);
             return;
         }
+        else {
+            instance = this;
 
-        instance = this;
+            DontDestroyOnLoad(gameObject);
 
-        DontDestroyOnLoad(gameObject);
+            OnGameOver += OnWin;
 
-        OnGameOver += OnWin;
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+    }
+
+    public void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
+        if (scene.name != gameScene && scene.name != gameOverScene) {
+            if (gameObject != null) {
+                SceneManager.sceneLoaded -= OnSceneLoaded;
+                Destroy(gameObject);
+            }
+            return;
+        }
     }
 
     public delegate void GameOverEvent(TeamType win, WinType winType);
@@ -155,6 +163,8 @@ public class GameOver : MonoBehaviour
     }
 
     public void OnWin(TeamType win, WinType winType) {
+        TurnManager.instance.gameActive = false;
+
         Debug.Log("Game over");
 
         float accuracy;

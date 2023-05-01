@@ -9,14 +9,6 @@ using UnityEngine.UI;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 [Serializable]
-public enum GameMode {
-    AdvancedCombat,
-    ClassicBattleship,
-    TacticalSalvo,
-    Customs
-}
-
-[Serializable]
 public enum MatchmakingStage {
     None,
     Error,
@@ -306,6 +298,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
         PhotonNetwork.MaxResendsBeforeDisconnect = 7;
         PhotonNetwork.CurrentRoom.IsVisible = false;
         Debug.Log("Starting game");
+        PlayerPrefs.SetInt(Constants.GAME_MODE_PREF_KEY, (int)gameMode);
         if (PhotonNetwork.IsMasterClient) {
             PhotonNetwork.LoadLevel("6 Game");
         }

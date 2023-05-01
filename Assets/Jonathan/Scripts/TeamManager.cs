@@ -90,10 +90,13 @@ public class TeamManager : MonoBehaviour {
             TurnManager.instance.LoadTeams(teams);
             TurnManager.instance.RandomizeTeams();
             TurnManager.instance.currentTeam = TurnManager.instance.playerTeam;
-            TurnManager.instance.SetTurn(TurnManager.instance.playerTeam);
             Colorize();
             GenerateTerrain();
             GenerateShips();
+            Debug.Log("Done loading");
+            TurnManager.instance.loading = false;
+            TurnManager.instance.gameActive = true;
+            TurnManager.instance.SetTurn(TurnManager.instance.playerTeam);
         }
     }
 

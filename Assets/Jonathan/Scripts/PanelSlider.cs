@@ -82,12 +82,12 @@ public class PanelSlider : MonoBehaviour
         }
     }
 
-    public void QuickActivate(bool resetText = true) {
+    public void QuickActivate(bool resetText = true, float? overrideDuration = null) {
         rectTransform.anchoredPosition = new Vector2(inX, rectTransform.anchoredPosition.y);
         
         this.targetX = outX;
         this.elapsedTime = TimeSpan.FromSeconds(0.6f);
-        this.delay = TimeSpan.FromSeconds(duration);
+        this.delay = TimeSpan.FromSeconds(overrideDuration ?? duration);
 
         state = PanelState.MovingOut;
 

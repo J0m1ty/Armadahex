@@ -13,9 +13,9 @@ public class ShipManager : MonoBehaviour
 
     public List<Ship> ships;
 
-    public List<Ship> playerShips => ships.FindAll(s => s.team == TurnManager.instance.playerTeam);
+    public List<Ship> playerShips => ships.FindAll(s => s.team.teamType == TurnManager.instance.playerTeam.teamType);
     
-    public List<Ship> enemyShips => ships.FindAll(s => s.team != TurnManager.instance.playerTeam);
+    public List<Ship> enemyShips => ships.FindAll(s => s.team.teamType != TurnManager.instance.playerTeam.teamType);
 
     private TeamManager teamManager;
 
@@ -28,9 +28,9 @@ public class ShipManager : MonoBehaviour
         var obj = Instantiate(model.shipPrefab, transform) as GameObject;
 
         var ship = obj.GetComponent<Ship>();
-        
-        ships.Add(ship);
 
+        ships.Add(ship);
+        
         ship.shipModel = model;
         ship.team = team;
         ship.rotation = rotations[Random.Range(0, rotations.Count)];
@@ -95,6 +95,8 @@ public class ShipManager : MonoBehaviour
             var team = teamManager.teams.Find(t => (int) t.teamType == ship.teamTypeIndex);
             GenerateShipFromData(ship, team);
         }
+
+        Debug.Log(ships.Count);
     }
     
     public void EnableShips() {
