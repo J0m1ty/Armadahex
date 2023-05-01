@@ -46,7 +46,9 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
         Debug.Log("Game mode is " + gameMode);
 
-        PlayerPrefs.DeleteKey(Constants.GAME_MODE_PREF_KEY);
+        if (gameMode == GameMode.Customs) {
+            GameModeInfo.instance.SetCustomWithPrefs();
+        }
     }
 
     void Start() {
@@ -95,6 +97,9 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
         if (PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.PlayerCount > 1) {
             GameOver.instance.enemyName = PhotonNetwork.CurrentRoom.Players.Where(p => p.Value != PhotonNetwork.LocalPlayer).First().Value.NickName;
+        }
+        else if (GameModeInfo.instance.IsSingleplayer) {
+            GameOver.instance.enemyName = "Enemy Bot";
         }
     }
 
