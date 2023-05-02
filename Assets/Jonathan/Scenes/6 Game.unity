@@ -2131,7 +2131,7 @@ MonoBehaviour:
   singlePlayerAITime: 3
   normalResetTime: 25
   firstTurnBonusTime: 5
-  salvoAddTime: 15
+  continueAddTime: 15
   attackManager: {fileID: 1007787192}
 --- !u!1 &221873463
 GameObject:
@@ -2561,6 +2561,7 @@ MonoBehaviour:
   selector: {fileID: 1007787193}
   panelSlider: {fileID: 1788180177}
   countdown: {fileID: 210569321}
+  shipManager: {fileID: 0}
   currentTeam:
     teamType: 0
     teamBase: {fileID: 0}
@@ -2586,24 +2587,35 @@ MonoBehaviour:
     isSingleplayer: 0
     isAdvancedCombat: 1
     isSalvo: 0
+    isBonus: 0
     turnTimeLimit: 25
   - name: Classic Battleship
     gameMode: 1
     isSingleplayer: 0
     isAdvancedCombat: 0
     isSalvo: 0
+    isBonus: 0
     turnTimeLimit: 25
   - name: Tactical Salvo
     gameMode: 2
     isSingleplayer: 0
     isAdvancedCombat: 0
     isSalvo: 1
+    isBonus: 0
     turnTimeLimit: 25
-  - name: Custom
+  - name: Bonus Barrage
     gameMode: 3
     isSingleplayer: 0
-    isAdvancedCombat: 1
+    isAdvancedCombat: 0
     isSalvo: 0
+    isBonus: 1
+    turnTimeLimit: 25
+  - name: Custom
+    gameMode: 4
+    isSingleplayer: 1
+    isAdvancedCombat: 0
+    isSalvo: 1
+    isBonus: 0
     turnTimeLimit: 25
 --- !u!1 &248421019
 GameObject:
@@ -5236,7 +5248,7 @@ MonoBehaviour:
     PointListProperties:
     - GeneratorData:
         Generator: 5
-        NeedsUpdate: 0
+        NeedsUpdate: 1
         Center: {x: 0, y: 0}
         Width: 50
         Height: 50

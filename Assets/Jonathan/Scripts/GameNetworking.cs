@@ -38,7 +38,7 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
         localDoneLoading = false;
         enemyDoneLoading = false;
 
-        if (!PlayerPrefs.HasKey(Constants.GAME_MODE_PREF_KEY)) {
+        if (!PlayerPrefs.HasKey(Constants.GAME_MODE_PREF_KEY) || !PhotonNetwork.InRoom) {
             PlayerPrefs.SetInt(Constants.GAME_MODE_PREF_KEY, (int)GameMode.Customs);
         }
 
@@ -49,6 +49,8 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
         if (gameMode == GameMode.Customs) {
             GameModeInfo.instance.SetCustomWithPrefs();
         }
+
+        PlayerPrefs.DeleteKey(Constants.GAME_MODE_PREF_KEY);
     }
 
     void Start() {

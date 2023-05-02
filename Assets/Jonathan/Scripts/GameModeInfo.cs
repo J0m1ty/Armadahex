@@ -8,6 +8,7 @@ public enum GameMode {
     AdvancedCombat,
     ClassicBattleship,
     TacticalSalvo,
+    BonusBarrage,
     Customs
 }
 
@@ -18,6 +19,7 @@ public class GameModeData {
     public bool isSingleplayer;
     public bool isAdvancedCombat;
     public bool isSalvo;
+    public bool isBonus;
     public float turnTimeLimit;
 }
 
@@ -41,6 +43,7 @@ public class GameModeInfo : MonoBehaviour {
     public bool IsSingleplayer => From(GameNetworking.instance.gameMode).isSingleplayer;
     public bool IsAdvancedCombat => From(GameNetworking.instance.gameMode).isAdvancedCombat;
     public bool IsSalvo => From(GameNetworking.instance.gameMode).isSalvo;
+    public bool IsBonus => From(GameNetworking.instance.gameMode).isBonus;
     public float TurnTimeLimit => From(GameNetworking.instance.gameMode).turnTimeLimit;
 
     public void SetCustomWithPrefs() {
@@ -59,6 +62,10 @@ public class GameModeInfo : MonoBehaviour {
             custom.isSalvo = PlayerPrefs.GetInt(Constants.CUSTOMS_IS_SALVO_PREF_KEY) == 1;
         }
 
+        if (PlayerPrefs.HasKey(Constants.CUSTOMS_IS_BONUS_PREF_KEY)) {
+            custom.isBonus = PlayerPrefs.GetInt(Constants.CUSTOMS_IS_BONUS_PREF_KEY) == 1;
+        }
+
         if (PlayerPrefs.HasKey(Constants.CUSTOMS_TURN_TIME_LIMIT_KEY)) {
             custom.turnTimeLimit = PlayerPrefs.GetFloat(Constants.CUSTOMS_TURN_TIME_LIMIT_KEY);
         }
@@ -66,21 +73,25 @@ public class GameModeInfo : MonoBehaviour {
         PlayerPrefs.DeleteKey(Constants.CUSTOMS_IS_SINGLEPLAYER_PREF_KEY);
         PlayerPrefs.DeleteKey(Constants.CUSTOMS_IS_ADVANCED_COMBAT_PREF_KEY);
         PlayerPrefs.DeleteKey(Constants.CUSTOMS_IS_SALVO_PREF_KEY);
+        PlayerPrefs.DeleteKey(Constants.CUSTOMS_IS_BONUS_PREF_KEY);
         PlayerPrefs.DeleteKey(Constants.CUSTOMS_TURN_TIME_LIMIT_KEY);
     }
 
-    public void SetCustom(bool isSingleplayer, bool isAdvancedCombat, bool isSalvo) {
+    public void SetCustom(bool isSingleplayer, bool isAdvancedCombat, bool isSalvo, bool isBonus, float turnTimeLimit) {
         var custom = gameModes.Find(g => g.gameMode == GameMode.Customs);
 
         custom.isSingleplayer = isSingleplayer;
         custom.isAdvancedCombat = isAdvancedCombat;
         custom.isSalvo = isSalvo;
+        custom.isBonus = isBonus;
+        custom.turnTimeLimit = turnTimeLimit;
     }
 
-    public static void SetCustomPrefs(bool isSingleplayer, bool isAdvancedCombat, bool isSalvo, float turnTimeLimit) {
+    public static void SetCustomPrefs(bool isSingleplayer, bool isAdvancedCombat, bool isSalvo, bool isBonus, float turnTimeLimit) {
         PlayerPrefs.SetInt(Constants.CUSTOMS_IS_SINGLEPLAYER_PREF_KEY, isSingleplayer ? 1 : 0);
         PlayerPrefs.SetInt(Constants.CUSTOMS_IS_ADVANCED_COMBAT_PREF_KEY, isAdvancedCombat ? 1 : 0);
         PlayerPrefs.SetInt(Constants.CUSTOMS_IS_SALVO_PREF_KEY, isSalvo ? 1 : 0);
+        PlayerPrefs.SetInt(Constants.CUSTOMS_IS_BONUS_PREF_KEY, isBonus ? 1 : 0);
         PlayerPrefs.SetFloat(Constants.CUSTOMS_TURN_TIME_LIMIT_KEY, turnTimeLimit);
     }
 }

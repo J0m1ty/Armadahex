@@ -21,7 +21,7 @@ public class Countdown : MonoBehaviour
     [SerializeField]
     private int firstTurnBonusTime = 5;
     [SerializeField]
-    private int salvoAddTime = 15;
+    private int continueAddTime = 15;
     private int resetTime;
 
     [SerializeField]
@@ -56,7 +56,7 @@ public class Countdown : MonoBehaviour
 
         var currentResetTime = resetTime;
         var currentTime = int.Parse(countdownText.text.Replace("s", ""));
-        currentTime += salvoAddTime;
+        currentTime += continueAddTime;
         if (currentTime > resetTime) {
             currentTime = resetTime;
         }
