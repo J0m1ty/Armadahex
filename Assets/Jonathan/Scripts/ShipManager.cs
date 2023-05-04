@@ -95,8 +95,6 @@ public class ShipManager : MonoBehaviour
             var team = teamManager.teams.Find(t => (int) t.teamType == ship.teamTypeIndex);
             GenerateShipFromData(ship, team);
         }
-
-        Debug.Log(ships.Count);
     }
     
     public void EnableShips() {

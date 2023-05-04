@@ -18,6 +18,9 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
     private TeamManager teamManager;
 
     [SerializeField]
+    private PregameManager pregameManager;
+
+    [SerializeField]
     private ShipManager shipManager;
 
     [SerializeField]
@@ -28,6 +31,11 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
     public bool localDoneLoading = false;
     public bool enemyDoneLoading = false;
 
+    [SerializeField]
+    private bool networkingLoaded = false;
+    [SerializeField]
+    private bool displayLoaded = false;
+
     void Awake() {
         if (instance == null) {
             instance = this;
@@ -37,6 +45,8 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
         localDoneLoading = false;
         enemyDoneLoading = false;
+        networkingLoaded = false;
+        displayLoaded = false;
 
         if (!PlayerPrefs.HasKey(Constants.GAME_MODE_PREF_KEY) || !PhotonNetwork.InRoom) {
             PlayerPrefs.SetInt(Constants.GAME_MODE_PREF_KEY, (int)GameMode.Customs);
@@ -166,7 +176,19 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
         shipManager.GenerateShipsFromData(ships);
         shipManager.EnableShips();
 
-        OnDoneLoading();
+        networkingLoaded = true;
+
+        if (displayLoaded) {
+            OnDoneLoading();
+        }
+    }
+
+    public void DisplayLoaded() {
+        displayLoaded = true;
+
+        if (networkingLoaded) {
+            OnDoneLoading();
+        }
     }
 
     public void OnDoneLoading() {
@@ -187,9 +209,8 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
             Debug.Log("Done loading");
 
             TurnManager.instance.loading = false;
-            TurnManager.instance.gameActive = true;
-
-            TurnManager.instance.SetTurn(teamManager.teams.Find(t => t.teamType == firstTeam));
+            
+            pregameManager.TryStartCountdown();
         }
     }
 
@@ -215,15 +236,17 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
         TurnManager.instance.SetTurn(teamManager.teams.Find(t => t.teamType == (TeamType)newTeam));
     }
 
-    public void ContinueTurn() {
+    public void ContinueTurn(int currentCountdown) {
         if (!PhotonNetwork.IsConnectedAndReady) return;
 
-        photonView.RPC("ContinueTurnRPC", RpcTarget.Others);
+        Debug.Log("Sending continue turn RPC with countdown " + currentCountdown);
+
+        photonView.RPC("ContinueTurnRPC", RpcTarget.All, currentCountdown);
     }
 
     [PunRPC]
-    public void ContinueTurnRPC() {
-        TurnManager.instance.ContinueTurn();
+    public void ContinueTurnRPC(int currentCountdown) {
+        TurnManager.instance.ContinueTurn(false, currentCountdown);
     }
 
     public void OnGameOver(TeamType winner, WinType winType) {

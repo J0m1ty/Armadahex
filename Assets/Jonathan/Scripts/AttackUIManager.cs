@@ -247,9 +247,6 @@ public class AttackUIManager : MonoBehaviour
                 selectedTarget = target;
 
                 SetState(AttackState.SelectAttackOption);
-
-                Debug.Log(selectedShip.name + " has ");
-                Debug.Log(selectedShip.remainingAttacks.Length + " attacks left");
                 
                 // dont generate attack options if there is only one
                 if (selectedShip.remainingAttacks.Length == 1) {
@@ -672,7 +669,7 @@ public class AttackUIManager : MonoBehaviour
             attackPanel.QuickActivate(true, GameModeInfo.instance.IsSingleplayer ? (attackPanel.persistingHit ? 4f : null) : null);
             
             // wait until next turn or continue turn to restart or resume the countdown
-            countdown.isPaused = false;
+            countdown.isPaused = true;
 
             // reset hit data
             attackPanel.ResetData();
