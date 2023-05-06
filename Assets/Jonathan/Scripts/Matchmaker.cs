@@ -21,13 +21,12 @@ public enum MatchmakingStage {
 [RequireComponent(typeof(StateManager))]
 public class Matchmaker : MonoBehaviourPunCallbacks
 {
+    private StateManager stateManager;
+
     private GameMode gameMode;
 
     [SerializeField]
     private TMP_Text buttonText;
-
-    [SerializeField]
-    private StateManager stateManager;
 
     [SerializeField]
     private GameObject matchmakingPanel;
@@ -49,7 +48,8 @@ public class Matchmaker : MonoBehaviourPunCallbacks
         }
     }
 
-    private bool cancelAction = false;
+    [SerializeField]
+    private GameObject backButton; // hide this when searching    
 
     [SerializeField]
     private Color matchmakingColor;
@@ -64,10 +64,14 @@ public class Matchmaker : MonoBehaviourPunCallbacks
         set {
             _stage = value;
             matchmakingPanel.SetActive(_stage != MatchmakingStage.None);
+            backButton.SetActive(_stage == MatchmakingStage.None);
         }
     }
 
-    public bool hideOnAwake = true;
+    private bool cancelAction = false;
+
+    [SerializeField]
+    private bool hideOnAwake = true;
 
     void Awake() {
         matchmakingMaterial = matchmakingPanel.GetComponent<Image>().material;
@@ -81,13 +85,13 @@ public class Matchmaker : MonoBehaviourPunCallbacks
     }
 
     public void PlayOrCancel() {
-        if (cancelAction) {
-            Debug.Log("Canceling in progress");
+        if (stage == MatchmakingStage.Error) {
+            Debug.Log("In error");
             return;
         }
 
-        if (stage == MatchmakingStage.Error) {
-            Debug.Log("In error");
+        if (cancelAction) {
+            Debug.Log("Canceling in progress");
             return;
         }
         
@@ -106,7 +110,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
             }
 
             stage = MatchmakingStage.Pre;
-            buttonText.text = "Cancel";
+            buttonText.text = "CANCEL";
             StartCoroutine(Countdown());
         }
         else if (stage != MatchmakingStage.Found) {
@@ -149,7 +153,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
 
     private void JoinRandomRoom() {
         if (!PhotonNetwork.IsConnected) {
-            Error("Connection error");
+            Error("Connection error", 2.5f);
             return;
         }
 

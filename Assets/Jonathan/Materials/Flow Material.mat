@@ -197,7 +197,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EnvironmentReflections: 1
-    - _Fog_param: -0.18
+    - _Fog_param: -0.21
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -215,7 +215,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: -10
     - _ReceiveShadows: 1
-    - _RefractionStrength: 0.3
+    - _RefractionStrength: 0.33
     - _Scaling: 20
     - _Smoothness: 0.66
     - _SmoothnessTextureChannel: 0
@@ -249,7 +249,7 @@ Material:
     - _Jump: {r: 0.15, g: 0.15, b: 0, a: 0}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _Tiling: {r: 4, g: 4, b: 0, a: 0}
-    - _edgeFalloffColor: {r: 0, g: 0.90304947, b: 1, a: 1}
+    - _edgeFalloffColor: {r: 0, g: 0.8622582, b: 1, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &5269401364437940169
 MonoBehaviour:

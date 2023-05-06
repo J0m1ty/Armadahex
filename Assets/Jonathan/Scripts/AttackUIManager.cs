@@ -84,6 +84,7 @@ public class AttackUIManager : MonoBehaviour
 
     [Header("Other")]
     public GameObject skipButton;
+    public audioScript gameAudio;
 
     void Awake() {
         selector = GetComponent<Selector>();
@@ -247,9 +248,6 @@ public class AttackUIManager : MonoBehaviour
                 selectedTarget = target;
 
                 SetState(AttackState.SelectAttackOption);
-
-                Debug.Log(selectedShip.name + " has ");
-                Debug.Log(selectedShip.remainingAttacks.Length + " attacks left");
                 
                 // dont generate attack options if there is only one
                 if (selectedShip.remainingAttacks.Length == 1) {
@@ -590,16 +588,24 @@ public class AttackUIManager : MonoBehaviour
             }
 
             if (!GameOver.instance.CheckIfGameOver()) {
+                attackPanel.ResetData();
                 attackPanel.SetAttackInfo(hit, destroyed, selectedShip.shipModel.attackName, selectedOption.info.unlimited ? 1000 : selectedOption.ammoLeft );
                 CameraManager.instance.Shake(hit);
                 AudioManager.instance?.PlayActionSound(ActionType.Explosion);
                 AudioManager.instance?.PlayHitSound(hit, 3f);
                 attackPanel.QuickActivate();
+
+                gameAudio.RemainingShips(shipManager.playerShips.FindAll(s => s.isAlive && s.hasAmmoLeft).Count);
             }
 
             SetState(AttackState.AttackOver);
+
+            var shipsRemaining = shipManager.playerShips.FindAll(s => s.isAlive && s.hasAmmoLeft).Count;
             
-            if (GameModeInfo.instance.IsSalvo && hit) {
+            if (GameModeInfo.instance.IsBonus && hit) {
+                TurnManager.instance.ContinueTurnDelay(false);
+            }
+            else if (GameModeInfo.instance.IsSalvo && TurnManager.instance.consecutiveTurns < shipsRemaining) {
                 TurnManager.instance.ContinueTurnDelay(false);
             }
             else {
@@ -630,12 +636,22 @@ public class AttackUIManager : MonoBehaviour
         }
 
         if (GameModeInfo.instance.IsSingleplayer) {
-            if (GameModeInfo.instance.IsSalvo) {
+            if (GameModeInfo.instance.IsBonus) {
                 if (hit) {
                     TurnManager.instance.ContinueTurnDelay(true);
                 }
                 else {
                     TurnManager.instance.TurnOver();
+                }
+            }
+            else if (GameModeInfo.instance.IsSalvo) {
+                var shipsRemaining = shipManager.playerShips.FindAll(s => s.isAlive && s.hasAmmoLeft).Count;
+            
+                if (TurnManager.instance.consecutiveTurns >= shipsRemaining) {
+                    TurnManager.instance.TurnOver();
+                }
+                else {
+                    TurnManager.instance.ContinueTurnDelay(true);
                 }
             }
             else {
@@ -656,7 +672,7 @@ public class AttackUIManager : MonoBehaviour
             attackPanel.QuickActivate(true, GameModeInfo.instance.IsSingleplayer ? (attackPanel.persistingHit ? 4f : null) : null);
             
             // wait until next turn or continue turn to restart or resume the countdown
-            countdown.isPaused = false;
+            countdown.isPaused = true;
 
             // reset hit data
             attackPanel.ResetData();

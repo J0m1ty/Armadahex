@@ -12,6 +12,9 @@ public static class Constants
     public const string CUSTOMS_IS_SINGLEPLAYER_PREF_KEY = "CustomsIsSingleplayer";
     public const string CUSTOMS_IS_ADVANCED_COMBAT_PREF_KEY = "CustomsIsAdvancedCombat";
     public const string CUSTOMS_IS_SALVO_PREF_KEY = "CustomsIsSalvo";
+    public const string CUSTOMS_IS_BONUS_PREF_KEY = "CustomsIsBonus";
     public const string CUSTOMS_TURN_TIME_LIMIT_KEY = "CustomsTurnTimeLimit";
+    public const string DO_TUTORIAL_PREF_KEY = "DoTutorial";
+    public const string GAMES_PLAYED_PREF_KEY = "GamesPlayed";
     public const int ROOM_NUM_EXPECTED_PLAYERS = 2;
 }

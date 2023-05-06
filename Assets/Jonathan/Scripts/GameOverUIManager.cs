@@ -70,7 +70,7 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
 
         AudioManager.instance?.PlayResultSound(isWinner);
         
-        gameOverText.text = isWinner ? "TOTAL VICTORY" : "FULL DEFEAT";
+        gameOverText.text = isWinner ? "MISSION SUCCESS" : "MISSION FAILED";
         
         if (isWinner) {
             switch (winInfo.winType) {

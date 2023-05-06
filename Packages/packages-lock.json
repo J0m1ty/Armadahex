@@ -9,6 +9,15 @@
       },
       "hash": "8746f5a784c2ba91c85f9f33b9b0256faaaad24e"
     },
+    "com.quantumcalzone.unitylayoutelementextended": {
+      "version": "https://github.com/QuantumCalzone/UnityLayoutElementExtended.git#upm",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.ugui": "0.0.1"
+      },
+      "hash": "12b1fc0310a6d6b7abfa0269eff8cc751f323f4f"
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
@@ -306,13 +315,6 @@
         "com.unityfx.outline": "0.8.5",
         "com.unity.render-pipelines.universal": "7.0.0"
       }
-    },
-    "com.veriorpies.parrelsync": {
-      "version": "https://github.com/VeriorPies/ParrelSync.git?path=/ParrelSync",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "f45424822189ebd875d864a17d7f03b72eafbff7"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",

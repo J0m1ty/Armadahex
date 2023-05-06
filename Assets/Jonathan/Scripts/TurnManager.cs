@@ -17,6 +17,12 @@ public class TurnManager : MonoBehaviour
 
     [SerializeField]
     private Countdown countdown;
+
+    [SerializeField]
+    private ShipManager shipManager;
+
+    [SerializeField]
+    private TeamManager teamManager;
     
     public Team currentTeam;
     public Team otherTeam {
@@ -37,6 +43,8 @@ public class TurnManager : MonoBehaviour
     public bool loading;
     public bool gameActive;
 
+    public int consecutiveTurns { get; private set; }
+
     private void Awake() {
         instance = this;
 
@@ -44,6 +52,8 @@ public class TurnManager : MonoBehaviour
 
         loading = true;
         gameActive = false;
+
+        consecutiveTurns = 0;
     }
 
     public void LoadTeams(List<Team> teams) {
@@ -76,18 +86,22 @@ public class TurnManager : MonoBehaviour
     public void ContinueTurnDelay(bool isBotTurn = false) {
         countdown.isPaused = true;
 
-        StartCoroutine(ContinueTurnAfterDelay(3f, isBotTurn));
+        StartCoroutine(ContinueTurnAfterDelay(GameModeInfo.instance.IsSalvo ? 2.5f : 3f, isBotTurn));
     }
 
     private IEnumerator ContinueTurnAfterDelay(float delay, bool isBotTurn = false) {
         yield return new WaitForSeconds(delay);
         
-        GameNetworking.instance.ContinueTurn();
-        ContinueTurn(isBotTurn);
+        if (GameModeInfo.instance.IsSingleplayer) {
+            ContinueTurn(isBotTurn);
+        }
+        else {
+            GameNetworking.instance.ContinueTurn(countdown.currentTime);
+        }
     }
 
-    public void ContinueTurn(bool isBotTurn = false) {
-        Debug.Log("Continuing Turn");
+    public void ContinueTurn(bool isBotTurn = false, int? setTime = null) {
+        Debug.Log("Continuing Turn for " + currentTeam.teamType + " and setting countdown to " + setTime);
         
         countdown.isPaused = false;
 
@@ -95,7 +109,7 @@ public class TurnManager : MonoBehaviour
             countdown.StartCountdownForBot();
         }
         else {
-            countdown.AddTime();
+            countdown.AddTime(setTime);
         }
 
         if (currentTeam.isPlayer) {
@@ -106,7 +120,22 @@ public class TurnManager : MonoBehaviour
         }
     }
 
+    public void StartGame() {
+        loading = false;
+        gameActive = true;
+
+        if (GameModeInfo.instance.IsSingleplayer) {
+            SetTurn(playerTeam);
+        }
+        else {
+            SetTurn(teamManager.teams.Find(t => t.teamType == GameNetworking.instance.firstTeam));
+        }
+    }
+
+    // <summary> Called to start the game (first turn) and to start subsequent turns. </summary>
     public void SetTurn(Team team) {
+        consecutiveTurns = 0;
+
         currentTeam = team;
         
         panelSlider.QuickActivate();
@@ -135,6 +164,7 @@ public class TurnManager : MonoBehaviour
     }
 
     private void OnPlayerTurn() {
+        consecutiveTurns++;
         selector.SetTeam(TurnManager.instance.playerTeam, TurnManager.instance.otherTeam.teamBase);
         attackManager.SetState(AttackUIManager.AttackState.SelectShip);
         if (GameModeInfo.instance.IsAdvancedCombat) {
@@ -146,6 +176,7 @@ public class TurnManager : MonoBehaviour
     }
 
     private void OnEnemyTurn() {
+        consecutiveTurns++;
         selector.allowSelectingGrids = false;
         selector.allowSelectingShips = false;
         selector.SetTeam(TurnManager.instance.otherTeam, TurnManager.instance.playerTeam.teamBase);

@@ -15,7 +15,7 @@ public enum PanelState {
 [RequireComponent(typeof(RectTransform))]
 public class PanelSlider : MonoBehaviour
 {
-    private RectTransform rectTransform;
+    private RectTransform rectTransform => GetComponent<RectTransform>();
 
     private float width => rectTransform.rect.width;
     private float height => rectTransform.rect.height;
@@ -64,8 +64,6 @@ public class PanelSlider : MonoBehaviour
     public bool? persistingShipDestroyed { get; set; }
 
     private void Awake() {
-        rectTransform = GetComponent<RectTransform>();
-
         state = PanelState.In;
         rectTransform.anchoredPosition = new Vector2(inX, rectTransform.anchoredPosition.y);
     }

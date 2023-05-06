@@ -75,6 +75,9 @@ public class Team {
 
 [RequireComponent(typeof(ShipManager))]
 public class TeamManager : MonoBehaviour {
+    [SerializeField]
+    private PregameManager pregameManager;
+
     public List<TerrainBlock> terrainBlocks;
 
     public List<Team> teams;
@@ -95,8 +98,8 @@ public class TeamManager : MonoBehaviour {
             GenerateShips();
             Debug.Log("Done loading");
             TurnManager.instance.loading = false;
-            TurnManager.instance.gameActive = true;
-            TurnManager.instance.SetTurn(TurnManager.instance.playerTeam);
+
+            pregameManager.TryStartCountdown();
         }
     }
 

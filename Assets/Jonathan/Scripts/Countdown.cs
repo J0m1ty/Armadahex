@@ -8,6 +8,8 @@ public class Countdown : MonoBehaviour
 {
     private TMP_Text countdownText;
 
+    public int currentTime => int.Parse(countdownText.text.Replace("s", ""));
+
     [SerializeField]
     private bool doCountdown = true;
     public bool isPaused;
@@ -21,7 +23,9 @@ public class Countdown : MonoBehaviour
     [SerializeField]
     private int firstTurnBonusTime = 5;
     [SerializeField]
-    private int salvoAddTime = 15;
+    private int continueAddTime = 15;
+    [SerializeField]
+    private int continueAddTimeSalvo = 5;
     private int resetTime;
 
     [SerializeField]
@@ -48,24 +52,22 @@ public class Countdown : MonoBehaviour
     // and ienumerator that counts down every second
 
     /// <summary> Adds time and restarts the countdown. </summary>
-    public void AddTime() {
+    public void AddTime(int? setTimeBeforeAdd = null) {
         if (isUnlimited) {
             StartCountdown();
             return;
         }
 
-        var currentResetTime = resetTime;
-        var currentTime = int.Parse(countdownText.text.Replace("s", ""));
-        currentTime += salvoAddTime;
-        if (currentTime > resetTime) {
-            currentTime = resetTime;
+        int time = setTimeBeforeAdd != null ? (int)setTimeBeforeAdd : currentTime;
+        time += GameModeInfo.instance.IsSalvo? continueAddTimeSalvo : continueAddTime;
+        if (time > resetTime) {
+            time = resetTime;
         }
-        resetTime = currentTime;
-        StartCountdown();
-        resetTime = currentResetTime;
+
+        StartCountdown(time);
     }
 
-    public void StartCountdown() {
+    public void StartCountdown(float? overrideTime = null) {
         if (!doCountdown) return;
 
         StopAllCoroutines();
@@ -78,7 +80,7 @@ public class Countdown : MonoBehaviour
             countdownText.color = Color.black;
         }
 
-        StartCoroutine(CountdownCoroutine());
+        StartCoroutine(CountdownCoroutine(overrideTime));
 
         resetTime = normalResetTime;
     }
@@ -98,7 +100,7 @@ public class Countdown : MonoBehaviour
         var time = overrideTime ?? resetTime;
         
         if (isUnlimited) {
-            time = 9999;
+            time = 99999;
         }
 
         // just for display... will only go down by singlePlayerAITime if it's the bot's turn

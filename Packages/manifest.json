@@ -10,6 +10,7 @@
   ],
   "dependencies": {
     "com.domybest.mybox": "https://github.com/Deadcows/MyBox.git",
+    "com.quantumcalzone.unitylayoutelementextended": "https://github.com/QuantumCalzone/UnityLayoutElementExtended.git#upm",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.ads": "3.7.5",
@@ -30,7 +31,6 @@
     "com.unity.visualeffectgraph": "15.0.4",
     "com.unity.xr.legacyinputhelpers": "2.1.10",
     "com.unityfx.outline.urp": "0.5.0",
-    "com.veriorpies.parrelsync": "https://github.com/VeriorPies/ParrelSync.git?path=/ParrelSync",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
