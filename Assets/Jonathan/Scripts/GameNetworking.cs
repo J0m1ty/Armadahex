@@ -58,6 +58,10 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
         if (gameMode == GameMode.Customs) {
             GameModeInfo.instance.SetCustomWithPrefs();
+
+            if (GameModeInfo.instance.IsSingleplayer) {
+                gameObject.AddComponent<AudioListener>();
+            }
         }
 
         PlayerPrefs.DeleteKey(Constants.GAME_MODE_PREF_KEY);

@@ -20,8 +20,8 @@ public class StatsUpdater : MonoBehaviour
             var numberOfPlayersTotal = PhotonNetwork.CountOfPlayers;
             var numberOfRooms = PhotonNetwork.CountOfRooms;
             
-            text.text = numberOfPlayersTotal + " active players" + "\n" + 
-                numberOfPlayersInRooms + " players in games";
+            text.text = numberOfPlayersTotal + " Players Online" + "\n" + 
+                numberOfRooms + " Games Active";
         }
     }
 }

@@ -84,6 +84,7 @@ public class AttackUIManager : MonoBehaviour
 
     [Header("Other")]
     public GameObject skipButton;
+    public audioScript gameAudio;
 
     void Awake() {
         selector = GetComponent<Selector>();
@@ -593,6 +594,8 @@ public class AttackUIManager : MonoBehaviour
                 AudioManager.instance?.PlayActionSound(ActionType.Explosion);
                 AudioManager.instance?.PlayHitSound(hit, 3f);
                 attackPanel.QuickActivate();
+
+                gameAudio.RemainingShips(shipManager.playerShips.FindAll(s => s.isAlive && s.hasAmmoLeft).Count);
             }
 
             SetState(AttackState.AttackOver);

@@ -6,36 +6,48 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [Serializable]
-public class NameGroup {
+public class GameModeCard {
     public TMP_Text name;
-    public TMP_Text divider;
+    public Image overlay;
 
     public void SetEnabled(bool enabled) {
+        if (name == null) {
+            return;
+        }
+
         name.gameObject.SetActive(enabled);
-        divider.gameObject.SetActive(enabled);
+    }
+
+    public void SetOverlay(float alpha) {
+        if (overlay == null) {
+            return;
+        }
+
+        overlay.color = new Color(overlay.color.r, overlay.color.g, overlay.color.b, alpha);
     }
 }
 
 public class StateManager : MonoBehaviour
 {
+    public const float NO_OVERLAY = 0f;
+    public const float UNSELECTED_OVERLAY = 0.5f;
+
     [Serializable]
     public struct MenuState {
         public GameMode gameMode;
 
         public string name;
-        public bool showName;
 
         [TextArea(3, 10)]
         public string description;
 
-        public Button select;
+        public GameModeCard card;
 
+        public Button select;
         public string buttonText;
-        public bool showButton;
         
         public bool showInput;
-
-        public bool showStats;
+        public bool hideButtonUntilValidInput;
 
         public bool isDefault;
     }
@@ -49,7 +61,10 @@ public class StateManager : MonoBehaviour
     private MenuState[] states;
 
     [SerializeField]
-    private NameGroup stateName;
+    private TMP_Text stateName;
+
+    [SerializeField]
+    private TMP_Text stateHeader;
 
     [SerializeField]
     private TMP_Text stateDescription;
@@ -60,65 +75,87 @@ public class StateManager : MonoBehaviour
     [SerializeField]
     public TMP_InputField stateInput;
 
-    [SerializeField]
-    public GameObject stateStats;
-
     private void Start() {
-        int i = 0;
         foreach (MenuState state in states) {
             if (state.isDefault) {
-                SetState(i);
+                SetState(state.name);
             }
 
             if (state.select != null) {
                 state.select.onClick.AddListener(() => {
-                    if (allowLocking && lockedIn)
-                        return;
                     SetState(state.name);
-                    //Debug.Log("Clicked " + state.name);
                 });
             }
+        }
 
-            i++;
+        stateInput.onValueChanged.AddListener((string value) => {
+            DisplayButton(value.Length == 4);
+        });
+    }
+
+    public void DisplayButton(bool display) {
+        if (currentState.hideButtonUntilValidInput) {
+            stateButton.gameObject.SetActive(currentState.isDefault ? false : display);
         }
     }
 
     public void SetState(int index) {
+        if (allowLocking && lockedIn) {
+            return;
+        }
+        
         if (index < 0 || index >= states.Length) {
             Debug.LogError("Invalid state index!");
             return;
         }
-
+        
         if (currentState.name == states[index].name) {
-            int i = 0;
             foreach (MenuState state in states) {
                 if (state.isDefault) {
-                    SetState(i);
+                    SetState(state.name);
                     break;
                 }
-                i++;
             }
             return;
         }
 
         currentState = states[index];
+
+        if (currentState.isDefault) {
+            foreach (MenuState state in states) {
+                state.card.SetOverlay(NO_OVERLAY);
+            }
+
+            stateName.gameObject.SetActive(false);
+            stateDescription.gameObject.SetActive(false);
+            stateButton.gameObject.SetActive(false);
+
+            stateHeader.text = "SELECT GAME MODE";
+        }
+        else {
+            foreach (MenuState state in states) {
+                state.card.SetOverlay(UNSELECTED_OVERLAY);
+            }
+
+            stateName.gameObject.SetActive(true);
+            stateDescription.gameObject.SetActive(true);
+            stateButton.gameObject.SetActive(true);
+
+            stateHeader.text = "DETAILS";
+
+            currentState.card.SetOverlay(NO_OVERLAY);
+        }
         
-        stateName.name.text = currentState.name;
-        stateName.SetEnabled(currentState.showName);
+        stateName.text = currentState.name;
         
         stateDescription.text = currentState.description;
 
         stateButton.GetComponentInChildren<TMP_Text>().text = currentState.buttonText;
-        stateButton.gameObject.SetActive(currentState.showButton);
         
         stateInput.text = "";
         stateInput.gameObject.SetActive(currentState.showInput);
 
-        stateStats.SetActive(currentState.showStats);
-
-        if (allowLocking) {
-            lockedIn = true;
-        }
+        DisplayButton(false);
     }
 
     public void SetState(string name) {

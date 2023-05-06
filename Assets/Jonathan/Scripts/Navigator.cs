@@ -2,9 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using MyBox;
 
-public class Navigator : MonoBehaviour
-{
+public class Navigator : MonoBehaviour {
+    
+    [SerializeField]
+    private SceneReference mainMenu;
+
+    public void Back() {
+        PhotonNetwork.LoadLevel(mainMenu.SceneName);
+    }
+
     public void MenuNav(string sceneName) {
         PhotonNetwork.LoadLevel(sceneName);
     }
@@ -36,12 +44,6 @@ public class Navigator : MonoBehaviour
         else {
             Debug.Log("Quitting");
             Application.Quit();
-        }
-    }
-
-    public void GoBack() {
-        if (HistoryTracker.instance) {
-            HistoryTracker.instance.GoBack();
         }
     }
 }

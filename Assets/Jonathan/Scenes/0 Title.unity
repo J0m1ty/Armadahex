@@ -1074,7 +1074,7 @@ MonoBehaviour:
       sceneIndex: 7
       sceneEnabled: 1
     clips:
-    - clip: {fileID: 8300000, guid: 3367f0b9dd3cd334aa270a6902c142c0, type: 3}
+    - clip: {fileID: 8300000, guid: cb619e24167c99745bc21b6171411224, type: 3}
       volume: 1
     id: 1
   hitAudio:
@@ -1674,8 +1674,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 3ac8e8016240a644691077cdcc42a60a, type: 2}
-  m_sharedMaterial: {fileID: 6588879604042691366, guid: 3ac8e8016240a644691077cdcc42a60a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c472f157637a9df4ab3e589fc977862b, type: 2}
+  m_sharedMaterial: {fileID: 7330210773671237621, guid: c472f157637a9df4ab3e589fc977862b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
