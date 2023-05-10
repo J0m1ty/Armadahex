@@ -115,7 +115,7 @@ MonoBehaviour:
   ShapeProperties:
     FillColor:
       serializedVersion: 2
-      rgba: 3053453311
+      rgba: 4282392588
     DrawFill: 1
     DrawFillShadow: 1
     DrawOutline: 0
@@ -231,17 +231,19 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: pattern one
+  m_text: 'PATTERN
+
+    <size=40>ONE</size>'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 3b3ac0aac73971845b0268db094d7b32, type: 2}
-  m_sharedMaterial: {fileID: -1613656560524579402, guid: 3b3ac0aac73971845b0268db094d7b32, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 188c223edccabb84cab7481d8dde244e, type: 2}
+  m_sharedMaterial: {fileID: 6207066522266649750, guid: 188c223edccabb84cab7481d8dde244e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4279146747
+  m_fontColor: {r: 0.9843137, g: 0.59607846, b: 0.05490196, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -270,7 +272,7 @@ MonoBehaviour:
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
-  m_lineSpacing: 0
+  m_lineSpacing: 25
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0

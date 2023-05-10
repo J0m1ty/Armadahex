@@ -2380,7 +2380,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 31
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -2423,10 +2423,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainMenu:
-    Scene: {fileID: 0}
-    SceneName: 
-    sceneIndex: -1
-    sceneEnabled: 0
+    Scene: {fileID: 102900000, guid: cdb6310f61ed6134aaa6e65ddace99a4, type: 3}
+    SceneName: 2 Menu
+    sceneIndex: 2
+    sceneEnabled: 1
 --- !u!1 &531424646
 GameObject:
   m_ObjectHideFlags: 0
@@ -6345,8 +6345,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279146747
-  m_fontColor: {r: 0.9843137, g: 0.59607846, b: 0.05490196, a: 1}
+    rgba: 4279269099
+  m_fontColor: {r: 0.92156863, g: 0.4627451, b: 0.0627451, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

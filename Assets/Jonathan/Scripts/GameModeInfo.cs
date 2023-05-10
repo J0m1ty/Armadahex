@@ -46,6 +46,8 @@ public class GameModeInfo : MonoBehaviour {
     public bool IsBonus => From(GameNetworking.instance.gameMode).isBonus;
     public float TurnTimeLimit => From(GameNetworking.instance.gameMode).turnTimeLimit;
 
+    public string GetName => From(GameNetworking.instance.gameMode).name;
+
     public void SetCustomWithPrefs() {
         Debug.Log("Getting custom prefs");
 

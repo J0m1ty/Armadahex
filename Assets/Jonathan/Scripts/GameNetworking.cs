@@ -36,6 +36,8 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
     [SerializeField]
     private bool displayLoaded = false;
 
+    private ConnectionType connectionType;
+
     void Awake() {
         if (instance == null) {
             instance = this;
@@ -117,6 +119,11 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
         else if (GameModeInfo.instance.IsSingleplayer) {
             GameOver.instance.enemyName = "Enemy Bot";
         }
+
+        connectionType = GameModeInfo.instance.IsSingleplayer ? ConnectionType.Offline : (GameModeInfo.instance.GetName.ToUpper() == "CUSTOMS" ? ConnectionType.PrivateMultiplayer : ConnectionType.PublicMultiplayer);
+
+        pregameManager.SetInfo(connectionType, gameMode.ToString(), GameModeInfo.instance.IsAdvancedCombat, (int)GameModeInfo.instance.TurnTimeLimit, true);
+        pregameManager.SetPlayerInfo(PhotonNetwork.LocalPlayer.NickName, null, 0, 0, GameOver.instance.enemyName, null, 0, 0);
     }
 
     public override void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged) {
@@ -125,7 +132,7 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
             && propertiesThatChanged.ContainsKey("MasterTerrain")
             && propertiesThatChanged.ContainsKey("ClientTerrain")
             && propertiesThatChanged.ContainsKey("FirstTeam")) {
-                
+
             Debug.Log("Initializing teams and terrain");
 
             var masterTeam = (TeamType)propertiesThatChanged["MasterTeam"];
@@ -147,6 +154,8 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
             TurnManager.instance.LoadTeams(teamManager.teams);
             firstTeam = (TeamType)propertiesThatChanged["FirstTeam"];
+
+            pregameManager.SetInfo(connectionType, gameMode.ToString(), GameModeInfo.instance.IsAdvancedCombat, (int)GameModeInfo.instance.TurnTimeLimit, firstTeam == playerTeam);
             
             teamManager.Colorize();
             

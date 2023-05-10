@@ -33,8 +33,6 @@ public class GameOver : MonoBehaviour
     [Header("Ships Remaining")]
     [SerializeField]
     public TMPro.TMP_Text friendlyShipsRemainingText;
-    [SerializeField]
-    public TMPro.TMP_Text enemyShipsRemainingText;
 
     [MyBox.Scene]
     [SerializeField]
@@ -145,14 +143,11 @@ public class GameOver : MonoBehaviour
     }
 
     public void UpdateShipCounts(Dictionary<TeamType, int> shipCounts) {
-        var s = "Ships remaining: ";
-        if (friendlyShipsRemainingText != null && enemyShipsRemainingText != null) {
+        var s = "/5\n<size=28>Ships</size>";
+        if (friendlyShipsRemainingText != null) {
             foreach (var kvp in shipCounts) {
                 if (kvp.Key == TurnManager.instance.playerTeam.teamType) {
-                    friendlyShipsRemainingText.text = s + kvp.Value.ToString();
-                }
-                else {
-                    enemyShipsRemainingText.text = s + kvp.Value.ToString();
+                    friendlyShipsRemainingText.text = kvp.Value.ToString() + s;
                 }
             }
         }

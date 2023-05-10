@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using TMPro;
 
 public class TurnManager : MonoBehaviour
 {
@@ -23,6 +24,16 @@ public class TurnManager : MonoBehaviour
 
     [SerializeField]
     private TeamManager teamManager;
+
+    [Header("UI")]
+    [SerializeField]
+    private TMP_Text turnText;
+
+    [SerializeField]
+    private Color playerTurnColor;
+
+    [SerializeField]
+    private Color enemyTurnColor;
     
     public Team currentTeam;
     public Team otherTeam {
@@ -165,6 +176,10 @@ public class TurnManager : MonoBehaviour
 
     private void OnPlayerTurn() {
         consecutiveTurns++;
+
+        turnText.text = "YOUR TURN";
+        turnText.color = playerTurnColor;
+
         selector.SetTeam(TurnManager.instance.playerTeam, TurnManager.instance.otherTeam.teamBase);
         attackManager.SetState(AttackUIManager.AttackState.SelectShip);
         if (GameModeInfo.instance.IsAdvancedCombat) {
@@ -177,6 +192,10 @@ public class TurnManager : MonoBehaviour
 
     private void OnEnemyTurn() {
         consecutiveTurns++;
+
+        turnText.text = "ENEMY TURN";
+        turnText.color = enemyTurnColor;
+
         selector.allowSelectingGrids = false;
         selector.allowSelectingShips = false;
         selector.SetTeam(TurnManager.instance.otherTeam, TurnManager.instance.playerTeam.teamBase);
