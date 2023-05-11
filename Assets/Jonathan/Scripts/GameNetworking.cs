@@ -62,7 +62,10 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
             GameModeInfo.instance.SetCustomWithPrefs();
 
             if (GameModeInfo.instance.IsSingleplayer) {
-                gameObject.AddComponent<AudioListener>();
+                var audioListeners = FindObjectsByType(typeof(AudioListener), FindObjectsSortMode.None);
+                if (audioListeners.Length == 0) {
+                    gameObject.AddComponent<AudioListener>();
+                }
             }
         }
 

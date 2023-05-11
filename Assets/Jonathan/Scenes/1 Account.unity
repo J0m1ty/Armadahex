@@ -364,6 +364,7 @@ GameObject:
   - component: {fileID: 639480521}
   - component: {fileID: 639480520}
   - component: {fileID: 639480519}
+  - component: {fileID: 639480522}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -441,6 +442,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   usernameField: {fileID: 1053675358}
   passwordField: {fileID: 1773445308}
+--- !u!114 &639480522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 639480517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65dcfe977674f554ebdd0028b836b8f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &814826972
 GameObject:
   m_ObjectHideFlags: 0
@@ -871,6 +884,18 @@ MonoBehaviour:
       - m_Target: {fileID: 639480519}
         m_TargetAssemblyTypeName: ConnectionManager, Assembly-CSharp
         m_MethodName: Login
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 639480522}
+        m_TargetAssemblyTypeName: ButtonClickerRef, Assembly-CSharp
+        m_MethodName: PlayClickHeavy
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

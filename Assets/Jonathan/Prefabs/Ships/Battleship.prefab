@@ -10545,6 +10545,7 @@ MonoBehaviour:
     isEdge: 0
     preventShips: 0
   internals: {fileID: 0}
+  sinkSpeed: 50
 --- !u!54 &3097438502245747905
 Rigidbody:
   m_ObjectHideFlags: 0

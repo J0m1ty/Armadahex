@@ -394,6 +394,7 @@ MonoBehaviour:
     isEdge: 0
     preventShips: 0
   internals: {fileID: 3677592663372363633}
+  sinkSpeed: 50
 --- !u!54 &-5881353021590135566
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -304,15 +304,27 @@ public class Ship : MonoBehaviour
         return destroyed;
     }
 
+    public float sinkSpeed = 2f;
+    private float sinkDuration;
     void Update() {
         if (sink) {
+            sinkDuration += Time.deltaTime;
+
             // rotate on the z-axis towards 45 degrees down, keep the x and y rotation the same
-            transform.localRotation = Quaternion.Euler(transform.localRotation.eulerAngles.x, transform.localRotation.eulerAngles.y, Mathf.LerpAngle(transform.localRotation.eulerAngles.z, (90f + 15f) * (sinkReverse ? -1 : 1), Time.deltaTime * 0.5f));
+            //transform.localRotation = Quaternion.Euler(transform.localRotation.eulerAngles.x, transform.localRotation.eulerAngles.y, Mathf.LerpAngle(transform.localRotation.eulerAngles.z, (90f + 15f) * (sinkReverse ? -1 : 1), Time.deltaTime * 0.5f));
 
             // sink the ship
-            transform.localPosition = new Vector3(transform.localPosition.x, Mathf.Lerp(transform.localPosition.y, beforeSink - sinkTo, Time.deltaTime * 0.5f), transform.localPosition.z);
+            //transform.localPosition = new Vector3(transform.localPosition.x, Mathf.Lerp(transform.localPosition.y, beforeSink - sinkTo, Time.deltaTime * 0.5f), transform.localPosition.z);
+
+            // smoothly rotate the ship to 45 degrees down, using smoothstep
+            transform.localRotation = Quaternion.Euler(transform.localRotation.eulerAngles.x, transform.localRotation.eulerAngles.y, Mathf.LerpAngle(transform.localRotation.eulerAngles.z, (90f + 15f) * (sinkReverse ? -1 : 1), Mathf.SmoothStep(0f, 1f, sinkDuration / sinkSpeed)));
+
+            // sink the ship
+            transform.localPosition = new Vector3(transform.localPosition.x, Mathf.Lerp(transform.localPosition.y, beforeSink - sinkTo, Mathf.SmoothStep(0f, 1f, sinkDuration / sinkSpeed)), transform.localPosition.z);
+
         }
         else {
+            sinkDuration = 0f;
             beforeSink = transform.localPosition.y;
         }
     }

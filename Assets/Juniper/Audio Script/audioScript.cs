@@ -13,8 +13,10 @@ public class audioScript : MonoBehaviour
     public AudioClip backgroundLayer;
     public AudioClip layer1;
     public AudioClip layer2;
-    private float layer1Volume = 1;
-    private float layer2Volume = 1;
+    private float layer1Volume = 0;
+    private float layer2Volume = 0;
+    private float lastLayer1Volume = 0;
+    private float lastLayer2Volume = 0;
     private bool is1Stabilizing = false;
     private float stabilizingAmount1;
     private float targetVolume1;
@@ -26,19 +28,32 @@ public class audioScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        VolumeController.UpdateVolume();
+        VolumeController.OnMusicVolumeChange += OnMusicVolumeChange;
+
         numOfShips = maxNumOfShips;
         backgroundPlayer = GetComponent<AudioSource>();
         layer1Player = gameObject.transform.Find("layer1").GetComponent<AudioSource>();
         layer2Player = gameObject.transform.Find("layer2").GetComponent<AudioSource>();
         playMusic(backgroundPlayer, backgroundLayer, maxVolume);
-        playMusic(layer1Player, layer1, maxVolume);
-        playMusic(layer2Player, layer2, maxVolume);
+        playMusic(layer1Player, layer1, layer1Volume);
+        playMusic(layer2Player, layer2, layer2Volume);
         UpdateShips();
+
+        SetVolumes();
+    }
+
+    void SetVolumes() {
+        backgroundPlayer.volume = maxVolume * VolumeController.GetMusicVolume();
+        layer1Player.volume = layer1Volume * VolumeController.GetMusicVolume();;
+        layer2Player.volume = layer2Volume * VolumeController.GetMusicVolume();;
     }
 
     // Update is called once per frame
     void playMusic(AudioSource player, AudioClip music, float volume)
     {
+        Debug.Log("playing music at volume " + volume + " and clip " + music.name);
+
         player.volume = volume;
         player.clip = music;
         player.Stop();
@@ -85,11 +100,13 @@ public class audioScript : MonoBehaviour
             is2Stabilizing = true;
             stabilizingAmount2 = (targetVolume1 - currVolume) / (fadeTime / Time.deltaTime);
         }
-        Debug.Log(currentcompletion);
-        Debug.Log(numOfShips);
     }
     private void FixedUpdate()
     {
+        if (layer1Player.volume != lastLayer1Volume || layer2Player.volume != lastLayer2Volume) {
+            SetVolumes();
+        }
+
         if (is1Stabilizing)
         {
             if (stabilizingAmount1 + layer1Player.volume >= targetVolume1)
@@ -114,14 +131,13 @@ public class audioScript : MonoBehaviour
                 layer2Player.volume += stabilizingAmount2;
             }
         }
+
+        lastLayer1Volume = layer1Player.volume;
+        lastLayer2Volume = layer2Player.volume;
     }
-    private void Update()
+
+    private void OnMusicVolumeChange(float volume)
     {
-        if (!backgroundPlayer.isPlaying)
-        {
-            playMusic(backgroundPlayer, backgroundLayer, maxVolume);
-            playMusic(layer1Player, layer1, layer1Volume);
-            playMusic(layer2Player, layer2, layer2Volume);
-        }
+        maxVolume = volume * 0.5f;
     }
 }
