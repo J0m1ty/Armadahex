@@ -120,6 +120,10 @@ public class Ship : MonoBehaviour
             return remainingAttacks.Length > 0;
         }
     }
+    public bool sink;
+    public float beforeSink;
+    public float sinkTo;
+    public bool sinkReverse;
 
     // Segments
     public ShipSegment[] segments;
@@ -138,6 +142,29 @@ public class Ship : MonoBehaviour
     public bool isAlive {
         get {
             return aliveSegments.Length > 0;
+        }
+    }
+
+    // Buoyancy for sinking
+    private Buoyancy _buoyancy;
+    public Buoyancy buoyancy {
+        get {
+            if (_buoyancy == null) {
+                _buoyancy = GetComponent<Buoyancy>();
+            }
+
+            return _buoyancy;
+        }
+    }
+
+    private Rigidbody _rb;
+    public Rigidbody rb {
+        get {
+            if (_rb == null) {
+                _rb = GetComponent<Rigidbody>();
+            }
+
+            return _rb;
         }
     }
 
@@ -185,6 +212,10 @@ public class Ship : MonoBehaviour
         foreach (var segment in segments) {
             segment.parent = this;
             segment.isAlive = true;
+            if (segment.flames != null)
+            {
+                segment.flames.SetActive(false);
+            }
         }
     }
 
@@ -235,17 +266,25 @@ public class Ship : MonoBehaviour
             return false;
         }
         
-        internals.shipMesh.SetActive(false);
-        internals.sunkMesh.SetActive(false);
-        
+        internals.shipMesh.SetActive(true);
+        internals.sunkVFX.SetActive(false);
+
+        // rb.isKinematic = true;
+        // rb.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotationZ;
+        sink = false;
+
         if (destroyed) {
             if (!setToSunk && !GameOver.instance.CheckIfGameOver()) {
                 AudioManager.instance?.PlayShipSound(shipModel.type, isPlayer, 6f);
 
                 setToSunk = true;
             }
+            
+            internals.sunkVFX.SetActive(true);
 
-            internals.sunkMesh.SetActive(true);
+            // rb.isKinematic = false;
+            // rb.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
+            sink = true;
             
             foreach (var segment in segments) {
                 segment.isAlive = false;
@@ -256,11 +295,37 @@ public class Ship : MonoBehaviour
             }
 
             Selector.SetLayerAllChildren(transform, null, Selector.instance.deadLayer);
-
-        } else if (!destroyed && !hidden) {
-            internals.shipMesh.SetActive(true);
+        }
+        
+        if (hidden && !destroyed) {
+            internals.shipMesh.SetActive(false);
         }
 
         return destroyed;
+    }
+
+    public float sinkSpeed = 2f;
+    private float sinkDuration;
+    void Update() {
+        if (sink) {
+            sinkDuration += Time.deltaTime;
+
+            // rotate on the z-axis towards 45 degrees down, keep the x and y rotation the same
+            //transform.localRotation = Quaternion.Euler(transform.localRotation.eulerAngles.x, transform.localRotation.eulerAngles.y, Mathf.LerpAngle(transform.localRotation.eulerAngles.z, (90f + 15f) * (sinkReverse ? -1 : 1), Time.deltaTime * 0.5f));
+
+            // sink the ship
+            //transform.localPosition = new Vector3(transform.localPosition.x, Mathf.Lerp(transform.localPosition.y, beforeSink - sinkTo, Time.deltaTime * 0.5f), transform.localPosition.z);
+
+            // smoothly rotate the ship to 45 degrees down, using smoothstep
+            transform.localRotation = Quaternion.Euler(transform.localRotation.eulerAngles.x, transform.localRotation.eulerAngles.y, Mathf.LerpAngle(transform.localRotation.eulerAngles.z, (90f + 15f) * (sinkReverse ? -1 : 1), Mathf.SmoothStep(0f, 1f, sinkDuration / sinkSpeed)));
+
+            // sink the ship
+            transform.localPosition = new Vector3(transform.localPosition.x, Mathf.Lerp(transform.localPosition.y, beforeSink - sinkTo, Mathf.SmoothStep(0f, 1f, sinkDuration / sinkSpeed)), transform.localPosition.z);
+
+        }
+        else {
+            sinkDuration = 0f;
+            beforeSink = transform.localPosition.y;
+        }
     }
 }

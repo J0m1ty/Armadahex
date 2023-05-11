@@ -5,5 +5,5 @@ using UnityEngine;
 public class ShipInternals : MonoBehaviour
 {
     public GameObject shipMesh;
-    public GameObject sunkMesh;
+    public GameObject sunkVFX;
 }

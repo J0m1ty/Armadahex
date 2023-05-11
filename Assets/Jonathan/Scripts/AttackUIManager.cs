@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.Linq;
 
 public static class AttackColor {
     // grey is default
@@ -30,7 +31,9 @@ public class AttackUIManager : MonoBehaviour
     }
     
     public AttackState attackState;
+
     private Selector selector;
+
     public CameraController cameraRig;
     [SerializeField]
     private TeamManager teamManager;
@@ -98,10 +101,10 @@ public class AttackUIManager : MonoBehaviour
         attackState = state;
 
         backButton.onClick.RemoveAllListeners();
-        backButtonParent.GetComponent<TMP_Text>().text = "> BACK <";
+        backButtonParent.GetComponentInChildren<TMP_Text>().text = "UNDO";
 
         if (state != AttackState.Error) {
-            directiveText.gameObject.SetActive(false);
+            directiveText.transform.parent.gameObject.SetActive(false);
             errorText.gameObject.SetActive(false);
             selectionUI.GetComponent<PanelSlider>().SetState(PanelState.In);
             selectedOptionText.gameObject.SetActive(false);
@@ -117,10 +120,10 @@ public class AttackUIManager : MonoBehaviour
         if (state != AttackState.None) {
             selector.allowSelectingGrids = false;
             selector.allowSelectingShips = false;
-            
-            if (state != AttackState.AttackOver) {
-                skipButton.SetActive(true);
-            }
+
+            skipButton.SetActive(state != AttackState.AttackOver);
+
+            infoText.gameObject.SetActive(state == AttackState.Confirm);
 
             bottomUI.SetActive(true);
         }
@@ -134,8 +137,8 @@ public class AttackUIManager : MonoBehaviour
                     SelectRandomShip();
                 }
                 else {
-                    directiveText.gameObject.SetActive(true);
-                    directiveText.text = "DIRECTIVE: SELECT A SHIP";
+                    directiveText.transform.parent.gameObject.SetActive(true);
+                    directiveText.text = "SELECT A SHIP";
                     selector.allowSelectingShips = true;
                     CameraManager.instance.MoveToOnce(TurnManager.instance.playerTeam.teamBase.transform.position);
                 }
@@ -144,8 +147,8 @@ public class AttackUIManager : MonoBehaviour
                 errorText.gameObject.SetActive(true);
                 break;
             case AttackState.SelectTarget:
-                directiveText.gameObject.SetActive(true);
-                directiveText.text = "DIRECTIVE: SELECT A TARGET";
+                directiveText.transform.parent.gameObject.gameObject.SetActive(true);
+                directiveText.text = "SELECT A TARGET";
                 selector.allowSelectingGrids = true;
                 selector.SetTeam(TurnManager.instance.playerTeam, TurnManager.instance.enemyTeam.teamBase);
                 
@@ -162,8 +165,8 @@ public class AttackUIManager : MonoBehaviour
                 }
                 break;
             case AttackState.SelectAttackOption:
-                directiveText.gameObject.SetActive(true);
-                directiveText.text = "DIRECTIVE: SELECT AN ATTACK OPTION";
+                directiveText.transform.parent.gameObject.gameObject.SetActive(true);
+                directiveText.text = "SELECT AN ATTACK OPTION";
                 selectionUI.SetActive(true);
                 backButton.onClick.AddListener(() => {
                     GoBackToTarget();
@@ -172,8 +175,8 @@ public class AttackUIManager : MonoBehaviour
                 selectionUI.GetComponent<PanelSlider>().SetState(PanelState.Out);
                 break;
             case AttackState.SelectAttackPattern:
-                directiveText.gameObject.SetActive(true);
-                directiveText.text = "DIRECTIVE: SELECT AN ATTACK PATTERN";
+                directiveText.transform.parent.gameObject.gameObject.SetActive(true);
+                directiveText.text = "SELECT AN ATTACK PATTERN";
                 selectionUI.SetActive(true);
                 selectedOptionText.gameObject.SetActive(true);
                 backButton.onClick.AddListener(() => {
@@ -190,10 +193,11 @@ public class AttackUIManager : MonoBehaviour
                 backButton.onClick.AddListener(() => {
                     GoBackToAttackPattern();
                 });
-                backButtonParent.GetComponent<TMP_Text>().text = "CANCEL";
+                backButtonParent.GetComponentInChildren<TMP_Text>().text = "CANCEL";
                 backButtonParent.SetActive(true);
                 break;
             case AttackState.AttackOver:
+                bottomUI.SetActive(false);
                 break;
             default:
                 break;
@@ -595,7 +599,7 @@ public class AttackUIManager : MonoBehaviour
                 AudioManager.instance?.PlayHitSound(hit, 3f);
                 attackPanel.QuickActivate();
 
-                gameAudio.RemainingShips(shipManager.playerShips.FindAll(s => s.isAlive && s.hasAmmoLeft).Count);
+                gameAudio.RemainingShips(shipManager.enemyShips.FindAll(s => s.isAlive && s.hasAmmoLeft).Count);
             }
 
             SetState(AttackState.AttackOver);

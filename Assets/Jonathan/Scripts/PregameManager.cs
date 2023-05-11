@@ -19,6 +19,12 @@ public class RankInfo {
     public Sprite sprite;
 }
 
+public enum ConnectionType {
+    PublicMultiplayer,
+    PrivateMultiplayer,
+    Offline
+}
+
 public class PregameManager : MonoBehaviour
 {
     [Header("Panel Info")]
@@ -60,6 +66,8 @@ public class PregameManager : MonoBehaviour
 
     [Header("Game Info")]
     [SerializeField]
+    private TMP_Text connectionType;
+    [SerializeField]
     private TMP_Text gameType;
     [SerializeField]
     private TMP_Text advancedAttacks;
@@ -75,28 +83,57 @@ public class PregameManager : MonoBehaviour
     private float countdownDuration = 5f;
     [SerializeField]
     private bool countdownStarted;
-    
-    public void SetInfo(string friendlyName, string enemyName, string gameType, bool advancedAttacks, int timePerTurn, bool firstPlayer) {
-        this.friendlyPlayerName.text = friendlyName;
-        this.enemyPlayerName.text = enemyName;
-        this.gameType.text = gameType;
+
+    [Header("UI Connection")]
+    [SerializeField] private TMP_Text uiConnectionType;
+    [SerializeField] private TMP_Text uiGameType;
+    [SerializeField] private TMP_Text uiPlayers;
+
+    public static string ConnectionTypeToString(ConnectionType ct) {
+        switch (ct) {
+            case ConnectionType.PublicMultiplayer:
+                return "Public Multiplayer";
+            case ConnectionType.PrivateMultiplayer:
+                return "Private Multiplayer";
+            case ConnectionType.Offline:
+                return "Singleplayer";
+        }
+        return "";
+    }
+
+    public void SetInfo(ConnectionType ct, string gameMode, bool advancedAttacks, int timePerTurn, bool firstPlayer) {
+        this.connectionType.text = ConnectionTypeToString(ct);
+        this.gameType.text = gameMode;
         this.advancedAttacks.text = "Advanced Attacks <color=#FB980E>" + (advancedAttacks ? "Enabled" : "Disabled") + "</color>";
         this.timePerTurn.text = "<color=#FB980E>" + timePerTurn + "</color> seconds per turn";
         this.firstPlayer.text = "Your turn <color=#FB980E>" + (firstPlayer ? "First" : "Second") + "</color>";
     }
+
+    public void SetLeaderboardInfo(ConnectionType ct, string gameMode) {
+        this.uiConnectionType.text = ConnectionTypeToString(ct);
+        this.uiGameType.text = gameMode;
+    }
     
     public void SetPlayerInfo(string friendlyName, RankInfo rank, int friendlyGamesPlayed, int friendlyXP, string enemyName, RankInfo enemyRank, int enemyGamesPlayed, int enemyXP) {
-        this.friendlyPlayerName.text = friendlyName;
+        this.friendlyPlayerName.text = friendlyName.Length > 0 ? friendlyName : "Player";
         this.friendlyGamesPlayed.text = friendlyGamesPlayed + " Games Played";
-        this.friendlyRankImage.sprite = rank.sprite;
-        this.friendlyRank.text = rank.rank.ToString();
+        if (rank != null) {
+            this.friendlyRankImage.sprite = rank.sprite;
+            this.friendlyRank.text = rank.rank.ToString();
+        }
         this.friendlyXP.text = friendlyXP + " XP";
 
         this.enemyPlayerName.text = enemyName;
         this.enemyGamesPlayed.text = enemyGamesPlayed + " Games Played";
-        this.enemyRankImage.sprite = enemyRank.sprite;
-        this.enemyRank.text = enemyRank.rank.ToString();
+        if (rank != null) {
+            this.enemyRankImage.sprite = enemyRank.sprite;
+            this.enemyRank.text = enemyRank.rank.ToString();
+        }
         this.enemyXP.text = enemyXP + " XP";
+    }
+
+    public void SetLeaderboardPlayerInfo(string friendlyName, string enemyName) {
+        this.uiPlayers.text = friendlyName.ToUpper() + " VS. " + enemyName.ToUpper();
     }
 
     void Start() {

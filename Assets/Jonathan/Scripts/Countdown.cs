@@ -31,6 +31,10 @@ public class Countdown : MonoBehaviour
     [SerializeField]
     private AttackUIManager attackManager;
 
+    private Color normalColor;
+    [SerializeField]
+    private Color lowColor;
+
     void Awake() {
         countdownText = GetComponent<TMP_Text>();
 
@@ -38,6 +42,8 @@ public class Countdown : MonoBehaviour
 
         isPaused = false;
         botTurn = false;
+
+        normalColor = countdownText.color;
     }
 
     void Start() {
@@ -77,7 +83,7 @@ public class Countdown : MonoBehaviour
         }
         else {
             countdownText.text = resetTime.ToString() + "s";
-            countdownText.color = Color.black;
+            countdownText.color = normalColor;
         }
 
         StartCoroutine(CountdownCoroutine(overrideTime));
@@ -125,7 +131,7 @@ public class Countdown : MonoBehaviour
             else {
                 countdownText.text = time.ToString() + "s";
                 if (doColor) {
-                    countdownText.color = time < 5 ? Color.Lerp(Color.red, Color.black, 0.5f) : Color.black;
+                    countdownText.color = time < 5 ? lowColor : normalColor;
                 }
             }
 

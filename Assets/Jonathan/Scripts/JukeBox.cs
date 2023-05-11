@@ -22,6 +22,13 @@ public class JukeBox : MonoBehaviour
     private void Awake() {
         musicSource = GetComponent<AudioSource>();
         allowPlaying = false;
+        
+        VolumeController.UpdateVolume();
+        VolumeController.OnMusicVolumeChange += OnMusicVolumeChange;
+    }
+
+    private void OnMusicVolumeChange(float volume) {
+        musicSource.volume = volume;
     }
 
     public void StartMusic(AudioInfo[] musicClips) {
@@ -67,7 +74,7 @@ public class JukeBox : MonoBehaviour
         if (clip >= musicClips.Length) return;
 
         musicSource.clip = musicClips[clip].clip;
-        musicSource.volume = musicClips[clip].volume;
+        musicSource.volume = VolumeController.GetMusicVolume() * musicClips[clip].volume;
         musicSource.Play();
     }
 }

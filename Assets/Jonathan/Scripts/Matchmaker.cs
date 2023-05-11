@@ -65,6 +65,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
             _stage = value;
             matchmakingPanel.SetActive(_stage != MatchmakingStage.None);
             backButton.SetActive(_stage == MatchmakingStage.None);
+            stateManager.lockedIn = _stage != MatchmakingStage.None;
         }
     }
 
@@ -74,14 +75,14 @@ public class Matchmaker : MonoBehaviourPunCallbacks
     private bool hideOnAwake = true;
 
     void Awake() {
+        stateManager = GetComponent<StateManager>();
+
         matchmakingMaterial = matchmakingPanel.GetComponent<Image>().material;
 
         if (hideOnAwake) {
             stage = MatchmakingStage.None;
             cancelAction = false;
         }
-
-        stateManager = GetComponent<StateManager>();
     }
 
     public void PlayOrCancel() {

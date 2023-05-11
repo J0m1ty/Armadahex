@@ -680,6 +680,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 749059111}
+        m_TargetAssemblyTypeName: ButtonClickerRef, Assembly-CSharp
+        m_MethodName: PlayClickLight
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!222 &83533666
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2655,6 +2667,7 @@ GameObject:
   - component: {fileID: 749059108}
   - component: {fileID: 749059109}
   - component: {fileID: 749059110}
+  - component: {fileID: 749059111}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -2801,6 +2814,18 @@ MonoBehaviour:
     SceneName: 2 Menu
     sceneIndex: 2
     sceneEnabled: 1
+--- !u!114 &749059111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 749059106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65dcfe977674f554ebdd0028b836b8f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &761199533
 GameObject:
   m_ObjectHideFlags: 0
@@ -3888,6 +3913,18 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 2 Menu
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 749059111}
+        m_TargetAssemblyTypeName: ButtonClickerRef, Assembly-CSharp
+        m_MethodName: PlayClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &893399925

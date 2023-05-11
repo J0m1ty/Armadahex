@@ -73,7 +73,7 @@ public class HitAudio {
 public class AudioManager : MonoBehaviour {
     public static AudioManager instance;
 
-    private AudioSource musicSource;
+    private AudioSource mainSource;
 
     public ResultAudio resultAudio;
     public List<InteractionAudio> interactionAudio;
@@ -94,9 +94,16 @@ public class AudioManager : MonoBehaviour {
             Destroy(gameObject);
         }
 
-        musicSource = GetComponent<AudioSource>();
+        mainSource = GetComponent<AudioSource>();
 
         SceneManager.sceneLoaded += OnSceneLoaded;
+        
+        VolumeController.UpdateVolume();
+        VolumeController.OnMainVolumeChange += OnMainVolumeChange;
+    }
+
+    private void OnMainVolumeChange(float volume) {
+        mainSource.volume = volume;
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
@@ -117,7 +124,7 @@ public class AudioManager : MonoBehaviour {
         Debug.Log("Playing result sound " + (win ? "win" : "lose"));
 
         // stop all other sounds
-        musicSource.Stop();
+        mainSource.Stop();
 
         var audioInfo = win ? resultAudio.win : resultAudio.lose;
         var audio = audioInfo[UnityEngine.Random.Range(0, audioInfo.Length)];
@@ -178,6 +185,6 @@ public class AudioManager : MonoBehaviour {
     }
 
     public void PlaySound(AudioClip clip, float volume) {
-        musicSource.PlayOneShot(clip, volume);
+        mainSource.PlayOneShot(clip, volume);
     }
 }

@@ -80,7 +80,7 @@ public class Selector : MonoBehaviour
         mouseMoved = false;
     }
 
-    public void SetTeam(Team team, TeamBase over) {
+    public void ClearSelection() {
         if (selectedShip != null) {
             SetLayerAllChildren(selectedShip.transform, outlineLayer, shipLayer);
             selectedShip = null;
@@ -99,10 +99,15 @@ public class Selector : MonoBehaviour
         hexBorder.SetHeight(highlightHeight);
         
         hexBorder.SetVisibility(false);
+    }
+
+    public void SetTeam(Team team, TeamBase over) {
+        ClearSelection();
 
         playerHexHighlight.transform.SetParent(over.transform);
         playerHexHighlight.transform.localPosition = Vector3.zero;
     }
+
 
     void Update() {
         mouseMoved = Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0;
