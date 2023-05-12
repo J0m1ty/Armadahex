@@ -78,6 +78,8 @@ public class PregameManager : MonoBehaviour
 
     [Header("Countdown Info")]
     [SerializeField]
+    private TMP_Text waitingForOtherPlayerText; 
+    [SerializeField]
     private TMP_Text countdownText; 
     [SerializeField]
     private float countdownDuration = 5f;
@@ -144,6 +146,10 @@ public class PregameManager : MonoBehaviour
         pregameDisplay.SetActive(true);
         uiDisplay.SetActive(false);
         Fade();
+
+        AudioManager.instance?.PlayGameModeSound(GameNetworking.instance.gameMode);
+
+        waitingForOtherPlayerText.gameObject.SetActive(!GameModeInfo.instance.IsSingleplayer);
     }
 
     public void Fade() {
@@ -172,6 +178,7 @@ public class PregameManager : MonoBehaviour
         if (TurnManager.instance.loading || countdownStarted || !fadedIn) return;
 
         Debug.Log("Starting countdown...");
+        waitingForOtherPlayerText.gameObject.SetActive(false);
 
         StartCountdown(() => {
             pregameDisplay.SetActive(false);

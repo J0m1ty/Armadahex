@@ -194,27 +194,27 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
         networkingLoaded = true;
 
-        if (displayLoaded) {
-            OnDoneLoading();
+        if (displayLoaded && !localDoneLoading) {
+            ShareDoneLoading();
         }
     }
 
     public void DisplayLoaded() {
         displayLoaded = true;
 
-        if (networkingLoaded) {
-            OnDoneLoading();
+        if (networkingLoaded && !localDoneLoading) {
+            ShareDoneLoading();
         }
     }
 
-    public void OnDoneLoading() {
+    public void ShareDoneLoading() {
         if (!PhotonNetwork.IsConnectedAndReady) return;
 
-        photonView.RPC("OnDoneLoadingRPC", RpcTarget.All);
+        photonView.RPC("ShareDoneLoadingRPC", RpcTarget.All);
     }
 
     [PunRPC]
-    public void OnDoneLoadingRPC(PhotonMessageInfo info) {
+    public void ShareDoneLoadingRPC(PhotonMessageInfo info) {
         if (info.Sender == PhotonNetwork.LocalPlayer) {
             localDoneLoading = true;
         } else {
@@ -223,11 +223,20 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
         if (localDoneLoading && enemyDoneLoading) {
             Debug.Log("Done loading");
-
-            TurnManager.instance.loading = false;
-            
-            pregameManager.TryStartCountdown();
+            photonView.RPC("GameStartRPC", RpcTarget.All);
         }
+    }
+
+    [PunRPC]
+    public void GameStartRPC() {
+        if (!localDoneLoading || !enemyDoneLoading) {
+            Debug.LogError("Game start called before done loading");
+            return;
+        }
+
+        Debug.Log("Game start");
+        TurnManager.instance.loading = false;
+        pregameManager.TryStartCountdown();
     }
 
     public void OnAttack(Team against, bool hit, int hexIndex, bool finalAttack) {

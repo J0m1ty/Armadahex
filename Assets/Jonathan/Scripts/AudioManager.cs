@@ -163,6 +163,11 @@ public class AudioManager : MonoBehaviour {
 
     public void PlayGameModeSound(GameMode mode) {
         Debug.Log("Playing game mode sound " + mode);
+        // check if mode is in list
+        if (!gameModeAudio.Exists(x => x.mode == mode)) {
+            Debug.Log("No audio for game mode " + mode);
+            return;
+        }
         var audioInfo = gameModeAudio.Find(x => x.mode == mode).start;
         PlaySound(audioInfo.clip, audioInfo.volume);
     }
