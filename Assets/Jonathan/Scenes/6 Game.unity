@@ -11498,6 +11498,7 @@ GameObject:
   - component: {fileID: 1007787192}
   - component: {fileID: 1007787194}
   - component: {fileID: 1007787195}
+  - component: {fileID: 1007787197}
   m_Layer: 0
   m_Name: InterfaceManager
   m_TagString: Untagged
@@ -11655,12 +11656,27 @@ MonoBehaviour:
   advancedAttacks: {fileID: 876486514}
   timePerTurn: {fileID: 1001224544}
   firstPlayer: {fileID: 1712294342}
+  waitingForOtherPlayerText: {fileID: 0}
   countdownText: {fileID: 774376486}
   countdownDuration: 10
   countdownStarted: 0
   uiConnectionType: {fileID: 0}
   uiGameType: {fileID: 0}
   uiPlayers: {fileID: 0}
+--- !u!114 &1007787197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1007787190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00e4595199b18bc4a95797ed69223bb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  explosionPrefab: {fileID: 1121192042590650, guid: e1b08032bec16ba4eb1ae23cbd572664, type: 3}
+  scale: 15
 --- !u!1 &1030874090
 GameObject:
   m_ObjectHideFlags: 0
