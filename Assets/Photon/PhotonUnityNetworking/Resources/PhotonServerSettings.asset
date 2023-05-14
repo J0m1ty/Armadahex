@@ -42,8 +42,6 @@ MonoBehaviour:
   - OnWinRPC
   - OnDoneLoadingRPC
   - ContinueTurnRPC
-  - GameStartRPC
-  - ShareDoneLoadingRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

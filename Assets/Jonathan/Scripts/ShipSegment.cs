@@ -16,7 +16,6 @@ public class ShipSegment : MonoBehaviour {
         var destroyed = parent.UpdateVisibility();
         if (parent.team.isPlayer && flames) {
             flames.SetActive(true);
-            ExplosionCreator.instance.CreateExplosion(this);
         }
         return destroyed;
     }

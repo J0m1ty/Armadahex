@@ -478,7 +478,7 @@ public class AttackUIManager : MonoBehaviour
                 selectedOption.ammoLeft--;
 
                 if (selectedOption.ammoLeft <= 0) {
-                    //Debug.LogError("Out of ammo");
+                    Debug.LogError("Out of ammo");
                 }
             }
 
