@@ -18,6 +18,8 @@ public class WinInfo {
     public string playerName;
     public string enemyName;
     public WinType winType;
+    public Texture2D playerImage;
+    public Texture2D enemyImage;
     public int? winnerXpGain;
     public int? loserXpLoss;
     public double? matchTime;
@@ -29,6 +31,8 @@ public class WinInfo {
 public class GameOver : MonoBehaviour
 {
     public static GameOver instance { get; private set; }
+
+    public ScreenshotSaver screenshotSaver;
 
     [Header("Ships Remaining")]
     [SerializeField]
@@ -52,6 +56,9 @@ public class GameOver : MonoBehaviour
     [SerializeField]
     private AttackUIManager attackManager;
 
+    public Texture2D playerImage;
+    public Texture2D enemyImage;
+
     private void Awake() {
         if (instance != null) {
             Destroy(gameObject);
@@ -65,6 +72,9 @@ public class GameOver : MonoBehaviour
             OnGameOver += OnWin;
 
             SceneManager.sceneLoaded += OnSceneLoaded;
+
+            playerImage = null;
+            enemyImage = null;
         }
     }
 
@@ -171,9 +181,9 @@ public class GameOver : MonoBehaviour
         }
 
         winInfo = new WinInfo {
-            playerTeam = TurnManager.instance.playerTeam.teamType,
+            playerTeam = TurnManager.instance.playerTeam.teamType ,
             winningTeam = win,
-            playerName = PhotonNetwork.NickName,
+            playerName = PhotonNetwork.NickName.Length > 0 ? PhotonNetwork.NickName : "Player",
             enemyName = enemyName,
             winType = winType,
             winnerXpGain = 100,
@@ -185,6 +195,15 @@ public class GameOver : MonoBehaviour
         };
         
         PhotonNetwork.AutomaticallySyncScene = false;
+        screenshotSaver.TakeScreenshots();
+    }
+
+    public void ScreenshotsTaken() {
+        Debug.Log("Screenshots taken, loading game over scene");
+
+        winInfo.playerImage = playerImage;
+        winInfo.enemyImage = enemyImage;
+
         PhotonNetwork.LoadLevel(gameOverScene);
     }
 }

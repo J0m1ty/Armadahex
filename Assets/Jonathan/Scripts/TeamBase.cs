@@ -9,10 +9,15 @@ public class TeamBase : MonoBehaviour {
     public Vector2 offset;
     public Team team;
 
+    public ScreenshotCamera screenshotCamera { get; private set; }
+
     public TerrainBlock terrainBlock { get; private set; }
 
     void Start() {
         hexMap.teamBase = this;
+
+        screenshotCamera = new ScreenshotCamera();
+        screenshotCamera.obj = Instantiate(terrainBlock.screenshotCameraPrefab, transform, false) as GameObject;
     }
 
     private void ClearTerrain() {

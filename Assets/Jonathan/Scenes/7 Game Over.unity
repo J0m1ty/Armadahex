@@ -762,7 +762,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.101960786, g: 0.13725491, b: 0.16470589, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1435,7 +1435,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.101960786, g: 0.13725491, b: 0.16470589, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2602,6 +2602,8 @@ MonoBehaviour:
   gameOverText: {fileID: 8659622031392515065}
   winTypeText: {fileID: 6926797677374683039}
   xpGainText: {fileID: 945688919}
+  topImage: {fileID: 466494709}
+  bottomImage: {fileID: 701432034}
   matchTimeText: {fileID: 1916210679}
   accuracyText: {fileID: 1758192469}
   shipsLostText: {fileID: 509094723}

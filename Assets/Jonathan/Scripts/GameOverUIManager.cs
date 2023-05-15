@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using Photon.Pun;
 using TMPro;
 using System;
+using UnityEngine.UI;
 
 public class GameOverUIManager : MonoBehaviourPunCallbacks
 {
@@ -23,6 +24,10 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
     private TMP_Text winTypeText;
     [SerializeField]
     private TMP_Text xpGainText;
+    [SerializeField]
+    private Image topImage;
+    [SerializeField]
+    private Image bottomImage;
     [SerializeField]
     private TMP_Text matchTimeText;
     [SerializeField]
@@ -130,5 +135,16 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
         
         winnerNameText.text = isWinner ? winInfo.playerName : winInfo.enemyName;
         loserNameText.text = isWinner ? winInfo.enemyName : winInfo.playerName;
+        
+        if (winInfo.playerImage != null && winInfo.enemyImage != null) {
+            var topTex = isWinner ? winInfo.playerImage : winInfo.enemyImage;
+            var bottomTex = isWinner ? winInfo.enemyImage : winInfo.playerImage;
+            topImage.sprite = Sprite.Create(topTex, new Rect(0, 0, topTex.width, topTex.height), new Vector2(0.5f, 0.5f));
+            bottomImage.sprite = Sprite.Create(bottomTex, new Rect(0, 0, bottomTex.width, bottomTex.height), new Vector2(0.5f, 0.5f));
+
+            // MAINTAIN aspect
+            topImage.preserveAspect = true;
+            bottomImage.preserveAspect = true;
+        }
     }
 }

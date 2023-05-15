@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 9732571}
   - component: {fileID: 9732570}
   - component: {fileID: 9732569}
+  - component: {fileID: 9732572}
   m_Layer: 4
   m_Name: Water
   m_TagString: Untagged
@@ -253,6 +254,22 @@ MonoBehaviour:
   min: 13
   scale: 4
   uvType: 0
+--- !u!114 &9732572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9732567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 941786b5c047ad44f897fe17ca348957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveObject: {fileID: 9732567}
+  teleportDistance: 1
+  teleportInterval: 0.1
+  timeSinceLastTeleport: 0
 --- !u!1 &32624038
 GameObject:
   m_ObjectHideFlags: 0
@@ -2816,8 +2833,10 @@ MonoBehaviour:
   terrainBlocks:
   - name: Mighty
     terrainPrefab: {fileID: 6226739480017752579, guid: 1aad2145963b1d84a90fedeb5a364bb3, type: 3}
+    screenshotCameraPrefab: {fileID: 8769197856140068319, guid: 00181b48ca2db7a439ab6832f3aa5b22, type: 3}
   - name: Sparse
     terrainPrefab: {fileID: 9201496297768096962, guid: 90adac2e1c82b9b4f96a9dca1d5df9f5, type: 3}
+    screenshotCameraPrefab: {fileID: 8362381867156387946, guid: 7e702d7500348e34283a680f5fc538d3, type: 3}
   teams:
   - teamType: 0
     teamBase: {fileID: 1095367286}
@@ -11250,6 +11269,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1007787191}
   - component: {fileID: 1007787196}
+  - component: {fileID: 1007787198}
   - component: {fileID: 1007787193}
   - component: {fileID: 1007787192}
   - component: {fileID: 1007787194}
@@ -11433,6 +11453,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   explosionPrefab: {fileID: 1121192042590650, guid: e1b08032bec16ba4eb1ae23cbd572664, type: 3}
   scale: 15
+--- !u!114 &1007787198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1007787190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5acc76a191fcda49948b2d2858624f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  teamManager: {fileID: 224746698}
+  water: {fileID: 9732569}
 --- !u!1 &1030874090
 GameObject:
   m_ObjectHideFlags: 0
@@ -13937,12 +13971,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60ac051ce192f5743952b3281b87c81a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  screenshotSaver: {fileID: 1007787198}
   friendlyShipsRemainingText: {fileID: 1883047728}
   gameScene: 6 Game
   gameOverScene: 7 Game Over
   enemyName: 
   shipManager: {fileID: 224746695}
   attackManager: {fileID: 1007787192}
+  playerImage: 
+  enemyImage: 
 --- !u!1 &1371613906
 GameObject:
   m_ObjectHideFlags: 0

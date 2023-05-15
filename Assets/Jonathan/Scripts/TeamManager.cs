@@ -64,6 +64,7 @@ public enum TeamType {
 public class TerrainBlock {
     public string name;
     public GameObject terrainPrefab;
+    public GameObject screenshotCameraPrefab;
 }
 
 [Serializable]
