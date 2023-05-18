@@ -38,7 +38,14 @@ public class Matchmaker : MonoBehaviourPunCallbacks
             matchmakingPanel.GetComponentInChildren<TMP_Text>().text = value;
         }
     }
-    private Material matchmakingMaterial;
+    private Material matchmakingMaterial {
+        get {
+            return matchmakingPanel.GetComponent<Image>().material;
+        }
+        set {
+            matchmakingPanel.GetComponent<Image>().material = value;
+        }
+    }
     private Color panelColor {
         get {
             return matchmakingMaterial.GetColor("_AccentColor");
@@ -205,11 +212,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
                 PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
             }
         } else {
-            stage = MatchmakingStage.Found;
-
-            matchmakingText = "Match found!";
-
-            Invoke("StartGame", 2f);
+            StartGame();
         }
     }
     
@@ -217,10 +220,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
         Debug.Log("Player joined room");
 
         if (PhotonNetwork.CurrentRoom.PlayerCount == Constants.ROOM_NUM_EXPECTED_PLAYERS) {
-            stage = MatchmakingStage.Found;
-
-            matchmakingText = "Match found!";
-            Invoke("StartGame", 2f);
+            StartGame();
         }
     }
 
@@ -266,9 +266,12 @@ public class Matchmaker : MonoBehaviourPunCallbacks
     }
 
     private void Cancel() {
+        if (stage == MatchmakingStage.Error) {
+            buttonText.GetComponentInParent<Button>().interactable = true;
+        }
+
         cancelAction = false;
         stage = MatchmakingStage.None;
-        
         
         stateManager.stateInput.interactable = true;
         buttonText.GetComponentInParent<Button>().interactable = true;
@@ -277,10 +280,6 @@ public class Matchmaker : MonoBehaviourPunCallbacks
         panelColor = matchmakingColor;
 
         stateManager.lockedIn = false;
-
-        if (stage == MatchmakingStage.Error) {
-            buttonText.GetComponentInParent<Button>().interactable = true;
-        }
     }
 
     private void Error(string message, float lifetime = 0) {
@@ -298,12 +297,19 @@ public class Matchmaker : MonoBehaviourPunCallbacks
     }
 
     private void StartGame() {
-        PhotonNetwork.AutomaticallySyncScene = true;
-        PhotonNetwork.QuickResends = 3;
-        PhotonNetwork.MaxResendsBeforeDisconnect = 7;
-        PhotonNetwork.CurrentRoom.IsVisible = false;
         Debug.Log("Starting game");
+
+        stage = MatchmakingStage.Found;
+
+        PhotonNetwork.CurrentRoom.IsVisible = false;
         PlayerPrefs.SetInt(Constants.GAME_MODE_PREF_KEY, (int)gameMode);
+
+        matchmakingText = "Match found!";
+
+        Invoke("LoadLevel", 2f);
+    }
+
+    private void LoadLevel() {
         if (PhotonNetwork.IsMasterClient) {
             PhotonNetwork.LoadLevel("6 Game");
         }

@@ -52,10 +52,10 @@ public class ScreenshotSaver : MonoBehaviour {
         yield return new WaitForEndOfFrame();
         
         var tex = ToTexture2D(teamBase.screenshotCamera.renderTexture);
-        var bytes = tex.EncodeToPNG();
+        // var bytes = tex.EncodeToPNG();
 
-        var path = Application.dataPath + "/../Screenshots/" + System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + "-" + (teamBase.team.isPlayer ? "player" : "enemy") + ".png";
-        System.IO.File.WriteAllBytes(path, bytes);
+        // var path = Application.dataPath + "/../Screenshots/" + System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + "-" + (teamBase.team.isPlayer ? "player" : "enemy") + ".png";
+        // System.IO.File.WriteAllBytes(path, bytes);
 
         if (teamBase.team.isPlayer) {
             GameOver.instance.playerImage = tex;

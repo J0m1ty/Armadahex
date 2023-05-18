@@ -193,6 +193,11 @@ public class Ship : MonoBehaviour
                     attacks[i].info.isAllowed = false;
                 }
             }
+
+            if (GameModeInfo.instance.IsUnlimitedAmmo) {
+                attacks[i].ammoLeft = -1;
+                attacks[i].info.unlimited = true;
+            }
         }
 
         transform.name = (team.isPlayer ? "Player" : "Enemy") + " " + shipModel.name;

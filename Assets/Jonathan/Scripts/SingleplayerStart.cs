@@ -11,7 +11,7 @@ public class SingleplayerStart : MonoBehaviour
         Debug.Log("Starting game");
         PlayerPrefs.SetInt(Constants.GAME_MODE_PREF_KEY, (int)GameMode.Customs);
 
-        GameModeInfo.SetCustomPrefs(true, true, false, false, 0f);
+        GameModeInfo.SetCustomPrefs(true, true, false, true, false, 0f, false);
 
         //PlayerPrefs.SetInt(Constants.DO_TUTORIAL_PREF_KEY, );
 

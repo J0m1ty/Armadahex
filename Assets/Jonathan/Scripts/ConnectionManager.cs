@@ -18,13 +18,13 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
 
     #region MonoBehaviour CallBacks
     void Awake() {
-        PhotonNetwork.AutomaticallySyncScene = true;
-        
         noticeManager = GetComponent<NoticeManager>();
         noticeManager.SetState(NoticeState.Default);
 
         formManager = GetComponent<FormManager>();
         formManager.isEnabled = true;
+
+        PhotonNetwork.AutomaticallySyncScene = true;
     }
     #endregion
 

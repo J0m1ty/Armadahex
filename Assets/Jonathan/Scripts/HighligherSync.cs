@@ -45,10 +45,15 @@ public class HighligherSync : MonoBehaviourPun, IPunObservable, IPunInstantiateM
     }
 
     TeamBase TeamTypeToTeamBase(TeamType teamType) {
-        if (teamType == TurnManager.instance?.enemyTeam?.teamType)
-            return TurnManager.instance.enemyTeam.teamBase;
-        if (teamType == TurnManager.instance?.playerTeam?.teamType)
-            return TurnManager.instance.playerTeam.teamBase;
+        try {
+            if (teamType == TurnManager.instance?.enemyTeam?.teamType)
+                return TurnManager.instance.enemyTeam.teamBase;
+            if (teamType == TurnManager.instance?.playerTeam?.teamType)
+                return TurnManager.instance.playerTeam.teamBase;
+            }
+        catch {
+            return null;
+        }
         return null;
     }
 

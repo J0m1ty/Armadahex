@@ -194,7 +194,6 @@ public class GameOver : MonoBehaviour
             playerTeamAdvancedAttacksUsed = attackManager.advancedShotsFired,
         };
         
-        PhotonNetwork.AutomaticallySyncScene = false;
         screenshotSaver.TakeScreenshots();
     }
 
@@ -204,6 +203,9 @@ public class GameOver : MonoBehaviour
         winInfo.playerImage = playerImage;
         winInfo.enemyImage = enemyImage;
 
-        PhotonNetwork.LoadLevel(gameOverScene);
+        if (PhotonNetwork.IsMasterClient) {
+            PhotonNetwork.DestroyAll();
+            PhotonNetwork.LoadLevel(gameOverScene);
+        }
     }
 }
