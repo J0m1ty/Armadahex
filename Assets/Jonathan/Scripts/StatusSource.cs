@@ -20,7 +20,7 @@ public class StatusSource : MonoBehaviour
 
     IEnumerator UpdateStatus() {
         while (true) {
-            statusText.text = PhotonNetwork.IsConnectedAndReady ? "V" + PhotonNetwork.AppVersion : "OFFLINE";
+            statusText.text = PhotonNetwork.IsConnectedAndReady ? "v_" + Application.version : "OFFLINE";
             yield return new WaitForSeconds(interval);
         }
     }

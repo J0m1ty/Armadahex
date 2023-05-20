@@ -9,6 +9,7 @@ using MyBox;
 using System.Linq;
 using Photon.Realtime;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
+using System.Text.RegularExpressions;
 
 public class CustomUIManager : MonoBehaviourPunCallbacks {
     [Header("Presets UI")]
@@ -196,9 +197,14 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
         SetDefaults((GameMode) missionsDropdown.value);
     }
 
+    public static string PrettyEnum(string enumString) {
+        // add a space before each capital letter not including the first
+        return Regex.Replace(enumString, "([A-Z])", " $1").TrimStart(' ');
+    }
+
     public void LoadDropdown(GameMode defaultMode = GameMode.AdvancedCombat) {
         missionsDropdown.ClearOptions();
-        missionsDropdown.AddOptions(Enum.GetNames(typeof(GameMode)).ToList());
+        missionsDropdown.AddOptions(Enum.GetNames(typeof(GameMode)).ToList().ConvertAll(PrettyEnum));
 
         missionsDropdown.value = (int) defaultMode;
 

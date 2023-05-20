@@ -158,7 +158,7 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
         connectionType = !PhotonNetwork.InRoom ? ConnectionType.Offline : (privateMultiplayer ? ConnectionType.PrivateMultiplayer : ConnectionType.PublicMultiplayer);
 
-        pregameManager.SetInfo(connectionType, gameMode.ToString(), GameModeInfo.instance.IsAdvancedCombat, (int)GameModeInfo.instance.TurnTimeLimit, true);
+        pregameManager.SetInfo(connectionType, CustomUIManager.PrettyEnum(gameMode.ToString()), GameModeInfo.instance.IsAdvancedCombat, (int)GameModeInfo.instance.TurnTimeLimit, true);
         countdown.SetTurnTime((int)GameModeInfo.instance.TurnTimeLimit);
         pregameManager.SetPlayerInfo(PhotonNetwork.LocalPlayer.NickName, null, 0, 0, GameOver.instance.enemyName, null, 0, 0);
     }
@@ -192,7 +192,7 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
             TurnManager.instance.LoadTeams(teamManager.teams);
             firstTeam = (TeamType)propertiesThatChanged["FirstTeam"];
 
-            pregameManager.SetInfo(connectionType, gameMode.ToString(), GameModeInfo.instance.IsAdvancedCombat, (int)GameModeInfo.instance.TurnTimeLimit, firstTeam == playerTeam);
+            pregameManager.SetInfo(connectionType, CustomUIManager.PrettyEnum(gameMode.ToString()), GameModeInfo.instance.IsAdvancedCombat, (int)GameModeInfo.instance.TurnTimeLimit, firstTeam == playerTeam);
             countdown.SetTurnTime((int)GameModeInfo.instance.TurnTimeLimit);
             
             teamManager.Colorize();

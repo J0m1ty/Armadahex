@@ -127,7 +127,7 @@ public class PregameManager : MonoBehaviour
         this.connectionType.text = ConnectionTypeToString(ct);
         this.gameType.text = gameMode;
         this.advancedAttacks.text = "Advanced Attacks <color=#FB980E>" + (advancedAttacks ? "Enabled" : "Disabled") + "</color>";
-        this.timePerTurn.text = "<color=#FB980E>" + timePerTurn + "</color> seconds per turn";
+        this.timePerTurn.text = (timePerTurn <= 0 ? "<color=#FB980E>" + timePerTurn + "</color> seconds" : "<color=#FB980E>Unlimited</color> time") + " per turn";
         this.firstPlayer.text = "Your turn <color=#FB980E>" + (firstPlayer ? "First" : "Second") + "</color>";
 
         SetLeaderboardInfo(ct, gameMode);
