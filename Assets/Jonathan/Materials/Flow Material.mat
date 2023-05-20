@@ -215,7 +215,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: -10
     - _ReceiveShadows: 1
-    - _RefractionStrength: 0.33
+    - _RefractionStrength: 0.29
     - _Scaling: 20
     - _Smoothness: 0.66
     - _SmoothnessTextureChannel: 0
@@ -246,7 +246,7 @@ Material:
     - _Dir_4: {r: -0.5, g: 0, b: 0.2, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Fog_color: {r: 0.03470986, g: 0.08998093, b: 0.18867922, a: 1}
-    - _Jump: {r: 0.15, g: 0.15, b: 0, a: 0}
+    - _Jump: {r: 0.2, g: -0.2, b: 0, a: 0}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _Tiling: {r: 4, g: 4, b: 0, a: 0}
     - _edgeFalloffColor: {r: 0, g: 0.8622582, b: 1, a: 1}

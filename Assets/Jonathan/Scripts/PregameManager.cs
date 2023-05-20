@@ -25,6 +25,23 @@ public enum ConnectionType {
     Offline
 }
 
+[Serializable]
+public class InstructionAnimation {
+    [Header("Animation Info")]
+    public float duration;
+    public float delay;
+    public AnimationCurve curve;
+
+    public float elapsedTime;
+    public bool completed;
+
+    [Header("UI References")]
+    public GameObject stepContainer;
+    public TMP_Text stepText;
+    public TMP_Text stepDescription;
+    public TMP_Text stepDescriptionTargetRef;
+}
+
 public class PregameManager : MonoBehaviour
 {
     [Header("Panel Info")]
@@ -91,6 +108,9 @@ public class PregameManager : MonoBehaviour
     [SerializeField] private TMP_Text uiGameType;
     [SerializeField] private TMP_Text uiPlayers;
 
+    [Header("Instruction Animations")]
+    [SerializeField] private InstructionAnimation[] instructionAnimations;
+
     public static string ConnectionTypeToString(ConnectionType ct) {
         switch (ct) {
             case ConnectionType.PublicMultiplayer:
@@ -107,8 +127,10 @@ public class PregameManager : MonoBehaviour
         this.connectionType.text = ConnectionTypeToString(ct);
         this.gameType.text = gameMode;
         this.advancedAttacks.text = "Advanced Attacks <color=#FB980E>" + (advancedAttacks ? "Enabled" : "Disabled") + "</color>";
-        this.timePerTurn.text = "<color=#FB980E>" + timePerTurn + "</color> seconds per turn";
+        this.timePerTurn.text = (timePerTurn <= 0 ? "<color=#FB980E>" + timePerTurn + "</color> seconds" : "<color=#FB980E>Unlimited</color> time") + " per turn";
         this.firstPlayer.text = "Your turn <color=#FB980E>" + (firstPlayer ? "First" : "Second") + "</color>";
+
+        SetLeaderboardInfo(ct, gameMode);
     }
 
     public void SetLeaderboardInfo(ConnectionType ct, string gameMode) {
@@ -132,6 +154,8 @@ public class PregameManager : MonoBehaviour
             this.enemyRank.text = enemyRank.rank.ToString();
         }
         this.enemyXP.text = enemyXP + " XP";
+
+        SetLeaderboardPlayerInfo(friendlyName, enemyName);
     }
 
     public void SetLeaderboardPlayerInfo(string friendlyName, string enemyName) {
@@ -150,6 +174,12 @@ public class PregameManager : MonoBehaviour
         AudioManager.instance?.PlayGameModeSound(GameNetworking.instance.gameMode);
 
         waitingForOtherPlayerText.gameObject.SetActive(!GameModeInfo.instance.IsSingleplayer);
+
+        foreach (InstructionAnimation ia in instructionAnimations) {
+            ia.stepText.gameObject.SetActive(false);
+            ia.elapsedTime = 0f;
+            ia.completed = false;
+        }
     }
 
     public void Fade() {
@@ -200,5 +230,38 @@ public class PregameManager : MonoBehaviour
             yield return null;
         }
         callback();
+    }
+
+    void Update() {
+        foreach (InstructionAnimation ia in instructionAnimations) {
+            if (ia.completed) continue;
+
+            if (ia.delay > 0) {
+                ia.delay -= Time.deltaTime;
+                continue;
+            }
+            
+            ia.elapsedTime += Time.deltaTime;
+            
+            // move ia.stepDescription to ia.ia.stepDescriptionTargetRef and lerp text size
+            // use ia.curve to lerp
+            float t = ia.elapsedTime / ia.duration;
+            if (t > 1f) {
+                t = 1;
+                ia.completed = true;
+            }
+
+            if (t > 0.3f) {
+                ia.stepText.gameObject.SetActive(true);
+
+                //lerp alpha from 0 to 1 twice as fast
+                float alpha = Mathf.Lerp(0, 1, ia.curve.Evaluate((t - 0.3f) * (1/0.3f)));
+                ia.stepText.color = new Color(ia.stepText.color.r, ia.stepText.color.g, ia.stepText.color.b, alpha);
+            }
+            
+            ia.stepDescription.transform.position = Vector3.Lerp(ia.stepDescription.transform.position, ia.stepDescriptionTargetRef.transform.position, ia.curve.Evaluate(t));
+
+            ia.stepDescription.fontSize = Mathf.Lerp(ia.stepDescription.fontSize, ia.stepDescriptionTargetRef.fontSize, ia.curve.Evaluate(t));
+        }
     }
 }

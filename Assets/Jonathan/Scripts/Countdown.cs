@@ -21,8 +21,6 @@ public class Countdown : MonoBehaviour
     [SerializeField]
     private int normalResetTime = 25;
     [SerializeField]
-    private int firstTurnBonusTime = 5;
-    [SerializeField]
     private int continueAddTime = 15;
     [SerializeField]
     private int continueAddTimeSalvo = 5;
@@ -38,7 +36,7 @@ public class Countdown : MonoBehaviour
     void Awake() {
         countdownText = GetComponent<TMP_Text>();
 
-        resetTime = normalResetTime + firstTurnBonusTime;
+        resetTime = normalResetTime;
 
         isPaused = false;
         botTurn = false;
@@ -49,6 +47,13 @@ public class Countdown : MonoBehaviour
     void Start() {
         normalResetTime = (int)GameModeInfo.instance.TurnTimeLimit;
         
+        isUnlimited = normalResetTime <= 0 || GameModeInfo.instance.IsSingleplayer;
+    }
+
+    public void SetTurnTime(int turnTime) {
+        normalResetTime = turnTime;
+        resetTime = normalResetTime;
+
         isUnlimited = normalResetTime <= 0 || GameModeInfo.instance.IsSingleplayer;
     }
     

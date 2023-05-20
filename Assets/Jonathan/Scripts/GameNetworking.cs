@@ -15,6 +15,9 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
     public GameMode gameMode { get; private set; }
 
     [SerializeField]
+    private Countdown countdown;
+
+    [SerializeField]
     private TeamManager teamManager;
 
     [SerializeField]
@@ -36,6 +39,8 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
     [SerializeField]
     private bool displayLoaded = false;
 
+    private bool privateMultiplayer = false;
+
     private ConnectionType connectionType;
 
     void Awake() {
@@ -49,6 +54,7 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
         enemyDoneLoading = false;
         networkingLoaded = false;
         displayLoaded = false;
+        privateMultiplayer = false;
 
         if (!PlayerPrefs.HasKey(Constants.GAME_MODE_PREF_KEY) || !PhotonNetwork.InRoom) {
             PlayerPrefs.SetInt(Constants.GAME_MODE_PREF_KEY, (int)GameMode.Customs);
@@ -59,12 +65,36 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
         Debug.Log("Game mode is " + gameMode);
 
         if (gameMode == GameMode.Customs) {
-            GameModeInfo.instance.SetCustomWithPrefs();
+            if (!PhotonNetwork.InRoom) {
+                GameModeInfo.instance.SetCustomWithPrefs();
 
-            if (GameModeInfo.instance.IsSingleplayer) {
                 var audioListeners = FindObjectsByType(typeof(AudioListener), FindObjectsSortMode.None);
                 if (audioListeners.Length == 0) {
                     gameObject.AddComponent<AudioListener>();
+                }
+            }
+            else {
+                privateMultiplayer = true;
+
+                var roomProps = PhotonNetwork.CurrentRoom.CustomProperties;
+
+                // set game mode to one from room properties, if it doesn't exist stick with custom
+                if (roomProps.ContainsKey(Constants.GAME_MODE_PROP_KEY)) {
+                    gameMode = (GameMode)Enum.Parse(typeof(GameMode), (string)roomProps[Constants.GAME_MODE_PROP_KEY]);
+                }
+
+                if (gameMode == GameMode.Customs) {
+                    // get room properties and set custom
+                    Debug.Log("Setting custom from room properties");
+
+                    var isAdvancedCombat = (bool)roomProps["IsAdvancedCombat"];
+                    var isSalvo = (bool)roomProps["IsSalvo"];
+                    var isBonus = (bool)roomProps["IsBonus"];
+                    var isUnlimitedAmmo = (bool)roomProps["IsUnlimitedAmmo"];
+                    var turnTimeLimit = (float)roomProps["TurnTimeLimit"];
+                    var allowChat = (bool)roomProps["AllowChat"];
+
+                    GameModeInfo.instance.SetCustom(false, isAdvancedCombat, isSalvo, isBonus, isUnlimitedAmmo, turnTimeLimit, allowChat);
                 }
             }
         }
@@ -79,12 +109,18 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
             // set custom properties for the room, master is random TeamType and client is random TeamType
             var roomProps = new Hashtable();
 
+            // Team info
+
             var availableTeams = new List<TeamType>(Enum.GetValues(typeof(TeamType)).Cast<TeamType>());
             var masterTeam = availableTeams[Random.Range(0, availableTeams.Count)];
             roomProps.Add("MasterTeam", masterTeam);
             availableTeams.Remove(masterTeam);
             var clientTeam = availableTeams[Random.Range(0, availableTeams.Count)];
             roomProps.Add("ClientTeam", clientTeam);
+            var firstTeamToGo = Random.Range(0, 2) == 0 ? masterTeam : clientTeam;
+            roomProps.Add("FirstTeam", firstTeamToGo);
+
+            // Terrain info
 
             var availableTerrain = new List<TerrainBlock>(teamManager.terrainBlocks);
             var masterTerrain = availableTerrain[Random.Range(0, availableTerrain.Count)];
@@ -92,9 +128,6 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
             availableTerrain.Remove(masterTerrain);
             var clientTerrain = availableTerrain[Random.Range(0, availableTerrain.Count)];
             roomProps.Add("ClientTerrain", clientTerrain.name);
-            
-            var firstTeamToGo = Random.Range(0, 2) == 0 ? masterTeam : clientTeam;
-            roomProps.Add("FirstTeam", firstTeamToGo);
 
             PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
         }
@@ -123,9 +156,10 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
             GameOver.instance.enemyName = "Enemy Bot";
         }
 
-        connectionType = GameModeInfo.instance.IsSingleplayer ? ConnectionType.Offline : (GameModeInfo.instance.GetName.ToUpper() == "CUSTOMS" ? ConnectionType.PrivateMultiplayer : ConnectionType.PublicMultiplayer);
+        connectionType = !PhotonNetwork.InRoom ? ConnectionType.Offline : (privateMultiplayer ? ConnectionType.PrivateMultiplayer : ConnectionType.PublicMultiplayer);
 
-        pregameManager.SetInfo(connectionType, gameMode.ToString(), GameModeInfo.instance.IsAdvancedCombat, (int)GameModeInfo.instance.TurnTimeLimit, true);
+        pregameManager.SetInfo(connectionType, CustomUIManager.PrettyEnum(gameMode.ToString()), GameModeInfo.instance.IsAdvancedCombat, (int)GameModeInfo.instance.TurnTimeLimit, true);
+        countdown.SetTurnTime((int)GameModeInfo.instance.TurnTimeLimit);
         pregameManager.SetPlayerInfo(PhotonNetwork.LocalPlayer.NickName, null, 0, 0, GameOver.instance.enemyName, null, 0, 0);
     }
 
@@ -158,7 +192,8 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
             TurnManager.instance.LoadTeams(teamManager.teams);
             firstTeam = (TeamType)propertiesThatChanged["FirstTeam"];
 
-            pregameManager.SetInfo(connectionType, gameMode.ToString(), GameModeInfo.instance.IsAdvancedCombat, (int)GameModeInfo.instance.TurnTimeLimit, firstTeam == playerTeam);
+            pregameManager.SetInfo(connectionType, CustomUIManager.PrettyEnum(gameMode.ToString()), GameModeInfo.instance.IsAdvancedCombat, (int)GameModeInfo.instance.TurnTimeLimit, firstTeam == playerTeam);
+            countdown.SetTurnTime((int)GameModeInfo.instance.TurnTimeLimit);
             
             teamManager.Colorize();
             
