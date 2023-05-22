@@ -37,14 +37,12 @@ public class GameOver : MonoBehaviour
     [Header("Ships Remaining")]
     [SerializeField]
     public TMPro.TMP_Text friendlyShipsRemainingText;
-
-    [MyBox.Scene]
-    [SerializeField]
-    private string gameScene;
     
-    [MyBox.Scene]
     [SerializeField]
-    private string gameOverScene;
+    private MyBox.SceneReference gameScene;
+    
+    [SerializeField]
+    private MyBox.SceneReference gameOverScene;
 
     public string enemyName;
     
@@ -79,7 +77,7 @@ public class GameOver : MonoBehaviour
     }
 
     public void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
-        if (scene.name != gameScene && scene.name != gameOverScene) {
+        if (scene.name != gameScene.SceneName && scene.name != gameOverScene.SceneName) {
             if (gameObject != null) {
                 SceneManager.sceneLoaded -= OnSceneLoaded;
                 Destroy(gameObject);
@@ -202,10 +200,14 @@ public class GameOver : MonoBehaviour
 
         winInfo.playerImage = playerImage;
         winInfo.enemyImage = enemyImage;
+        
 
-        if (PhotonNetwork.IsMasterClient) {
+        if (!PhotonNetwork.IsConnected || GameModeInfo.instance.IsSingleplayer) {
+            SceneManager.LoadScene(gameOverScene.SceneName);
+        }
+        else if (PhotonNetwork.IsMasterClient) {
             PhotonNetwork.DestroyAll();
-            PhotonNetwork.LoadLevel(gameOverScene);
+            PhotonNetwork.LoadLevel(gameOverScene.SceneName);
         }
     }
 }

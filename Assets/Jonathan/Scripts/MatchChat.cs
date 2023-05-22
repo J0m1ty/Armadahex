@@ -15,7 +15,7 @@ public class MatchChat : MonoBehaviourPunCallbacks
     void Start() {
         allowChat = GameModeInfo.instance.AllowChat;
 
-        if (!allowChat) {
+        if (!allowChat || GameModeInfo.instance.IsSingleplayer) {
             DisableChat(false);
         }
     }
