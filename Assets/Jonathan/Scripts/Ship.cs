@@ -145,18 +145,6 @@ public class Ship : MonoBehaviour
         }
     }
 
-    // Buoyancy for sinking
-    private Buoyancy _buoyancy;
-    public Buoyancy buoyancy {
-        get {
-            if (_buoyancy == null) {
-                _buoyancy = GetComponent<Buoyancy>();
-            }
-
-            return _buoyancy;
-        }
-    }
-
     private Rigidbody _rb;
     public Rigidbody rb {
         get {
