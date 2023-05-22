@@ -1138,9 +1138,9 @@ MonoBehaviour:
       sceneIndex: 5
       sceneEnabled: 1
     clips:
-    - clip: {fileID: 8300000, guid: 0e7e3b951051efb46b88bd2d8a2a4558, type: 3}
+    - clip: {fileID: 8300000, guid: e53a8244b4ae74341b1d117f29ec175f, type: 3}
       volume: 0.5
-    - clip: {fileID: 8300000, guid: abf1e894c1d98c64ab53731ee17b8ac2, type: 3}
+    - clip: {fileID: 8300000, guid: ecef7e0a207f16a46b8f9901fcd1a548, type: 3}
       volume: 0.5
     id: 0
   - scenesToPlay:

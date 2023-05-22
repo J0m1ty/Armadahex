@@ -6305,9 +6305,9 @@ MonoBehaviour:
   maxNumOfShips: 5
   numOfShips: 0
   maxVolume: 0
-  backgroundLayer: {fileID: 8300000, guid: 216458e2afa66084888382b9da115c3a, type: 3}
-  layer1: {fileID: 8300000, guid: e03cefc98e6c60c4d8d74fddccdabf57, type: 3}
-  layer2: {fileID: 8300000, guid: c38a8160a9f5d174eb57d3f04b61cbd6, type: 3}
+  backgroundLayer: {fileID: 8300000, guid: 58dd1e46f2ed50841ab61d0d16723e0c, type: 3}
+  layer1: {fileID: 8300000, guid: 3e44db80b69936b458d343dceaace41c, type: 3}
+  layer2: {fileID: 8300000, guid: 0b7c603fa78acce408f8f3251ece2734, type: 3}
   fadeTime: 10
 --- !u!4 &541617434
 Transform:
