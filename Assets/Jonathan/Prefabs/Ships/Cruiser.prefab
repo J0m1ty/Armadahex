@@ -1542,8 +1542,6 @@ GameObject:
   - component: {fileID: 2624079343050663421}
   - component: {fileID: 2943153396327215915}
   - component: {fileID: 930326888771300117}
-  - component: {fileID: -5045320153062773184}
-  - component: {fileID: -3028801167713661030}
   m_Layer: 6
   m_Name: Cruiser
   m_TagString: Ship
@@ -1645,49 +1643,6 @@ MonoBehaviour:
     preventShips: 0
   internals: {fileID: 0}
   sinkSpeed: 50
---- !u!54 &-5045320153062773184
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5212696150859389630}
-  serializedVersion: 4
-  m_Mass: 3989.848
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 74
-  m_CollisionDetection: 0
---- !u!114 &-3028801167713661030
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5212696150859389630}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63a6c15360b799641b5ae004c5c6d9a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  density: 500
-  slicesPerAxis: 8
-  isConcave: 1
-  voxelsLimit: 16
 --- !u!1 &5306308890618476521
 GameObject:
   m_ObjectHideFlags: 0
