@@ -6304,7 +6304,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxNumOfShips: 5
   numOfShips: 0
-  maxVolume: 0.5
+  maxVolume: 0
   backgroundLayer: {fileID: 8300000, guid: 216458e2afa66084888382b9da115c3a, type: 3}
   layer1: {fileID: 8300000, guid: e03cefc98e6c60c4d8d74fddccdabf57, type: 3}
   layer2: {fileID: 8300000, guid: c38a8160a9f5d174eb57d3f04b61cbd6, type: 3}
@@ -14092,8 +14092,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   screenshotSaver: {fileID: 1007787198}
   friendlyShipsRemainingText: {fileID: 1883047728}
-  gameScene: 6 Game
-  gameOverScene: 7 Game Over
+  gameScene:
+    Scene: {fileID: 102900000, guid: d25db74bd29ffb140bbb2a56be4ad620, type: 3}
+    SceneName: 6 Game
+    sceneIndex: 6
+    sceneEnabled: 1
+  gameOverScene:
+    Scene: {fileID: 102900000, guid: 82e3f429c8b22b04bbe0819a92d47408, type: 3}
+    SceneName: 7 Game Over
+    sceneIndex: 7
+    sceneEnabled: 1
   enemyName: 
   shipManager: {fileID: 224746695}
   attackManager: {fileID: 1007787192}
@@ -15640,7 +15648,7 @@ MonoBehaviour:
     PointListProperties:
     - GeneratorData:
         Generator: 5
-        NeedsUpdate: 0
+        NeedsUpdate: 1
         Center: {x: 0, y: 0}
         Width: 50
         Height: 50

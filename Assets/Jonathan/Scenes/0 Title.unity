@@ -1139,9 +1139,9 @@ MonoBehaviour:
       sceneEnabled: 1
     clips:
     - clip: {fileID: 8300000, guid: 0e7e3b951051efb46b88bd2d8a2a4558, type: 3}
-      volume: 1
+      volume: 0.5
     - clip: {fileID: 8300000, guid: abf1e894c1d98c64ab53731ee17b8ac2, type: 3}
-      volume: 1
+      volume: 0.5
     id: 0
   - scenesToPlay:
     - Scene: {fileID: 102900000, guid: 82e3f429c8b22b04bbe0819a92d47408, type: 3}
@@ -1150,7 +1150,7 @@ MonoBehaviour:
       sceneEnabled: 1
     clips:
     - clip: {fileID: 8300000, guid: cb619e24167c99745bc21b6171411224, type: 3}
-      volume: 1
+      volume: 0.5
     id: 1
   hitAudio:
     hitVoice:
