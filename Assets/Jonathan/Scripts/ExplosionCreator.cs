@@ -15,6 +15,11 @@ public class ExplosionCreator : MonoBehaviour
         instance = this;
     }
 
+    [MyBox.ButtonMethod]
+    public void CreateExplosionRandom() {
+        CreateExplosion(new Vector3(Random.Range(-10f, 10f), Random.Range(-10f, 10f), 0f));
+    }
+
     public void CreateExplosion(Vector3 atPosition)
     {
         var obj = Instantiate(explosionPrefab, atPosition, Quaternion.identity);

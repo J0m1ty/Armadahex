@@ -17,7 +17,7 @@ RenderSettings:
   m_Fog: 1
   m_FogColor: {r: 0.23529412, g: 0.5058824, b: 0.90588236, a: 1}
   m_FogMode: 2
-  m_FogDensity: 0.001
+  m_FogDensity: 0.0002
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
@@ -25,7 +25,7 @@ RenderSettings:
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
   m_AmbientMode: 0
-  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
+  m_SubtractiveShadowColor: {r: 0.41960785, g: 0.47843137, b: 0.627451, a: 1}
   m_SkyboxMaterial: {fileID: 2100000, guid: c9e43a3197ba4d646a004eb789f3c8e0, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
@@ -6304,7 +6304,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxNumOfShips: 5
   numOfShips: 0
-  maxVolume: 0
+  maxVolume: 0.5
   backgroundLayer: {fileID: 8300000, guid: 58dd1e46f2ed50841ab61d0d16723e0c, type: 3}
   layer1: {fileID: 8300000, guid: 3e44db80b69936b458d343dceaace41c, type: 3}
   layer2: {fileID: 8300000, guid: 0b7c603fa78acce408f8f3251ece2734, type: 3}
@@ -9946,13 +9946,13 @@ MonoBehaviour:
     Min: 12
     Max: 13
   fogPrefab: {fileID: 1992851727522141621, guid: a79707d6d84c4974395e8b22c7f456d9, type: 3}
-  useFlames: 1
+  useFlames: 0
   flameCount: 3
-  flamePrefab: {fileID: 2910044951922928334, guid: 1c841e2174b46984c86d7de08c01e3ce, type: 3}
-  flameHeight: 12
+  flamePrefab: {fileID: 1901245927194888, guid: bb98861c48ad2024ca93498c7dd93a6c, type: 3}
+  flameHeight: 10
   fireSize:
-    Min: 25
-    Max: 35
+    Min: 6.25
+    Max: 17.5
 --- !u!1 &914319183
 GameObject:
   m_ObjectHideFlags: 0

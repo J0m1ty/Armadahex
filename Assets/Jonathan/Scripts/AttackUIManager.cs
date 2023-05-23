@@ -682,7 +682,7 @@ public class AttackUIManager : MonoBehaviour
             attackPanel.ResetData();
         }
     }
-
+    
     public void RandomBotAttack() {
         Debug.Log("Random bot attack");
 

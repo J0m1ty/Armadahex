@@ -18,10 +18,13 @@ public class FlameMaker : MonoBehaviour
     }
 
     public void GenerateFlames() {
+        if (!hexRenderer.hexMap.useFlames) return;
+        
         for (int i = 0; i < hexRenderer.hexMap.flameCount; i++) {
             GameObject flame = Instantiate(hexRenderer.hexMap.flamePrefab, transform);
             flame.transform.localPosition = Random.insideUnitCircle * hexRenderer.hexMap.size * 0.8f + Vector2.up * hexRenderer.hexMap.flameHeight;
-            flame.GetComponent<VisualEffect>().SetFloat("Fire Size", UnityEngine.Random.Range(hexRenderer.hexMap.fireSize.Min, hexRenderer.hexMap.fireSize.Max));
+            var main = flame.GetComponent<ParticleSystem>().main;
+            main.startSize = UnityEngine.Random.Range(hexRenderer.hexMap.fireSize.Min, hexRenderer.hexMap.fireSize.Max);
             flames.Add(flame);
         }
     }

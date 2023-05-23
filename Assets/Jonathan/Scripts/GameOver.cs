@@ -32,6 +32,8 @@ public class GameOver : MonoBehaviour
 {
     public static GameOver instance { get; private set; }
 
+    public static bool IsWebGL => Application.platform == RuntimePlatform.WebGLPlayer;
+
     public ScreenshotSaver screenshotSaver;
 
     [Header("Ships Remaining")]
@@ -192,15 +194,20 @@ public class GameOver : MonoBehaviour
             playerTeamAdvancedAttacksUsed = attackManager.advancedShotsFired,
         };
         
-        screenshotSaver.TakeScreenshots();
+        if (IsWebGL) {
+            Debug.Log("WebGL detected, skipping screenshots");
+            ScreenshotsTaken();
+        }
+        else {
+            screenshotSaver.TakeScreenshots();
+        }
     }
 
     public void ScreenshotsTaken() {
         Debug.Log("Screenshots taken, loading game over scene");
-
+        
         winInfo.playerImage = playerImage;
         winInfo.enemyImage = enemyImage;
-        
 
         if (!PhotonNetwork.IsConnected || GameModeInfo.instance.IsSingleplayer) {
             SceneManager.LoadScene(gameOverScene.SceneName);

@@ -146,5 +146,10 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
             topImage.preserveAspect = true;
             bottomImage.preserveAspect = true;
         }
+        else {
+            // need to hide images
+            topImage.transform.parent.gameObject.SetActive(false);
+            bottomImage.transform.parent.gameObject.SetActive(false);
+        }
     }
 }
