@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 9732571}
   - component: {fileID: 9732570}
   - component: {fileID: 9732569}
+  - component: {fileID: 9732572}
   m_Layer: 4
   m_Name: Water
   m_TagString: Untagged
@@ -261,6 +262,22 @@ MonoBehaviour:
   uvType: 0
   followCamera: 1
   snapSize: 64
+--- !u!114 &9732572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9732567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 103fbc76eb999f54195320064ea5caa4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SideFoam
+  teamManager: {fileID: 224746698}
+  claimedRadius: 350
+  fadeDistance: 300
+  tintAmount: 0.7
 --- !u!1 &32624038
 GameObject:
   m_ObjectHideFlags: 0
