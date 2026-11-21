@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.VFX;
 
 public static class FogState {
-    public static Color fogNormal = new Color(0.9f, 0.9f, 0.9f);
+    public static Color fogNormal = new Color(0.82f, 0.86f, 0.92f); // cool grey so the smoke texture doesn't read as cream
     public static Color fogHit = new Color(0.8f, 0.0f, 0.0f);
     public static Color fogScan = new Color(0.0f, 0.0f, 0.8f);
     public static Color fogMiss = new Color(1.0f, 1.0f, 1.0f);
