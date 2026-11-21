@@ -85,6 +85,9 @@ public class AttackUIManager : MonoBehaviour
     public int shotsHit;
     public int advancedShotsFired;
 
+    public BotDifficulty botDifficulty;
+    private BotAI bot;
+
     [Header("Other")]
     public GameObject skipButton;
     public audioScript gameAudio;
@@ -639,9 +642,9 @@ public class AttackUIManager : MonoBehaviour
             hit = true;
         }
 
-        if (GameModeInfo.instance.IsSingleplayer) {
+        if (GameModeInfo.instance.IsSingleplayer && finalAttack) {
             if (GameModeInfo.instance.IsBonus) {
-                if (hit) {
+                if (hit || attackPanel.persistingHit) {
                     TurnManager.instance.ContinueTurnDelay(true);
                 }
                 else {
@@ -661,8 +664,6 @@ public class AttackUIManager : MonoBehaviour
             else {
                 TurnManager.instance.TurnOver();
             }
-
-            attackPanel.ResetData();
         }
 
         GameOver.instance.CheckIfGameOver(TurnManager.instance.playerTeam, hit, hex.coords.index, finalAttack);
@@ -684,7 +685,11 @@ public class AttackUIManager : MonoBehaviour
     }
     
     public void RandomBotAttack() {
-        Debug.Log("Random bot attack");
+        if (bot == null) {
+            bot = new BotAI(botDifficulty, TurnManager.instance.playerTeam.teamBase.hexMap);
+        }
+
+        Debug.Log("Bot attack (" + bot.difficulty + ")");
 
         // var botShips = shipManager.enemyShips;
         // var botShip = botShips[Random.Range(0, botShips.Count)];
@@ -692,13 +697,29 @@ public class AttackUIManager : MonoBehaviour
         //     botShip = botShips[Random.Range(0, botShips.Count)];
         // }
 
-        var botTargets = TurnManager.instance.playerTeam.teamBase.hexMap.hexes;
-        var botTarget = botTargets[Random.Range(0, botTargets.Count)];
-        while (!((botTarget.shipSegment?.isAlive ?? true) && botTarget.hexRenderer.gameObject.activeSelf)) {
-            botTarget = botTargets[Random.Range(0, botTargets.Count)];
+        var shipLengths = shipManager.playerShips.Where(s => s.isAlive).Select(s => s.shipModel.length).ToList();
+        var attacks = new List<Attack>();
+        if (GameModeInfo.instance.IsAdvancedCombat) {
+            attacks = shipManager.enemyShips.Where(s => s.isAlive).SelectMany(s => s.remainingAttacks).Where(a => !a.info.unlimited).ToList();
         }
+
+        var botTargets = bot.ChooseShot(shipLengths, attacks, out var attack);
+        if (botTargets == null) return;
+
+        if (attack != null) {
+            attack.ammoLeft--;
+            Debug.Log("Bot used " + attack.info.name);
+        }
+
+        var hits = botTargets.Select(t => t.shipSegment?.isAlive ?? false).ToList();
         
-        GetAttackFromEnemy(TurnManager.instance.playerTeam.teamType, botTarget.coords.index, true);
+        for (int i = 0; i < botTargets.Count; i++) {
+            GetAttackFromEnemy(TurnManager.instance.playerTeam.teamType, botTargets[i].coords.index, i == botTargets.Count - 1);
+        }
+
+        for (int i = 0; i < botTargets.Count; i++) {
+            bot.Record(botTargets[i], hits[i]);
+        }
     }
 
     public delegate void AttackEvent(Team against, bool hit, int hexIndex, bool finalAttack = false);
