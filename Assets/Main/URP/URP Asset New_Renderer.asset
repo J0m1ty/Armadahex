@@ -51,26 +51,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd37d03d18ee9584d881763c34816b35, type: 3}
+  m_Script: {fileID: 11500000, guid: ba96245f677f4c3081ae703dae2de591, type: 3}
   m_Name: OutlineFeature
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   m_Active: 1
-  _outlineResources: {fileID: 11400000, guid: 231d88937a104094b8e4e0fdb8d2e77b, type: 2}
-  _outlineLayers: {fileID: 0}
-  _outlineSettings:
-    _outlineSettings: {fileID: 0}
-    _outlineColor: {r: 1, g: 0, b: 0, a: 1}
-    _outlineWidth: 8
-    _outlineIntensity: 3
-    _outlineAlphaCutoff: 0.9
-    _outlineMode: 1
-    _filterMode: 1
-    _layerMask:
+  shader: {fileID: 4800000, guid: 5abc357cc6654c248debb49f17dd74a2, type: 3}
+  settings:
+    layerMask:
       serializedVersion: 2
       m_Bits: 128
-    _renderingLayerMask: 1
-  _renderPassEvent: 500
-  _shaderPassNames: []
+    color: {r: 1, g: 0, b: 0, a: 1}
+    width: 8
+    intensity: 3
+    renderPassEvent: 500
 --- !u!114 &-111300901120276260
 MonoBehaviour:
   m_ObjectHideFlags: 0
