@@ -18,7 +18,7 @@ public class HexPillarTerrain : MonoBehaviour {
     [SerializeField] private int wallRise = 5;
     [SerializeField] private int wallWidth = 5;
     [SerializeField] private float wallHeight = 160f;
-    [SerializeField] private int tailLength = 16;
+    [SerializeField] private int tailLength = 22;
     [SerializeField] private float tailSoftness = 4f;
     [SerializeField] private float rangeNoiseScale = 0.004f;
 
