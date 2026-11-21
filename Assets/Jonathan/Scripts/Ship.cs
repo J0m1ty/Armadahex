@@ -125,6 +125,19 @@ public class Ship : MonoBehaviour
     public float sinkTo;
     public bool sinkReverse;
 
+    [Header("Bobbing")]
+    [SerializeField]
+    private float bobHeight = 0.4f;
+    [SerializeField]
+    private float bobSpeed = 0.9f;
+    [SerializeField]
+    private float rockAngle = 1.5f;
+
+    private bool hasRestPose;
+    private Vector3 restPosition;
+    private Quaternion restRotation;
+    private float bobPhase;
+
     // Segments
     public ShipSegment[] segments;
     public ShipSegment[] aliveSegments {
@@ -220,6 +233,8 @@ public class Ship : MonoBehaviour
         gridRef = grid;
 
         var hex = gridRef.hexRenderer;
+
+        hasRestPose = false;
 
         transform.position = hex.transform.position + (Vector3.up * 3f);
         transform.rotation = Quaternion.Euler(0, (int)rotation, 0);
@@ -317,8 +332,25 @@ public class Ship : MonoBehaviour
 
         }
         else {
+            Bob();
+
             sinkDuration = 0f;
             beforeSink = transform.localPosition.y;
         }
+    }
+
+    // gently bob up and down and rock side to side around where the ship was placed
+    private void Bob() {
+        if (!hasRestPose) {
+            restPosition = transform.localPosition;
+            restRotation = transform.localRotation;
+            bobPhase = UnityEngine.Random.Range(0f, 100f);
+            hasRestPose = true;
+        }
+
+        var t = Time.time * bobSpeed + bobPhase;
+
+        transform.localPosition = restPosition + Vector3.up * Mathf.Sin(t) * bobHeight;
+        transform.localRotation = restRotation * Quaternion.Euler(Mathf.Sin(t * 0.7f) * rockAngle * 0.5f, 0f, Mathf.Sin(t * 0.9f + 1f) * rockAngle);
     }
 }
