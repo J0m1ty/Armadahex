@@ -13,6 +13,7 @@ public class HexPillarTerrain : MonoBehaviour {
     [SerializeField] private int clearRadius = 4;
     [SerializeField] private int maxBlockedHexes = 40;
     [SerializeField] private float maxBoardHeight = 9f;
+    [SerializeField] private float boardPillarScale = 0.55f;
 
     [Header("Basin")]
     [SerializeField] private int wallRise = 5;
@@ -63,15 +64,22 @@ public class HexPillarTerrain : MonoBehaviour {
         var pillars = new Dictionary<Vector2Int, float>();
         var clearZones = new List<(Vector2Int cell, int radius)>();
 
+        // a basin wall around the board that hides the open sea, then a long gentle tail down into the depths
+        // with one ring of open water between the board and the wall so ships don't clip into it
+        var wallStart = boardRadius + 2;
+        var wallEnd = wallStart + wallRise + wallWidth;
+        var outerRadius = wallEnd + tailLength;
+
         // eat bays into the board edge, carrying on out through the ranges
         var bays = 3;
         for (var i = 0; i < bays; i++) {
             var bay = edgeCells[rng.Next(edgeCells.Count)];
             var radius = rng.Next(1, 3);
-            // the bay keeps going out through the ranges as a widening channel
-            for (var j = 0; j < 3; j++) {
-                var scale = 1f + j * 0.5f;
-                clearZones.Add((new Vector2Int(Mathf.RoundToInt(bay.x * scale), Mathf.RoundToInt(bay.y * scale)), radius + 1 + j));
+            // the bay keeps going out through the ranges as a widening channel, all the way to open sea
+            var steps = Mathf.CeilToInt((outerRadius / (float)Distance(bay) - 1f) / 0.35f);
+            for (var j = 0; j <= steps; j++) {
+                var scale = 1f + j * 0.35f;
+                clearZones.Add((new Vector2Int(Mathf.RoundToInt(bay.x * scale), Mathf.RoundToInt(bay.y * scale)), radius + 1 + Mathf.Min(j, 3)));
             }
 
             foreach (var cell in board.Keys) {
@@ -111,10 +119,6 @@ public class HexPillarTerrain : MonoBehaviour {
             if (other != teamBase) others.Add(other.hexMap.transform.position - center);
         }
 
-        // a basin wall around the board that hides the open sea, then a long gentle tail down into the depths
-        var wallStart = boardRadius + 1;
-        var wallEnd = wallStart + wallRise + wallWidth;
-        var outerRadius = wallEnd + tailLength;
         var offset = new Vector2(rng.Next(0, 10000) * 0.37f, rng.Next(0, 10000) * 0.37f);
         for (var q = -outerRadius; q <= outerRadius; q++) {
             for (var r = -outerRadius; r <= outerRadius; r++) {
@@ -122,7 +126,7 @@ public class HexPillarTerrain : MonoBehaviour {
                 var dist = Distance(cell);
                 var roll = rng.NextDouble();
                 var jitter = rng.Next(0, 3);
-                if (dist <= boardRadius || dist > outerRadius) continue;
+                if (dist < wallStart || dist > outerRadius) continue;
                 if (clearZones.Exists(z => Distance(cell - z.cell) <= z.radius)) continue;
 
                 var pos = CellToLocal(cell);
@@ -150,13 +154,13 @@ public class HexPillarTerrain : MonoBehaviour {
             sources[i] = new Vector4(Mathf.Cos(angle) * distance, Mathf.Sin(angle) * distance, (float)rng.NextDouble(), 0f);
         }
 
-        BuildMesh(pillars, teamBase, sources);
+        BuildMesh(pillars, blocked, teamBase, sources);
         BuildSeabed(outerRadius, others);
 
         Physics.SyncTransforms();
     }
 
-    private void BuildMesh(Dictionary<Vector2Int, float> pillars, TeamBase teamBase, Vector4[] sources) {
+    private void BuildMesh(Dictionary<Vector2Int, float> pillars, HashSet<Vector2Int> onBoard, TeamBase teamBase, Vector4[] sources) {
         vertices = new List<Vector3>();
         normals = new List<Vector3>();
         uvs = new List<Vector2>();
@@ -168,7 +172,8 @@ public class HexPillarTerrain : MonoBehaviour {
         foreach (var pillar in pillars) {
             var start = vertices.Count;
             var center = CellToLocal(pillar.Key);
-            AddPillar(center, pillar.Value);
+            // thinner posts on the board itself, so ships on the next hex over don't clip into them
+            AddPillar(center, pillar.Value, onBoard.Contains(pillar.Key) ? size * boardPillarScale : size - pillarInset);
 
             var data = new Vector2(center.x, center.z);
             for (var i = start; i < vertices.Count; i++) glowData.Add(data);
@@ -239,8 +244,7 @@ public class HexPillarTerrain : MonoBehaviour {
         box.center = new Vector3((min.x + max.x) / 2f, -0.5f, (min.y + max.y) / 2f);
     }
 
-    private void AddPillar(Vector3 center, float top) {
-        var radius = size - pillarInset;
+    private void AddPillar(Vector3 center, float top, float radius) {
         var bottom = -seabedDepth;
 
         AddRing(center, radius, bottom, top, metalTris);
