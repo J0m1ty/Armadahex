@@ -96,6 +96,7 @@ public class LODMeshGenerator : MonoBehaviour
     public bool followCamera = true;
     // must be a multiple of the finest cell and move every texture by whole tiles (uv = world / 2, foam patterns are scaled down further)
     public int snapSize = 64;
+    public float maxFocusDistance = 600f;
 
     private Dictionary<Vector3, int> vertexIndices;
 
@@ -131,7 +132,14 @@ public class LODMeshGenerator : MonoBehaviour
         var gridSize = 1 << exp;
         var snap = snapSize;
 
-        var target = Camera.main.transform.position;
+        // center the detail on where the camera is looking, not where it sits
+        var cam = Camera.main.transform;
+        var target = cam.position;
+        if (cam.forward.y < -0.01f) {
+            var distance = Mathf.Min((cam.position.y - transform.position.y) / -cam.forward.y, maxFocusDistance);
+            target = cam.position + cam.forward * distance;
+        }
+
         var x = Mathf.Round(target.x / snap) * snap;
         var z = Mathf.Round(target.z / snap) * snap;
 
