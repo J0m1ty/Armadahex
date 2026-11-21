@@ -153,7 +153,7 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
             GameOver.instance.enemyName = PhotonNetwork.CurrentRoom.Players.Where(p => p.Value != PhotonNetwork.LocalPlayer).First().Value.NickName;
         }
         else if (GameModeInfo.instance.IsSingleplayer) {
-            GameOver.instance.enemyName = "Enemy Bot";
+            GameOver.instance.enemyName = BotAI.SavedDifficulty + " Bot";
         }
 
         connectionType = !PhotonNetwork.InRoom ? ConnectionType.Offline : (privateMultiplayer ? ConnectionType.PrivateMultiplayer : ConnectionType.PublicMultiplayer);

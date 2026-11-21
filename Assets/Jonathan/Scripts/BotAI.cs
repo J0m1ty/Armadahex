@@ -20,6 +20,8 @@ public class BotAI {
     private HashSet<GridUnit> hits;
     private HashSet<GridUnit> sunk;
 
+    public static BotDifficulty SavedDifficulty => (BotDifficulty)PlayerPrefs.GetInt(Constants.BOT_DIFFICULTY_PREF_KEY, (int)BotDifficulty.Easy);
+
     public BotAI(BotDifficulty difficulty, HexGrid grid) {
         this.difficulty = difficulty;
         this.grid = grid;

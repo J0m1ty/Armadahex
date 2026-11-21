@@ -2,10 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using TMPro;
 
 public class SingleplayerStart : MonoBehaviour
 {
     public MyBox.SceneReference gameScene;
+
+    [SerializeField] private Slider difficultySlider;
+    [SerializeField] private TMP_Text difficultyText;
+
+    void Start() {
+        difficultySlider.value = (int)BotAI.SavedDifficulty;
+        SetDifficultyText();
+    }
+
+    public void SetDifficulty(float difficulty) {
+        PlayerPrefs.SetInt(Constants.BOT_DIFFICULTY_PREF_KEY, (int)difficulty);
+        SetDifficultyText();
+    }
+
+    private void SetDifficultyText() {
+        difficultyText.text = "AI (" + BotAI.SavedDifficulty + ")";
+    }
 
     public void StartGame() {
         Debug.Log("Starting game");

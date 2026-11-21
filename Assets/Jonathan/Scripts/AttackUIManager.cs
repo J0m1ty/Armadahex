@@ -85,7 +85,6 @@ public class AttackUIManager : MonoBehaviour
     public int shotsHit;
     public int advancedShotsFired;
 
-    public BotDifficulty botDifficulty;
     private BotAI bot;
 
     [Header("Other")]
@@ -686,7 +685,7 @@ public class AttackUIManager : MonoBehaviour
     
     public void RandomBotAttack() {
         if (bot == null) {
-            bot = new BotAI(botDifficulty, TurnManager.instance.playerTeam.teamBase.hexMap);
+            bot = new BotAI(BotAI.SavedDifficulty, TurnManager.instance.playerTeam.teamBase.hexMap);
         }
 
         Debug.Log("Bot attack (" + bot.difficulty + ")");
