@@ -65,6 +65,17 @@ public class CameraController : MonoBehaviour
     [SerializeField]
     private float transportTime;
 
+    [Header("Hop")]
+    [SerializeField]
+    private float hopDistance = 500f;
+    [SerializeField]
+    private float hopHeight = 450f;
+    [SerializeField]
+    private float hopRiseTime = 0.6f;
+    [SerializeField]
+    private float hopSlideTime = 1f;
+    private Coroutine hop;
+
     void Start() {
         followChild = transform.GetChild(0).gameObject;
 
@@ -107,7 +118,9 @@ public class CameraController : MonoBehaviour
         float offset = Mathf.Lerp(angleOffset[0], angleOffset[1], Mathf.InverseLerp(zoomRange.Min, zoomRange.Max, followChild.transform.localPosition.magnitude - distanceOffset));
         followChild.transform.rotation *= Quaternion.AngleAxis(offset, Vector3.right);
 
-        center = Vector3.Lerp(center, newCenter, Time.deltaTime * transportTime);
+        if (hop == null) {
+            center = Vector3.Lerp(center, newCenter, Time.deltaTime * transportTime);
+        }
 
         transform.position += center;
     }
@@ -204,12 +217,39 @@ public class CameraController : MonoBehaviour
     public void MoveTo(Vector3 position) {
         newPosition = new Vector3(0, 0, 0);
         newCenter = position;
+
+        // far moves hop up over the terrain, slide across, then drop back down
+        if (Vector3.Distance(center, position) > hopDistance && gameObject.activeInHierarchy) {
+            if (hop != null) StopCoroutine(hop);
+            hop = StartCoroutine(Hop(center, position));
+        }
     }
 
     public void InstantMoveTo(Vector3 position) {
+        if (hop != null) {
+            StopCoroutine(hop);
+            hop = null;
+        }
+
         newPosition = new Vector3(0, 0, 0);
         newCenter = position;
         center = newCenter;
+    }
+
+    private IEnumerator Hop(Vector3 from, Vector3 to) {
+        var up = Vector3.up * hopHeight;
+        yield return HopLeg(from, from + up, hopRiseTime);
+        yield return HopLeg(from + up, to + up, hopSlideTime);
+        yield return HopLeg(to + up, to, hopRiseTime);
+        hop = null;
+    }
+
+    private IEnumerator HopLeg(Vector3 from, Vector3 to, float time) {
+        for (var t = 0f; t < time; t += Time.deltaTime) {
+            center = Vector3.Lerp(from, to, Mathf.SmoothStep(0f, 1f, t / time));
+            yield return null;
+        }
+        center = to;
     }
 
     public bool AlreadyAt(Vector3 centerPos) {
