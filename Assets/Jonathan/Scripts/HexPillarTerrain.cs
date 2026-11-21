@@ -75,11 +75,23 @@ public class HexPillarTerrain : MonoBehaviour {
         for (var i = 0; i < bays; i++) {
             var bay = edgeCells[rng.Next(edgeCells.Count)];
             var radius = rng.Next(1, 3);
-            // the bay keeps going out through the ranges as a widening channel, all the way to open sea
-            var steps = Mathf.CeilToInt((outerRadius / (float)Distance(bay) - 1f) / 0.35f);
-            for (var j = 0; j <= steps; j++) {
-                var scale = 1f + j * 0.35f;
-                clearZones.Add((new Vector2Int(Mathf.RoundToInt(bay.x * scale), Mathf.RoundToInt(bay.y * scale)), radius + 1 + Mathf.Min(j, 3)));
+            // the bay keeps going out to open sea as a channel that wanders and swells like a river cut
+            var pos = CellToLocal(bay);
+            var heading = Mathf.Atan2(pos.z, pos.x);
+            var wander = rng.Next(0, 10000) * 0.13f;
+            var reach = outerRadius * size * Mathf.Sqrt(3f);
+            for (var j = 0; pos.magnitude < reach; j++) {
+                var bend = Mathf.PerlinNoise(wander + j * 0.18f, 0.5f) * 2f - 1f;
+                heading += bend * 0.35f;
+
+                // keep it heading outward so it can't curl back into the basin
+                var outward = Mathf.Atan2(pos.z, pos.x);
+                heading = outward + Mathf.Clamp(Mathf.DeltaAngle(outward * Mathf.Rad2Deg, heading * Mathf.Rad2Deg) * Mathf.Deg2Rad, -0.9f, 0.9f);
+
+                var swell = Mathf.PerlinNoise(wander + 50f, j * 0.22f) * 2.5f;
+                clearZones.Add((ToCell(pos), radius + Mathf.RoundToInt(swell + Mathf.Min(j * 0.15f, 1.5f))));
+
+                pos += new Vector3(Mathf.Cos(heading), 0f, Mathf.Sin(heading)) * size * 1.6f;
             }
 
             foreach (var cell in board.Keys) {
