@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &252474487337689709
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3728262003770456359}
+  - component: {fileID: 619220519150534013}
+  m_Layer: 3
+  m_Name: Pillars
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3728262003770456359
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 252474487337689709}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -500, y: 0, z: -500}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &619220519150534013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 252474487337689709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 934e0d31dea37f54ba77701b903e2b09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HexPillarTerrain
+  metalMaterial: {fileID: 2100000, guid: d3a6200d499c23442a110c63ae574b0a, type: 2}
+  trimMaterial: {fileID: 2100000, guid: 7959eaccf6e2271468ddcece0f33f532, type: 2}
+  trimGlow: 3
+  clearRadius: 4
+  maxBlockedHexes: 40
+  maxBoardHeight: 9
+  outerRadius: 19
+  rangeNoiseScale: 0.004
+  maxRangeHeight: 190
+  pillarInset: 1.5
+  heightStep: 3
+  bandSpacing: 45
+  seabedDepth: 40

@@ -42,6 +42,9 @@ public class TeamBase : MonoBehaviour {
         var obj = Instantiate(terrain.terrainPrefab, terrainContainer.transform) as GameObject;
         obj.transform.localPosition = new Vector3(offset.x, obj.transform.localPosition.y, offset.y);
 
+        var pillars = obj.GetComponent<HexPillarTerrain>();
+        if (pillars != null) pillars.Generate(this, seed);
+
         hexMap.CheckTerrain();
     }
 }
