@@ -33,7 +33,7 @@ public class TeamBase : MonoBehaviour {
         }
     }
 
-    public void SetTerrain(TerrainBlock terrain) {
+    public void SetTerrain(TerrainBlock terrain, int seed) {
         Debug.Log("Setting terrain to " + terrain.name);
         terrainBlock = terrain;
 

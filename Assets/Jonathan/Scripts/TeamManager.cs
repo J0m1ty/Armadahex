@@ -120,7 +120,7 @@ public class TeamManager : MonoBehaviour {
             var block = availableBlocks[index];
             availableBlocks.RemoveAt(index);
             
-            team.teamBase.SetTerrain(block);
+            team.teamBase.SetTerrain(block, Random.Range(0, int.MaxValue));
         }
     }
 

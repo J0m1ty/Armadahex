@@ -128,6 +128,8 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
             availableTerrain.Remove(masterTerrain);
             var clientTerrain = availableTerrain[Random.Range(0, availableTerrain.Count)];
             roomProps.Add("ClientTerrain", clientTerrain.name);
+            roomProps.Add("MasterSeed", Random.Range(0, int.MaxValue));
+            roomProps.Add("ClientSeed", Random.Range(0, int.MaxValue));
 
             PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
         }
@@ -182,10 +184,10 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
             foreach (var team in teamManager.teams) {
                 if (team.isPlayer == PhotonNetwork.IsMasterClient) {
                     team.teamType = masterTeam;
-                    team.teamBase.SetTerrain(masterTerrain);
+                    team.teamBase.SetTerrain(masterTerrain, (int)propertiesThatChanged["MasterSeed"]);
                 } else if (team.isPlayer != PhotonNetwork.IsMasterClient) {
                     team.teamType = clientTeam;
-                    team.teamBase.SetTerrain(clientTerrain);
+                    team.teamBase.SetTerrain(clientTerrain, (int)propertiesThatChanged["ClientSeed"]);
                 }
             }
 
