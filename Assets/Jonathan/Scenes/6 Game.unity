@@ -2694,12 +2694,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pregameManager: {fileID: 1007787196}
   terrainBlocks:
-  - name: Mighty
-    terrainPrefab: {fileID: 6226739480017752579, guid: 1aad2145963b1d84a90fedeb5a364bb3, type: 3}
-    screenshotCameraPrefab: {fileID: 8769197856140068319, guid: 00181b48ca2db7a439ab6832f3aa5b22, type: 3}
-  - name: Sparse
-    terrainPrefab: {fileID: 9201496297768096962, guid: 90adac2e1c82b9b4f96a9dca1d5df9f5, type: 3}
-    screenshotCameraPrefab: {fileID: 8362381867156387946, guid: 7e702d7500348e34283a680f5fc538d3, type: 3}
   - name: Pillars A
     terrainPrefab: {fileID: 252474487337689709, guid: eafd4d831d163184ebf85bab8a29eb94, type: 3}
     screenshotCameraPrefab: {fileID: 8362381867156387946, guid: 1eb151a9e50ace74c968711c60e5f1ec, type: 3}
