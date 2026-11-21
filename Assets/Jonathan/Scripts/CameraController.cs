@@ -69,7 +69,7 @@ public class CameraController : MonoBehaviour
     [SerializeField]
     private float hopDistance = 500f;
     [SerializeField]
-    private float hopHeight = 450f;
+    private float hopHeight = 230f;
     [SerializeField]
     private float hopRiseTime = 0.6f;
     [SerializeField]

@@ -5,6 +5,7 @@ using UnityEngine;
 public class CopyTransform : MonoBehaviour
 {
     public Transform target;
+    public bool followMainCamera = false;
 
     public bool copyRotation = false;
     public bool copyX = false;
@@ -13,6 +14,7 @@ public class CopyTransform : MonoBehaviour
     
     void LateUpdate()
     {
+        if (followMainCamera && Camera.main != null) target = Camera.main.transform;
         if (target == null) return;
         
         Vector3 pos = transform.position;
