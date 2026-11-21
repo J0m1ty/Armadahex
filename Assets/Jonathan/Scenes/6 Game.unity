@@ -222,7 +222,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4501bd61e84f13e4094145e18eee3a8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  savedMesh: {fileID: 4300000, guid: 55aa3271dde68ba42b163c135b440730, type: 2}
+  savedMesh: {fileID: 0}
   material: {fileID: 2100000, guid: cd54040c814b37147bede3b90b8fdcd2, type: 2}
   step:
     serializedVersion: 2
@@ -256,9 +256,10 @@ MonoBehaviour:
     m_NumAlphaKeys: 4
   exp: 13
   max: 6
-  min: 13
+  min: 14
   scale: 4
   uvType: 0
+  followCamera: 1
 --- !u!1 &32624038
 GameObject:
   m_ObjectHideFlags: 0

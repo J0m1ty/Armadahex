@@ -35,7 +35,7 @@ public class Cell {
         var dist = Mathf.Sqrt(dx * dx + dy * dy);
 
         var sample = tb.step.Evaluate(Mathf.Clamp01(LODMeshGenerator.Map(dist, 0, gridSize / 2, 0, 1))).a;
-        var expected = Mathf.Clamp(LODMeshGenerator.Map(sample, 0, 1, tb.exp, tb.scale), tb.max, tb.exp);
+        var expected = Mathf.Clamp(LODMeshGenerator.Map(sample, 0, 1, tb.min, tb.scale), tb.max, tb.min);
 
         if (depth < expected && depth < tb.min) {
             Subdivide();
@@ -92,6 +92,13 @@ public class LODMeshGenerator : MonoBehaviour
     [MyBox.DefinedValues(0, 1)]
     public int uvType = 0;
 
+    [Header("Follow Settings")]
+    public bool followCamera = true;
+    // must be a multiple of the finest cell and move every texture by whole tiles (uv = world / 2, edge foam is uv * 0.25)
+    public int snapSize = 8;
+
+    private Dictionary<Vector3, int> vertexIndices;
+
     private void Awake() {
         meshFilter = GetComponent<MeshFilter>();
         meshRenderer = GetComponent<MeshRenderer>();
@@ -117,6 +124,24 @@ public class LODMeshGenerator : MonoBehaviour
         GenerateCells();
     }
 
+    private void LateUpdate() {
+        if (!followCamera || uvType != 0 || Camera.main == null) return;
+
+        // snap so vertices and textures line up in world space
+        var gridSize = 1 << exp;
+        var snap = snapSize;
+
+        var target = Camera.main.transform.position;
+        var x = Mathf.Round(target.x / snap) * snap;
+        var z = Mathf.Round(target.z / snap) * snap;
+
+        transform.position = new Vector3(x - gridSize / 2, transform.position.y, z - gridSize / 2);
+    }
+
+    private int FindVertex(Vector3 vertex) {
+        return vertexIndices.TryGetValue(vertex, out var index) ? index : -1;
+    }
+
     private void GenerateCells() {
         Cell.tb = this;
         
@@ -125,7 +150,17 @@ public class LODMeshGenerator : MonoBehaviour
         List<Vector3> vertices = new List<Vector3>();
         List<int> triangles = new List<int>();
         List<Vector2> uvs = new List<Vector2>();
-        
+
+        vertexIndices = new Dictionary<Vector3, int>();
+
+        void AddVertex(Vector3 vertex, Vector2 uv) {
+            if (vertexIndices.ContainsKey(vertex)) return;
+
+            vertexIndices[vertex] = vertices.Count;
+            vertices.Add(vertex);
+            uvs.Add(uv);
+        }
+
         var cells = rootCell.Collect().ToArray();
 
         // Generate vertices
@@ -142,12 +177,6 @@ public class LODMeshGenerator : MonoBehaviour
             var v3 = new Vector3(x, 0, y + s);
             var v4 = new Vector3(x + s / 2f, 0, y + s / 2f);
             
-            vertices.Add(v0);
-            vertices.Add(v1);
-            vertices.Add(v2);
-            vertices.Add(v3);
-            vertices.Add(v4);
-
             var gridSize = 1 << exp;
             var toSize = uvType == 0 ? gridSize / 2 : 1;
 
@@ -155,22 +184,11 @@ public class LODMeshGenerator : MonoBehaviour
             var uvy = Map(y, 0, gridSize, 0, toSize);
             var uvS = Map(s, 0, gridSize, 0, toSize);
             
-            uvs.Add(new Vector2(uvx, uvy));
-            uvs.Add(new Vector2(uvx + uvS, uvy));
-            uvs.Add(new Vector2(uvx + uvS, uvy + uvS));
-            uvs.Add(new Vector2(uvx, uvy + uvS));
-            uvs.Add(new Vector2(uvx + uvS / 2f, uvy + uvS / 2f));
-        }
-
-        // Remove duplicates
-        for (var i = 0; i < vertices.Count; i++) {
-            for (var j = i + 1; j < vertices.Count; j++) {
-                if (vertices[i] == vertices[j]) {
-                    vertices.RemoveAt(j);
-                    uvs.RemoveAt(j);
-                    j--;
-                }
-            }
+            AddVertex(v0, new Vector2(uvx, uvy));
+            AddVertex(v1, new Vector2(uvx + uvS, uvy));
+            AddVertex(v2, new Vector2(uvx + uvS, uvy + uvS));
+            AddVertex(v3, new Vector2(uvx, uvy + uvS));
+            AddVertex(v4, new Vector2(uvx + uvS / 2f, uvy + uvS / 2f));
         }
 
         // Remove seams and calculate triangles
@@ -187,16 +205,16 @@ public class LODMeshGenerator : MonoBehaviour
             var searchSW = new Vector3(cell.position.x, 0, cell.position.y + cell.size);
             var searchCenter = new Vector3(cell.position.x + cell.size/2, 0, cell.position.y + cell.size/2);
             
-            var NW = vertices.IndexOf(searchNW);
-            var NE = vertices.IndexOf(searchNE);
-            var SE = vertices.IndexOf(searchSE);
-            var SW = vertices.IndexOf(searchSW);
-            var center = vertices.IndexOf(searchCenter);
+            var NW = FindVertex(searchNW);
+            var NE = FindVertex(searchNE);
+            var SE = FindVertex(searchSE);
+            var SW = FindVertex(searchSW);
+            var center = FindVertex(searchCenter);
             
             // north
             if (cell.position.y != 0) {
                 var searchMid = new Vector3(cell.position.x + cell.size/2, 0, cell.position.y);
-                var mid = vertices.IndexOf(searchMid);
+                var mid = FindVertex(searchMid);
 
                 // check if mid exists
                 if (mid == -1) {
@@ -223,7 +241,7 @@ public class LODMeshGenerator : MonoBehaviour
             // east
             if (cell.position.x + cell.size != 1 << exp) {
                 var searchMid = new Vector3(cell.position.x + cell.size, 0, cell.position.y + cell.size/2);
-                var mid = vertices.IndexOf(searchMid);
+                var mid = FindVertex(searchMid);
 
                 // check if mid exists
                 if (mid == -1) {
@@ -250,7 +268,7 @@ public class LODMeshGenerator : MonoBehaviour
             // south
             if (cell.position.y + cell.size != 1 << exp) {
                 var searchMid = new Vector3(cell.position.x + cell.size/2, 0, cell.position.y + cell.size);
-                var mid = vertices.IndexOf(searchMid);
+                var mid = FindVertex(searchMid);
 
                 // check if mid exists
                 if (mid == -1) {
@@ -277,7 +295,7 @@ public class LODMeshGenerator : MonoBehaviour
             // west
             if (cell.position.x != 0) {
                 var searchMid = new Vector3(cell.position.x, 0, cell.position.y + cell.size/2);
-                var mid = vertices.IndexOf(searchMid);
+                var mid = FindVertex(searchMid);
 
                 // check if mid exists
                 if (mid == -1) {
@@ -303,6 +321,7 @@ public class LODMeshGenerator : MonoBehaviour
         }
 
         mesh.Clear();
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
 
         Debug.Log(vertices.Count + " " + uvs.Count);
 
