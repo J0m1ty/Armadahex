@@ -2700,6 +2700,12 @@ MonoBehaviour:
   - name: Sparse
     terrainPrefab: {fileID: 9201496297768096962, guid: 90adac2e1c82b9b4f96a9dca1d5df9f5, type: 3}
     screenshotCameraPrefab: {fileID: 8362381867156387946, guid: 7e702d7500348e34283a680f5fc538d3, type: 3}
+  - name: Pillars A
+    terrainPrefab: {fileID: 252474487337689709, guid: eafd4d831d163184ebf85bab8a29eb94, type: 3}
+    screenshotCameraPrefab: {fileID: 8362381867156387946, guid: 1eb151a9e50ace74c968711c60e5f1ec, type: 3}
+  - name: Pillars B
+    terrainPrefab: {fileID: 252474487337689709, guid: eafd4d831d163184ebf85bab8a29eb94, type: 3}
+    screenshotCameraPrefab: {fileID: 8362381867156387946, guid: 0d1f4e37839b2f748a6c9bebc34a8cd6, type: 3}
   teams:
   - teamType: 0
     teamBase: {fileID: 1095367286}
