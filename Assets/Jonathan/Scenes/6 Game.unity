@@ -260,6 +260,7 @@ MonoBehaviour:
   scale: 4
   uvType: 0
   followCamera: 1
+  snapSize: 64
 --- !u!1 &32624038
 GameObject:
   m_ObjectHideFlags: 0

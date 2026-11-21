@@ -94,8 +94,8 @@ public class LODMeshGenerator : MonoBehaviour
 
     [Header("Follow Settings")]
     public bool followCamera = true;
-    // must be a multiple of the finest cell and move every texture by whole tiles (uv = world / 2, edge foam is uv * 0.25)
-    public int snapSize = 8;
+    // must be a multiple of the finest cell and move every texture by whole tiles (uv = world / 2, foam patterns are scaled down further)
+    public int snapSize = 64;
 
     private Dictionary<Vector3, int> vertexIndices;
 
