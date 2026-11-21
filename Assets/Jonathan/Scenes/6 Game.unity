@@ -22014,6 +22014,7 @@ MonoBehaviour:
   hopHeight: 230
   hopRiseTime: 0.3
   hopSlideTime: 0.8
+  hopUp: 0
   zoomAmountButton: 7
 --- !u!1 &2129985460
 GameObject:

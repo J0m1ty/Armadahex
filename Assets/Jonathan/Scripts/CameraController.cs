@@ -74,6 +74,9 @@ public class CameraController : MonoBehaviour
     private float hopRiseTime = 0.6f;
     [SerializeField]
     private float hopSlideTime = 1f;
+    // off: slide straight across at the current height instead of hopping over
+    [SerializeField]
+    private bool hopUp = true;
     private Coroutine hop;
 
     void Start() {
@@ -237,6 +240,12 @@ public class CameraController : MonoBehaviour
     }
 
     private IEnumerator Hop(Vector3 from, Vector3 to) {
+        if (!hopUp) {
+            yield return HopLeg(from, to, hopSlideTime);
+            hop = null;
+            yield break;
+        }
+
         var up = Vector3.up * hopHeight;
         yield return HopLeg(from, from + up, hopRiseTime);
         yield return HopLeg(from + up, to + up, hopSlideTime);
