@@ -44,6 +44,14 @@ public static class TeamColor {
                 return Color.white;
         }
     }
+
+    // each player always sees their own side as blue and the enemy as red
+    public static Color Friendly = new Color(0.0f, 0.35f, 1.0f); // blue
+    public static Color Enemy = new Color(1.0f, 0.15f, 0.1f); // red
+
+    public static Color GetSideColor(Team team) {
+        return team.isPlayer ? Friendly : Enemy;
+    }
 }
 
 [Serializable]
@@ -128,7 +136,7 @@ public class TeamManager : MonoBehaviour {
         foreach (var team in teams) {
             foreach (var hex in team.teamBase.hexMap.hexes) {
                 var hr = hex.hexRenderer;
-                hr.SetColor(Color.Lerp(TeamColor.GetColor(team.teamType), AttackColor.none, 0.5f));
+                hr.SetColor(Color.Lerp(TeamColor.GetSideColor(team), AttackColor.none, 0.5f));
                 hr.SetFogColorInstant(FogColor.Normal);
             }
         }
