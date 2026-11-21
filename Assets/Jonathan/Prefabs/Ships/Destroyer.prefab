@@ -114,7 +114,7 @@ GameObject:
   - component: {fileID: 5971280580736265265}
   - component: {fileID: 5730716658582526309}
   - component: {fileID: 1401952265708899495}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: boat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -288,7 +288,7 @@ GameObject:
   - component: {fileID: 2006220704842996489}
   - component: {fileID: 5872854555022137510}
   - component: {fileID: 3663658849680038405}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: gun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -611,7 +611,7 @@ GameObject:
   - component: {fileID: 1986667148614751360}
   - component: {fileID: 6485832906539657565}
   - component: {fileID: 4156642523414775914}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: barrel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
