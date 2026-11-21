@@ -108,6 +108,14 @@ public class PregameManager : MonoBehaviour
     [SerializeField] private TMP_Text uiGameType;
     [SerializeField] private TMP_Text uiPlayers;
 
+    [Header("Bot Difficulty")]
+    [SerializeField] private GameObject botDifficulty;
+    [SerializeField] private Graphic[] difficultyButtons;
+    [SerializeField] private Color difficultyColor;
+    [SerializeField] private Color difficultySelectedColor;
+    [SerializeField] private AttackUIManager attackManager;
+    private bool difficultyChosen;
+
     [Header("Instruction Animations")]
     [SerializeField] private InstructionAnimation[] instructionAnimations;
 
@@ -162,6 +170,21 @@ public class PregameManager : MonoBehaviour
         this.uiPlayers.text = friendlyName.ToUpper() + " VS. " + enemyName.ToUpper();
     }
 
+    public void SetDifficulty(int difficulty) {
+        attackManager.botDifficulty = (BotDifficulty)difficulty;
+        difficultyChosen = true;
+
+        for (int i = 0; i < difficultyButtons.Length; i++) {
+            difficultyButtons[i].color = i == difficulty ? difficultySelectedColor : difficultyColor;
+        }
+
+        GameOver.instance.enemyName = attackManager.botDifficulty + " Bot";
+        this.enemyPlayerName.text = GameOver.instance.enemyName;
+        SetLeaderboardPlayerInfo(friendlyPlayerName.text, GameOver.instance.enemyName);
+
+        TryStartCountdown();
+    }
+
     void Start() {
         countdownStarted = false;
 
@@ -173,7 +196,11 @@ public class PregameManager : MonoBehaviour
 
         AudioManager.instance?.PlayGameModeSound(GameNetworking.instance.gameMode);
 
-        waitingForOtherPlayerText.gameObject.SetActive(!GameModeInfo.instance.IsSingleplayer);
+        waitingForOtherPlayerText.gameObject.SetActive(true);
+        botDifficulty.SetActive(GameModeInfo.instance.IsSingleplayer);
+        if (GameModeInfo.instance.IsSingleplayer) {
+            waitingForOtherPlayerText.text = "Pick a difficulty";
+        }
 
         foreach (InstructionAnimation ia in instructionAnimations) {
             ia.stepText.gameObject.SetActive(false);
@@ -206,6 +233,7 @@ public class PregameManager : MonoBehaviour
 
     public void TryStartCountdown() {
         if (TurnManager.instance.loading || countdownStarted || !fadedIn) return;
+        if (GameModeInfo.instance.IsSingleplayer && !difficultyChosen) return;
 
         Debug.Log("Starting countdown...");
         waitingForOtherPlayerText.gameObject.SetActive(false);
