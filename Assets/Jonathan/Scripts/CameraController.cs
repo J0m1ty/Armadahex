@@ -35,7 +35,8 @@ public class CameraController : MonoBehaviour
     public float FOV;
 
     [Header("Movement Settings")]
-    public MinMaxFloat speedRange;
+    public float moveSpeed = 1.2f;
+    public float shiftMultiplier = 3f;
     public float maxDist;
 
     [Header("Rotation Settings")]
@@ -172,10 +173,10 @@ public class CameraController : MonoBehaviour
     }
 
     void HandleKeyboardInput() {
-        if (Input.GetKey(KeyCode.LeftShift)) {
-            movementSpeed = speedRange.Max;
-        } else {
-            movementSpeed = speedRange.Min;
+        // units per frame at 60 fps, so the speed is the same at any frame rate
+        movementSpeed = moveSpeed * Time.deltaTime * 60f;
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
+            movementSpeed *= shiftMultiplier;
         }
 
         Vector3 positionMod = Vector3.zero;

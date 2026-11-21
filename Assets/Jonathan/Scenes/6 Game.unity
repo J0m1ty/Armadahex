@@ -17668,9 +17668,8 @@ MonoBehaviour:
   OrthoFOV: 8.85
   distanceOffset: 0
   FOV: 80
-  speedRange:
-    Min: 0.4
-    Max: 0.6
+  moveSpeed: 1.2
+  shiftMultiplier: 3
   maxDist: 280
   rotationAmount: 0.5
   zoomAmount: {x: 0, y: -10, z: 1}
@@ -17685,8 +17684,9 @@ MonoBehaviour:
   transportTime: 10
   hopDistance: 500
   hopHeight: 230
-  hopRiseTime: 0.6
-  hopSlideTime: 1
+  hopRiseTime: 0.3
+  hopSlideTime: 0.8
+  hopUp: 1
   zoomAmountButton: 7
 --- !u!1 &1712294340
 GameObject:
@@ -21995,9 +21995,8 @@ MonoBehaviour:
   OrthoFOV: 0
   distanceOffset: 0
   FOV: 90
-  speedRange:
-    Min: 0.4
-    Max: 0.6
+  moveSpeed: 1.2
+  shiftMultiplier: 3
   maxDist: 280
   rotationAmount: 0.5
   zoomAmount: {x: 0, y: -3, z: 3}
@@ -22013,7 +22012,7 @@ MonoBehaviour:
   hopDistance: 500
   hopHeight: 230
   hopRiseTime: 0.3
-  hopSlideTime: 0.8
+  hopSlideTime: 0.6
   hopUp: 0
   zoomAmountButton: 7
 --- !u!1 &2129985460
