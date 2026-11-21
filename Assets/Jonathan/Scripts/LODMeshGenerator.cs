@@ -34,7 +34,7 @@ public class Cell {
         var dy = ((float)position.y + (float)size / 2f) - ((float)gridSize / 2f);
         var dist = Mathf.Sqrt(dx * dx + dy * dy);
 
-        var sample = tb.step.Evaluate(Mathf.Clamp01(LODMeshGenerator.Map(dist, 0, gridSize / 2, 0, 1))).a;
+        var sample = tb.step.Evaluate(Mathf.Clamp01(LODMeshGenerator.Map(dist / tb.detailRange, 0, gridSize / 2, 0, 1))).a;
         var expected = Mathf.Clamp(LODMeshGenerator.Map(sample, 0, 1, tb.min, tb.scale), tb.max, tb.min);
 
         if (depth < expected && depth < tb.min) {
@@ -91,6 +91,11 @@ public class LODMeshGenerator : MonoBehaviour
     
     [MyBox.DefinedValues(0, 1)]
     public int uvType = 0;
+
+    // webgl builds and draws the mesh slower, so pull the fine detail in closer there
+    public float webglDetailRange = 0.75f;
+
+    public float detailRange => Application.platform == RuntimePlatform.WebGLPlayer ? webglDetailRange : 1f;
 
     [Header("Follow Settings")]
     public bool followCamera = true;
