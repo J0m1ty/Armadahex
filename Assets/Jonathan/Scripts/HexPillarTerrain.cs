@@ -14,10 +14,13 @@ public class HexPillarTerrain : MonoBehaviour {
     [SerializeField] private int maxBlockedHexes = 40;
     [SerializeField] private float maxBoardHeight = 9f;
 
-    [Header("Ranges")]
-    [SerializeField] private int outerRadius = 21;
+    [Header("Basin")]
+    [SerializeField] private int wallRise = 5;
+    [SerializeField] private int wallWidth = 5;
+    [SerializeField] private float wallHeight = 160f;
+    [SerializeField] private int tailLength = 16;
+    [SerializeField] private float tailSoftness = 4f;
     [SerializeField] private float rangeNoiseScale = 0.004f;
-    [SerializeField] private float maxRangeHeight = 150f;
 
     [Header("Pillars")]
     [SerializeField] private float pillarInset = 1.5f;
@@ -102,7 +105,16 @@ public class HexPillarTerrain : MonoBehaviour {
             hex.hexRenderer.gameObject.SetActive(false);
         }
 
-        // mountain ranges rising with distance, with ridged noise sampled in base-local space
+        // only build on our half of the sea so neighbouring bases don't overlap
+        var others = new List<Vector3>();
+        foreach (var other in FindObjectsByType<TeamBase>(FindObjectsSortMode.None)) {
+            if (other != teamBase) others.Add(other.hexMap.transform.position - center);
+        }
+
+        // a basin wall around the board that hides the open sea, then a long gentle tail down into the depths
+        var wallStart = boardRadius + 1;
+        var wallEnd = wallStart + wallRise + wallWidth;
+        var outerRadius = wallEnd + tailLength;
         var offset = new Vector2(rng.Next(0, 10000) * 0.37f, rng.Next(0, 10000) * 0.37f);
         for (var q = -outerRadius; q <= outerRadius; q++) {
             for (var r = -outerRadius; r <= outerRadius; r++) {
@@ -114,17 +126,19 @@ public class HexPillarTerrain : MonoBehaviour {
                 if (clearZones.Exists(z => Distance(cell - z.cell) <= z.radius)) continue;
 
                 var pos = CellToLocal(cell);
+                if (others.Exists(o => Vector3.Distance(pos, o) < pos.magnitude + size)) continue;
+
                 var noise = 1f - Mathf.Abs(Mathf.PerlinNoise(pos.x * rangeNoiseScale + offset.x, pos.z * rangeNoiseScale + offset.y) * 2f - 1f);
-                var t = (dist - boardRadius) / (float)(outerRadius - boardRadius);
-                if (noise < Mathf.Lerp(0.85f, 0.55f, t) && roll > 0.04) continue;
+                var tail = Mathf.Max(0f, dist - wallEnd) / tailSoftness;
+                if (noise < Mathf.Lerp(0.15f, 0.6f, tail / (tailLength / tailSoftness)) && roll > 0.05) continue;
 
-                // low by the board, peaking partway out, then sinking under the water into the depths
-                float height;
-                if (t < 0.5f) height = Mathf.Lerp(6f, maxRangeHeight, Mathf.Pow(Mathf.InverseLerp(0.05f, 0.5f, t), 2f)) * (0.35f + noise);
-                else if (t < 0.72f) height = Mathf.Lerp(maxRangeHeight, 2f, Mathf.SmoothStep(0f, 1f, (t - 0.5f) / 0.22f)) * (0.35f + noise);
-                else height = Mathf.Lerp(-2f, 8f - seabedDepth, (t - 0.72f) / 0.28f) + noise * 6f;
+                // 1 / (1 + x^2) falloff that settles just above the seabed
+                var rise = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(wallStart - 1, wallStart + wallRise, dist));
+                var depth = seabedDepth - 6f;
+                var height = (wallHeight * rise + depth) / (1f + tail * tail) - depth;
+                if (dist < wallEnd) height = wallHeight * rise;
 
-                pillars[cell] = Step(height + jitter * heightStep);
+                pillars[cell] = Step(height * (0.45f + noise * 0.75f) + jitter * heightStep);
             }
         }
 
@@ -137,7 +151,7 @@ public class HexPillarTerrain : MonoBehaviour {
         }
 
         BuildMesh(pillars, teamBase, sources);
-        BuildSeabed(boardRadius);
+        BuildSeabed(outerRadius, others);
 
         Physics.SyncTransforms();
     }
@@ -187,8 +201,20 @@ public class HexPillarTerrain : MonoBehaviour {
         meshRenderer.SetPropertyBlock(block, 1);
     }
 
-    private void BuildSeabed(int boardRadius) {
+    private void BuildSeabed(int outerRadius, List<Vector3> others) {
         var extent = (outerRadius + 2) * size * Mathf.Sqrt(3f);
+        var min = new Vector2(-extent, -extent);
+        var max = new Vector2(extent, extent);
+        foreach (var other in others) {
+            if (Mathf.Abs(other.x) > Mathf.Abs(other.z)) {
+                if (other.x > 0f) max.x = Mathf.Min(max.x, other.x / 2f);
+                else min.x = Mathf.Max(min.x, other.x / 2f);
+            }
+            else {
+                if (other.z > 0f) max.y = Mathf.Min(max.y, other.z / 2f);
+                else min.y = Mathf.Max(min.y, other.z / 2f);
+            }
+        }
 
         var obj = new GameObject("Seabed", typeof(MeshFilter), typeof(MeshRenderer), typeof(BoxCollider));
         obj.layer = gameObject.layer;
@@ -198,8 +224,8 @@ public class HexPillarTerrain : MonoBehaviour {
         var mesh = new Mesh();
         mesh.name = "Seabed";
         mesh.vertices = new[] {
-            new Vector3(-extent, 0f, -extent), new Vector3(-extent, 0f, extent),
-            new Vector3(extent, 0f, extent), new Vector3(extent, 0f, -extent)
+            new Vector3(min.x, 0f, min.y), new Vector3(min.x, 0f, max.y),
+            new Vector3(max.x, 0f, max.y), new Vector3(max.x, 0f, min.y)
         };
         mesh.triangles = new[] { 0, 1, 2, 0, 2, 3 };
         mesh.RecalculateNormals();
@@ -209,8 +235,8 @@ public class HexPillarTerrain : MonoBehaviour {
         obj.GetComponent<MeshRenderer>().sharedMaterial = metalMaterial;
 
         var box = obj.GetComponent<BoxCollider>();
-        box.size = new Vector3(extent * 2f, 1f, extent * 2f);
-        box.center = Vector3.down * 0.5f;
+        box.size = new Vector3(max.x - min.x, 1f, max.y - min.y);
+        box.center = new Vector3((min.x + max.x) / 2f, -0.5f, (min.y + max.y) / 2f);
     }
 
     private void AddPillar(Vector3 center, float top) {

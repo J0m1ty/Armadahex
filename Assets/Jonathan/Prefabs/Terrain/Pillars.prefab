@@ -46,14 +46,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexPillarTerrain
   metalMaterial: {fileID: 2100000, guid: d3a6200d499c23442a110c63ae574b0a, type: 2}
   trimMaterial: {fileID: 2100000, guid: 7959eaccf6e2271468ddcece0f33f532, type: 2}
-  trimGlow: 3
+  topRimWidth: 0.18
   clearRadius: 4
   maxBlockedHexes: 40
   maxBoardHeight: 9
-  outerRadius: 19
+  wallRise: 5
+  wallWidth: 5
+  wallHeight: 160
+  tailLength: 16
+  tailSoftness: 4
   rangeNoiseScale: 0.004
-  maxRangeHeight: 190
   pillarInset: 1.5
   heightStep: 3
-  bandSpacing: 45
+  textureScale: 0.015
   seabedDepth: 40
