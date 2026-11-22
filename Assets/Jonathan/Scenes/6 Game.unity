@@ -2714,6 +2714,7 @@ MonoBehaviour:
   - teamType: 1
     teamBase: {fileID: 2142142763}
     isPlayer: 0
+  edgeColor: {r: 0.25, g: 0.8, b: 2.4, a: 1}
 --- !u!114 &224746699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7010,10 +7011,10 @@ MonoBehaviour:
   borderLayer: 12
   hasHeight: 1
   height: 150
-  noiseScale: 0.1
+  noiseScale: 0.008
   heightVariation:
-    Min: -5
-    Max: -2.5
+    Min: -4
+    Max: -3
   hexes:
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}

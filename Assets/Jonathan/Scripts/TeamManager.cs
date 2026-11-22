@@ -92,7 +92,8 @@ public class TeamManager : MonoBehaviour {
     public List<Team> teams;
 
     [SerializeField]
-    private Color edgeColor = new Color(0.08f, 0.25f, 0.7f);
+    [ColorUsage(false, true)]
+    private Color edgeColor = new Color(0.1f, 0.35f, 1f);
     
     public ShipManager shipManager { get; private set; }
 
@@ -143,8 +144,8 @@ public class TeamManager : MonoBehaviour {
                 hr.SetFogColorInstant(FogColor.Normal);
             }
 
-            if (team.isPlayer && Selector.instance != null) {
-                team.teamBase.hexMap.ShowEdgesOnly(Selector.instance.border.borderMaterial, edgeColor);
+            if (team.isPlayer) {
+                team.teamBase.hexMap.UseGlowTiles(Resources.Load<Material>("Hex Tile Glow"), edgeColor);
             }
         }
     }

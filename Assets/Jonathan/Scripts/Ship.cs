@@ -207,6 +207,11 @@ public class Ship : MonoBehaviour
 
         internals = GetComponentInChildren<ShipInternals>();
 
+        // the islands' shadows made ships nearly black, so keep them in their normal light
+        foreach (var shipRenderer in GetComponentsInChildren<Renderer>(true)) {
+            shipRenderer.receiveShadows = false;
+        }
+
         setToSunk = false;
 
         UpdateVisibility();
@@ -225,6 +230,8 @@ public class Ship : MonoBehaviour
         }
     }
 
+    private const float waterlineHeight = -0.75f;
+
     public bool SetOnGrid(GridUnit grid) {
         if (segments.Length != shipModel.length) {
             LoadSegments();
@@ -236,7 +243,10 @@ public class Ship : MonoBehaviour
 
         hasRestPose = false;
 
-        transform.position = hex.transform.position + (Vector3.up * 3f);
+        // float at the water line whatever the tile height (tiles step up and down under the water)
+        var position = hex.transform.position;
+        position.y = hex.hexMap.transform.position.y + waterlineHeight;
+        transform.position = position;
         transform.rotation = Quaternion.Euler(0, (int)rotation, 0);
 
         if (reverse) {

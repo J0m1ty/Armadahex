@@ -253,32 +253,22 @@ public class HexGrid : MonoBehaviour
         hexes.Add(gridUnit);
     }
 
-    // your own board: no filled cells, just a faint glowing edge on each hex at the water line,
-    // like the grid traced through the enemy's clouds
-    public void ShowEdgesOnly(Material edgeMaterial, Color color) {
-        var material = new Material(edgeMaterial);
-        material.name = "Hex Edge";
-        material.SetFloat("_Scale", 0.04f);
-        material.SetFloat("_BandGlow", 0f);
-        material.SetFloat("_Intensity", 0.8f);
-
+    // your own board: the tiles become one dark floor under the water, with a faint glow
+    // along each tile's top edges (like the pillar trim) instead of colored cells
+    public void UseGlowTiles(Material tileMaterial, Color edgeColor) {
         foreach (var hex in hexes) {
             var tile = hex.hexRenderer;
-            foreach (var fill in tile.GetComponentsInChildren<MeshRenderer>(true)) {
-                fill.enabled = false;
+            var material = new Material(tileMaterial);
+            material.name = "Hex Tile";
+            material.SetColor("_BaseColor", tile.material.GetColor("_BaseColor"));
+            material.SetColor("_EdgeColor", edgeColor);
+            material.SetFloat("_HexSize", size);
+            material.SetFloat("_TopY", tile.transform.position.y);
+
+            tile.SetMaterial(material);
+            foreach (var wall in tile.GetComponentsInChildren<HexBorder>(true)) {
+                wall.SetMaterial(material);
             }
-
-            var edge = new GameObject("Edge", typeof(HexBorder));
-            edge.layer = 2; // ignore raycast, the tile's collider still takes the hover
-            edge.transform.SetParent(tile.transform, false);
-
-            var border = edge.GetComponent<HexBorder>();
-            border.SetMaterial(material);
-            border.SetColor(color);
-            border.SetVisibility(true);
-            // a thin band just under the surface, so the water softens it
-            edge.transform.localPosition = Vector3.up * (-2.5f - tile.transform.position.y);
-            border.GenerateMesh(2f, size * 0.97f, isFlatTopped);
         }
     }
 

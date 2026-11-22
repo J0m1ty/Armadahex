@@ -22,6 +22,8 @@ public class HexPillarTerrain : MonoBehaviour {
     [SerializeField] private int tailLength = 22;
     [SerializeField] private float tailSoftness = 4f;
     [SerializeField] private float rangeNoiseScale = 0.004f;
+    // how many hexes the ranges take to step down to a channel, rather than a sheer cut
+    [SerializeField] private float channelSlope = 4f;
 
     [Header("Pillars")]
     [SerializeField] private float pillarInset = 1.5f;
@@ -77,6 +79,7 @@ public class HexPillarTerrain : MonoBehaviour {
         for (var i = 0; i < bays; i++) {
             var bay = edgeCells[rng.Next(edgeCells.Count)];
             var radius = rng.Next(1, 3);
+            var channelRadius = 1;
             // the bay keeps going out to open sea as a channel that wanders and swells like a river cut
             var pos = CellToLocal(bay);
             var heading = Mathf.Atan2(pos.z, pos.x);
@@ -91,7 +94,7 @@ public class HexPillarTerrain : MonoBehaviour {
                 heading = outward + Mathf.Clamp(Mathf.DeltaAngle(outward * Mathf.Rad2Deg, heading * Mathf.Rad2Deg) * Mathf.Deg2Rad, -0.9f, 0.9f);
 
                 var swell = Mathf.PerlinNoise(wander + 50f, j * 0.22f) * 2.5f;
-                clearZones.Add((ToCell(pos), radius + Mathf.RoundToInt(swell + Mathf.Min(j * 0.15f, 1.5f))));
+                clearZones.Add((ToCell(pos), channelRadius + Mathf.RoundToInt(swell * 0.4f + Mathf.Min(j * 0.04f, 0.6f))));
 
                 pos += new Vector3(Mathf.Cos(heading), 0f, Mathf.Sin(heading)) * size * 1.6f;
             }
@@ -141,7 +144,13 @@ public class HexPillarTerrain : MonoBehaviour {
                 var roll = rng.NextDouble();
                 var jitter = rng.Next(0, 3);
                 if (dist < wallStart || dist > outerRadius) continue;
-                if (clearZones.Exists(z => Distance(cell - z.cell) <= z.radius)) continue;
+                // channel floors stay open, and the ranges slope down to them
+                var channelEdge = int.MaxValue;
+                foreach (var zone in clearZones) {
+                    channelEdge = Mathf.Min(channelEdge, Distance(cell - zone.cell) - zone.radius);
+                }
+                if (channelEdge <= 0) continue;
+                var bank = Mathf.SmoothStep(0.15f, 1f, Mathf.Clamp01(channelEdge / channelSlope));
 
                 var pos = CellToLocal(cell);
                 if (others.Exists(o => Vector3.Distance(pos, o) < pos.magnitude + size)) continue;
@@ -156,7 +165,7 @@ public class HexPillarTerrain : MonoBehaviour {
                 var height = (wallHeight * rise + depth) / (1f + tail * tail) - depth;
                 if (dist < wallEnd) height = wallHeight * rise;
 
-                pillars[cell] = Step(height * (0.45f + noise * 0.75f) + jitter * heightStep);
+                pillars[cell] = Step((height * (0.45f + noise * 0.75f) + jitter * heightStep) * bank);
             }
         }
 
