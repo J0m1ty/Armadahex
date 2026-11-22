@@ -192,8 +192,11 @@ public class BotAI {
 
         foreach (var direction in pattern.directions) {
             var hex = center;
-            for (int i = 0; i < direction.length; i++) {
-                hex = neighbors[hex][AttackUIManager.Convert(direction.rotation, direction.reverse)];
+            for (int i = 0; i < direction.length && hex != null; i++) {
+                // spaced out patterns skip the hexes in between
+                for (int j = 0; j < Mathf.Max(1, direction.step) && hex != null; j++) {
+                    hex = neighbors[hex][AttackUIManager.Convert(direction.rotation, direction.reverse)];
+                }
                 if (hex == null) break;
                 cells.Add(hex);
             }

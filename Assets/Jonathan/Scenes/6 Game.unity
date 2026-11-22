@@ -2418,6 +2418,48 @@ MonoBehaviour:
       isScan: 0
       options: []
       isAllowed: 0
+    - name: Depth Charges
+      unlimited: 0
+      maxUses: 2
+      isScan: 0
+      options:
+      - name: Angle 1
+        directions:
+        - rotation: 0
+          reverse: 0
+          noRange: 0
+          length: 1
+          stopAtHit: 0
+          step: 1
+        - rotation: 60
+          reverse: 0
+          noRange: 0
+          length: 1
+          stopAtHit: 0
+          step: 1
+        doOffset: 0
+        attackCenter: 1
+        autoOptimize: 0
+        isInstant: 0
+      - name: Angle 2
+        directions:
+        - rotation: 0
+          reverse: 1
+          noRange: 0
+          length: 1
+          stopAtHit: 0
+          step: 1
+        - rotation: 60
+          reverse: 1
+          noRange: 0
+          length: 1
+          stopAtHit: 0
+          step: 1
+        doOffset: 0
+        attackCenter: 1
+        autoOptimize: 0
+        isInstant: 0
+      isAllowed: 1
   - name: Fast Attack Sub
     attackName: SUBMARINE
     type: 3
@@ -2431,45 +2473,96 @@ MonoBehaviour:
       isScan: 0
       options: []
       isAllowed: 0
-    - name: Torpedos
+    - name: Torpedo
       unlimited: 0
       maxUses: 2
       isScan: 0
       options:
-      - name: Pattern One
+      - name: Angle 1
         directions:
         - rotation: 0
           reverse: 0
           noRange: 1
           length: 0
           stopAtHit: 1
+          step: 1
         doOffset: 1
         attackCenter: 0
         autoOptimize: 1
         isInstant: 0
-      - name: Pattern Two
+      - name: Angle 2
         directions:
         - rotation: 60
           reverse: 0
           noRange: 1
           length: 0
           stopAtHit: 1
+          step: 1
         doOffset: 1
         attackCenter: 0
         autoOptimize: 1
         isInstant: 0
-      - name: Pattern Three
+      - name: Angle 3
         directions:
         - rotation: -60
           reverse: 0
           noRange: 1
           length: 0
           stopAtHit: 1
+          step: 1
         doOffset: 1
         attackCenter: 0
         autoOptimize: 1
         isInstant: 0
       isAllowed: 0
+    - name: Sonar Sweep
+      unlimited: 0
+      maxUses: 2
+      isScan: 1
+      options:
+      - name: Sonar Sweep
+        directions:
+        - rotation: 0
+          reverse: 0
+          noRange: 0
+          length: 1
+          stopAtHit: 0
+          step: 1
+        - rotation: 0
+          reverse: 1
+          noRange: 0
+          length: 1
+          stopAtHit: 0
+          step: 1
+        - rotation: 60
+          reverse: 0
+          noRange: 0
+          length: 1
+          stopAtHit: 0
+          step: 1
+        - rotation: 60
+          reverse: 1
+          noRange: 0
+          length: 1
+          stopAtHit: 0
+          step: 1
+        - rotation: -60
+          reverse: 0
+          noRange: 0
+          length: 1
+          stopAtHit: 0
+          step: 1
+        - rotation: -60
+          reverse: 1
+          noRange: 0
+          length: 1
+          stopAtHit: 0
+          step: 1
+        doOffset: 0
+        attackCenter: 1
+        autoOptimize: 0
+        isInstant: 0
+      isAllowed: 1
   - name: Missile Cruiser
     attackName: CRUISER
     type: 2
@@ -2483,60 +2576,66 @@ MonoBehaviour:
       isScan: 0
       options: []
       isAllowed: 0
-    - name: Harpoon Missiles
+    - name: Harpoons
       unlimited: 0
       maxUses: 2
       isScan: 0
       options:
-      - name: Pattern One
+      - name: Angle 1
         directions:
         - rotation: 0
           reverse: 0
           noRange: 0
-          length: 1
+          length: 2
           stopAtHit: 0
+          step: 1
         - rotation: 0
           reverse: 1
           noRange: 0
           length: 1
           stopAtHit: 0
+          step: 1
         doOffset: 0
         attackCenter: 1
         autoOptimize: 0
-        isInstant: 1
-      - name: Pattern Two
+        isInstant: 0
+      - name: Angle 2
         directions:
         - rotation: 60
           reverse: 0
           noRange: 0
-          length: 1
+          length: 2
           stopAtHit: 0
+          step: 1
         - rotation: 60
           reverse: 1
           noRange: 0
           length: 1
           stopAtHit: 0
+          step: 1
         doOffset: 0
         attackCenter: 1
         autoOptimize: 0
-        isInstant: 1
-      - name: Pattern Three
+        isInstant: 0
+      - name: Angle 3
         directions:
         - rotation: -60
           reverse: 0
           noRange: 0
-          length: 1
+          length: 2
           stopAtHit: 0
+          step: 1
         - rotation: -60
           reverse: 1
           noRange: 0
           length: 1
           stopAtHit: 0
+          step: 1
         doOffset: 0
         attackCenter: 1
         autoOptimize: 0
-        isInstant: 1
-      isAllowed: 0
+        isInstant: 0
+      isAllowed: 1
   - name: Battleship
     attackName: BATTLESHIP
     type: 1
@@ -2550,48 +2649,54 @@ MonoBehaviour:
       isScan: 0
       options: []
       isAllowed: 0
-    - name: Tomahawk Missile
+    - name: Barrage
       unlimited: 0
       maxUses: 1
       isScan: 0
       options:
-      - name: Pattern One
+      - name: Barrage
         directions:
         - rotation: 0
           reverse: 0
           noRange: 0
           length: 1
           stopAtHit: 0
+          step: 1
         - rotation: 0
           reverse: 1
           noRange: 0
           length: 1
           stopAtHit: 0
+          step: 1
         - rotation: 60
           reverse: 0
           noRange: 0
           length: 1
           stopAtHit: 0
+          step: 1
         - rotation: 60
           reverse: 1
           noRange: 0
           length: 1
           stopAtHit: 0
+          step: 1
         - rotation: -60
           reverse: 0
           noRange: 0
           length: 1
           stopAtHit: 0
+          step: 1
         - rotation: -60
           reverse: 1
           noRange: 0
           length: 1
           stopAtHit: 0
+          step: 1
         doOffset: 0
         attackCenter: 1
         autoOptimize: 0
         isInstant: 0
-      isAllowed: 0
+      isAllowed: 1
   - name: Aircraft Carrier
     attackName: CARRIER
     type: 0
@@ -2605,54 +2710,120 @@ MonoBehaviour:
       isScan: 0
       options: []
       isAllowed: 0
-    - name: Bombing Run
+    - name: Air Strike
       unlimited: 0
       maxUses: 2
       isScan: 0
       options:
-      - name: Pattern One
+      - name: Angle 1
         directions:
         - rotation: 0
           reverse: 0
           noRange: 0
           length: 1
           stopAtHit: 0
+          step: 2
+        - rotation: -60
+          reverse: 1
+          noRange: 0
+          length: 1
+          stopAtHit: 0
+          step: 2
         - rotation: 60
           reverse: 1
           noRange: 0
           length: 1
           stopAtHit: 0
-        - rotation: -60
-          reverse: 0
-          noRange: 0
-          length: 1
-          stopAtHit: 0
+          step: 2
         doOffset: 0
-        attackCenter: 0
+        attackCenter: 1
         autoOptimize: 0
         isInstant: 0
-      - name: Pattern Two
+      - name: Angle 2
         directions:
         - rotation: 0
           reverse: 1
           noRange: 0
           length: 1
           stopAtHit: 0
+          step: 2
+        - rotation: -60
+          reverse: 0
+          noRange: 0
+          length: 1
+          stopAtHit: 0
+          step: 2
         - rotation: 60
           reverse: 0
           noRange: 0
           length: 1
           stopAtHit: 0
-        - rotation: -60
-          reverse: 1
-          noRange: 0
-          length: 1
-          stopAtHit: 0
+          step: 2
         doOffset: 0
-        attackCenter: 0
+        attackCenter: 1
         autoOptimize: 0
         isInstant: 0
-      isAllowed: 0
+      isAllowed: 1
+    - name: Bombing Run
+      unlimited: 0
+      maxUses: 1
+      isScan: 0
+      options:
+      - name: Angle 1
+        directions:
+        - rotation: 0
+          reverse: 0
+          noRange: 1
+          length: 0
+          stopAtHit: 0
+          step: 2
+        - rotation: 0
+          reverse: 1
+          noRange: 1
+          length: 0
+          stopAtHit: 0
+          step: 2
+        doOffset: 0
+        attackCenter: 1
+        autoOptimize: 0
+        isInstant: 0
+      - name: Angle 2
+        directions:
+        - rotation: 60
+          reverse: 0
+          noRange: 1
+          length: 0
+          stopAtHit: 0
+          step: 2
+        - rotation: 60
+          reverse: 1
+          noRange: 1
+          length: 0
+          stopAtHit: 0
+          step: 2
+        doOffset: 0
+        attackCenter: 1
+        autoOptimize: 0
+        isInstant: 0
+      - name: Angle 3
+        directions:
+        - rotation: -60
+          reverse: 0
+          noRange: 1
+          length: 0
+          stopAtHit: 0
+          step: 2
+        - rotation: -60
+          reverse: 1
+          noRange: 1
+          length: 0
+          stopAtHit: 0
+          step: 2
+        doOffset: 0
+        attackCenter: 1
+        autoOptimize: 0
+        isInstant: 0
+      isAllowed: 1
   rotations: 000000003c000000c4ffffff
   ships: []
 --- !u!4 &224746696

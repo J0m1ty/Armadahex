@@ -47,7 +47,13 @@ public class Fog {
     public float TargetCover() {
         if (cleared || !hex.gameObject.activeSelf) return 0;
 
-        switch (current) {
+        // an override can thin the clouds but never thicken them past what the hex already shows
+        var cover = Cover(baseColor);
+        return overrideColor.HasValue ? Mathf.Min(cover, Cover(overrideColor.Value)) : cover;
+    }
+
+    private float Cover(FogColor color) {
+        switch (color) {
             case FogColor.Hit:
                 return 0.15f;
             case FogColor.Scan:

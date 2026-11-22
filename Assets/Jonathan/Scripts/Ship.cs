@@ -25,6 +25,8 @@ public class AttackDirection {
     [MyBox.ConditionalField(nameof(noRange), true)]
     public int length;
     public bool stopAtHit;
+    // hexes between hits along this direction, 2 hits every other hex
+    public int step = 1;
 }
 
 [Serializable]

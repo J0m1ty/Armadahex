@@ -74,6 +74,18 @@ public class ShotEffects : MonoBehaviour
         }
     }
 
+    public static Color contactColor = new Color(0.3f, 0.6f, 2.5f);
+
+    // a sonar contact: a blue peg in the middle of the sweep, nothing was hit
+    public static void Contact(HexRenderer hex) {
+        if (hex == null || Selector.instance == null) return;
+        var effects = Get();
+        var size = hex.size;
+
+        effects.pegs[hex] = effects.Spawn(hex, contactColor, size * 0.2f, size * 0.2f, 0f, 40f, 0.4f, false);
+        effects.Spawn(hex, contactColor, size * 0.5f, size * 3f, 10f, 2f, 0.9f, true);
+    }
+
     // an enemy ship that just sank shows itself: drop its pegs and light the whole hull
     public static void Revealed(Ship ship) {
         var effects = Get();

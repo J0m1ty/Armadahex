@@ -181,8 +181,8 @@ public class Selector : MonoBehaviour
                 return;
             }
 
+            // a lock parts the clouds over the hex and puts up the tall beam
             if (selectedHex != null) selectedHex.RemoveFogOverrideColor();
-
             selectedHex = hex;
             HoverClouds(hex);
             playerHexHighlight.transform.position = hex.transform.position;

@@ -185,6 +185,7 @@ public class TurnManager : MonoBehaviour
         // your whole turn happens on the enemy board, you only go home to watch their shots
         if (GameModeInfo.instance.IsAdvancedCombat) {
             CameraManager.instance.MoveTo(TurnManager.instance.enemyTeam.teamBase.transform.position);
+            CameraManager.instance.Frame(TurnManager.instance.enemyTeam.teamBase.transform.position, 1000f);
         }
         else {
             CameraManager.instance.MoveToInstant(TurnManager.instance.enemyTeam.teamBase.transform.position);
