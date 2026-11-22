@@ -6,8 +6,7 @@ Shader "Armadahex/Pillar Trim"
         _Glow ("Glow", Float) = 2
         _PulseGlow ("Pulse Glow", Float) = 5
         _PulsePeriod ("Pulse Period", Float) = 7
-        _PulseWavelength ("Pulse Wavelength", Float) = 260
-        _PulseSharpness ("Pulse Sharpness", Float) = 6
+        _PulseWidth ("Pulse Width", Range(0.01, 1)) = 0.08
     }
 
     SubShader
@@ -30,14 +29,13 @@ Shader "Armadahex/Pillar Trim"
             float _Glow;
             float _PulseGlow;
             float _PulsePeriod;
-            float _PulseWavelength;
-            float _PulseSharpness;
+            float _PulseWidth;
             CBUFFER_END
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
-                // x: distance along the contour line this rim is part of
+                // x: distance along the contour, in pulses
                 float2 glowData : TEXCOORD1;
             };
 
@@ -60,9 +58,10 @@ Shader "Armadahex/Pillar Trim"
 
             half4 frag(Varyings input) : SV_Target
             {
-                // light running along the contour lines
-                float phase = (input.along / _PulseWavelength - _Time.y / _PulsePeriod) * TWO_PI;
-                float pulse = pow(0.5 + 0.5 * sin(phase), _PulseSharpness);
+                // a short bright stretch running along each contour, the rest stays its side color
+                float f = frac(input.along - _Time.y / _PulsePeriod);
+                float pulse = saturate(1 - abs(f - 0.5) * 2 / _PulseWidth);
+                pulse *= pulse;
                 half3 color = _BaseColor.rgb * (_Glow + _PulseGlow * pulse);
                 color = MixFog(color, input.fogFactor);
                 return half4(color, 1);

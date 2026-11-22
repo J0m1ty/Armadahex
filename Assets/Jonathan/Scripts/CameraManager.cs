@@ -58,16 +58,6 @@ public class CameraManager : MonoBehaviour
     private float frameRadius;
     private ShipManager shipManager;
 
-    [Header("Top View Map")]
-    // the pillars sink into flat islands while looking from the top, so the board reads cleanly
-    [SerializeField]
-    private float sunkScale = 0.06f;
-    // all the way under the water, so only a faint glow shows through
-    [SerializeField]
-    private float sunkDepth = 14f;
-    [SerializeField]
-    private float sinkTime = 0.6f;
-    private float sunk;
 
     // shots landing within a moment of each other are one volley
     private Bounds? volley;
@@ -105,18 +95,9 @@ public class CameraManager : MonoBehaviour
     }
 
     void Update() {
-        var playing = TurnManager.instance != null && TurnManager.instance.gameActive;
-
         // not during the intro, it still has the rig cameras switched off
-        if (switchViewAction.WasPressedThisFrame() && playing) {
+        if (switchViewAction.WasPressedThisFrame() && TurnManager.instance != null && TurnManager.instance.gameActive) {
             SetCameraState(state == CameraState.Side ? CameraState.Top : CameraState.Side);
-        }
-
-        var target = state == CameraState.Top && playing ? 1f : 0f;
-        if (sunk != target) {
-            sunk = Mathf.MoveTowards(sunk, target, Time.deltaTime / sinkTime);
-            var k = Mathf.SmoothStep(0f, 1f, sunk);
-            HexPillarTerrain.Sink(Mathf.Lerp(1f, sunkScale, k), sunkDepth * k);
         }
     }
 

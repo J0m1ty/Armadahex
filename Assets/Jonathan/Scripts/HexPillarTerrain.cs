@@ -31,21 +31,12 @@ public class HexPillarTerrain : MonoBehaviour {
     [SerializeField] private float contourStep = 30f;
     // gap between neighbouring range pillars, 0 joins a level into one flat terrace
     [SerializeField] private float rangeInset = 0f;
+    // about how far apart the pulses running along a contour are
+    [SerializeField] private float pulseSpacing = 400f;
     // tops this close to the water get washed over by the waves, so they're lifted clear or sunk
     [SerializeField] private float waterClearance = 1.5f;
     [SerializeField] private float textureScale = 0.015f;
     [SerializeField] private float seabedDepth = 40f;
-
-    // every board's pillar mesh, so the top view can sink them all
-    private static readonly List<Transform> pillarMeshes = new List<Transform>();
-
-    public static void Sink(float heightScale, float depth) {
-        pillarMeshes.RemoveAll(p => p == null);
-        foreach (var pillars in pillarMeshes) {
-            pillars.localScale = new Vector3(1f, heightScale, 1f);
-            pillars.localPosition = new Vector3(0f, -depth, 0f);
-        }
-    }
 
     private static readonly Vector2Int[] directions = {
         new Vector2Int(1, 0), new Vector2Int(1, -1), new Vector2Int(0, -1),
@@ -183,21 +174,13 @@ public class HexPillarTerrain : MonoBehaviour {
             }
         }
 
-        // a few spots out in the ranges the trim glow breathes out from
-        var sources = new Vector4[3];
-        for (var i = 0; i < sources.Length; i++) {
-            var angle = (float)rng.NextDouble() * Mathf.PI * 2f;
-            var distance = (boardRadius + 2 + rng.Next(0, 6)) * size * Mathf.Sqrt(3f);
-            sources[i] = new Vector4(Mathf.Cos(angle) * distance, Mathf.Sin(angle) * distance, (float)rng.NextDouble(), 0f);
-        }
-
-        BuildMesh(pillars, blocked, teamBase, sources);
+        BuildMesh(pillars, blocked, teamBase);
         BuildSeabed(outerRadius, others);
 
         Physics.SyncTransforms();
     }
 
-    private void BuildMesh(Dictionary<Vector2Int, float> pillars, HashSet<Vector2Int> onBoard, TeamBase teamBase, Vector4[] sources) {
+    private void BuildMesh(Dictionary<Vector2Int, float> pillars, HashSet<Vector2Int> onBoard, TeamBase teamBase) {
         vertices = new List<Vector3>();
         normals = new List<Vector3>();
         uvs = new List<Vector2>();
@@ -213,7 +196,8 @@ public class HexPillarTerrain : MonoBehaviour {
             radii[pillar.Key] = onBoard.Contains(pillar.Key) ? size * boardPillarScale : size - rangeInset;
         }
 
-        // a level is outlined only where it drops to a lower one, so each height gets one contour line
+        // each level is outlined wherever its neighbour is at another height (or missing),
+        // so every level set gets closed boundary curves, at the top of a drop and the foot of a rise
         var rims = new Dictionary<(Vector2Int, int), Vector3[]>();
         foreach (var pillar in pillars) {
             var center = CellToLocal(pillar.Key);
@@ -223,8 +207,7 @@ public class HexPillarTerrain : MonoBehaviour {
                 var joined = pillars.TryGetValue(next, out var other)
                     && Mathf.Abs(other - pillar.Value) < 0.01f
                     && !onBoard.Contains(pillar.Key) && !onBoard.Contains(next);
-                var lower = other < pillar.Value - 0.01f || !pillars.ContainsKey(next);
-                if (joined || (!lower && !onBoard.Contains(pillar.Key))) continue;
+                if (joined) continue;
 
                 rims[(pillar.Key, k)] = new[] {
                     center + Corner(k, radius) + Vector3.up * pillar.Value,
@@ -233,15 +216,17 @@ public class HexPillarTerrain : MonoBehaviour {
             }
         }
 
-        var along = ChainContours(rims);
-
         foreach (var pillar in pillars) {
             var center = CellToLocal(pillar.Key);
             var radius = radii[pillar.Key];
-            AddPillar(pillar.Key, center, pillar.Value, radius, along);
+            AddPillar(center, pillar.Value, radius);
 
             // foam around everything that breaks the surface
             if (pillar.Value > 0f) ShoreFoam.Add(transform.position + center, radius, color);
+        }
+
+        foreach (var contour in ChainContours(rims)) {
+            AddContour(contour, rims, radii);
         }
 
         var mesh = new Mesh();
@@ -260,14 +245,12 @@ public class HexPillarTerrain : MonoBehaviour {
         obj.layer = gameObject.layer;
         obj.transform.SetParent(transform, false);
         obj.GetComponent<MeshFilter>().sharedMesh = mesh;
-        pillarMeshes.Add(obj.transform);
 
         var meshRenderer = obj.GetComponent<MeshRenderer>();
         meshRenderer.sharedMaterials = new[] { metalMaterial, trimMaterial };
 
         var block = new MaterialPropertyBlock();
         block.SetColor("_BaseColor", color);
-        block.SetVectorArray("_PulseSources", sources);
         meshRenderer.SetPropertyBlock(block, 1);
     }
 
@@ -315,8 +298,8 @@ public class HexPillarTerrain : MonoBehaviour {
         new Vector2Int(-1, 0), new Vector2Int(0, -1), new Vector2Int(1, -1)
     };
 
-    // links rim edges end to start into contour lines, and gives each edge its distance along its line
-    private Dictionary<(Vector2Int, int), float> ChainContours(Dictionary<(Vector2Int, int), Vector3[]> rims) {
+    // links rim edges end to start into the boundary curves of each level
+    private List<List<(Vector2Int, int)>> ChainContours(Dictionary<(Vector2Int, int), Vector3[]> rims) {
         var starts = new Dictionary<Vector3Int, List<(Vector2Int, int)>>();
         foreach (var rim in rims) {
             var key = Key(rim.Value[0]);
@@ -324,42 +307,109 @@ public class HexPillarTerrain : MonoBehaviour {
             list.Add(rim.Key);
         }
 
-        var along = new Dictionary<(Vector2Int, int), float>();
+        var used = new HashSet<(Vector2Int, int)>();
+        var contours = new List<List<(Vector2Int, int)>>();
         foreach (var first in rims.Keys) {
-            if (along.ContainsKey(first)) continue;
+            if (used.Contains(first)) continue;
 
+            var contour = new List<(Vector2Int, int)>();
             var edge = first;
-            var length = 0f;
             while (true) {
-                along[edge] = length;
-                var points = rims[edge];
-                length += Vector3.Distance(points[0], points[1]);
+                used.Add(edge);
+                contour.Add(edge);
 
-                if (!starts.TryGetValue(Key(points[1]), out var nexts)) break;
+                if (!starts.TryGetValue(Key(rims[edge][1]), out var nexts)) break;
                 var found = false;
                 foreach (var next in nexts) {
-                    if (along.ContainsKey(next)) continue;
+                    if (used.Contains(next)) continue;
                     edge = next;
                     found = true;
                     break;
                 }
                 if (!found) break;
             }
+            contours.Add(contour);
         }
-        return along;
+        return contours;
     }
 
+    // corners are at least a hex side apart, so half a unit is plenty to match them
     private static Vector3Int Key(Vector3 point) {
-        return new Vector3Int(Mathf.RoundToInt(point.x * 10f), Mathf.RoundToInt(point.y * 10f), Mathf.RoundToInt(point.z * 10f));
+        return new Vector3Int(Mathf.RoundToInt(point.x * 2f), Mathf.RoundToInt(point.y * 2f), Mathf.RoundToInt(point.z * 2f));
     }
 
-    private void AddPillar(Vector2Int cell, Vector3 center, float top, float radius, Dictionary<(Vector2Int, int), float> along) {
+    // one glowing band along a boundary curve, mitred at every corner so neighbouring hexes merge,
+    // with the distance along it (in pulses) for the trim shader
+    private void AddContour(List<(Vector2Int, int)> contour, Dictionary<(Vector2Int, int), Vector3[]> rims, Dictionary<Vector2Int, float> radii) {
+        var count = contour.Count;
+        var closed = Key(rims[contour[count - 1]][1]) == Key(rims[contour[0]][0]);
+
+        // the edges run counterclockwise around their level, so the inside is on the left
+        var inward = new Vector3[count];
+        var length = 0f;
+        for (var i = 0; i < count; i++) {
+            var points = rims[contour[i]];
+            var direction = points[1] - points[0];
+            direction.y = 0f;
+            length += direction.magnitude;
+            direction.Normalize();
+            inward[i] = new Vector3(-direction.z, 0f, direction.x);
+        }
+
+        // a closed curve holds a whole number of pulses, so they run around it without a seam
+        var pulses = closed ? Mathf.Max(1f, Mathf.Round(length / pulseSpacing)) : length / pulseSpacing;
+        var scale = pulses / length;
+
+        var along = 0f;
+        for (var i = 0; i < count; i++) {
+            var points = rims[contour[i]];
+            var width = radii[contour[i].Item1] * topRimWidth;
+            var edgeLength = Vector3.Distance(points[0], points[1]);
+
+            var before = i > 0 ? i - 1 : (closed ? count - 1 : -1);
+            var after = i < count - 1 ? i + 1 : (closed ? 0 : -1);
+            var startInner = points[0] + Mitre(inward[i], before >= 0 ? inward[before] : inward[i]) * width;
+            var endInner = points[1] + Mitre(inward[i], after >= 0 ? inward[after] : inward[i]) * width;
+
+            // lifted a hair over the cap so they don't fight
+            var lift = Vector3.up * 0.05f;
+            var v = vertices.Count;
+            AddTrimVertex(startInner + lift, along * scale);
+            AddTrimVertex(points[0] + lift, along * scale);
+            AddTrimVertex(points[1] + lift, (along + edgeLength) * scale);
+            AddTrimVertex(endInner + lift, (along + edgeLength) * scale);
+
+            trimTris.Add(v);
+            trimTris.Add(v + 2);
+            trimTris.Add(v + 1);
+            trimTris.Add(v);
+            trimTris.Add(v + 3);
+            trimTris.Add(v + 2);
+
+            along += edgeLength;
+        }
+    }
+
+    // the inner corner offset for a band of width 1 where two edges meet
+    private static Vector3 Mitre(Vector3 inward, Vector3 other) {
+        var bisector = (inward + other).normalized;
+        if (bisector == Vector3.zero) return inward;
+        return bisector / Mathf.Max(Vector3.Dot(bisector, inward), 0.3f);
+    }
+
+    private void AddTrimVertex(Vector3 point, float along) {
+        vertices.Add(point);
+        normals.Add(Vector3.up);
+        uvs.Add(new Vector2(point.x, point.z) * textureScale);
+        glowData.Add(new Vector2(along, 1f));
+    }
+
+    private void AddPillar(Vector3 center, float top, float radius) {
         var bottom = -seabedDepth;
 
         AddRing(center, radius, bottom, top, metalTris);
 
-        // metal cap, with a glowing rim only along the edges that drop to a lower level
-        var inner = radius * (1f - topRimWidth);
+        // metal cap, the glowing outlines are added along each level's boundary afterwards
         var c = vertices.Count;
         AddTop(center, Vector3.zero, top);
         for (var k = 0; k < 6; k++) AddTop(center, Corner(k, radius), top);
@@ -369,29 +419,6 @@ public class HexPillarTerrain : MonoBehaviour {
             metalTris.Add(c + 1 + k);
         }
         for (var i = c; i < vertices.Count; i++) glowData.Add(Vector2.zero);
-
-        for (var k = 0; k < 6; k++) {
-            if (!along.TryGetValue((cell, k), out var start)) continue;
-            var end = start + Vector3.Distance(Corner(k, radius), Corner(k + 1, radius));
-
-            // lifted a hair over the cap so they don't fight
-            var i = vertices.Count;
-            AddTop(center, Corner(k, inner), top + 0.05f);
-            AddTop(center, Corner(k, radius), top + 0.05f);
-            AddTop(center, Corner(k + 1, radius), top + 0.05f);
-            AddTop(center, Corner(k + 1, inner), top + 0.05f);
-            glowData.Add(new Vector2(start, 1f));
-            glowData.Add(new Vector2(start, 1f));
-            glowData.Add(new Vector2(end, 1f));
-            glowData.Add(new Vector2(end, 1f));
-
-            trimTris.Add(i);
-            trimTris.Add(i + 2);
-            trimTris.Add(i + 1);
-            trimTris.Add(i);
-            trimTris.Add(i + 3);
-            trimTris.Add(i + 2);
-        }
     }
 
     private void AddTop(Vector3 center, Vector3 corner, float top) {
