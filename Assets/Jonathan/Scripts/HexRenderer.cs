@@ -24,7 +24,6 @@ public class Fog {
     public FogColor baseColor = FogColor.Normal;
     public FogColor? overrideColor = null;
     public Color customColor = Color.white;
-    public int pulseOrder = -1; // steps along an attack preview, so a pulse can travel down it
     public bool cleared;
 
     public HexRenderer hex { get; private set; }
@@ -166,11 +165,10 @@ public class HexRenderer : MonoBehaviour
         fog.glow = fog.TargetGlow();
     }
 
-    public void SetCustomFogColor(Color color, int pulseOrder = -1) {
+    public void SetCustomFogColor(Color color) {
         if (fog == null || !gameObject.activeSelf) return;
         
         fog.customColor = color;
-        fog.pulseOrder = pulseOrder;
         fog.overrideColor = FogColor.Custom;
         fog.glow = fog.TargetGlow();
     }

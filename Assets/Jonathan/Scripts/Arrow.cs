@@ -115,6 +115,20 @@ public class Arrow : MonoBehaviour
         backRenderer.sharedMaterial.color = color;
     }
 
+    [SerializeField]
+    private float growTime = 0.3f;
+    private float growLength;
+    private SliderPos growPos;
+    private float growStart = -1;
+
+    // grow out from the target instead of popping in
+    void Update() {
+        if (growStart < 0) return;
+        var t = Mathf.Clamp01((Time.time - growStart) / growTime);
+        SetLength(growLength * (1 - Mathf.Pow(1 - t, 3)), growPos);
+        if (t >= 1) growStart = -1;
+    }
+
     public void SetArrow(Rotation rotation, bool reverse, float length, SliderPos spos) {
         transform.localPosition = Vector3.zero;
 
@@ -138,6 +152,9 @@ public class Arrow : MonoBehaviour
         r = CoordinateSystem.Mod(r, 360);
 
         transform.localRotation = Quaternion.Euler(0, r - 30, 0);
-        SetLength(length, spos);
+        SetLength(0, spos);
+        growLength = length;
+        growPos = spos;
+        growStart = Time.time;
     }
 }

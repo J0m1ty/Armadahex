@@ -6,9 +6,9 @@ Shader "Armadahex/Arrow Flow"
     {
         [MainColor] [HDR] _BaseColor ("Color", Color) = (0.94, 0.38, 0, 1)
         _Brightness ("Brightness", Float) = 1.3
-        _BandSpacing ("Band Spacing", Float) = 14
-        _BandSpeed ("Band Speed", Float) = 1.4
-        _BandGlow ("Band Glow", Float) = 2.5
+        _BandSpacing ("Band Spacing", Float) = 22
+        _BandSpeed ("Band Speed", Float) = 0.5
+        _BandGlow ("Band Glow", Float) = 0.45
     }
 
     SubShader
@@ -62,8 +62,9 @@ Shader "Armadahex/Arrow Flow"
             {
                 // distance along the arrow, 0 at the head, negative down the shaft
                 float along = dot(input.positionWS - _FlowOrigin.xyz, _FlowDir.xyz);
+                // a slow, soft shimmer toward the head
                 float band = frac(along / _BandSpacing - _Time.y * _BandSpeed);
-                float bands = pow(band, 5) * _BandGlow;
+                float bands = smoothstep(0, 0.5, band) * smoothstep(1, 0.5, band) * _BandGlow;
 
                 // a little facing shade so the arrow still reads as a solid shape
                 float3 viewDir = normalize(GetCameraPositionWS() - input.positionWS);

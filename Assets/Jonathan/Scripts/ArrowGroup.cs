@@ -133,16 +133,14 @@ public class ArrowGroup : MonoBehaviour
 
                 // color each hex
                 var colorHex = originHex;
-                var order = 0;
                 while (true) {
                     var thisDistance = Vector3.Magnitude(selectedTarget.hexRenderer.transform.position - colorHex.hexRenderer.transform.position);
 
                     if (colorHex != selectedTarget) {
-                        colorHex.hexRenderer.SetCustomFogColor(Color.Lerp(FogState.friendlySelected, FogState.fogNormal, Mathf.Clamp01(LODMeshGenerator.Map(Mathf.Abs(overallLength - thisDistance), 0, overallLength, 1, 0))), order);
+                        colorHex.hexRenderer.SetCustomFogColor(Color.Lerp(FogState.friendlySelected, FogState.fogNormal, Mathf.Clamp01(LODMeshGenerator.Map(Mathf.Abs(overallLength - thisDistance), 0, overallLength, 1, 0))));
                     }
 
                     var next = colorHex.GetNeighbor(AttackUIManager.Convert(dir.rotation, rev));
-                    order++;
                     if (next != null) {
                         colorHex = next;
                     }
@@ -161,7 +159,7 @@ public class ArrowGroup : MonoBehaviour
                     var next = originHex.GetNeighbor(AttackUIManager.Convert(dir.rotation, rev));
                     if (next != null) {
                         originHex = next;
-                        originHex.hexRenderer.SetCustomFogColor(Color.Lerp(FogState.friendlySelected, FogState.fogNormal, 0.5f), i + 1);
+                        originHex.hexRenderer.SetCustomFogColor(Color.Lerp(FogState.friendlySelected, FogState.fogNormal, 0.5f));
                     }
                     else {
                         break;
