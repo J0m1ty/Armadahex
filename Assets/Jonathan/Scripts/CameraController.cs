@@ -63,6 +63,8 @@ public class CameraController : MonoBehaviour
     [SerializeField]
     private Vector3 center;
     private Vector3 newCenter;
+    // the center added last frame, so a hop or jump moves the rig instead of dragging behind it
+    private Vector3 appliedCenter;
     [SerializeField]
     private float transportTime;
 
@@ -97,12 +99,12 @@ public class CameraController : MonoBehaviour
     }
 
     void LateUpdate() {
-        if (TurnManager.instance.gameActive) {
+        if (TurnManager.instance != null && TurnManager.instance.gameActive) {
             HandleMouseInput();
             HandleKeyboardInput();
         }
 
-        transform.position -= center;
+        transform.position -= appliedCenter;
 
         newZoom = newZoom.normalized * Mathf.Clamp(newZoom.magnitude, zoomRange.Min + distanceOffset, zoomRange.Max + distanceOffset);
 
@@ -132,6 +134,15 @@ public class CameraController : MonoBehaviour
         }
 
         transform.position += center;
+        appliedCenter = center;
+    }
+
+    void OnDisable() {
+        // switching views stops the hop coroutine, so land it rather than freeze mid-air
+        if (hop != null) {
+            hop = null;
+            center = newCenter;
+        }
     }
 
     void HandleMouseInput() {
@@ -224,6 +235,9 @@ public class CameraController : MonoBehaviour
     }
 
     public void MoveTo(Vector3 position) {
+        // already there or on the way, keep the player's panning and don't restart the hop
+        if (AlreadyAt(position)) return;
+
         newPosition = new Vector3(0, 0, 0);
         newCenter = position;
 
@@ -240,7 +254,9 @@ public class CameraController : MonoBehaviour
             hop = null;
         }
 
-        newPosition = new Vector3(0, 0, 0);
+        if (!AlreadyAt(position)) {
+            newPosition = new Vector3(0, 0, 0);
+        }
         newCenter = position;
         center = newCenter;
     }

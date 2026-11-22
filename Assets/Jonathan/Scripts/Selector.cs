@@ -121,7 +121,7 @@ public class Selector : MonoBehaviour
             lastMovedFrames++;
         }
 
-        if (IsPointerOverUIObject() || !TurnManager.instance.gameActive) {
+        if (IsPointerOverUIObject() || TurnManager.instance == null || !TurnManager.instance.gameActive) {
             return;
         }
         
