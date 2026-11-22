@@ -73,6 +73,8 @@ public class Selector : MonoBehaviour
         }
         
         hexBorder = playerHexHighlight.GetComponent<HexBorder>();
+        // stay hidden until the mouse is over a hex
+        hexBorder.SetVisibility(false);
     }
 
     void Start() {
