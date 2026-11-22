@@ -57,6 +57,8 @@ public class PregameManager : MonoBehaviour
     private float fadeInDuration = 1f;
     [SerializeField]
     private bool fadedIn;
+    [SerializeField]
+    private IntroCamera introCamera;
 
     [Header("Player Info")]
     [SerializeField]
@@ -213,6 +215,7 @@ public class PregameManager : MonoBehaviour
         StartCountdown(() => {
             pregameDisplay.SetActive(false);
             uiDisplay.SetActive(true);
+            if (introCamera != null) introCamera.End();
             TurnManager.instance.StartGame();
         });
     }
