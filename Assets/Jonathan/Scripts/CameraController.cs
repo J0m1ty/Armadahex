@@ -17,6 +17,15 @@ public struct Vector3Range
     }
 }
 
+public enum CameraControl {
+    // wasd pans, q and e rotate, scroll zooms
+    Free,
+    // the player can't move it, it frames the board and follows the shots
+    Fixed,
+    // a and d orbit the pivot, w and s pull in and out
+    Orbit
+}
+
 public class CameraController : MonoBehaviour
 {
     public GameObject followChild;
@@ -83,6 +92,29 @@ public class CameraController : MonoBehaviour
     private bool hopUp = true;
     private Coroutine hop;
 
+    [Header("Control")]
+    [SerializeField]
+    private CameraControl control = CameraControl.Free;
+    // degrees per second
+    [SerializeField]
+    private float orbitSpeed = 70f;
+    // whole pulls per second
+    [SerializeField]
+    private float pullSpeed = 0.7f;
+    // the view angle down at the board, closest and farthest
+    [SerializeField]
+    private float closePitch = 12f;
+    [SerializeField]
+    private float farPitch = 38f;
+    // 0 is pulled all the way in, 1 all the way out
+    private float pull = 1f;
+    private float pullVelocity;
+    private float targetPull = 1f;
+
+    public bool isFixed {
+        get { return control == CameraControl.Fixed; }
+    }
+
     [Header("Board Fit")]
     // the farthest zoom frames the whole board, so every shot is in view without panning
     [SerializeField]
@@ -111,6 +143,7 @@ public class CameraController : MonoBehaviour
     private Coroutine focus;
     private Vector3 focusReturnPosition;
     private Vector3 focusReturnZoom;
+    private float focusReturnPull;
 
     private InputAction moveAction;
     private InputAction fastAction;
@@ -148,14 +181,26 @@ public class CameraController : MonoBehaviour
 
     void LateUpdate() {
         if (TurnManager.instance != null && TurnManager.instance.gameActive) {
-            HandleMouseInput();
-            HandleKeyboardInput();
+            switch (control) {
+                case CameraControl.Free:
+                    HandleMouseInput();
+                    HandleKeyboardInput();
+                    break;
+                case CameraControl.Orbit:
+                    HandleOrbitInput();
+                    break;
+            }
         }
 
         transform.position -= appliedCenter;
 
         if (fitBoard) {
             FitBoard();
+        }
+
+        if (control == CameraControl.Orbit && boardRadius > 0) {
+            pull = Mathf.SmoothDamp(pull, targetPull, ref pullVelocity, 0.15f);
+            newZoom = PullOffset(pull);
         }
 
         newZoom = newZoom.normalized * Mathf.Clamp(newZoom.magnitude, zoomRange.Min + distanceOffset, zoomRange.Max + distanceOffset);
@@ -253,6 +298,44 @@ public class CameraController : MonoBehaviour
         return radius;
     }
 
+    // the camera's offset from the pivot at a pull, lower and closer when pulled in
+    private Vector3 PullOffset(float at) {
+        var distance = Mathf.Lerp(zoomRange.Min, zoomRange.Max, at);
+        var pitch = Mathf.Lerp(closePitch, farPitch, at) * Mathf.Deg2Rad;
+        return new Vector3(0, Mathf.Sin(pitch), -Mathf.Cos(pitch)) * distance;
+    }
+
+    void HandleOrbitInput() {
+        Vector2 move = moveAction.ReadValue<Vector2>();
+        float rotate = rotateAction.ReadValue<float>();
+        float scroll = zoomAction.ReadValue<float>();
+
+        if (move != Vector2.zero || rotate != 0 || scroll != 0) {
+            // the player took over, stay where they put it
+            StopFocus(false);
+        }
+
+        float speed = fastAction.IsPressed() ? shiftMultiplier : 1f;
+
+        // a and d, or q and e, go around the pivot
+        newRotation *= Quaternion.Euler(Vector3.up * (rotate - move.x) * orbitSpeed * speed * Time.deltaTime);
+
+        // w and s pull in and out, the same as the scroll wheel
+        targetPull = Mathf.Clamp01(targetPull - move.y * pullSpeed * speed * Time.deltaTime - scroll * zoomStep);
+
+        if (orbitAction.WasPressedThisFrame()) {
+            rotateStartPosition = pointAction.ReadValue<Vector2>();
+        }
+        if (orbitAction.IsPressed()) {
+            rotateCurrentPosition = pointAction.ReadValue<Vector2>();
+
+            Vector3 difference = rotateStartPosition - rotateCurrentPosition;
+            rotateStartPosition = rotateCurrentPosition;
+
+            newRotation *= Quaternion.Euler(Vector3.up * (-difference.x / 10f));
+        }
+    }
+
     private Vector3 ZoomDirection() {
         return new Vector3(0, Mathf.Abs(zoomAmount.y), -Mathf.Abs(zoomAmount.z)).normalized;
     }
@@ -266,6 +349,7 @@ public class CameraController : MonoBehaviour
         } else {
             focusReturnPosition = newPosition;
             focusReturnZoom = newZoom;
+            focusReturnPull = targetPull;
         }
 
         focus = StartCoroutine(Focus(area));
@@ -278,11 +362,13 @@ public class CameraController : MonoBehaviour
         var radius = Mathf.Max(area.extents.x, area.extents.z) + boardRadius * 0.15f;
         var distance = Mathf.Clamp(radius * fitPadding / fitTan, zoomRange.Max * focusClosest, zoomRange.Max);
         newZoom = ZoomDirection() * distance;
+        targetPull = Mathf.InverseLerp(zoomRange.Min, zoomRange.Max, distance);
 
         yield return new WaitForSeconds(focusHold);
 
         newPosition = focusReturnPosition;
         newZoom = focusReturnZoom;
+        targetPull = focusReturnPull;
         focus = null;
     }
 
@@ -295,6 +381,7 @@ public class CameraController : MonoBehaviour
         if (goBack) {
             newPosition = focusReturnPosition;
             newZoom = focusReturnZoom;
+            targetPull = focusReturnPull;
         }
     }
 

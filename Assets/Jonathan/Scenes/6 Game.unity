@@ -7297,7 +7297,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 35, y: 10, z: 35}
+  m_LocalScale: {x: 35, y: 17, z: 35}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1195710318}
@@ -9854,10 +9854,10 @@ MonoBehaviour:
   borderLayer: 12
   hasHeight: 1
   height: 150
-  noiseScale: 0.1
+  noiseScale: 0.008
   heightVariation:
-    Min: -5
-    Max: -2.5
+    Min: -9
+    Max: -3
   hexes:
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
@@ -17857,13 +17857,18 @@ MonoBehaviour:
   hopRiseTime: 0.3
   hopSlideTime: 0.8
   hopUp: 1
+  control: 1
+  orbitSpeed: 70
+  pullSpeed: 0.7
+  closePitch: 12
+  farPitch: 38
   fitBoard: 1
   fitPadding: 1.05
   closestZoom: 0.3
   zoomStep: 0.12
   focusOnShots: 1
-  focusHold: 1.6
-  focusClosest: 0.5
+  focusHold: 2
+  focusClosest: 0.3
   zoomAmountButton: 7
 --- !u!1 &1712294340
 GameObject:
@@ -22191,13 +22196,18 @@ MonoBehaviour:
   hopRiseTime: 0.3
   hopSlideTime: 0.6
   hopUp: 0
+  control: 2
+  orbitSpeed: 70
+  pullSpeed: 0.7
+  closePitch: 18
+  farPitch: 38
   fitBoard: 1
   fitPadding: 0.85
-  closestZoom: 0.25
+  closestZoom: 0.4
   zoomStep: 0.12
-  focusOnShots: 0
-  focusHold: 1.6
-  focusClosest: 0.5
+  focusOnShots: 1
+  focusHold: 2
+  focusClosest: 0.35
   zoomAmountButton: 7
 --- !u!1 &2129985460
 GameObject:

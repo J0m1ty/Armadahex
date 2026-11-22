@@ -167,7 +167,8 @@ public class CameraManager : MonoBehaviour
         }
 
         if (cameraController != null && otherController != null) {
-            if (shareRotation && otherController.AlreadyAt(centerPos)) {
+            // a fixed view always keeps its own angle
+            if (shareRotation && otherController.AlreadyAt(centerPos) && !cameraController.isFixed && !otherController.isFixed) {
                 cameraController.newRotation = otherController.newRotation;
             }
 
