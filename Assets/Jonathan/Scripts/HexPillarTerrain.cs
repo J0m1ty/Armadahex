@@ -180,12 +180,18 @@ public class HexPillarTerrain : MonoBehaviour {
         metalTris = new List<int>();
         trimTris = new List<int>();
 
+        var color = TeamColor.GetSideColor(teamBase.team);
+
         // the trim shader pulses outward from the sources by each pillar's position
         foreach (var pillar in pillars) {
             var start = vertices.Count;
             var center = CellToLocal(pillar.Key);
             // thinner posts on the board itself, so ships on the next hex over don't clip into them
-            AddPillar(center, pillar.Value, onBoard.Contains(pillar.Key) ? size * boardPillarScale : size - pillarInset);
+            var radius = onBoard.Contains(pillar.Key) ? size * boardPillarScale : size - pillarInset;
+            AddPillar(center, pillar.Value, radius);
+
+            // foam around everything that breaks the surface
+            if (pillar.Value > 0f) ShoreFoam.Add(transform.position + center, radius, color);
 
             var data = new Vector2(center.x, center.z);
             for (var i = start; i < vertices.Count; i++) glowData.Add(data);
@@ -211,7 +217,6 @@ public class HexPillarTerrain : MonoBehaviour {
         var meshRenderer = obj.GetComponent<MeshRenderer>();
         meshRenderer.sharedMaterials = new[] { metalMaterial, trimMaterial };
 
-        var color = TeamColor.GetSideColor(teamBase.team);
         var block = new MaterialPropertyBlock();
         block.SetColor("_BaseColor", color);
         block.SetVectorArray("_PulseSources", sources);
