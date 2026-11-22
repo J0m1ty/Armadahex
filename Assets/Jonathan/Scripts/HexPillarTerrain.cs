@@ -22,6 +22,9 @@ public class HexPillarTerrain : MonoBehaviour {
     [SerializeField] private int tailLength = 22;
     [SerializeField] private float tailSoftness = 4f;
     [SerializeField] private float rangeNoiseScale = 0.004f;
+    // a finer ridge noise on top, so the ranges get peaks and saddles instead of flat plateaus
+    [SerializeField] private float peakNoiseScale = 0.006f;
+    [SerializeField] private float peakAmount = 0.35f;
     // how many hexes the ranges take to step down to a channel, rather than a sheer cut
     [SerializeField] private float channelSlope = 4f;
 
@@ -152,7 +155,6 @@ public class HexPillarTerrain : MonoBehaviour {
             for (var r = -outerRadius; r <= outerRadius; r++) {
                 var cell = new Vector2Int(q, r);
                 var dist = Distance(cell);
-                var roll = rng.NextDouble();
                 if (dist < wallStart || dist > outerRadius) continue;
                 // channel floors stay open, and the ranges slope down to them
                 var channelEdge = int.MaxValue;
@@ -167,7 +169,8 @@ public class HexPillarTerrain : MonoBehaviour {
 
                 var noise = 1f - Mathf.Abs(Mathf.PerlinNoise(pos.x * rangeNoiseScale + offset.x, pos.z * rangeNoiseScale + offset.y) * 2f - 1f);
                 var tail = Mathf.Max(0f, dist - wallEnd) / tailSoftness;
-                if (noise < Mathf.Lerp(0.15f, 0.6f, tail / (tailLength / tailSoftness)) && roll > 0.05) continue;
+                // no stray pillars in the gaps, they stood up as lone towers
+                if (noise < Mathf.Lerp(0.15f, 0.6f, tail / (tailLength / tailSoftness))) continue;
 
                 // 1 / (1 + x^2) falloff that settles just above the seabed
                 var rise = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(wallStart - 1, wallStart + wallRise, dist));
@@ -175,8 +178,11 @@ public class HexPillarTerrain : MonoBehaviour {
                 var height = (wallHeight * rise + depth) / (1f + tail * tail) - depth;
                 if (dist < wallEnd) height = wallHeight * rise;
 
+                var peaks = 1f - Mathf.Abs(Mathf.PerlinNoise(pos.x * peakNoiseScale + offset.y, pos.z * peakNoiseScale + offset.x) * 2f - 1f);
+                var shape = Mathf.Lerp(1f - peakAmount, 1f + peakAmount * 0.4f, peaks);
+
                 // no per pillar jitter, so neighbours share a level and the contours stay long
-                pillars[cell] = Contour(height * (0.45f + noise * 0.75f) * bank);
+                pillars[cell] = Contour(height * (0.45f + noise * 0.75f) * shape * bank);
             }
         }
 
@@ -235,7 +241,15 @@ public class HexPillarTerrain : MonoBehaviour {
         foreach (var pillar in pillars) {
             var center = CellToLocal(pillar.Key);
             var radius = radii[pillar.Key];
-            AddPillar(center, pillar.Value, radius);
+
+            // each wall only shows from the neighbouring top up, and not at all against a taller one
+            var bottoms = new float[6];
+            for (var k = 0; k < 6; k++) {
+                var next = pillar.Key + edgeNeighbours[k];
+                var joined = !onBoard.Contains(pillar.Key) && !onBoard.Contains(next) && pillars.ContainsKey(next);
+                bottoms[k] = joined ? Mathf.Max(pillars[next], -seabedDepth) : -seabedDepth;
+            }
+            AddPillar(center, pillar.Value, radius, bottoms);
 
             // foam around everything that breaks the surface
             if (pillar.Value > 0f) ShoreFoam.Add(transform.position + center, radius, color);
@@ -417,6 +431,12 @@ public class HexPillarTerrain : MonoBehaviour {
                 trimTris.Add(v + 2);
             }
 
+            // under a taller cliff the contour still counts towards its loop, but isn't drawn
+            if (!onTop.Contains(contour[i])) {
+                along += edgeLength;
+                continue;
+            }
+
             // and a strip down the top of the outside wall, pushed out a hair so it doesn't fight the metal
             var outward = -inward[i] * 0.05f;
             var drop = Vector3.down * rimDrop;
@@ -452,10 +472,8 @@ public class HexPillarTerrain : MonoBehaviour {
         glowData.Add(new Vector2(along, pulsing));
     }
 
-    private void AddPillar(Vector3 center, float top, float radius) {
-        var bottom = -seabedDepth;
-
-        AddRing(center, radius, bottom, top, metalTris);
+    private void AddPillar(Vector3 center, float top, float radius, float[] bottoms) {
+        AddRing(center, radius, bottoms, top, metalTris);
 
         // metal cap, the glowing outlines are added along each level's boundary afterwards
         var c = vertices.Count;
@@ -476,8 +494,11 @@ public class HexPillarTerrain : MonoBehaviour {
         uvs.Add(new Vector2(point.x, point.z) * textureScale);
     }
 
-    private void AddRing(Vector3 center, float radius, float y0, float y1, List<int> tris) {
+    private void AddRing(Vector3 center, float radius, float[] bottoms, float y1, List<int> tris) {
         for (var k = 0; k < 6; k++) {
+            var y0 = bottoms[k];
+            if (y0 >= y1) continue;
+
             var a = center + Corner(k, radius);
             var b = center + Corner(k + 1, radius);
             var normal = Quaternion.Euler(0f, -(30f + 60f * k), 0f) * Vector3.right;
@@ -488,10 +509,11 @@ public class HexPillarTerrain : MonoBehaviour {
             vertices.Add(b + Vector3.up * y1);
             vertices.Add(b + Vector3.up * y0);
             for (var n = 0; n < 4; n++) normals.Add(normal);
-            uvs.Add(new Vector2(0f, y0) * textureScale);
-            uvs.Add(new Vector2(0f, y1) * textureScale);
-            uvs.Add(new Vector2(radius, y1) * textureScale);
-            uvs.Add(new Vector2(radius, y0) * textureScale);
+            // the same world mapping on every face, so neighbouring walls line up into one surface
+            uvs.Add(new Vector2(WallU(a), y0) * textureScale);
+            uvs.Add(new Vector2(WallU(a), y1) * textureScale);
+            uvs.Add(new Vector2(WallU(b), y1) * textureScale);
+            uvs.Add(new Vector2(WallU(b), y0) * textureScale);
             for (var n = 0; n < 4; n++) glowData.Add(Vector2.zero);
 
             tris.Add(i);
@@ -501,6 +523,11 @@ public class HexPillarTerrain : MonoBehaviour {
             tris.Add(i + 2);
             tris.Add(i + 3);
         }
+    }
+
+    // runs across all three wall directions of the hex lattice, so no face gets a stretched texture
+    private static float WallU(Vector3 point) {
+        return point.x * 0.866f + point.z * 0.5f;
     }
 
     // flat topped, corners at 0, 60, 120... degrees like the board hexes

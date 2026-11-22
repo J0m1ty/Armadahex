@@ -50,13 +50,28 @@ MonoBehaviour:
   clearRadius: 4
   maxBlockedHexes: 40
   maxBoardHeight: 9
-  wallRise: 5
+  boardPillarScale: 0.55
+  wallRise: 7
   wallWidth: 5
   wallHeight: 160
   tailLength: 16
   tailSoftness: 4
   rangeNoiseScale: 0.004
-  pillarInset: 1.5
+  peakNoiseScale: 0.006
+  peakAmount: 0.35
+  channelSlope: 4
   heightStep: 3
+  contourStep: 30
+  underwaterLevels:
+  - -4
+  - -8
+  - -13
+  - -20
+  - -30
+  rangeInset: 0
+  pulseSpacing: 1500
+  rimDrop: 4
+  minPulseLength: 600
+  waterClearance: 1.5
   textureScale: 0.015
   seabedDepth: 40
