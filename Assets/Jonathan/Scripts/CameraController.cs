@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using MyBox;
 
 [System.Serializable]
@@ -82,8 +83,26 @@ public class CameraController : MonoBehaviour
     private bool hopUp = true;
     private Coroutine hop;
 
+    private InputAction moveAction;
+    private InputAction fastAction;
+    private InputAction rotateAction;
+    private InputAction zoomAction;
+    private InputAction zoomKeysAction;
+    private InputAction dragAction;
+    private InputAction orbitAction;
+    private InputAction pointAction;
+
     void Start() {
         followChild = transform.GetChild(0).gameObject;
+
+        moveAction = GameInput.Get("Camera/Move");
+        fastAction = GameInput.Get("Camera/Fast");
+        rotateAction = GameInput.Get("Camera/Rotate");
+        zoomAction = GameInput.Get("Camera/Zoom");
+        zoomKeysAction = GameInput.Get("Camera/Zoom Keys");
+        dragAction = GameInput.Get("Camera/Drag");
+        orbitAction = GameInput.Get("Camera/Orbit");
+        pointAction = GameInput.Get("Camera/Point");
 
         newCameraChild.GetComponentInChildren<Camera>().orthographic = isOrthographic;
         if (isOrthographic) {
@@ -146,14 +165,17 @@ public class CameraController : MonoBehaviour
     }
 
     void HandleMouseInput() {
-        if (Input.mouseScrollDelta.y != 0) {
-            newZoom += Input.mouseScrollDelta.y * zoomAmount;
+        float scroll = zoomAction.ReadValue<float>();
+        if (scroll != 0) {
+            newZoom += scroll * zoomAmount;
         }
 
+        Vector2 pointer = pointAction.ReadValue<Vector2>();
+
         if (allowMousePanning) {
-            if (Input.GetMouseButtonDown(0)) {
+            if (dragAction.WasPressedThisFrame()) {
                 Plane plane = new Plane(Vector3.up, Vector3.zero);
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                Ray ray = Camera.main.ScreenPointToRay(pointer);
 
                 float entry;
 
@@ -162,9 +184,9 @@ public class CameraController : MonoBehaviour
                 }
             }
 
-            if (Input.GetMouseButton(0)) {
+            if (dragAction.IsPressed()) {
                 Plane plane = new Plane(Vector3.up, Vector3.zero);
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                Ray ray = Camera.main.ScreenPointToRay(pointer);
 
                 float entry;
 
@@ -175,11 +197,11 @@ public class CameraController : MonoBehaviour
             }
         }
 
-        if (Input.GetMouseButtonDown(2)) {
-            rotateStartPosition = Input.mousePosition;
+        if (orbitAction.WasPressedThisFrame()) {
+            rotateStartPosition = pointer;
         }
-        if (Input.GetMouseButton(2)) {
-            rotateCurrentPosition = Input.mousePosition;
+        if (orbitAction.IsPressed()) {
+            rotateCurrentPosition = pointer;
 
             Vector3 difference = rotateStartPosition - rotateCurrentPosition;
             rotateStartPosition = rotateCurrentPosition;
@@ -191,24 +213,12 @@ public class CameraController : MonoBehaviour
     void HandleKeyboardInput() {
         // units per frame at 60 fps, so the speed is the same at any frame rate
         movementSpeed = moveSpeed * Time.deltaTime * 60f;
-        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
+        if (fastAction.IsPressed()) {
             movementSpeed *= shiftMultiplier;
         }
 
-        Vector3 positionMod = Vector3.zero;
-
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) {
-            positionMod += transform.forward * movementSpeed;
-        }
-        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) {
-            positionMod += transform.forward * -movementSpeed;
-        }
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
-            positionMod += transform.right * -movementSpeed;
-        }
-        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
-            positionMod += transform.right * movementSpeed;
-        }
+        Vector2 move = moveAction.ReadValue<Vector2>();
+        Vector3 positionMod = transform.forward * move.y + transform.right * move.x;
         
         if (positionMod != Vector3.zero) {
             positionMod = positionMod.normalized * movementSpeed;
@@ -216,20 +226,12 @@ public class CameraController : MonoBehaviour
 
         newPosition += positionMod;
 
-        if (Input.GetKey(KeyCode.Q)) {
-            newRotation *= Quaternion.Euler(Vector3.up * rotationAmount);
-        }
-        if (Input.GetKey(KeyCode.E)) {
-            newRotation *= Quaternion.Euler(Vector3.up * -rotationAmount);
-        }
+        // q is positive, e negative
+        newRotation *= Quaternion.Euler(Vector3.up * rotationAmount * rotateAction.ReadValue<float>());
 
         if (allowZoomKeys) {
-            if (Input.GetKey(KeyCode.R)) {
-                newZoom += zoomAmount;
-            }
-            if (Input.GetKey(KeyCode.F)) {
-                newZoom -= zoomAmount;
-            }
+            // r is positive, f negative
+            newZoom += zoomAmount * zoomKeysAction.ReadValue<float>();
         }
         
     }

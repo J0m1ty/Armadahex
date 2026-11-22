@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using EZCameraShake;
 
 public enum CameraState {
@@ -50,6 +51,8 @@ public class CameraManager : MonoBehaviour
 
     private Vector3 centerPos;
 
+    private InputAction switchViewAction;
+
     
     #if UNITY_EDITOR
     [Header("Debug Options")]
@@ -71,12 +74,20 @@ public class CameraManager : MonoBehaviour
 
         sideCameraController = sideCamera.GetComponent<CameraController>();
         topCameraController = topCamera.GetComponent<CameraController>();
+        switchViewAction = GameInput.Get("Gameplay/Switch View");
 
         if (Application.isEditor) {
             SetCameraState(editorDefaultState, false);
         }
         else {
             SetCameraState(buildDefaultState, false);
+        }
+    }
+
+    void Update() {
+        // not during the intro, it still has the rig cameras switched off
+        if (switchViewAction.WasPressedThisFrame() && TurnManager.instance != null && TurnManager.instance.gameActive) {
+            SetCameraState(state == CameraState.Side ? CameraState.Top : CameraState.Side);
         }
     }
 

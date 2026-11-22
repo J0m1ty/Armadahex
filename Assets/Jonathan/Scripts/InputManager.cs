@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public enum KeyMode {
     Toggle,
@@ -14,26 +15,31 @@ public class InputManager : MonoBehaviour
     [SerializeField] private bool hideScoreboardOnStart = true;
     [SerializeField] private KeyMode scoreboardMode = KeyMode.Hold;
     [SerializeField] private GameObject scoreboard;
-    [SerializeField] private KeyCode scoreboardKey = KeyCode.Space;
 
     [Header("Interactions")]
     [SerializeField] private AttackUIManager attackManager;
-    [SerializeField] private KeyCode switchShip = KeyCode.Tab;
-
     [SerializeField] private Button fireButton;
-    [SerializeField] private KeyCode fire = KeyCode.Return;
-
     [SerializeField] private Button cancelButton;
-    [SerializeField] private KeyCode cancel = KeyCode.Escape;
+
+    // bindings live in Resources/Controls, under Gameplay
+    private InputAction scoreboardAction;
+    private InputAction switchShipAction;
+    private InputAction fireAction;
+    private InputAction cancelAction;
 
     void Start() {
+        scoreboardAction = GameInput.Get("Gameplay/Scoreboard");
+        switchShipAction = GameInput.Get("Gameplay/Switch Ship");
+        fireAction = GameInput.Get("Gameplay/Fire");
+        cancelAction = GameInput.Get("Gameplay/Cancel");
+
         if (hideScoreboardOnStart) {
             scoreboard.SetActive(false);
         }
     }
     
     void Update() {
-        if (Input.GetKeyDown(scoreboardKey)) {
+        if (scoreboardAction.WasPressedThisFrame()) {
             if (scoreboardMode == KeyMode.Toggle) {
                 scoreboard.SetActive(!scoreboard.activeSelf);
             } else {
@@ -41,21 +47,21 @@ public class InputManager : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyUp(scoreboardKey) && scoreboardMode == KeyMode.Hold) {
+        if (scoreboardAction.WasReleasedThisFrame() && scoreboardMode == KeyMode.Hold) {
             scoreboard.SetActive(false);
         }
 
-        if (Input.GetKeyDown(switchShip)) {
+        if (switchShipAction.WasPressedThisFrame()) {
             attackManager.SelectRandomShip();
         }
         
-        if (Input.GetKeyDown(fire)) {
+        if (fireAction.WasPressedThisFrame()) {
             if (fireButton.isActiveAndEnabled) {
                 fireButton.onClick.Invoke();
             }
         }
 
-        if (Input.GetKeyDown(cancel)) {
+        if (cancelAction.WasPressedThisFrame()) {
             if (cancelButton.isActiveAndEnabled) {
                 cancelButton.onClick.Invoke();
             }

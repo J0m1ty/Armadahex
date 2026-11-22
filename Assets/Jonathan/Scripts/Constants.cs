@@ -21,5 +21,6 @@ public static class Constants
     public const string GAMES_PLAYED_PREF_KEY = "GamesPlayed";
     public const string MAIN_VOLUME_PREF_KEY = "MainVolume";
     public const string MUSIC_VOLUME_PREF_KEY = "MusicVolume";
+    public const string INPUT_BINDINGS_PREF_KEY = "InputBindings";
     public const int ROOM_NUM_EXPECTED_PLAYERS = 2;
 }

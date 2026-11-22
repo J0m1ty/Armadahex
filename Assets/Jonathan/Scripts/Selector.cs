@@ -5,6 +5,7 @@ using System;
 using MyBox;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using Photon.Pun;
 
 [RequireComponent(typeof(AttackUIManager))]
@@ -57,6 +58,10 @@ public class Selector : MonoBehaviour
     bool mouseMoved;
     int lastMovedFrames;
 
+    private InputAction pointAction;
+    private InputAction selectAction;
+    private Vector2 pointer;
+
     TeamBase playerTeamBase;
 
     void Awake() {
@@ -84,6 +89,10 @@ public class Selector : MonoBehaviour
     void Start() {
         lastMovedFrames = 0;
         mouseMoved = false;
+
+        pointAction = GameInput.Get("Gameplay/Point");
+        selectAction = GameInput.Get("Gameplay/Select");
+        pointer = pointAction.ReadValue<Vector2>();
     }
 
     public void ClearSelection() {
@@ -113,7 +122,9 @@ public class Selector : MonoBehaviour
 
 
     void Update() {
-        mouseMoved = Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0;
+        Vector2 lastPointer = pointer;
+        pointer = pointAction.ReadValue<Vector2>();
+        mouseMoved = pointer != lastPointer;
 
         if (mouseMoved) {
             lastMovedFrames = 0;
@@ -138,7 +149,7 @@ public class Selector : MonoBehaviour
         HexRenderer hex = null;
         if (lastMovedFrames < (1/Time.deltaTime) * 10f && selectedHex == null) {
             RaycastHit hit;
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 1000, 1 << enemyHexLayer)) {
+            if (Physics.Raycast(Camera.main.ScreenPointToRay(pointer), out hit, 1000, 1 << enemyHexLayer)) {
                 hex = hit.transform.GetComponent<HexRenderer>();
 
                 // part the clouds over the hovered hex
@@ -152,7 +163,7 @@ public class Selector : MonoBehaviour
             }
         }
         
-        if (Input.GetMouseButtonDown(0) && hexBorder.isVisible) {
+        if (selectAction.WasPressedThisFrame() && hexBorder.isVisible) {
             if (selectedHex != null) {
                 if (hex == selectedHex) {
                     selectedHex = null;
@@ -197,7 +208,7 @@ public class Selector : MonoBehaviour
     public void SelectShips() {
         if (lastMovedFrames < (1/Time.deltaTime) * 10f) {
             RaycastHit hit;
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 1000, 1 << shipLayer | 1 << outlineLayer)) {
+            if (Physics.Raycast(Camera.main.ScreenPointToRay(pointer), out hit, 1000, 1 << shipLayer | 1 << outlineLayer)) {
                 var ship = hit.transform.GetComponent<Ship>();
 
                 if (ship != selectedShip) {
@@ -216,7 +227,7 @@ public class Selector : MonoBehaviour
             }
         }
         
-        if (Input.GetMouseButtonDown(0)) {
+        if (selectAction.WasPressedThisFrame()) {
             if (selectedShip != null) {
                 attackUIManager.SelectShip(selectedShip);
             }
@@ -225,7 +236,7 @@ public class Selector : MonoBehaviour
 
     private bool IsPointerOverUIObject() {
         PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
-        eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+        eventDataCurrentPosition.position = pointer;
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
         
