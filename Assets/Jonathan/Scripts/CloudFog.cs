@@ -25,7 +25,7 @@ public class CloudFog : MonoBehaviour
     [Header("Hover")]
     public Color hoverGlow = new Color(2.2f, 0.35f, 0.22f);
     [Range(0, 1)]
-    public float hoverCarve = 0.9f;
+    public float hoverCarve = 0.7f;
 
     private HexGrid grid;
     private Material material;
@@ -116,7 +116,7 @@ public class CloudFog : MonoBehaviour
     void LateUpdate() {
         material.SetVector("_GridOrigin", transform.position);
 
-        // let the shader stop at the hover column, so clouds behind it don't paint over it
+        // the shader parts the clouds softly around the visible hover column
         var border = Selector.instance != null ? Selector.instance.border : null;
         if (border != null && border.isVisible) {
             var local = border.transform.position - transform.position;
@@ -138,8 +138,11 @@ public class CloudFog : MonoBehaviour
             int y = fog.axial.y + MAP_OFFSET;
             if (x < 0 || y < 0 || x >= MAP_SIZE || y >= MAP_SIZE) continue;
 
-            var cover = fog.cover * (1 - hoverCarve * fog.hover);
-            var glow = fog.glow + hoverGlow * fog.hover;
+            // hovering only half parts the clouds, locking in opens them all the way
+            // (and the locked hex already glows, so the hover glow on top would blow it out)
+            var locked = fog.current == FogColor.Selected;
+            var cover = fog.cover * (1 - (locked ? 1f : hoverCarve) * fog.hover);
+            var glow = fog.glow + hoverGlow * fog.hover * (locked ? 0.25f : 1f);
             pixels[x + y * MAP_SIZE] = new Color(glow.r, glow.g, glow.b, cover);
         }
         map.SetPixels(pixels);

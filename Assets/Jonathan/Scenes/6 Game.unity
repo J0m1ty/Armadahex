@@ -11531,9 +11531,9 @@ MonoBehaviour:
   allowSelectingShips: 1
   hexHighlightPrefab: {fileID: 6906159895752833556, guid: d4259690d80495f4aba032964ba31686, type: 3}
   highlightColor: {r: 1, g: 0.15, b: 0.1, a: 1}
-  highlightHeight: 25
-  lockedInColor: {r: 1, g: 0.18396229, b: 0.18396229, a: 1}
-  lockedInHeight: 10
+  highlightHeight: 8
+  lockedInColor: {r: 1, g: 0.5, b: 0.08, a: 1}
+  lockedInHeight: 55
   friendlyHexLayer: 10
   enemyHexLayer: 11
   shipLayer: 6

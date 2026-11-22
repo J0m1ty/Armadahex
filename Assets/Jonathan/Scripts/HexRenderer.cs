@@ -53,7 +53,7 @@ public class Fog {
             case FogColor.Scan:
                 return 0.6f;
             case FogColor.Selected:
-                return 0.5f;
+                return 0.6f;
             case FogColor.Custom:
                 return 1 - 0.4f * CustomStrength();
             default:
@@ -73,9 +73,9 @@ public class Fog {
             case FogColor.Miss:
                 return FogState.fogMiss * 0.6f;
             case FogColor.Selected:
-                return FogState.friendlySelected * 2.5f;
+                return FogState.friendlySelected * 1.1f;
             case FogColor.Custom:
-                return customColor * 2.5f * CustomStrength();
+                return customColor * 1.1f * CustomStrength();
             default:
                 return Color.clear;
         }

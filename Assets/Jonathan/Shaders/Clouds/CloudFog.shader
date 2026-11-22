@@ -15,6 +15,7 @@ Shader "Armadahex/Cloud Fog"
 
         [Header(Hex Edges)]
         _Warp ("Edge Warp", Float) = 14
+        _ColumnSoftness ("Column Softness", Float) = 14
 
         [Header(Lighting)]
         _LitColor ("Lit Color", Color) = (1, 0.97, 0.93, 1)
@@ -65,6 +66,7 @@ Shader "Armadahex/Cloud Fog"
                 float _TopNoise;
                 float4 _Wind;
                 float _Warp;
+                float _ColumnSoftness;
                 float4 _LitColor;
                 float4 _ShadowColor;
                 float4 _AmbientColor;
@@ -118,8 +120,24 @@ Shader "Armadahex/Cloud Fog"
                 return max(dot(p, float2(SQRT3 * 0.5, 0.5)), p.y) - inner;
             }
 
-            // state at p, linearly blended between the three nearest hex centres.
-            // axial (1,0) and (0,1) are neighbours, so each axial cell splits into two equilateral triangles.
+            float2 AxialCenter(float2 axial)
+            {
+                float size = _MapParams.z;
+                return float2(size * 1.5 * axial.x, size * SQRT3 * (axial.y + axial.x * 0.5));
+            }
+
+            // smooth bump that reaches zero at the distance to an edge midpoint of the next triangle
+            float Kernel(float2 p, float2 axial)
+            {
+                float reach = _MapParams.z * 1.5; // 0.866 of the centre spacing
+                float2 d = (p - AxialCenter(axial)) / reach;
+                float k = saturate(1 - dot(d, d));
+                return k * k;
+            }
+
+            // state at p, blended between the three nearest hex centres with round kernels,
+            // so a single open hex reads as a soft circle rather than a hexagon.
+            // axial (1,0) and (0,1) are neighbours, so each axial cell splits into two triangles.
             // same axial maths as CloudFog.AxialFromLocal
             float4 HexState(float2 p)
             {
@@ -128,11 +146,14 @@ Shader "Armadahex/Cloud Fog"
                 float2 cell = floor(axial);
                 float2 f = axial - cell;
 
-                if (f.x + f.y < 1)
-                {
-                    return MapAt(cell) * (1 - f.x - f.y) + MapAt(cell + float2(1, 0)) * f.x + MapAt(cell + float2(0, 1)) * f.y;
-                }
-                return MapAt(cell + float2(1, 0)) * (1 - f.y) + MapAt(cell + float2(0, 1)) * (1 - f.x) + MapAt(cell + 1) * (f.x + f.y - 1);
+                float2 a = f.x + f.y < 1 ? cell : cell + 1;
+                float2 b = cell + float2(1, 0);
+                float2 c = cell + float2(0, 1);
+
+                float wa = Kernel(p, a);
+                float wb = Kernel(p, b);
+                float wc = Kernel(p, c);
+                return (MapAt(a) * wa + MapAt(b) * wb + MapAt(c) * wc) / max(wa + wb + wc, 1e-4);
             }
 
             float Dither(float2 pixel)
@@ -240,11 +261,14 @@ Shader "Armadahex/Cloud Fog"
                     float dt = marchLength * (u1 * u1 - u0 * u0);
                     float3 p = ro + rd * t;
 
-                    // the hover column is drawn before us, so treat it as solid
-                    if (_Column.w > 0 && p.y < _Column.z && HexDistance(p.xz - _Column.xy, _MapParams.z) < 0) break;
-
                     float3 glow;
                     float density = Density(p, time, glow, true);
+                    // part the clouds softly around the hover column, its fading top dissolves into them
+                    if (_Column.w > 0)
+                    {
+                        float columnDistance = max(HexDistance(p.xz - _Column.xy, _MapParams.z), p.y - _Column.z);
+                        density *= smoothstep(0, _ColumnSoftness, columnDistance);
+                    }
                     if (density <= 0.001) continue;
 
                     // two short taps toward the sun for self shadowing
