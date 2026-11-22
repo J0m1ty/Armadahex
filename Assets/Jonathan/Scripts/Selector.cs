@@ -147,7 +147,7 @@ public class Selector : MonoBehaviour
 
     public void SelectGrids() {
         HexRenderer hex = null;
-        if (lastMovedFrames < (1/Time.deltaTime) * 10f && selectedHex == null) {
+        if (lastMovedFrames < (1/Time.deltaTime) * 10f) {
             RaycastHit hit;
             var ray = Camera.main.ScreenPointToRay(pointer);
             // the clouds are what you see on the enemy board, so pick the hex under them first
@@ -156,42 +156,45 @@ public class Selector : MonoBehaviour
                 hex = hit.transform.GetComponent<HexRenderer>();
             }
 
-            if (hex != null) {
-                // part the clouds over the hovered hex
-                HoverClouds(hex);
+            // once a shot is locked the ring stays on it, but another hex can still be clicked
+            if (selectedHex == null) {
+                if (hex != null) {
+                    // part the clouds over the hovered hex
+                    HoverClouds(hex);
 
-                hexBorder.SetVisibility(true);
-                playerHexHighlight.transform.position = hex.transform.position;
-            } else {
-                hexBorder.SetVisibility(false);
-                HoverClouds(null);
+                    hexBorder.SetVisibility(true);
+                    playerHexHighlight.transform.position = hex.transform.position;
+                } else {
+                    hexBorder.SetVisibility(false);
+                    HoverClouds(null);
+                }
+
+                // the pattern preview follows the mouse while aiming
+                attackUIManager.AimAt(hex != null ? hex.gridRef : null);
             }
         }
-        
-        if (selectAction.WasPressedThisFrame() && hexBorder.isVisible) {
-            if (selectedHex != null) {
-                if (hex == selectedHex) {
-                    selectedHex = null;
-                    hexBorder.SetColor(highlightColor);
-                    hexBorder.SetHeight(highlightHeight);
-                    hex.RemoveFogOverrideColor();
-                }
-            }
-            
-            if (selectedHex == null && hex != null) {
-                selectedHex = hex;
-                hexBorder.SetColor(lockedInColor);
-                hexBorder.SetHeight(lockedInHeight);
 
-                hex.SetFogColorInstant(FogColor.Selected, true);
+        if (selectAction.WasPressedThisFrame() && hex != null) {
+            // clicking the locked hex again unlocks it
+            if (hex == selectedHex) {
+                attackUIManager.Unlock();
+                return;
             }
 
-            if (hex != null) {
-                attackUIManager.SelectTarget(hex.gridRef);
-            }
+            if (selectedHex != null) selectedHex.RemoveFogOverrideColor();
+
+            selectedHex = hex;
+            HoverClouds(hex);
+            playerHexHighlight.transform.position = hex.transform.position;
+            hexBorder.SetVisibility(true);
+            hexBorder.SetColor(lockedInColor);
+            hexBorder.SetHeight(lockedInHeight);
+            hex.SetFogColorInstant(FogColor.Selected, true);
+
+            attackUIManager.SelectTarget(hex.gridRef);
         }
     }
-    
+
     // walks the ray down through the cloud layer and returns the first hex still covered by its cloud
     private HexRenderer CloudHex(Ray ray) {
         var team = TurnManager.instance.enemyTeam;

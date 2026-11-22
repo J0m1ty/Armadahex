@@ -352,7 +352,7 @@
                     "priority": 0
                 },
                 {
-                    "name": "Carrier",
+                    "name": "Choice 1",
                     "type": "Button",
                     "id": "75bab32f-0786-4bb3-841b-cf780f98cf83",
                     "expectedControlType": "",
@@ -362,7 +362,7 @@
                     "priority": 0
                 },
                 {
-                    "name": "Battleship",
+                    "name": "Choice 2",
                     "type": "Button",
                     "id": "248049cf-5c0b-4507-9f8d-dfb5bd88b9a3",
                     "expectedControlType": "",
@@ -372,7 +372,7 @@
                     "priority": 0
                 },
                 {
-                    "name": "Submarine",
+                    "name": "Choice 3",
                     "type": "Button",
                     "id": "1c0480f3-2e75-47a1-8fd1-84823fefd362",
                     "expectedControlType": "",
@@ -382,7 +382,7 @@
                     "priority": 0
                 },
                 {
-                    "name": "Destroyer",
+                    "name": "Choice 4",
                     "type": "Button",
                     "id": "312b26f8-70b6-41e0-a1c2-d39f1caf6e5a",
                     "expectedControlType": "",
@@ -392,29 +392,9 @@
                     "priority": 0
                 },
                 {
-                    "name": "Cruiser",
+                    "name": "Choice 5",
                     "type": "Button",
                     "id": "31bd24fa-40b1-431c-a482-263add1dd0ce",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false,
-                    "priority": 0
-                },
-                {
-                    "name": "Previous",
-                    "type": "Button",
-                    "id": "5f0b50e6-7061-4237-9e05-7adf835a213d",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false,
-                    "priority": 0
-                },
-                {
-                    "name": "Next",
-                    "type": "Button",
-                    "id": "b7eb50f1-67d1-4aad-803f-84dac04a4452",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -507,7 +487,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Carrier",
+                    "action": "Choice 1",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -518,7 +498,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Battleship",
+                    "action": "Choice 2",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -529,7 +509,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Submarine",
+                    "action": "Choice 3",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -540,7 +520,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Destroyer",
+                    "action": "Choice 4",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -551,29 +531,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Cruiser",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "9e0e69c5-31b7-4bee-9557-4366ea0ab2eb",
-                    "path": "<Keyboard>/leftArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Previous",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "0184ac2c-f731-4910-8a29-0b5bfb6590ff",
-                    "path": "<Keyboard>/rightArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Next",
+                    "action": "Choice 5",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

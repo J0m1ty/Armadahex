@@ -26,17 +26,12 @@ public class InputManager : MonoBehaviour
     private InputAction switchShipAction;
     private InputAction fireAction;
     private InputAction cancelAction;
-    private InputAction previousAction;
-    private InputAction nextAction;
-    // each ship type has its own action (1 carrier, 2 battleship, 3 sub, 4 destroyer, 5 cruiser by default)
-    private static readonly ShipType[] shipTypes = { ShipType.Carrier, ShipType.Battleship, ShipType.Submarine, ShipType.Destroyer, ShipType.Cruiser };
-    private InputAction[] shipActions = new InputAction[5];
+    // the numbered buttons on screen: ships, then weapons, then patterns
+    private InputAction[] choiceActions = new InputAction[5];
 
     void Start() {
-        previousAction = GameInput.Get("Gameplay/Previous");
-        nextAction = GameInput.Get("Gameplay/Next");
-        for (var i = 0; i < shipActions.Length; i++) {
-            shipActions[i] = GameInput.Get("Gameplay/" + shipTypes[i]);
+        for (var i = 0; i < choiceActions.Length; i++) {
+            choiceActions[i] = GameInput.Get("Gameplay/Choice " + (i + 1));
         }
 
         scoreboardAction = GameInput.Get("Gameplay/Scoreboard");
@@ -65,26 +60,17 @@ public class InputManager : MonoBehaviour
         }
 
         if (switchShipAction.WasPressedThisFrame()) {
-            attackManager.SelectNextShip();
+            attackManager.SelectRandomShip();
         }
 
-        // the ship keys always pick that ship, even after a target is chosen
-        for (var i = 0; i < shipActions.Length; i++) {
-            if (shipActions[i].WasPressedThisFrame()) {
-                attackManager.SelectShipOfType(shipTypes[i]);
+        for (var i = 0; i < choiceActions.Length; i++) {
+            if (choiceActions[i].WasPressedThisFrame()) {
+                attackManager.ChooseNumber(i + 1);
             }
         }
 
-        if (previousAction.WasPressedThisFrame()) {
-            attackManager.CycleChoice(-1);
-        }
-        if (nextAction.WasPressedThisFrame()) {
-            attackManager.CycleChoice(1);
-        }
-
-        // enter picks the highlighted weapon or pattern, or fires once it's confirmed, never both in one press
         if (fireAction.WasPressedThisFrame()) {
-            if (!attackManager.ChooseHighlighted() && fireButton.isActiveAndEnabled) {
+            if (fireButton.isActiveAndEnabled) {
                 fireButton.onClick.Invoke();
             }
         }

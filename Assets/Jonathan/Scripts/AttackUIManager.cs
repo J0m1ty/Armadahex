@@ -88,8 +88,13 @@ public class AttackUIManager : MonoBehaviour
 
     private BotAI bot;
 
-    // the weapon or pattern the arrow keys are on
-    private int highlighted;
+    // ships always sit on their cards in this order, so a number key always means the same ship
+    private static readonly ShipType[] fleetOrder = { ShipType.Carrier, ShipType.Battleship, ShipType.Submarine, ShipType.Destroyer, ShipType.Cruiser };
+
+    // the hex the mouse is over while aiming, previewed until a click locks it in
+    private GridUnit aimedTarget;
+    // the button row's own gap, the ship cards squeeze it
+    private float choiceSpacing;
 
     [Header("Other")]
     public GameObject skipButton;
@@ -97,6 +102,7 @@ public class AttackUIManager : MonoBehaviour
 
     void Awake() {
         selector = GetComponent<Selector>();
+        choiceSpacing = optionsParent.GetComponent<HorizontalLayoutGroup>().spacing;
 
         shotsFired = 0;
         shotsHit = 0;
@@ -105,7 +111,6 @@ public class AttackUIManager : MonoBehaviour
 
     public void SetState(AttackState state) {
         attackState = state;
-        highlighted = -1;
 
         // a button clicked earlier would otherwise take the enter key too
         if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
@@ -147,65 +152,51 @@ public class AttackUIManager : MonoBehaviour
                     SelectRandomShip();
                 }
                 else {
+                    // the whole turn happens on the enemy board, the fleet is picked from its cards
                     directiveText.transform.parent.gameObject.SetActive(true);
                     directiveText.text = "SELECT A SHIP";
-                    selector.allowSelectingShips = true;
-                    CameraManager.instance.MoveToOnce(TurnManager.instance.playerTeam.teamBase.transform.position);
-                    CameraManager.instance.FrameFleet(true);
+                    selectionUI.SetActive(true);
+                    selectionUI.GetComponent<PanelSlider>().SetState(PanelState.Out);
+                    GenerateShipCards();
+                    CameraManager.instance.MoveToOnce(TurnManager.instance.enemyTeam.teamBase.transform.position);
+                    CameraManager.instance.Frame(TurnManager.instance.enemyTeam.teamBase.transform.position, 1000f);
                 }
                 break;
             case AttackState.Error:
                 errorText.gameObject.SetActive(true);
                 break;
-            case AttackState.SelectTarget:
-                directiveText.transform.parent.gameObject.gameObject.SetActive(true);
-                directiveText.text = "SELECT A TARGET";
-                if (selectedShip != null) directiveText.text += " - " + selectedShip.shipModel.name.ToUpper();
-                selector.allowSelectingGrids = true;
-                selector.SetTeam(TurnManager.instance.playerTeam, TurnManager.instance.enemyTeam.teamBase);
-                
+            case AttackState.SelectAttackOption:
+                directiveText.transform.parent.gameObject.SetActive(true);
+                directiveText.text = "SELECT A WEAPON";
+                selectionUI.SetActive(true);
+                selectionUI.GetComponent<PanelSlider>().SetState(PanelState.Out);
+                backButton.onClick.AddListener(() => {
+                    GoBackToShips();
+                });
+                backButtonParent.SetActive(true);
+                break;
+            case AttackState.SelectAttackPattern:
+                directiveText.transform.parent.gameObject.SetActive(true);
+                directiveText.text = "CLICK A TARGET";
+                AimingUI();
                 if (GameModeInfo.instance.IsAdvancedCombat) {
                     backButton.onClick.AddListener(() => {
-                        GoBackToSelection();
+                        GoBackToWeapons();
                     });
                     backButtonParent.SetActive(true);
-                    CameraManager.instance.MoveToOnce(TurnManager.instance.enemyTeam.teamBase.transform.position);
-                    // the whole enemy board, to pick a target on
-                    CameraManager.instance.Frame(TurnManager.instance.enemyTeam.teamBase.transform.position, 1000f);
                 }
                 else {
-                    backButtonParent.SetActive(false);
                     CameraManager.instance.MoveToInstant(TurnManager.instance.enemyTeam.teamBase.transform.position);
                 }
                 break;
-            case AttackState.SelectAttackOption:
-                directiveText.transform.parent.gameObject.gameObject.SetActive(true);
-                directiveText.text = "SELECT AN ATTACK OPTION";
-                selectionUI.SetActive(true);
-                backButton.onClick.AddListener(() => {
-                    GoBackToTarget();
-                });
-                backButtonParent.SetActive(true);
-                selectionUI.GetComponent<PanelSlider>().SetState(PanelState.Out);
-                break;
-            case AttackState.SelectAttackPattern:
-                directiveText.transform.parent.gameObject.gameObject.SetActive(true);
-                directiveText.text = "SELECT AN ATTACK PATTERN";
-                selectionUI.SetActive(true);
-                selectedOptionText.gameObject.SetActive(true);
-                backButton.onClick.AddListener(() => {
-                    GoBackToAttackOption();
-                });
-                backButtonParent.SetActive(true);
-                selectionUI.GetComponent<PanelSlider>().SetState(PanelState.Out);
-                break;
             case AttackState.Confirm:
+                AimingUI();
                 confirmUI.SetActive(true);
                 confirmButton.onClick.AddListener(() => {
                     ConfirmAttack();
                 });
                 backButton.onClick.AddListener(() => {
-                    GoBackToAttackPattern();
+                    Unlock();
                 });
                 backButtonParent.GetComponentInChildren<TMP_Text>().text = "CANCEL";
                 backButtonParent.SetActive(true);
@@ -218,276 +209,264 @@ public class AttackUIManager : MonoBehaviour
         }
     }
 
+    // aiming and locked in both keep the patterns up and the enemy board clickable
+    private void AimingUI() {
+        selector.allowSelectingGrids = true;
+        selector.SetTeam(TurnManager.instance.playerTeam, TurnManager.instance.enemyTeam.teamBase);
+
+        if (GameModeInfo.instance.IsAdvancedCombat) {
+            selectionUI.SetActive(true);
+            selectedOptionText.gameObject.SetActive(true);
+            selectionUI.GetComponent<PanelSlider>().SetState(PanelState.Out);
+        }
+    }
+
     public void SelectRandomShip() {
-        if (attackState == AttackState.SelectShip) {
-            List<Ship> ships = new List<Ship>();
-            foreach (Ship ship in shipManager.ships) {
-                if (ship.team.isPlayer && ship.hasAmmoLeft && ship.isAlive) {
-                    ships.Add(ship);
-                }
-            }
-            
-            if (ships.Count > 0) {
-                selectedShip = ships[Random.Range(0, ships.Count)];
+        if (attackState != AttackState.SelectShip) return;
 
-                Debug.Log("Randomly selected ship: " + selectedShip.name);
-                
-                SetState(AttackState.SelectTarget);
-            }
-            else {
-                SetState(AttackState.Error);
-                errorText.text = "No ships have ammo left";
-            }
+        var ships = shipManager.playerShips.FindAll(s => s.team.isPlayer && s.hasAmmoLeft && s.isAlive);
+        if (ships.Count > 0) {
+            ChooseShip(ships[Random.Range(0, ships.Count)]);
+        }
+        else {
+            SetState(AttackState.Error);
+            errorText.text = "No ships have ammo left";
         }
     }
 
-    public void SelectNextShip() {
-        if (!GameModeInfo.instance.IsAdvancedCombat) {
-            SelectRandomShip();
+    private List<Ship> FleetInOrder() {
+        var fleet = new List<Ship>();
+        foreach (var type in fleetOrder) {
+            var ship = shipManager.playerShips.Find(s => s.shipModel.type == type);
+            if (ship != null) fleet.Add(ship);
+        }
+        // anything without a slot goes on the end
+        foreach (var ship in shipManager.playerShips) {
+            if (!fleet.Contains(ship)) fleet.Add(ship);
+        }
+        return fleet;
+    }
+
+    public void SelectShip(Ship ship) {
+        if (attackState != AttackState.SelectShip) return;
+
+        if (!ship.team.isPlayer) {
+            errorText.gameObject.SetActive(true);
+            errorText.text = "You can't select an enemy ship";
             return;
         }
-
-        var fleet = shipManager.playerShips;
-        var start = selectedShip != null ? fleet.IndexOf(selectedShip) : -1;
-        for (var i = 1; i <= fleet.Count; i++) {
-            var ship = fleet[(start + i) % fleet.Count];
-            if (ship.isAlive && ship.hasAmmoLeft) {
-                SwapShip(ship);
-                return;
-            }
-        }
-    }
-
-    public void SelectShipOfType(ShipType type) {
-        if (!GameModeInfo.instance.IsAdvancedCombat) return;
-
-        var ship = shipManager.playerShips.Find(s => s.shipModel.type == type);
-        if (ship != null) SwapShip(ship);
-    }
-
-    // picks a ship, or after a target is picked swaps the ship and keeps the target
-    private void SwapShip(Ship ship) {
-        if (attackState == AttackState.SelectShip) {
-            SelectShip(ship);
-            return;
-        }
-
-        var choosing = attackState == AttackState.SelectTarget || attackState == AttackState.SelectAttackOption
-            || attackState == AttackState.SelectAttackPattern || attackState == AttackState.Confirm;
-        if (!choosing || ship == selectedShip) return;
-
         if (!ship.isAlive || !ship.hasAmmoLeft) {
             errorText.gameObject.SetActive(true);
             errorText.text = ship.isAlive ? "This ship has no ammo left" : "This ship is sunk";
             return;
         }
 
-        // drop the old ship's preview and start its weapon choice over, on the same target
-        if (selectedTarget != null) {
-            foreach (var hex in selectedTarget.hexRenderer.hexMap.hexes) {
-                if (hex == selectedTarget) continue;
-                hex.hexRenderer.RemoveFogOverrideColor();
-            }
-        }
+        ChooseShip(ship);
+    }
 
+    private void ChooseShip(Ship ship) {
         selectedShip = ship;
-        selectedOption = null;
-        selectedPattern = null;
+        SetState(AttackState.SelectAttackOption);
+        GenerateAttackOptions();
 
-        var target = selectedTarget;
-        if (target != null) {
-            attackState = AttackState.SelectTarget;
-            SelectTarget(target);
-        }
-        else {
-            directiveText.text = "SELECT A TARGET - " + ship.shipModel.name.ToUpper();
+        // classic only has the single shot, so it goes straight to aiming
+        if (!GameModeInfo.instance.IsAdvancedCombat && ship.remainingAttacks.Length > 0) {
+            SelectAttackOption(ship.remainingAttacks[0]);
         }
     }
 
-    // arrow keys move along the weapon or pattern buttons, previewing patterns like hovering does
-    public void CycleChoice(int direction) {
-        var buttons = ChoiceButtons();
-        if (buttons.Count == 0) return;
+    // number keys and buttons pick the nth thing on screen: a ship, a weapon or a pattern
+    public void ChooseNumber(int number) {
+        var index = number - 1;
+        if (index < 0) return;
 
-        highlighted = highlighted < 0 ? (direction > 0 ? 0 : buttons.Count - 1) : (highlighted + direction + buttons.Count) % buttons.Count;
-
-        for (var i = 0; i < buttons.Count; i++) {
-            var colors = buttons[i].colors;
-            buttons[i].targetGraphic.CrossFadeColor(i == highlighted ? colors.highlightedColor : colors.normalColor, colors.fadeDuration, true, true);
-        }
-
-        if (attackState == AttackState.SelectAttackPattern) {
-            arrowGroup.gameObject.SetActive(true);
-            arrowGroup.SetPatternPreview(highlighted);
-        }
-    }
-
-    // enter on a highlighted weapon or pattern, returns false when there's nothing to pick
-    public bool ChooseHighlighted() {
-        var buttons = ChoiceButtons();
-        if (highlighted < 0 || highlighted >= buttons.Count) return false;
-
-        buttons[highlighted].onClick.Invoke();
-        return true;
-    }
-
-    private List<Button> ChoiceButtons() {
-        Transform parent = null;
-        if (attackState == AttackState.SelectAttackOption) parent = optionsParent.transform;
-        if (attackState == AttackState.SelectAttackPattern) parent = patternsParent.transform;
-
-        var buttons = new List<Button>();
-        if (parent == null) return buttons;
-
-        foreach (Transform child in parent) {
-            var button = child.GetComponent<Button>();
-            if (button != null && child.gameObject.activeInHierarchy) buttons.Add(button);
-        }
-        return buttons;
-    }
-
-    public void SelectShip(Ship ship) {
-        if (attackState == AttackState.SelectShip) {
-            if (ship.team.isPlayer) {
-                if (ship.hasAmmoLeft) {
-                    selectedShip = ship;
-                    SetState(AttackState.SelectTarget);
-                }
-                else {
-                    SetState(AttackState.Error);
-                    errorText.text = "This ship has no ammo left";
-                }
-            }
-            else {
-                SetState(AttackState.Error);
-                errorText.text = "You can't select an enemy ship";
-            }
+        switch (attackState) {
+            case AttackState.SelectShip:
+                var fleet = FleetInOrder();
+                if (index < fleet.Count) SelectShip(fleet[index]);
+                break;
+            case AttackState.SelectAttackOption:
+                var buttons = ChoiceButtons(optionsParent);
+                if (index < buttons.Count && buttons[index].interactable) buttons[index].onClick.Invoke();
+                break;
+            case AttackState.SelectAttackPattern:
+            case AttackState.Confirm:
+                if (selectedOption != null && index < selectedOption.info.options.Length) SetPattern(index);
+                break;
         }
     }
 
-    public void SelectTarget(GridUnit target) {
-        if (attackState == AttackState.SelectTarget) {
-            if (!target.hexRenderer.hexMap.teamBase.team.isPlayer) {
-                selectedTarget = target;
+    public void GenerateShipCards() {
+        selectionDisplay.transform.parent.gameObject.SetActive(false);
+        selectedShipText.text = "YOUR FLEET";
 
-                SetState(AttackState.SelectAttackOption);
-                
-                // dont generate attack options if there is only one
-                if (selectedShip.remainingAttacks.Length == 1) {
-                    SelectAttackOption(selectedShip.remainingAttacks[0]);
-                }
-                else if (selectedShip.attacks.Length == 0) {
-                    SetState(AttackState.Error);
-                    errorText.text = "This ship has no attacks remaining";
-                }
-                else {
-                    GenerateAttackOptions();
-                }
-            }
-            else {
-                SetState(AttackState.Error);
-                errorText.text = "You can't select a friendly target";
-            }
+        ClearChoices(optionsParent);
+        // five cards need the room, the weapons put the gap back
+        optionsParent.GetComponent<HorizontalLayoutGroup>().spacing = 10;
+
+        var texts = new List<TMP_Text>();
+        var fleet = FleetInOrder();
+        for (var i = 0; i < fleet.Count; i++) {
+            var ship = fleet[i];
+            var ready = ship.isAlive && ship.hasAmmoLeft;
+            var label = ShortName(ship.shipModel.type);
+            var card = AddChoice(optionsParent, optionPrefab, i + 1, ready ? label : "<s>" + label + "</s> OUT", ready, () => SelectShip(ship));
+
+            // the number over the name, shrunk to fit rather than broken mid word
+            var text = card.GetComponentInChildren<TMP_Text>();
+            text.text = "<size=160%>" + (i + 1) + "</size>\n" + (ready ? label : "<s>" + label + "</s>\nOUT");
+            text.textWrappingMode = TextWrappingModes.NoWrap;
+            text.fontSizeMax = text.fontSize;
+            text.fontSizeMin = 8;
+            text.enableAutoSizing = true;
+            texts.Add(text);
+        }
+
+        // then every card uses the size the longest name needed, so they read as one row
+        Canvas.ForceUpdateCanvases();
+        var size = float.MaxValue;
+        foreach (var text in texts) {
+            text.ForceMeshUpdate();
+            size = Mathf.Min(size, text.fontSize);
+        }
+        foreach (var text in texts) {
+            text.enableAutoSizing = false;
+            text.fontSize = size;
         }
     }
-    
+
+    private static string ShortName(ShipType type) {
+        switch (type) {
+            case ShipType.Carrier: return "CARRIER";
+            case ShipType.Submarine: return "SUB";
+            default: return type.ToString().ToUpper();
+        }
+    }
+
     public void GenerateAttackOptions() {
+        selectionDisplay.transform.parent.gameObject.SetActive(true);
         selectionDisplay.sprite = selectedShip.shipModel.display;
         selectedShipText.text = selectedShip.shipModel.name;
 
-        foreach (Transform child in optionsParent.transform) {
-            Destroy(child.gameObject);
-        }
-
+        // every weapon shows, the empty ones crossed out, so the choice is always the same shape
+        ClearChoices(optionsParent);
+        optionsParent.GetComponent<HorizontalLayoutGroup>().spacing = choiceSpacing;
+        var number = 1;
         foreach (Attack attack in selectedShip.attacks) {
-            if ((attack.ammoLeft <= 0 && !attack.info.unlimited) || !attack.info.isAllowed) {
-                continue;
-            }
+            if (!attack.info.isAllowed) continue;
 
-            GameObject option = Instantiate(optionPrefab, optionsParent.transform);
-            option.GetComponentInChildren<TMP_Text>().text = attack.info.name;
-            option.GetComponent<Button>().onClick.AddListener(() => SelectAttackOption(attack));
+            var ready = attack.ammoLeft > 0 || attack.info.unlimited;
+            var label = attack.info.name.ToUpper();
+            AddChoice(optionsParent, optionPrefab, number++, ready ? label : "<s>" + label + "</s> OUT", ready, () => SelectAttackOption(attack));
         }
     }
 
     public void SelectAttackOption(Attack attack) {
-        if (attackState == AttackState.SelectAttackOption) {
-            selectedOption = attack;
-            SetState(AttackState.SelectAttackPattern);
+        if (attackState != AttackState.SelectAttackOption) return;
 
-            arrowGroup.SetInfo(selectedTarget, selectedOption);
+        selectedOption = attack;
+        aimedTarget = null;
+        SetState(AttackState.SelectAttackPattern);
+        GenerateAttackPatterns();
 
-            // dont generate attack patterns if there is only one
-            if (selectedOption.info.options.Length == 1) {
-                SelectAttackPattern(selectedOption.info.options[0]);
-            }
-            else if (selectedOption.info.options.Length == 0) {
-                SelectAttackPattern(null);
-            }
-            else {
-                GenerateAttackPatterns();
-            }
-        }
+        // the first pattern is ready to aim with straight away
+        SetPattern(0);
     }
 
     public void GenerateAttackPatterns() {
-        Debug.Log("Generating attack patterns");
-
+        selectionDisplay.transform.parent.gameObject.SetActive(true);
         selectionDisplay.sprite = selectedShip.shipModel.display;
         selectedShipText.text = selectedShip.shipModel.name;
         selectedOptionText.text = selectedOption.info.name;
 
-        foreach (Transform child in patternsParent.transform) {
-            Destroy(child.gameObject);
-        }
-
-        arrowGroup.SetInfo(selectedTarget, selectedOption);
-        arrowGroup.disableButtons = false;
-
-        var i = 0;
-        foreach (AttackPattern pattern in selectedOption.info.options) {
-            GameObject patternObj = Instantiate(patternPrefab, patternsParent.transform);
-            patternObj.GetComponentInChildren<TMP_Text>().text = pattern.name;
-
-            var bl = patternObj.AddComponent<ButtonListener>();
-            bl.index = i;
-
-            patternObj.GetComponent<Button>().onClick.AddListener(() => {
-                arrowGroup.disableButtons = true;
-                SelectAttackPattern(bl.index);
-            });
-            
-            bl.OnMouseEnter += () => {
-                arrowGroup.gameObject.SetActive(true);
-                arrowGroup.SetPatternPreview(bl.index);
-            };
-            bl.OnMouseExit += () => {
-                arrowGroup.gameObject.SetActive(false);
-            };
-
-            i++;
+        ClearChoices(patternsParent);
+        patternsParent.GetComponent<HorizontalLayoutGroup>().spacing = choiceSpacing;
+        var patterns = selectedOption.info.options;
+        for (var i = 0; i < patterns.Length; i++) {
+            var index = i;
+            AddChoice(patternsParent, patternPrefab, i + 1, patterns[i].name.ToUpper(), true, () => SetPattern(index));
         }
     }
 
-    public void SelectAttackPattern(int index) {
-        if (attackState == AttackState.SelectAttackPattern) {
-            if (index >= 0 && index < selectedOption.info.options.Length) {
-                SelectAttackPattern(selectedOption.info.options[index]);
-            }
+    // a pattern only changes the aim, nothing fires until a hex is locked in and confirmed
+    public void SetPattern(int index) {
+        if (attackState != AttackState.SelectAttackPattern && attackState != AttackState.Confirm) return;
+
+        var patterns = selectedOption.info.options;
+        // single shots have no pattern
+        selectedPattern = index >= 0 && index < patterns.Length ? patterns[index] : null;
+
+        var buttons = ChoiceButtons(patternsParent);
+        for (var i = 0; i < buttons.Count; i++) {
+            MarkChosen(buttons[i], i == index);
+        }
+
+        Preview(selectedTarget ?? aimedTarget);
+        GenerateConfirmationInfo();
+    }
+
+    // the selector calls this as the mouse moves over the enemy board
+    public void AimAt(GridUnit target) {
+        if (attackState != AttackState.SelectAttackPattern || target == aimedTarget) return;
+
+        aimedTarget = target;
+        Preview(target);
+    }
+
+    private void Preview(GridUnit at) {
+        if (at == null || selectedPattern == null) {
+            arrowGroup.gameObject.SetActive(false);
+            ClearPreviewFog(at);
+            return;
+        }
+
+        arrowGroup.gameObject.SetActive(true);
+        arrowGroup.SetPatternPreview(at, selectedOption, selectedPattern);
+    }
+
+    private void ClearPreviewFog(GridUnit keep) {
+        foreach (var hex in TurnManager.instance.enemyTeam.teamBase.hexMap.hexes) {
+            if (hex == keep || hex == selectedTarget) continue;
+            hex.hexRenderer.RemoveFogOverrideColor();
         }
     }
 
-    public void SelectAttackPattern(AttackPattern pattern) {
-        if (attackState == AttackState.SelectAttackPattern) {
-            selectedPattern = pattern;
-            SetState(AttackState.Confirm);
+    // a click on the enemy board locks the shot in there
+    public void SelectTarget(GridUnit target) {
+        if (attackState != AttackState.SelectAttackPattern && attackState != AttackState.Confirm) return;
 
-            GenerateConfirmationInfo();
+        if (target.hexRenderer.hexMap.teamBase.team.isPlayer) {
+            errorText.gameObject.SetActive(true);
+            errorText.text = "You can't select a friendly target";
+            return;
+        }
 
-            if (pattern != null) {
-                arrowGroup.gameObject.SetActive(true);
-                arrowGroup.SetPatternPreview(selectedTarget, selectedOption, pattern);
-            }
+        selectedTarget = target;
+        SetState(AttackState.Confirm);
+        RemarkPattern();
+        Preview(target);
+        GenerateConfirmationInfo();
+    }
+
+    // back to aiming with the mouse, the pattern stays
+    public void Unlock() {
+        if (attackState != AttackState.Confirm) return;
+
+        if (selectedTarget != null) selectedTarget.hexRenderer.RemoveFogOverrideColor();
+        selectedTarget = null;
+        aimedTarget = null;
+        selector.ClearSelection();
+
+        SetState(AttackState.SelectAttackPattern);
+        RemarkPattern();
+        Preview(null);
+    }
+
+    private void RemarkPattern() {
+        var index = selectedPattern != null ? System.Array.IndexOf(selectedOption.info.options, selectedPattern) : 0;
+        var buttons = ChoiceButtons(patternsParent);
+        for (var i = 0; i < buttons.Count; i++) {
+            MarkChosen(buttons[i], i == index);
         }
     }
 
@@ -501,6 +480,41 @@ public class AttackUIManager : MonoBehaviour
         }
     }
 
+    private void ClearChoices(GameObject parent) {
+        var old = new List<GameObject>();
+        foreach (Transform child in parent.transform) old.Add(child.gameObject);
+        foreach (var obj in old) {
+            obj.SetActive(false);
+            Destroy(obj);
+        }
+    }
+
+    private Button AddChoice(GameObject parent, GameObject prefab, int number, string label, bool ready, UnityEngine.Events.UnityAction onClick) {
+        var obj = Instantiate(prefab, parent.transform);
+        obj.GetComponentInChildren<TMP_Text>().text = number + "  " + label;
+
+        var button = obj.GetComponent<Button>();
+        button.interactable = ready;
+        if (ready) button.onClick.AddListener(onClick);
+        return button;
+    }
+
+    // the chosen pattern reads white and underlined, the rest keep the button's own look
+    private void MarkChosen(Button button, bool chosen) {
+        var text = button.GetComponentInChildren<TMP_Text>();
+        text.fontStyle = chosen ? FontStyles.Underline : FontStyles.Normal;
+        text.color = chosen ? Color.white : patternPrefab.GetComponentInChildren<TMP_Text>().color;
+    }
+
+    private List<Button> ChoiceButtons(GameObject parent) {
+        var buttons = new List<Button>();
+        foreach (Transform child in parent.transform) {
+            var button = child.GetComponent<Button>();
+            if (button != null && child.gameObject.activeInHierarchy) buttons.Add(button);
+        }
+        return buttons;
+    }
+
     public void SkipTurn() {
         if (TurnManager.instance.currentTeam.isPlayer && !countdown.isPaused) {
             RandomAttack();
@@ -511,34 +525,35 @@ public class AttackUIManager : MonoBehaviour
         RandomAttack(AttackState.SelectShip);
     }
 
+    // fills in whatever the player hasn't picked yet and fires, for skipping and running out of time
     public void RandomAttack(AttackState startAt) {
         if (attackState == AttackState.None || attackState == AttackState.AttackOver) {
             return;
         }
 
-        if (startAt == AttackState.SelectShip && attackState != startAt) {
-            startAt = attackState;
+        if (selectedShip == null || !selectedShip.isAlive || !selectedShip.hasAmmoLeft) {
+            var ships = shipManager.playerShips.FindAll(s => s.hasAmmoLeft && s.team.isPlayer && s.isAlive);
+            if (ships.Count == 0) return;
+
+            selectedShip = ships[Random.Range(0, ships.Count)];
+            selectedOption = null;
+            selectedPattern = null;
         }
 
-        attackState = startAt;
+        if (selectedOption == null) {
+            var options = selectedShip.remainingAttacks;
+            if (options.Length == 0) return;
 
-        if (startAt == AttackState.SelectShip) {
-            var ships = shipManager.playerShips;
-            var ship = ships[Random.Range(0, ships.Count)];
-            var valid = ship.hasAmmoLeft && ship.team.isPlayer && ship.isAlive;
-            var n = 0;
-            while (!valid) {
-                ship = ships[Random.Range(0, ships.Count)];
-                valid = ship.hasAmmoLeft && ship.team.isPlayer && ship.isAlive;
-                n++;
-                if (n > 10) {
-                    return;
-                }
-            }
-            selectedShip = ship;
-            RandomAttack(AttackState.SelectTarget);
+            selectedOption = options[Random.Range(0, options.Length)];
+            selectedPattern = null;
         }
-        else if (startAt == AttackState.SelectTarget) {
+
+        var patterns = selectedOption.info.options;
+        if (selectedPattern == null && patterns.Length > 0) {
+            selectedPattern = patterns[Random.Range(0, patterns.Length)];
+        }
+
+        if (selectedTarget == null) {
             var targets = TurnManager.instance.enemyTeam.teamBase.hexMap.hexes;
             var target = targets[Random.Range(0, targets.Count)];
             var valid = (target.shipSegment?.isAlive ?? true) && target.hexRenderer.gameObject.activeSelf;
@@ -547,41 +562,10 @@ public class AttackUIManager : MonoBehaviour
                 valid = (target.shipSegment?.isAlive ?? true) && target.hexRenderer.gameObject.activeSelf;
             }
             selectedTarget = target;
-            RandomAttack(AttackState.SelectAttackOption);
         }
-        else if (startAt == AttackState.SelectAttackOption) {
-            var options = selectedShip.remainingAttacks;
-            if (options.Length == 0) {
-                RandomAttack(AttackState.SelectShip);
-                return;
-            }
-            else if (options.Length == 1) {
-                selectedOption = options[0];
-                RandomAttack(AttackState.SelectAttackPattern);
-                return;
-            }
-            var option = options[Random.Range(0, options.Length)];
-            selectedOption = option;
-            RandomAttack(AttackState.SelectAttackPattern);
-        }
-        else if (startAt == AttackState.SelectAttackPattern) {
-            var patterns = selectedOption.info.options;
-            if (patterns.Length == 0) {
-                RandomAttack(AttackState.Confirm);
-                return;
-            }
-            else if (patterns.Length == 1) {
-                selectedPattern = patterns[0];
-                RandomAttack(AttackState.Confirm);
-                return;
-            }
-            var pattern = patterns[Random.Range(0, patterns.Length)];
-            selectedPattern = pattern;
-            RandomAttack(AttackState.Confirm);
-        }
-        else if (startAt == AttackState.Confirm) {
-            ConfirmAttack();
-        }
+
+        attackState = AttackState.Confirm;
+        ConfirmAttack();
     }
 
     public void ConfirmAttack() {
@@ -852,83 +836,25 @@ public class AttackUIManager : MonoBehaviour
 
     public event AttackEvent OnAttack;
 
-    public void GoBackToAttackPattern() {
-        if (attackState == AttackState.Confirm) {
-            if (selectedTarget != null) {
-                foreach (var hex in selectedTarget.hexRenderer.hexMap.hexes) {
-                    if (hex == selectedTarget) continue;
-                    hex.hexRenderer.RemoveFogOverrideColor();
-                }
-            }
+    public void GoBackToWeapons() {
+        if (attackState != AttackState.SelectAttackPattern) return;
 
-            selectedPattern = null;
-            
-            SetState(AttackState.SelectAttackPattern);
+        Preview(null);
+        selectedOption = null;
+        selectedPattern = null;
+        aimedTarget = null;
 
-            // go back further if there is only one or no attack options
-            // or if the current attack option has no ammo left
-            if (selectedOption.info.options.Length == 1 || selectedOption.info.options.Length == 0 || (selectedOption.ammoLeft <= 0 && !selectedOption.info.unlimited) || !selectedOption.info.isAllowed) {
-                GoBackToAttackOption();
-            }
-            else {
-                GenerateAttackPatterns();
-            }
-        }
+        SetState(AttackState.SelectAttackOption);
+        GenerateAttackOptions();
     }
 
-    public void GoBackToAttackOption() {
-        if (attackState == AttackState.SelectAttackPattern) {
-            if (selectedTarget != null) {
-                foreach (var hex in selectedTarget.hexRenderer.hexMap.hexes) {
-                    if (hex == selectedTarget) continue;
-                    hex.hexRenderer.RemoveFogOverrideColor();
-                }
-            }
+    public void GoBackToShips() {
+        if (attackState != AttackState.SelectAttackOption) return;
 
-            selectedOption = null;
-            selectedPattern = null;
-
-            SetState(AttackState.SelectAttackOption);
-
-            // go back further if there is only one or none attack option
-            if (selectedShip.remainingAttacks.Length == 1 || selectedShip.remainingAttacks.Length == 0) {
-                GoBackToTarget();
-            }
-            else {
-                GenerateAttackOptions();
-            }
-        }
-    }
-
-    public void GoBackToTarget() {
-        if (attackState == AttackState.SelectAttackOption) {
-            if (selectedTarget != null) {
-                foreach (var hex in selectedTarget.hexRenderer.hexMap.hexes) {
-                    hex.hexRenderer.RemoveFogOverrideColor();
-                }
-            }
-
-            selectedTarget = null;
-            selectedOption = null;
-            selectedPattern = null;
-
-            SetState(AttackState.SelectTarget);
-
-            // go back further if the ship is out of ammo completely
-            if (selectedShip.remainingAttacks.Length == 0) {
-                GoBackToSelection();
-            }
-        }
-    }
-
-    public void GoBackToSelection() {
-        if (attackState == AttackState.SelectTarget) {
-            SetState(AttackState.SelectShip);
-            selectedShip = null;
-            selectedTarget = null;
-            selectedOption = null;
-            selectedPattern = null;
-        }
+        selectedShip = null;
+        selectedOption = null;
+        selectedPattern = null;
+        SetState(AttackState.SelectShip);
     }
 
     public static int Convert(Rotation r, bool reverse) {

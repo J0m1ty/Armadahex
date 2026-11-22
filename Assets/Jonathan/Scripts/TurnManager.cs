@@ -182,8 +182,9 @@ public class TurnManager : MonoBehaviour
 
         selector.SetTeam(TurnManager.instance.playerTeam, TurnManager.instance.otherTeam.teamBase);
         attackManager.SetState(AttackUIManager.AttackState.SelectShip);
+        // your whole turn happens on the enemy board, you only go home to watch their shots
         if (GameModeInfo.instance.IsAdvancedCombat) {
-            CameraManager.instance.MoveTo(TurnManager.instance.playerTeam.teamBase.transform.position);
+            CameraManager.instance.MoveTo(TurnManager.instance.enemyTeam.teamBase.transform.position);
         }
         else {
             CameraManager.instance.MoveToInstant(TurnManager.instance.enemyTeam.teamBase.transform.position);
