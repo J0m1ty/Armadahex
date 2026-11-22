@@ -99,7 +99,9 @@ public class LODMeshGenerator : MonoBehaviour
 
     [Header("Follow Settings")]
     public bool followCamera = true;
-    // must be a multiple of the finest cell and move every texture by whole tiles (uv = world / 2, foam patterns are scaled down further)
+    // world units per texture tile, bigger reads better from the zoomed out cameras
+    public float worldPerTile = 2f;
+    // must be a multiple of the finest cell and move every texture by whole tiles (uv = world / worldPerTile, foam patterns are scaled down further)
     public int snapSize = 64;
     public float maxFocusDistance = 600f;
 
@@ -191,7 +193,7 @@ public class LODMeshGenerator : MonoBehaviour
             var v4 = new Vector3(x + s / 2f, 0, y + s / 2f);
             
             var gridSize = 1 << exp;
-            var toSize = uvType == 0 ? gridSize / 2 : 1;
+            var toSize = uvType == 0 ? gridSize / worldPerTile : 1;
 
             var uvx = Map(x, 0, gridSize, 0, toSize);
             var uvy = Map(y, 0, gridSize, 0, toSize);

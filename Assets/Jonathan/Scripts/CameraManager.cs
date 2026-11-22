@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 using EZCameraShake;
 
 public enum CameraState {
-    Side = 0,
+    Pivot = 0,
     Top = 1
 }
 
@@ -92,7 +92,7 @@ public class CameraManager : MonoBehaviour
     void Update() {
         // not during the intro, it still has the rig cameras switched off
         if (switchViewAction.WasPressedThisFrame() && TurnManager.instance != null && TurnManager.instance.gameActive && !GameInput.typing) {
-            SetCameraState(state == CameraState.Side ? CameraState.Top : CameraState.Side);
+            SetCameraState(state == CameraState.Pivot ? CameraState.Top : CameraState.Pivot);
         }
     }
 
@@ -117,7 +117,7 @@ public class CameraManager : MonoBehaviour
         volley = null;
         volleyFocus = null;
 
-        var controller = state == CameraState.Side ? sideCameraController : topCameraController;
+        var controller = state == CameraState.Pivot ? sideCameraController : topCameraController;
         controller.FocusOn(area);
     }
 
@@ -125,7 +125,7 @@ public class CameraManager : MonoBehaviour
         CameraShaker cameraShaker;
 
         switch (state) {
-            case CameraState.Side:
+            case CameraState.Pivot:
                 cameraShaker = sideCamera.GetComponentInChildren<CameraShaker>();
                 break;
             case CameraState.Top:
@@ -153,7 +153,7 @@ public class CameraManager : MonoBehaviour
         CameraController cameraController = null;
         CameraController otherController = null;
         switch (state) {
-            case CameraState.Side:
+            case CameraState.Pivot:
                 sideCamera.SetActive(true);
                 topCamera.SetActive(false);
                 cameraController = sideCameraController;
@@ -189,7 +189,7 @@ public class CameraManager : MonoBehaviour
     public void MoveToOnce(Vector3 pos) {
         centerPos = pos;
         switch (state) {
-            case CameraState.Side:
+            case CameraState.Pivot:
                 if (sideCameraController.AlreadyAt(pos))
                     return;
                 sideCameraController.MoveTo(pos);
@@ -206,7 +206,7 @@ public class CameraManager : MonoBehaviour
     public void MoveToInstant(Vector3 pos) {
         centerPos = pos;
         switch (state) {
-            case CameraState.Side:
+            case CameraState.Pivot:
                 if (sideCameraController.AlreadyAt(pos))
                     return;
                 sideCameraController.InstantMoveTo(pos);
@@ -223,7 +223,7 @@ public class CameraManager : MonoBehaviour
     public void MoveTo(Vector3 pos) {
         centerPos = pos;
         switch (state) {
-            case CameraState.Side:
+            case CameraState.Pivot:
                 sideCameraController.MoveTo(pos);
                 break;
             case CameraState.Top:
@@ -234,7 +234,7 @@ public class CameraManager : MonoBehaviour
 
     public void ZoomIn() {
         switch (state) {
-            case CameraState.Side:
+            case CameraState.Pivot:
                 sideCameraController.ZoomIn();
                 break;
             case CameraState.Top:
@@ -245,7 +245,7 @@ public class CameraManager : MonoBehaviour
 
     public void ZoomOut() {
         switch (state) {
-            case CameraState.Side:
+            case CameraState.Pivot:
                 sideCameraController.ZoomOut();
                 break;
             case CameraState.Top:

@@ -262,6 +262,7 @@ MonoBehaviour:
   uvType: 0
   webglDetailRange: 0.75
   followCamera: 1
+  worldPerTile: 4
   snapSize: 64
   maxFocusDistance: 600
 --- !u!114 &9732572
@@ -9458,7 +9459,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: SIDE
+  m_text: PIVOT
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 188c223edccabb84cab7481d8dde244e, type: 2}
   m_sharedMaterial: {fileID: 6207066522266649750, guid: 188c223edccabb84cab7481d8dde244e, type: 2}
@@ -17978,10 +17979,12 @@ MonoBehaviour:
   fitPadding: 1.05
   closestZoom: 0.3
   zoomStep: 0.12
+  farthestZoom: 1
   orthoHeight: 700
   focusOnShots: 1
   focusHold: 1.4
   focusClosest: 0.75
+  focusAmount: 1
   zoomAmountButton: 7
 --- !u!1 &1712294340
 GameObject:
@@ -22311,17 +22314,19 @@ MonoBehaviour:
   hopUp: 1
   control: 2
   orbitSpeed: 70
-  pullSpeed: 0.7
+  pullSpeed: 2.1
   closePitch: 55
   farPitch: 60
   fitBoard: 1
   fitPadding: 0.85
   closestZoom: 0.4
-  zoomStep: 0.12
+  zoomStep: 0.36
+  farthestZoom: 1.5
   orthoHeight: 700
   focusOnShots: 1
   focusHold: 2
   focusClosest: 0.35
+  focusAmount: 0.5
   zoomAmountButton: 7
 --- !u!1 &2129985460
 GameObject:

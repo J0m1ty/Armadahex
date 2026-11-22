@@ -127,6 +127,11 @@ public class CameraController : MonoBehaviour
     // fraction of the distance one scroll notch moves
     [SerializeField]
     private float zoomStep = 0.12f;
+    // how far past the whole board a pivot view can pull out
+    [SerializeField]
+    private float farthestZoom = 1f;
+    private float fitDistance;
+    private float fitPull = 1f;
     // how high an orthographic view sits, it only matters for fog and clipping
     [SerializeField]
     private float orthoHeight = 700f;
@@ -143,6 +148,9 @@ public class CameraController : MonoBehaviour
     // never closer than this fraction of the whole board distance
     [SerializeField]
     private float focusClosest = 0.5f;
+    // how much of the way in to a volley it goes, 1 all the way
+    [SerializeField]
+    private float focusAmount = 1f;
     private Coroutine focus;
     private Vector3 focusReturnPosition;
     private Vector3 focusReturnZoom;
@@ -279,10 +287,14 @@ public class CameraController : MonoBehaviour
         fitTan = Mathf.Tan(Mathf.Min(halfV, halfH));
 
         var fit = boardRadius * fitPadding / fitTan;
-        zoomRange = new MinMaxFloat(fit * closestZoom, fit);
+        fitDistance = fit;
+        zoomRange = new MinMaxFloat(fit * closestZoom, fit * Mathf.Max(1f, farthestZoom));
+        // the whole board is the resting zoom, even when it can pull out further
+        fitPull = Mathf.InverseLerp(zoomRange.Min, zoomRange.Max, fit);
 
         if (first) {
             newZoom = ZoomDirection() * fit;
+            pull = targetPull = fitPull;
         }
     }
 
@@ -372,7 +384,9 @@ public class CameraController : MonoBehaviour
         newPosition = new Vector3(offset.x, 0, offset.z);
 
         var radius = Mathf.Max(area.extents.x, area.extents.z) + boardRadius * 0.15f;
-        var distance = Mathf.Clamp(radius * fitPadding / fitTan, zoomRange.Max * focusClosest, zoomRange.Max);
+        var distance = Mathf.Clamp(radius * fitPadding / fitTan, fitDistance * focusClosest, fitDistance);
+        // only part of the way in from where it is now
+        distance = Mathf.Lerp(Mathf.Lerp(zoomRange.Min, zoomRange.Max, targetPull), distance, focusAmount);
         newZoom = ZoomDirection() * distance;
         targetPull = Mathf.InverseLerp(zoomRange.Min, zoomRange.Max, distance);
 
@@ -486,7 +500,7 @@ public class CameraController : MonoBehaviour
 
         StopFocus(true);
         newPosition = new Vector3(0, 0, 0);
-        targetPull = 1f;
+        targetPull = fitPull;
         newCenter = position;
 
         // far moves hop up over the terrain, slide across, then drop back down
@@ -505,7 +519,7 @@ public class CameraController : MonoBehaviour
         if (!AlreadyAt(position)) {
             StopFocus(true);
             newPosition = new Vector3(0, 0, 0);
-            targetPull = 1f;
+            targetPull = fitPull;
         }
         newCenter = position;
         center = newCenter;

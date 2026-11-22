@@ -163,7 +163,7 @@ public class Selector : MonoBehaviour
                     HoverClouds(hex);
 
                     hexBorder.SetVisibility(true);
-                    playerHexHighlight.transform.position = hex.transform.position;
+                    playerHexHighlight.transform.position = RingPosition(hex);
                 } else {
                     hexBorder.SetVisibility(false);
                     HoverClouds(null);
@@ -185,7 +185,7 @@ public class Selector : MonoBehaviour
             if (selectedHex != null) selectedHex.RemoveFogOverrideColor();
             selectedHex = hex;
             HoverClouds(hex);
-            playerHexHighlight.transform.position = hex.transform.position;
+            playerHexHighlight.transform.position = RingPosition(hex);
             hexBorder.SetVisibility(true);
             hexBorder.SetColor(lockedInColor);
             hexBorder.SetHeight(lockedInHeight);
@@ -193,6 +193,21 @@ public class Selector : MonoBehaviour
 
             attackUIManager.SelectTarget(hex.gridRef);
         }
+    }
+
+    // roughly where the cloud tops read over a hex, as a height above the board
+    private static float CloudSurface(CloudFog clouds, float cover) {
+        return Mathf.Lerp(clouds.cloudBase, clouds.cloudTop, 0.75f * cover);
+    }
+
+    // over the clouds the ring sits on their tops, so it shows where the mouse is from any angle
+    private Vector3 RingPosition(HexRenderer hex) {
+        var position = hex.transform.position;
+        var clouds = hex.hexMap.clouds;
+        if (clouds != null && hex.fog != null && !hex.fog.cleared && hex.fog.cover > 0.5f) {
+            position.y = hex.hexMap.transform.position.y + CloudSurface(clouds, hex.fog.cover);
+        }
+        return position;
     }
 
     // walks the ray down through the cloud layer and returns the first hex still covered by its cloud
@@ -208,7 +223,7 @@ public class Selector : MonoBehaviour
         var top = ray.GetPoint((baseY + clouds.cloudTop - ray.origin.y) / ray.direction.y);
         var bottom = ray.GetPoint((baseY + clouds.cloudBase - ray.origin.y) / ray.direction.y);
 
-        var steps = Mathf.Max(1, Mathf.CeilToInt(Vector3.Distance(top, bottom) / (grid.size * 0.25f)));
+        var steps = Mathf.Max(1, Mathf.CeilToInt(Vector3.Distance(top, bottom) / (grid.size * 0.15f)));
         for (var i = 0; i <= steps; i++) {
             var point = Vector3.Lerp(top, bottom, i / (float)steps);
 
@@ -226,7 +241,9 @@ public class Selector : MonoBehaviour
                 }
             }
 
-            if (nearest != null && nearest.fog != null && !nearest.fog.cleared && nearest.fog.cover > 0.5f) {
+            // a hex only counts once the ray is inside its cloud, whose visible top sits lower the thinner it is
+            if (nearest != null && nearest.fog != null && !nearest.fog.cleared && nearest.fog.cover > 0.5f
+                && point.y <= baseY + CloudSurface(clouds, nearest.fog.cover)) {
                 return nearest;
             }
         }
