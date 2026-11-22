@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// shifts the sky toward each side's color as the camera moves between the two bases
+// shifts the sky and the horizon haze toward each side's color as the camera moves between the two bases
 [RequireComponent(typeof(TeamManager))]
 public class SideSky : MonoBehaviour
 {
@@ -14,6 +14,11 @@ public class SideSky : MonoBehaviour
     private Color friendlyHorizon = new Color(1f, 0.72f, 0.4f);
     [SerializeField]
     private Color enemyHorizon = new Color(1f, 0.38f, 0.22f);
+    // the haze along the water and the bottom of the sky share one color so they read as one band
+    [SerializeField]
+    private Color friendlyHaze = new Color(0.52f, 0.66f, 0.8f);
+    [SerializeField]
+    private Color enemyHaze = new Color(0.8f, 0.55f, 0.52f);
 
     // the part of the way between the bases the blend happens over
     [SerializeField]
@@ -23,6 +28,7 @@ public class SideSky : MonoBehaviour
 
     private static readonly int topId = Shader.PropertyToID("_SkyGradientTop");
     private static readonly int horizonId = Shader.PropertyToID("_HorizonLineColor");
+    private static readonly int bottomId = Shader.PropertyToID("_SkyGradientBottom");
 
     private TeamManager teamManager;
     private Material sky;
@@ -65,5 +71,9 @@ public class SideSky : MonoBehaviour
 
         sky.SetColor(topId, Color.Lerp(friendlyTop, enemyTop, t));
         sky.SetColor(horizonId, Color.Lerp(friendlyHorizon, enemyHorizon, t));
+
+        var haze = Color.Lerp(friendlyHaze, enemyHaze, t);
+        sky.SetColor(bottomId, haze);
+        RenderSettings.fogColor = haze;
     }
 }
