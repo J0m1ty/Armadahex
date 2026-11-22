@@ -114,6 +114,11 @@ public class CameraController : MonoBehaviour
         transform.position = new Vector3(Mathf.Clamp(transform.position.x, -maxDist, maxDist), Mathf.Clamp(transform.position.y, -maxDist, maxDist), Mathf.Clamp(transform.position.z, -maxDist, maxDist));
         newPosition = new Vector3(Mathf.Clamp(newPosition.x, -maxDist, maxDist), Mathf.Clamp(newPosition.y, -maxDist, maxDist), Mathf.Clamp(newPosition.z, -maxDist, maxDist));
 
+        // a rig that hasn't started yet can hand over an empty rotation when switching views
+        if (newRotation.x == 0f && newRotation.y == 0f && newRotation.z == 0f && newRotation.w == 0f) {
+            newRotation = transform.rotation;
+        }
+
         transform.rotation = Quaternion.Lerp(transform.rotation, newRotation, Time.deltaTime * movementTime);
         followChild.transform.localPosition = Vector3.Lerp(followChild.transform.localPosition, newZoom, Time.deltaTime * movementTime);
 
