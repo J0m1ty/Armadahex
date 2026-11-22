@@ -53,6 +53,10 @@ public class CameraManager : MonoBehaviour
 
     private InputAction switchViewAction;
 
+    // shots landing within a moment of each other are one volley
+    private Bounds? volley;
+    private Coroutine volleyFocus;
+
     
     #if UNITY_EDITOR
     [Header("Debug Options")]
@@ -89,6 +93,31 @@ public class CameraManager : MonoBehaviour
         if (switchViewAction.WasPressedThisFrame() && TurnManager.instance != null && TurnManager.instance.gameActive) {
             SetCameraState(state == CameraState.Side ? CameraState.Top : CameraState.Side);
         }
+    }
+
+    public void NoteShot(Vector3 position) {
+        if (volley == null) {
+            volley = new Bounds(position, Vector3.zero);
+        } else {
+            var area = volley.Value;
+            area.Encapsulate(position);
+            volley = area;
+        }
+
+        if (volleyFocus == null) {
+            volleyFocus = StartCoroutine(FocusVolley());
+        }
+    }
+
+    private IEnumerator FocusVolley() {
+        yield return new WaitForSeconds(0.1f);
+
+        var area = volley.Value;
+        volley = null;
+        volleyFocus = null;
+
+        var controller = state == CameraState.Side ? sideCameraController : topCameraController;
+        controller.FocusOn(area);
     }
 
     public void Shake(bool hit) {

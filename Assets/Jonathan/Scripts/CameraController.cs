@@ -83,6 +83,35 @@ public class CameraController : MonoBehaviour
     private bool hopUp = true;
     private Coroutine hop;
 
+    [Header("Board Fit")]
+    // the farthest zoom frames the whole board, so every shot is in view without panning
+    [SerializeField]
+    private bool fitBoard;
+    [SerializeField]
+    private float fitPadding = 1.1f;
+    // closest zoom, as a fraction of the whole board distance
+    [SerializeField]
+    private float closestZoom = 0.3f;
+    // fraction of the distance one scroll notch moves
+    [SerializeField]
+    private float zoomStep = 0.12f;
+    private float boardRadius;
+    private float fitTan;
+    private Vector3? fittedFor;
+
+    [Header("Shot Focus")]
+    // briefly zoom to where a volley landed, then go back
+    [SerializeField]
+    private bool focusOnShots;
+    [SerializeField]
+    private float focusHold = 1.6f;
+    // never closer than this fraction of the whole board distance
+    [SerializeField]
+    private float focusClosest = 0.5f;
+    private Coroutine focus;
+    private Vector3 focusReturnPosition;
+    private Vector3 focusReturnZoom;
+
     private InputAction moveAction;
     private InputAction fastAction;
     private InputAction rotateAction;
@@ -125,6 +154,10 @@ public class CameraController : MonoBehaviour
 
         transform.position -= appliedCenter;
 
+        if (fitBoard) {
+            FitBoard();
+        }
+
         newZoom = newZoom.normalized * Mathf.Clamp(newZoom.magnitude, zoomRange.Min + distanceOffset, zoomRange.Max + distanceOffset);
 
         newZoom.y = Mathf.Abs(newZoom.y);
@@ -132,8 +165,14 @@ public class CameraController : MonoBehaviour
 
         transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime * movementTime);
         // constrain transform.position and newPosition to 100 units from the origin
-        transform.position = new Vector3(Mathf.Clamp(transform.position.x, -maxDist, maxDist), Mathf.Clamp(transform.position.y, -maxDist, maxDist), Mathf.Clamp(transform.position.z, -maxDist, maxDist));
-        newPosition = new Vector3(Mathf.Clamp(newPosition.x, -maxDist, maxDist), Mathf.Clamp(newPosition.y, -maxDist, maxDist), Mathf.Clamp(newPosition.z, -maxDist, maxDist));
+        // a fitted board can only be panned as far as zooming in hides it
+        var limit = maxDist;
+        if (fitBoard && boardRadius > 0) {
+            // a shot focus may need to reach the board's edge
+            limit = focus != null ? boardRadius : boardRadius * (1f - 0.8f * Mathf.InverseLerp(zoomRange.Min, zoomRange.Max, newZoom.magnitude));
+        }
+        transform.position = new Vector3(Mathf.Clamp(transform.position.x, -limit, limit), Mathf.Clamp(transform.position.y, -limit, limit), Mathf.Clamp(transform.position.z, -limit, limit));
+        newPosition = new Vector3(Mathf.Clamp(newPosition.x, -limit, limit), Mathf.Clamp(newPosition.y, -limit, limit), Mathf.Clamp(newPosition.z, -limit, limit));
 
         // a rig that hasn't started yet can hand over an empty rotation when switching views
         if (newRotation.x == 0f && newRotation.y == 0f && newRotation.z == 0f && newRotation.w == 0f) {
@@ -162,12 +201,114 @@ public class CameraController : MonoBehaviour
             hop = null;
             center = newCenter;
         }
+
+        StopFocus(true);
+    }
+
+    // sets the zoom range from the board at the current center, once per center
+    private void FitBoard() {
+        if (fittedFor == newCenter) return;
+
+        var radius = BoardRadius(newCenter);
+        if (radius <= 0) return;
+
+        var first = fittedFor == null;
+        fittedFor = newCenter;
+        boardRadius = radius;
+
+        var cam = newCameraChild.GetComponentInChildren<Camera>();
+        var halfV = cam.fieldOfView * 0.5f * Mathf.Deg2Rad;
+        var halfH = Mathf.Atan(Mathf.Tan(halfV) * cam.aspect);
+        fitTan = Mathf.Tan(Mathf.Min(halfV, halfH));
+
+        var fit = boardRadius * fitPadding / fitTan;
+        zoomRange = new MinMaxFloat(fit * closestZoom, fit);
+
+        if (first) {
+            newZoom = ZoomDirection() * fit;
+        }
+    }
+
+    private float BoardRadius(Vector3 at) {
+        HexGrid nearest = null;
+        var best = float.MaxValue;
+        foreach (var grid in FindObjectsByType<HexGrid>(FindObjectsSortMode.None)) {
+            var distance = Vector3.Distance(grid.transform.position, at);
+            if (distance < best) {
+                best = distance;
+                nearest = grid;
+            }
+        }
+
+        if (nearest == null || nearest.hexes == null) return 0;
+
+        var radius = 0f;
+        foreach (var unit in nearest.hexes) {
+            if (unit.hexRenderer == null || !unit.hexRenderer.gameObject.activeInHierarchy) continue;
+
+            var offset = unit.hexRenderer.transform.position - at;
+            offset.y = 0;
+            radius = Mathf.Max(radius, offset.magnitude + nearest.size);
+        }
+        return radius;
+    }
+
+    private Vector3 ZoomDirection() {
+        return new Vector3(0, Mathf.Abs(zoomAmount.y), -Mathf.Abs(zoomAmount.z)).normalized;
+    }
+
+    public void FocusOn(Bounds area) {
+        if (!focusOnShots || !isActiveAndEnabled || boardRadius <= 0) return;
+
+        // a new volley during a focus keeps the place to go back to
+        if (focus != null) {
+            StopCoroutine(focus);
+        } else {
+            focusReturnPosition = newPosition;
+            focusReturnZoom = newZoom;
+        }
+
+        focus = StartCoroutine(Focus(area));
+    }
+
+    private IEnumerator Focus(Bounds area) {
+        var offset = area.center - newCenter;
+        newPosition = new Vector3(offset.x, 0, offset.z);
+
+        var radius = Mathf.Max(area.extents.x, area.extents.z) + boardRadius * 0.15f;
+        var distance = Mathf.Clamp(radius * fitPadding / fitTan, zoomRange.Max * focusClosest, zoomRange.Max);
+        newZoom = ZoomDirection() * distance;
+
+        yield return new WaitForSeconds(focusHold);
+
+        newPosition = focusReturnPosition;
+        newZoom = focusReturnZoom;
+        focus = null;
+    }
+
+    private void StopFocus(bool goBack) {
+        if (focus == null) return;
+
+        StopCoroutine(focus);
+        focus = null;
+
+        if (goBack) {
+            newPosition = focusReturnPosition;
+            newZoom = focusReturnZoom;
+        }
     }
 
     void HandleMouseInput() {
         float scroll = zoomAction.ReadValue<float>();
         if (scroll != 0) {
-            newZoom += scroll * zoomAmount;
+            // the player took over, stay where they put it
+            StopFocus(false);
+
+            if (fitBoard) {
+                newZoom *= 1f - scroll * zoomStep;
+            } else {
+                newZoom += scroll * zoomAmount;
+            }
         }
 
         Vector2 pointer = pointAction.ReadValue<Vector2>();
@@ -219,6 +360,10 @@ public class CameraController : MonoBehaviour
 
         Vector2 move = moveAction.ReadValue<Vector2>();
         Vector3 positionMod = transform.forward * move.y + transform.right * move.x;
+
+        if (move != Vector2.zero || rotateAction.ReadValue<float>() != 0) {
+            StopFocus(false);
+        }
         
         if (positionMod != Vector3.zero) {
             positionMod = positionMod.normalized * movementSpeed;
@@ -240,6 +385,7 @@ public class CameraController : MonoBehaviour
         // already there or on the way, keep the player's panning and don't restart the hop
         if (AlreadyAt(position)) return;
 
+        StopFocus(true);
         newPosition = new Vector3(0, 0, 0);
         newCenter = position;
 
@@ -257,6 +403,7 @@ public class CameraController : MonoBehaviour
         }
 
         if (!AlreadyAt(position)) {
+            StopFocus(true);
             newPosition = new Vector3(0, 0, 0);
         }
         newCenter = position;

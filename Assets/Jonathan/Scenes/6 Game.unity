@@ -17837,7 +17837,7 @@ MonoBehaviour:
   isOrthographic: 0
   OrthoFOV: 8.85
   distanceOffset: 0
-  FOV: 80
+  FOV: 50
   moveSpeed: 2
   shiftMultiplier: 3
   maxDist: 280
@@ -17857,6 +17857,13 @@ MonoBehaviour:
   hopRiseTime: 0.3
   hopSlideTime: 0.8
   hopUp: 1
+  fitBoard: 1
+  fitPadding: 1.05
+  closestZoom: 0.3
+  zoomStep: 0.12
+  focusOnShots: 1
+  focusHold: 1.6
+  focusClosest: 0.5
   zoomAmountButton: 7
 --- !u!1 &1712294340
 GameObject:
@@ -22164,16 +22171,16 @@ MonoBehaviour:
   isOrthographic: 0
   OrthoFOV: 0
   distanceOffset: 0
-  FOV: 90
+  FOV: 50
   moveSpeed: 2
   shiftMultiplier: 3
   maxDist: 280
   rotationAmount: 0.5
-  zoomAmount: {x: 0, y: -3, z: 3}
+  zoomAmount: {x: 0, y: -2, z: 3.5}
   zoomRange:
     Min: 10
     Max: 150
-  angleOffset: {x: -40, y: 5}
+  angleOffset: {x: -8, y: 0}
   newPosition: {x: 0, y: 0, z: 0}
   newRotation: {x: 0, y: 0, z: 0, w: 0}
   newZoom: {x: 0, y: 0, z: 0}
@@ -22184,6 +22191,13 @@ MonoBehaviour:
   hopRiseTime: 0.3
   hopSlideTime: 0.6
   hopUp: 0
+  fitBoard: 1
+  fitPadding: 0.85
+  closestZoom: 0.25
+  zoomStep: 0.12
+  focusOnShots: 0
+  focusHold: 1.6
+  focusClosest: 0.5
   zoomAmountButton: 7
 --- !u!1 &2129985460
 GameObject:

@@ -32,6 +32,7 @@ public class ShotEffects : MonoBehaviour
 
     public static void Shot(HexRenderer hex, bool hit) {
         if (hex == null || Selector.instance == null) return;
+        if (CameraManager.instance != null) CameraManager.instance.NoteShot(hex.transform.position);
         var effects = Get();
         var size = hex.size;
         var fogged = hex.fog != null;
