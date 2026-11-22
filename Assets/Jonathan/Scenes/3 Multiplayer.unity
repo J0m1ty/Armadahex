@@ -383,7 +383,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 133138591}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 133138589}
+        m_TargetAssemblyTypeName: UIButton, Assembly-CSharp
+        m_MethodName: PlaySound
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   style: 6
   sound: 1
   background: {fileID: 133138591}
@@ -946,6 +958,7 @@ GameObject:
   - component: {fileID: 359732201}
   - component: {fileID: 359732200}
   - component: {fileID: 359732199}
+  - component: {fileID: 359732205}
   m_Layer: 5
   m_Name: Back Button
   m_TagString: Untagged
@@ -1000,6 +1013,18 @@ MonoBehaviour:
       - m_Target: {fileID: 749059110}
         m_TargetAssemblyTypeName: Navigator, Assembly-CSharp
         m_MethodName: Back
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 359732199}
+        m_TargetAssemblyTypeName: UIButton, Assembly-CSharp
+        m_MethodName: PlaySound
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1163,6 +1188,19 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &359732205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 359732198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 454fc1cb69e2a4f49bf6d23bb85d8aae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KeyButton
+  action: UI/Cancel
 --- !u!1 &421945029
 GameObject:
   m_ObjectHideFlags: 0
@@ -1396,7 +1434,7 @@ MonoBehaviour:
   RoundedProperties:
     Type: 1
     ResolutionMode: 0
-    UniformRadius: 10
+    UniformRadius: 0
     UseMaxRadius: 0
     TLRadius: 15
     TLResolution:
@@ -1767,7 +1805,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 561029379}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 561029377}
+        m_TargetAssemblyTypeName: UIButton, Assembly-CSharp
+        m_MethodName: PlaySound
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   style: 6
   sound: 1
   background: {fileID: 561029379}
@@ -2970,6 +3020,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1079495136}
+        m_TargetAssemblyTypeName: UIButton, Assembly-CSharp
+        m_MethodName: PlaySound
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   style: 0
   sound: 1
   background: {fileID: 1079495139}
@@ -3499,7 +3561,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1093300666}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1093300664}
+        m_TargetAssemblyTypeName: UIButton, Assembly-CSharp
+        m_MethodName: PlaySound
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   style: 6
   sound: 1
   background: {fileID: 1093300666}
@@ -6263,7 +6337,7 @@ MonoBehaviour:
   ShapeProperties:
     FillColor:
       serializedVersion: 2
-      rgba: 4279175429
+      rgba: 3859745029
     DrawFill: 1
     DrawFillShadow: 1
     DrawOutline: 1
@@ -7495,7 +7569,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2049685708}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2049685706}
+        m_TargetAssemblyTypeName: UIButton, Assembly-CSharp
+        m_MethodName: PlaySound
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   style: 6
   sound: 1
   background: {fileID: 2049685708}
@@ -7716,7 +7802,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2085655675}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2085655673}
+        m_TargetAssemblyTypeName: UIButton, Assembly-CSharp
+        m_MethodName: PlaySound
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   style: 6
   sound: 1
   background: {fileID: 2085655675}

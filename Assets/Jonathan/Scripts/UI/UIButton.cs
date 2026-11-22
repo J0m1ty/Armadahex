@@ -40,9 +40,6 @@ public class UIButton : Button
     protected override void Awake() {
         base.Awake();
         transition = Transition.None;
-        if (Application.isPlaying) {
-            onClick.AddListener(PlaySound);
-        }
     }
 
     public void SetLit(bool lit) {
@@ -67,7 +64,8 @@ public class UIButton : Button
         }
     }
 
-    private void PlaySound() {
+    // wired as a persistent listener, so code that clears the runtime listeners keeps the sound
+    public void PlaySound() {
         if (ButtonClick.instance == null) return;
 
         switch (sound) {

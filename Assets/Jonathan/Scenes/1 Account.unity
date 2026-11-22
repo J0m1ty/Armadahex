@@ -1471,7 +1471,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 422580368}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 422580365}
+        m_TargetAssemblyTypeName: UIButton, Assembly-CSharp
+        m_MethodName: PlaySound
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   style: 8
   sound: 1
   background: {fileID: 422580368}
@@ -6600,7 +6612,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1881648036}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1881648033}
+        m_TargetAssemblyTypeName: UIButton, Assembly-CSharp
+        m_MethodName: PlaySound
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   style: 8
   sound: 1
   background: {fileID: 1881648036}
@@ -7682,6 +7706,18 @@ MonoBehaviour:
       - m_Target: {fileID: 639480519}
         m_TargetAssemblyTypeName: ConnectionManager, Assembly-CSharp
         m_MethodName: Login
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 2133102535}
+        m_TargetAssemblyTypeName: UIButton, Assembly-CSharp
+        m_MethodName: PlaySound
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
