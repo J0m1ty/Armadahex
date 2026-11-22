@@ -359,7 +359,7 @@ public class AttackUIManager : MonoBehaviour
             // the number over the name, and how many specials it has left
             var left = Specials(ship).Where(Ready).Sum(a => a.ammoLeft);
             var text = card.GetComponentInChildren<TMP_Text>();
-            text.text = "<size=160%>" + (i + 1) + "</size>\n" + (ship.isAlive ? label : "<s>" + label + "</s>")
+            text.text = "<size=160%>" + (i + 1) + "</size>\n" + (ship.isAlive ? label : "<s>" + label + "</s>\nSUNK")
                 + (ship.isAlive && left > 0 ? "\n<size=80%>" + left + " SPECIAL</size>" : "");
             text.textWrappingMode = TextWrappingModes.NoWrap;
             text.fontSizeMax = text.fontSize;
@@ -477,12 +477,19 @@ public class AttackUIManager : MonoBehaviour
         arrowGroup.gameObject.SetActive(true);
         arrowGroup.SetPatternPreview(at, selectedOption, selectedPattern);
 
-        // the arrows don't show gaps, so spaced out patterns light the exact hexes they'll hit
-        if (selectedPattern.directions.Any(d => d.step > 1)) {
+        // shapes have no arrows and spaced patterns have gaps, so both light the exact hexes they'll hit;
+        // a sweep doesn't hit anything, so it shows in blue
+        var scan = selectedOption.info.isScan;
+        var shape = selectedPattern.cells != null && selectedPattern.cells.Length > 0;
+        if (scan || shape || selectedPattern.directions.Any(d => d.step > 1)) {
+            var tint = Color.Lerp(scan ? FogState.fogScan : FogState.friendlySelected, FogState.fogNormal, 0.3f);
             foreach (var hex in PatternTargets(at, selectedPattern, false, out _)) {
                 if (hex.gridRef == at) continue;
-                hex.SetCustomFogColor(Color.Lerp(FogState.friendlySelected, FogState.fogNormal, 0.3f));
+                hex.SetCustomFogColor(tint);
             }
+        }
+        if (scan) {
+            arrowGroup.SetColor(FogState.fogScan * 2f);
         }
     }
 
@@ -570,6 +577,14 @@ public class AttackUIManager : MonoBehaviour
             return targets;
         }
 
+        if (pattern.cells != null && pattern.cells.Length > 0) {
+            foreach (var cell in pattern.cells) {
+                var unit = Offset(target, cell);
+                if (unit != null && unit.hexRenderer.gameObject.activeSelf) targets.Add(unit.hexRenderer);
+            }
+            return targets.Distinct().ToList();
+        }
+
         if (pattern.attackCenter && !pattern.doOffset) {
             targets.Add(target.hexRenderer);
         }
@@ -628,13 +643,20 @@ public class AttackUIManager : MonoBehaviour
         return targets.Distinct().ToList();
     }
 
+    // the hex a shape cell lands on, null off the board (neighbour 0 is cube (1, -1, 0), neighbour 1 is (1, 0, -1))
+    public static GridUnit Offset(GridUnit from, Vector2Int cell) {
+        var c = from.coords;
+        var cube = new Cube(c.q + cell.x + cell.y, c.r - cell.x, c.s - cell.y);
+        return from.hexRenderer.hexMap.FromCoordinatesBrute(new CoordinateSystem(cube));
+    }
+
     // a sweep shows whether anything is in the area: every open hex a miss, or a blue contact in the middle
-    private void Sweep(List<HexRenderer> area) {
+    private bool Sweep(List<HexRenderer> area) {
         var contact = area.Any(h => h.gridRef.shipSegment != null && h.gridRef.shipSegment.isAlive);
         if (contact) {
             selectedTarget.hexRenderer.SetFogColorInstant(FogColor.Scan, false);
             ShotEffects.Contact(selectedTarget.hexRenderer);
-            return;
+            return true;
         }
 
         foreach (var hex in area) {
@@ -645,6 +667,7 @@ public class AttackUIManager : MonoBehaviour
             hex.ClearFog();
             ShotEffects.Shot(hex, false);
         }
+        return false;
     }
 
     private void ClearChoices(GameObject parent) {
@@ -746,9 +769,7 @@ public class AttackUIManager : MonoBehaviour
             bool? destroyed = null;
             
             var sweep = selectedOption.info.isScan;
-            if (sweep) {
-                Sweep(targets);
-            }
+            var contact = sweep && Sweep(targets);
 
             for (int i = 0; i < targets.Count && !sweep; i++) {
                 var target = targets[i];
@@ -797,7 +818,13 @@ public class AttackUIManager : MonoBehaviour
 
             if (!GameOver.instance.CheckIfGameOver()) {
                 attackPanel.ResetData();
-                attackPanel.SetAttackInfo(hit, destroyed, selectedShip != null ? selectedShip.shipModel.attackName : "FLEET", selectedOption.info.unlimited ? 1000 : selectedOption.ammoLeft );
+                var name = selectedShip != null ? selectedShip.shipModel.attackName : "FLEET";
+                if (sweep) {
+                    attackPanel.SetScanInfo(contact, name, selectedOption.ammoLeft);
+                }
+                else {
+                    attackPanel.SetAttackInfo(hit, destroyed, name, selectedOption.info.unlimited ? 1000 : selectedOption.ammoLeft );
+                }
                 // only a hit shakes the camera
                 if (hit) {
                     CameraManager.instance.Shake(true);

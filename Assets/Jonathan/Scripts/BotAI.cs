@@ -183,6 +183,9 @@ public class BotAI {
 
     // hexes hit by a fixed shape pattern, null for ones that depend on what they hit
     public List<GridUnit> PatternCells(GridUnit center, AttackPattern pattern) {
+        if (pattern.cells != null && pattern.cells.Length > 0) {
+            return pattern.cells.Select(c => AttackUIManager.Offset(center, c)).Where(c => c != null && c.hexRenderer.gameObject.activeSelf).Distinct().ToList();
+        }
         if (pattern.doOffset || pattern.directions.Any(d => d.noRange || d.stopAtHit)) return null;
 
         var cells = new List<GridUnit>();

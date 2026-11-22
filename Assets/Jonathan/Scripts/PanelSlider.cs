@@ -158,6 +158,15 @@ public class PanelSlider : MonoBehaviour
         persistingShipDestroyed = null;
     }
 
+    // a sonar sweep reports clear or contact rather than hit or miss
+    public void SetScanInfo(bool contact, string attkIdent, int? ammoRemain) {
+        SetAttackInfo(false, null, attkIdent, ammoRemain);
+        if (!hasAttackIntent) return;
+
+        this.connectedText.text = contact ? "> CONTACT <" : "> CLEAR <";
+        this.connectedText.color = contact ? new Color(0.35f, 0.6f, 1f) : new Color(0.9f, 0.9f, 0.9f);
+    }
+
     public void SetAttackInfo(bool hitStatus, bool? shipDestroyed, string attkIdent, int? ammoRemain) {
         if (!hasAttackIntent) return;
 

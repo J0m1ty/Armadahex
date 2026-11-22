@@ -2424,37 +2424,31 @@ MonoBehaviour:
       isScan: 0
       options:
       - name: Angle 1
-        directions:
-        - rotation: 0
-          reverse: 0
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 1
-        - rotation: 60
-          reverse: 0
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 1
+        cells:
+        - {x: 0, y: 0}
+        - {x: 2, y: 0}
+        - {x: -2, y: 2}
+        directions: []
         doOffset: 0
         attackCenter: 1
         autoOptimize: 0
         isInstant: 0
       - name: Angle 2
-        directions:
-        - rotation: 0
-          reverse: 1
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 1
-        - rotation: 60
-          reverse: 1
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 1
+        cells:
+        - {x: 0, y: 0}
+        - {x: -2, y: 2}
+        - {x: 0, y: -2}
+        directions: []
+        doOffset: 0
+        attackCenter: 1
+        autoOptimize: 0
+        isInstant: 0
+      - name: Angle 3
+        cells:
+        - {x: 0, y: 0}
+        - {x: 0, y: -2}
+        - {x: 2, y: 0}
+        directions: []
         doOffset: 0
         attackCenter: 1
         autoOptimize: 0
@@ -2479,6 +2473,7 @@ MonoBehaviour:
       isScan: 0
       options:
       - name: Angle 1
+        cells: []
         directions:
         - rotation: 0
           reverse: 0
@@ -2491,6 +2486,7 @@ MonoBehaviour:
         autoOptimize: 1
         isInstant: 0
       - name: Angle 2
+        cells: []
         directions:
         - rotation: 60
           reverse: 0
@@ -2503,6 +2499,7 @@ MonoBehaviour:
         autoOptimize: 1
         isInstant: 0
       - name: Angle 3
+        cells: []
         directions:
         - rotation: -60
           reverse: 0
@@ -2521,43 +2518,15 @@ MonoBehaviour:
       isScan: 1
       options:
       - name: Sonar Sweep
-        directions:
-        - rotation: 0
-          reverse: 0
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 1
-        - rotation: 0
-          reverse: 1
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 1
-        - rotation: 60
-          reverse: 0
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 1
-        - rotation: 60
-          reverse: 1
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 1
-        - rotation: -60
-          reverse: 0
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 1
-        - rotation: -60
-          reverse: 1
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 1
+        cells:
+        - {x: 0, y: 0}
+        - {x: 1, y: 0}
+        - {x: 0, y: 1}
+        - {x: -1, y: 1}
+        - {x: -1, y: 0}
+        - {x: 0, y: -1}
+        - {x: 1, y: -1}
+        directions: []
         doOffset: 0
         attackCenter: 1
         autoOptimize: 0
@@ -2582,6 +2551,7 @@ MonoBehaviour:
       isScan: 0
       options:
       - name: Angle 1
+        cells: []
         directions:
         - rotation: 0
           reverse: 0
@@ -2600,6 +2570,7 @@ MonoBehaviour:
         autoOptimize: 0
         isInstant: 0
       - name: Angle 2
+        cells: []
         directions:
         - rotation: 60
           reverse: 0
@@ -2618,6 +2589,7 @@ MonoBehaviour:
         autoOptimize: 0
         isInstant: 0
       - name: Angle 3
+        cells: []
         directions:
         - rotation: -60
           reverse: 0
@@ -2649,49 +2621,41 @@ MonoBehaviour:
       isScan: 0
       options: []
       isAllowed: 0
-    - name: Barrage
+    - name: Tomahawk
       unlimited: 0
       maxUses: 1
       isScan: 0
       options:
-      - name: Barrage
-        directions:
-        - rotation: 0
-          reverse: 0
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 1
-        - rotation: 0
-          reverse: 1
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 1
-        - rotation: 60
-          reverse: 0
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 1
-        - rotation: 60
-          reverse: 1
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 1
-        - rotation: -60
-          reverse: 0
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 1
-        - rotation: -60
-          reverse: 1
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 1
+      - name: Angle 1
+        cells:
+        - {x: -1, y: -1}
+        - {x: 0, y: -1}
+        - {x: 1, y: -1}
+        - {x: 2, y: -1}
+        - {x: -1, y: 0}
+        - {x: 0, y: 0}
+        - {x: 1, y: 0}
+        - {x: -1, y: 1}
+        - {x: 0, y: 1}
+        - {x: -1, y: 2}
+        directions: []
+        doOffset: 0
+        attackCenter: 1
+        autoOptimize: 0
+        isInstant: 0
+      - name: Angle 2
+        cells:
+        - {x: 1, y: -2}
+        - {x: 1, y: -1}
+        - {x: 1, y: 0}
+        - {x: 1, y: 1}
+        - {x: 0, y: -1}
+        - {x: 0, y: 0}
+        - {x: 0, y: 1}
+        - {x: -1, y: 0}
+        - {x: -1, y: 1}
+        - {x: -2, y: 1}
+        directions: []
         doOffset: 0
         attackCenter: 1
         autoOptimize: 0
@@ -2716,49 +2680,23 @@ MonoBehaviour:
       isScan: 0
       options:
       - name: Angle 1
-        directions:
-        - rotation: 0
-          reverse: 0
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 2
-        - rotation: -60
-          reverse: 1
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 2
-        - rotation: 60
-          reverse: 1
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 2
+        cells:
+        - {x: 0, y: 0}
+        - {x: 2, y: 0}
+        - {x: -2, y: 2}
+        - {x: 0, y: -2}
+        directions: []
         doOffset: 0
         attackCenter: 1
         autoOptimize: 0
         isInstant: 0
       - name: Angle 2
-        directions:
-        - rotation: 0
-          reverse: 1
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 2
-        - rotation: -60
-          reverse: 0
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 2
-        - rotation: 60
-          reverse: 0
-          noRange: 0
-          length: 1
-          stopAtHit: 0
-          step: 2
+        cells:
+        - {x: 0, y: 0}
+        - {x: 0, y: 2}
+        - {x: -2, y: 0}
+        - {x: 2, y: -2}
+        directions: []
         doOffset: 0
         attackCenter: 1
         autoOptimize: 0
@@ -2770,6 +2708,7 @@ MonoBehaviour:
       isScan: 0
       options:
       - name: Angle 1
+        cells: []
         directions:
         - rotation: 0
           reverse: 0
@@ -2788,6 +2727,7 @@ MonoBehaviour:
         autoOptimize: 0
         isInstant: 0
       - name: Angle 2
+        cells: []
         directions:
         - rotation: 60
           reverse: 0
@@ -2806,6 +2746,7 @@ MonoBehaviour:
         autoOptimize: 0
         isInstant: 0
       - name: Angle 3
+        cells: []
         directions:
         - rotation: -60
           reverse: 0

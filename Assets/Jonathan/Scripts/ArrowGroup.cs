@@ -87,6 +87,12 @@ public class ArrowGroup : MonoBehaviour
             arrow.offset = arrowOffset;
             var rev = dir.reverse;
             var rangeInDirection = 5;
+            if (dir.noRange && !pattern.doOffset) {
+                // count the hexes to the edge, so the arrow runs the whole way across
+                rangeInDirection = 0;
+                var edge = selectedTarget;
+                while ((edge = edge.GetNeighbor(AttackUIManager.Convert(dir.rotation, rev))) != null) rangeInDirection++;
+            }
             var s = TurnManager.instance.enemyTeam.teamBase.hexMap.size * (dir.noRange ? rangeInDirection : dir.length + 1);
 
             if (pattern.doOffset) {

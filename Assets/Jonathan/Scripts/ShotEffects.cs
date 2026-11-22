@@ -76,6 +76,11 @@ public class ShotEffects : MonoBehaviour
 
     public static Color contactColor = new Color(0.3f, 0.6f, 2.5f);
 
+    // one of your ships went down: the hit glow covers the whole hull instead of the hit hexes
+    public static void Sunk(Ship ship) {
+        Get().GetGlow(ship).SetFloat("_GlowAll", 1);
+    }
+
     // a sonar contact: a blue peg in the middle of the sweep, nothing was hit
     public static void Contact(HexRenderer hex) {
         if (hex == null || Selector.instance == null) return;

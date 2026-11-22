@@ -32,6 +32,8 @@ public class AttackDirection {
 [Serializable]
 public class AttackPattern {
     public string name;
+    // a fixed shape instead of directions: hex offsets from the target, x steps along neighbour 0 and y along neighbour 1
+    public Vector2Int[] cells;
     public AttackDirection[] directions;
     public bool doOffset;
     [MyBox.ConditionalField(nameof(doOffset), true)]
@@ -323,6 +325,9 @@ public class Ship : MonoBehaviour
 
             if (!isPlayer) {
                 ShotEffects.Revealed(this);
+            }
+            else {
+                ShotEffects.Sunk(this);
             }
         }
         
