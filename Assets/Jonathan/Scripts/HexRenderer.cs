@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.VFX;
 
 public static class FogState {
     public static Color fogNormal = new Color(0.82f, 0.86f, 0.92f); // cool grey so the smoke texture doesn't read as cream
@@ -20,124 +19,72 @@ public enum FogColor {
     Custom
 }
 
-public class FogOptions {
-    public FogColor? setBaseColor = null;
-    public FogColor? setOverrideColor = null;
-    public Color? setCustomColor = null;
-    public bool instant = false;
-    public bool modifyStart = false;
-    public float? addVelocity = null;
-    public int? lifetime = null;
-    public int? rate = null;
-    public float? simulationSpeed = null;
-}
-
+// per hex cloud state, eased and drawn by the board's CloudFog
 public class Fog {
-    private FogColor _baseColor;
-    private FogColor? _overrideColor;
-    public FogColor baseColor {
-        get { return _baseColor; }
-        set {
-            _baseColor = value;
-            UpdateSystem();
-        }
-    }
-    public FogColor? overrideColor {
-        get { return _overrideColor; }
-        set {
-            _overrideColor = value;
-            UpdateSystem();
-        }
-    }
-
+    public FogColor baseColor = FogColor.Normal;
+    public FogColor? overrideColor = null;
     public Color customColor = Color.white;
-    
-    public ParticleSystem ps { get; private set; }
+    public bool cleared;
 
-    public Fog(ParticleSystem ps) {
-        this.ps = ps;
-        baseColor = FogColor.Normal;
-        overrideColor = null;
+    public HexRenderer hex { get; private set; }
+    public Vector2Int axial { get; private set; }
+
+    public float cover = 1;
+    public Color glow = Color.clear;
+    public float hover;
+    public float hoverTarget;
+
+    public Fog(HexRenderer hex, Vector2Int axial) {
+        this.hex = hex;
+        this.axial = axial;
     }
 
-    public Color GetColor(FogColor color) {
-        switch (color) {
-            case FogColor.Normal:
-                return FogState.fogNormal;
+    public FogColor current {
+        get { return overrideColor ?? baseColor; }
+    }
+
+    // how much the clouds still cover this hex, 0 is open water
+    public float TargetCover() {
+        if (cleared || !hex.gameObject.activeSelf) return 0;
+
+        switch (current) {
             case FogColor.Hit:
-                return FogState.fogHit;
-            case FogColor.Scan: 
-                return FogState.fogScan;
-            case FogColor.Miss:
-                return FogState.fogMiss;
-            case FogColor.Selected: 
-                return FogState.friendlySelected;
+                return 0.3f;
+            case FogColor.Scan:
+                return 0.6f;
+            case FogColor.Selected:
+                return 0.5f;
             case FogColor.Custom:
-                return customColor;
+                return 1 - 0.4f * CustomStrength();
             default:
-                return Color.white;
+                return 1;
         }
     }
 
-    public void UpdateSystem(FogOptions options = null) {
-        if (options == null) {
-            options = new FogOptions();
+    // light inside the clouds, hdr so it blooms
+    public Color TargetGlow() {
+        if (!hex.gameObject.activeSelf) return Color.clear;
+
+        switch (current) {
+            case FogColor.Hit:
+                return FogState.fogHit * 3f;
+            case FogColor.Scan:
+                return FogState.fogScan * 2f;
+            case FogColor.Miss:
+                return FogState.fogMiss * 0.6f;
+            case FogColor.Selected:
+                return FogState.friendlySelected * 2.5f;
+            case FogColor.Custom:
+                return customColor * 2.5f * CustomStrength();
+            default:
+                return Color.clear;
         }
+    }
 
-        if (options.setBaseColor != null) {
-            _baseColor = (FogColor)options.setBaseColor;
-        }
-
-        if (options.setOverrideColor != null) {
-            _overrideColor = (FogColor)options.setOverrideColor;
-        }
-
-        if (options.setCustomColor != null) {
-            customColor = (Color)options.setCustomColor;
-        }
-
-        Color color = overrideColor != null ? GetColor((FogColor)overrideColor) : GetColor(baseColor);
-
-        if (options.instant) {
-            ParticleSystem.Particle[] particles = new ParticleSystem.Particle[ps.particleCount];
-            int num = ps.GetParticles(particles);
-            for (int i = 0; i < num; i++) {
-                #pragma warning disable 618
-                particles[i].color = color;
-                #pragma warning restore 618
-
-                if (options.addVelocity != null) {
-                    // get vector from center to particle position, and update velocity away from center
-                    Vector3 dir = particles[i].position - ps.transform.position;
-                    particles[i].velocity = dir.normalized * (float)options.addVelocity;
-                }
-
-                if (options.lifetime != null) {
-                    particles[i].remainingLifetime = (int)options.lifetime;
-                }
-            }
-            ps.SetParticles(particles, num);
-        }
-
-        if (options.modifyStart) {
-            var main = ps.main;
-            main.startColor = color;
-        }
-
-        if (options.lifetime != null) {
-            var main = ps.main;
-            main.startLifetime = (int)options.lifetime;
-        }
-
-        if (options.rate != null) {
-            var emission = ps.emission;
-            emission.rateOverTime = (int)options.rate;
-        }
-
-        if (options.simulationSpeed != null) {
-            var main = ps.main;
-            main.simulationSpeed = (float)options.simulationSpeed;
-        }
+    // attack previews lerp between selected and normal, so read back how far along they are
+    private float CustomStrength() {
+        var full = Vector4.Distance(FogState.friendlySelected, FogState.fogNormal);
+        return Mathf.Clamp01(Vector4.Distance(customColor, FogState.fogNormal) / full);
     }
 }
 
@@ -200,69 +147,42 @@ public class HexRenderer : MonoBehaviour
         material.SetColor("_BaseColor", color);
     }
 
-    public void LoadFog(ParticleSystem fogEffect) {
-        if (fog != null) return;
-        fog = new Fog(fogEffect);
-    }
-
     public void SetFogColorSlow(FogColor color, bool isOverride = false) {
         if (fog == null || !gameObject.activeSelf) return;
         
-        fog.UpdateSystem(new FogOptions {
-            setBaseColor = isOverride ? null : color,
-            setOverrideColor = isOverride ? color : null,
-            instant = false,
-            modifyStart = true
-        });
+        if (isOverride) {
+            fog.overrideColor = color;
+        }
+        else {
+            fog.baseColor = color;
+        }
     }
 
     public void SetFogColorInstant(FogColor color, bool isOverride = false) {
         if (fog == null || !gameObject.activeSelf) return;
         
-        fog.UpdateSystem(new FogOptions {
-            setBaseColor = isOverride ? null : color,
-            setOverrideColor = isOverride ? color : null,
-            instant = true,
-            modifyStart = true
-        });
+        SetFogColorSlow(color, isOverride);
+        fog.glow = fog.TargetGlow();
     }
 
     public void SetCustomFogColor(Color color) {
         if (fog == null || !gameObject.activeSelf) return;
         
-        fog.UpdateSystem(new FogOptions {
-            setCustomColor = color,
-            setOverrideColor = FogColor.Custom,
-            instant = true,
-            modifyStart = true
-        });
+        fog.customColor = color;
+        fog.overrideColor = FogColor.Custom;
+        fog.glow = fog.TargetGlow();
     }
 
     public void ClearFog() {
         if (fog == null || !gameObject.activeSelf) return;
 
-        fog.UpdateSystem(new FogOptions {
-            rate = 0,
-            simulationSpeed = 10
-        });
-        
-        StartCoroutine(TurnOffFog((fog.ps.main.startLifetime.constant * 5f) / fog.ps.main.simulationSpeed));
+        fog.cleared = true;
     }
 
     public void RemoveFogOverrideColor() {
         if (fog == null || !gameObject.activeSelf) return;
 
         fog.overrideColor = null;
-        
-        fog.UpdateSystem(new FogOptions {
-            instant = true,
-            modifyStart = true
-        });
-    }
-    
-    public IEnumerator TurnOffFog(float delay) {
-        yield return new WaitForSeconds(delay);
-        fog.ps.gameObject.SetActive(false);
     }
 
     public void EnableFlames() {

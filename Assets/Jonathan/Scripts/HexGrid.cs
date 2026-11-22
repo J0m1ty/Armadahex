@@ -86,9 +86,8 @@ public class HexGrid : MonoBehaviour
     [Header("VFX Integration")]
     public bool useFog;
     [ConditionalField("useFog", false, true)]
-    public MinMaxFloat fogHeight;
-    [ConditionalField("useFog", false, true)]
-    public GameObject fogPrefab;
+    public Material fogMaterial;
+    public CloudFog clouds { get; private set; }
     public bool useFlames;
     [ConditionalField("useFlames", false, true)]
     public int flameCount;
@@ -105,6 +104,11 @@ public class HexGrid : MonoBehaviour
 
     public void Generate() {
         hexes = new List<GridUnit>();
+
+        if (useFog && clouds == null) {
+            clouds = gameObject.AddComponent<CloudFog>();
+            clouds.Init(this, fogMaterial);
+        }
 
         switch (gridType) {
             case GridType.Square:
@@ -217,11 +221,7 @@ public class HexGrid : MonoBehaviour
         hex.SetMaterial(m);
 
         if (useFog) {
-            var fog = Instantiate(fogPrefab, tile.transform);
-            fog.transform.localPosition = Vector3.zero + Vector3.up * (UnityEngine.Random.Range(fogHeight.Min, fogHeight.Max));
-            fog.transform.localRotation = Quaternion.identity * Quaternion.Euler(90f, 0f, 0f);
-            fog.transform.localScale = Vector3.one;
-            hex.fog = new Fog(fog.GetComponent<ParticleSystem>());
+            hex.fog = clouds.Add(hex);
         }
 
         if (hasHeight) {

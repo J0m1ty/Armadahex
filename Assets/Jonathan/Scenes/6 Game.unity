@@ -7261,10 +7261,7 @@ MonoBehaviour:
     preventShips: 0
   teamBase: {fileID: 0}
   useFog: 0
-  fogHeight:
-    Min: 0
-    Max: 0
-  fogPrefab: {fileID: 3513207802703692830, guid: 1e3da4ca8e0c9f54cb8d07b71e621c58, type: 3}
+  fogMaterial: {fileID: 2100000, guid: 985ebadcc9cb47f9ab44fd791a6800f6, type: 2}
   useFlames: 0
   flameCount: 0
   flamePrefab: {fileID: 0}
@@ -10107,10 +10104,7 @@ MonoBehaviour:
     preventShips: 0
   teamBase: {fileID: 0}
   useFog: 1
-  fogHeight:
-    Min: 12
-    Max: 13
-  fogPrefab: {fileID: 1992851727522141621, guid: a79707d6d84c4974395e8b22c7f456d9, type: 3}
+  fogMaterial: {fileID: 2100000, guid: 985ebadcc9cb47f9ab44fd791a6800f6, type: 2}
   useFlames: 0
   flameCount: 3
   flamePrefab: {fileID: 1901245927194888, guid: bb98861c48ad2024ca93498c7dd93a6c, type: 3}

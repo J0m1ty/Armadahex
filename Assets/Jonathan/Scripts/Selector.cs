@@ -48,7 +48,11 @@ public class Selector : MonoBehaviour
     public Ship selectedShip { get; private set; }
     
     public HexRenderer selectedHex { get; private set; }
-    private GameObject hiddenFog;
+    private CloudFog hoveredClouds;
+
+    public HexBorder border {
+        get { return hexBorder; }
+    }
 
     bool mouseMoved;
     int lastMovedFrames;
@@ -92,10 +96,7 @@ public class Selector : MonoBehaviour
             selectedHex = null;
         }
 
-        if (hiddenFog != null) {
-            hiddenFog.SetActive(true);
-            hiddenFog = null;
-        }
+        HoverClouds(null);
 
         hexBorder.SetColor(highlightColor);
         hexBorder.SetHeight(highlightHeight);
@@ -140,25 +141,14 @@ public class Selector : MonoBehaviour
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 1000, 1 << enemyHexLayer)) {
                 hex = hit.transform.GetComponent<HexRenderer>();
 
-                // Show previously hidden fog
-                if (hiddenFog != null) {
-                    hiddenFog.SetActive(true);
-                }
-                
-                // Hide new fog
-                hiddenFog = hex.fog.ps.gameObject;
-                hiddenFog.SetActive(false);
+                // part the clouds over the hovered hex
+                HoverClouds(hex);
 
                 hexBorder.SetVisibility(true);
                 playerHexHighlight.transform.position = hex.transform.position;
             } else {
                 hexBorder.SetVisibility(false);
-
-                // Show previously hidden fog
-                if (hiddenFog != null) {
-                    hiddenFog.SetActive(true);
-                    hiddenFog = null;
-                }
+                HoverClouds(null);
             }
         }
         
@@ -177,18 +167,25 @@ public class Selector : MonoBehaviour
                 hexBorder.SetColor(lockedInColor);
                 hexBorder.SetHeight(lockedInHeight);
 
-                // remove fog hide
-                if (hiddenFog != null) {
-                    hiddenFog.SetActive(true);
-                    hiddenFog = null;
-                }
-
                 hex.SetFogColorInstant(FogColor.Selected, true);
             }
 
             if (hex != null) {
                 attackUIManager.SelectTarget(hex.gridRef);
             }
+        }
+    }
+    
+    private void HoverClouds(HexRenderer hex) {
+        var clouds = hex != null ? hex.hexMap.clouds : null;
+
+        if (hoveredClouds != null && hoveredClouds != clouds) {
+            hoveredClouds.SetHover(null);
+        }
+
+        hoveredClouds = clouds;
+        if (clouds != null) {
+            clouds.SetHover(hex);
         }
     }
     
