@@ -143,6 +143,7 @@ public class AttackUIManager : MonoBehaviour
                     directiveText.text = "SELECT A SHIP";
                     selector.allowSelectingShips = true;
                     CameraManager.instance.MoveToOnce(TurnManager.instance.playerTeam.teamBase.transform.position);
+                    CameraManager.instance.FrameFleet(true);
                 }
                 break;
             case AttackState.Error:
@@ -160,6 +161,8 @@ public class AttackUIManager : MonoBehaviour
                     });
                     backButtonParent.SetActive(true);
                     CameraManager.instance.MoveToOnce(TurnManager.instance.enemyTeam.teamBase.transform.position);
+                    // the whole enemy board, to pick a target on
+                    CameraManager.instance.Frame(TurnManager.instance.enemyTeam.teamBase.transform.position, 1000f);
                 }
                 else {
                     backButtonParent.SetActive(false);
@@ -252,6 +255,7 @@ public class AttackUIManager : MonoBehaviour
         if (attackState == AttackState.SelectTarget) {
             if (!target.hexRenderer.hexMap.teamBase.team.isPlayer) {
                 selectedTarget = target;
+                CameraManager.instance.Frame(target.hexRenderer.transform.position, target.hexRenderer.hexMap.size * 4f);
 
                 SetState(AttackState.SelectAttackOption);
                 

@@ -127,6 +127,9 @@ public class CameraController : MonoBehaviour
     // fraction of the distance one scroll notch moves
     [SerializeField]
     private float zoomStep = 0.12f;
+    // how high an orthographic view sits, it only matters for fog and clipping
+    [SerializeField]
+    private float orthoHeight = 700f;
     private float boardRadius;
     private float fitTan;
     private Vector3? fittedFor;
@@ -213,8 +216,8 @@ public class CameraController : MonoBehaviour
         // a fitted board can only be panned as far as zooming in hides it
         var limit = maxDist;
         if (fitBoard && boardRadius > 0) {
-            // a shot focus may need to reach the board's edge
-            limit = focus != null ? boardRadius : boardRadius * (1f - 0.8f * Mathf.InverseLerp(zoomRange.Min, zoomRange.Max, newZoom.magnitude));
+            // a shot focus or a framed spot may need to reach the board's edge
+            limit = focus != null || control == CameraControl.Orbit ? boardRadius : boardRadius * (1f - 0.8f * Mathf.InverseLerp(zoomRange.Min, zoomRange.Max, newZoom.magnitude));
         }
         transform.position = new Vector3(Mathf.Clamp(transform.position.x, -limit, limit), Mathf.Clamp(transform.position.y, -limit, limit), Mathf.Clamp(transform.position.z, -limit, limit));
         newPosition = new Vector3(Mathf.Clamp(newPosition.x, -limit, limit), Mathf.Clamp(newPosition.y, -limit, limit), Mathf.Clamp(newPosition.z, -limit, limit));
@@ -262,6 +265,15 @@ public class CameraController : MonoBehaviour
         boardRadius = radius;
 
         var cam = newCameraChild.GetComponentInChildren<Camera>();
+
+        // straight down and flat, the board fills the screen at any height
+        if (cam.orthographic) {
+            cam.orthographicSize = boardRadius * fitPadding / Mathf.Min(1f, cam.aspect);
+            zoomRange = new MinMaxFloat(orthoHeight, orthoHeight);
+            newZoom = ZoomDirection() * orthoHeight;
+            return;
+        }
+
         var halfV = cam.fieldOfView * 0.5f * Mathf.Deg2Rad;
         var halfH = Mathf.Atan(Mathf.Tan(halfV) * cam.aspect);
         fitTan = Mathf.Tan(Mathf.Min(halfV, halfH));
@@ -340,8 +352,30 @@ public class CameraController : MonoBehaviour
         return new Vector3(0, Mathf.Abs(zoomAmount.y), -Mathf.Abs(zoomAmount.z)).normalized;
     }
 
+    public Camera view {
+        get { return newCameraChild.GetComponentInChildren<Camera>(true); }
+    }
+
+    // an orbiting view looks at a spot and pulls in or out to fit it, and stays there
+    public void Frame(Vector3 point, float radius) {
+        if (control != CameraControl.Orbit || boardRadius <= 0) return;
+
+        StopFocus(false);
+
+        var offset = point - newCenter;
+        newPosition = new Vector3(offset.x, 0, offset.z);
+
+        var distance = radius * fitPadding / fitTan;
+        targetPull = Mathf.InverseLerp(zoomRange.Min, zoomRange.Max, distance);
+    }
+
     public void FocusOn(Bounds area) {
         if (!focusOnShots || !isActiveAndEnabled || boardRadius <= 0) return;
+
+        if (control == CameraControl.Orbit) {
+            Frame(area.center, Mathf.Max(area.extents.x, area.extents.z) + boardRadius * 0.25f);
+            return;
+        }
 
         // a new volley during a focus keeps the place to go back to
         if (focus != null) {
@@ -527,10 +561,18 @@ public class CameraController : MonoBehaviour
     private float zoomAmountButton;
 
     public void ZoomIn() {
+        if (control == CameraControl.Orbit) {
+            targetPull = Mathf.Clamp01(targetPull - zoomStep * 2f);
+            return;
+        }
         newZoom += zoomAmountButton * zoomAmount;
     }
 
     public void ZoomOut() {
+        if (control == CameraControl.Orbit) {
+            targetPull = Mathf.Clamp01(targetPull + zoomStep * 2f);
+            return;
+        }
         newZoom -= zoomAmountButton * zoomAmount;
     }
 }

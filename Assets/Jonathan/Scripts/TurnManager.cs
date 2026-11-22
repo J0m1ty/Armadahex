@@ -201,6 +201,7 @@ public class TurnManager : MonoBehaviour
         selector.SetTeam(TurnManager.instance.otherTeam, TurnManager.instance.playerTeam.teamBase);
         attackManager.SetState(AttackUIManager.AttackState.None);
         CameraManager.instance.MoveTo(TurnManager.instance.playerTeam.teamBase.transform.position);
+        CameraManager.instance.FrameFleet(true);
     }
 
     public void NextTurn() {

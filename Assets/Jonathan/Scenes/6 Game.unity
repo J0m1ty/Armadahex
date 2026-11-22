@@ -17834,7 +17834,7 @@ MonoBehaviour:
   allowZoomKeys: 0
   allowMousePanning: 0
   movementTime: 10
-  isOrthographic: 0
+  isOrthographic: 1
   OrthoFOV: 8.85
   distanceOffset: 0
   FOV: 50
@@ -17842,11 +17842,11 @@ MonoBehaviour:
   shiftMultiplier: 3
   maxDist: 280
   rotationAmount: 0.5
-  zoomAmount: {x: 0, y: -10, z: 1}
+  zoomAmount: {x: 0, y: -1, z: 0.05}
   zoomRange:
     Min: 20
     Max: 300
-  angleOffset: {x: 1, y: 0}
+  angleOffset: {x: 0, y: 0}
   newPosition: {x: 0, y: 0, z: 0}
   newRotation: {x: 0, y: 0, z: 0, w: 0}
   newZoom: {x: 0, y: 0, z: 0}
@@ -17863,10 +17863,11 @@ MonoBehaviour:
   closePitch: 12
   farPitch: 38
   fitBoard: 1
-  fitPadding: 1.05
+  fitPadding: 1.2
   closestZoom: 0.3
   zoomStep: 0.12
-  focusOnShots: 1
+  orthoHeight: 700
+  focusOnShots: 0
   focusHold: 2
   focusClosest: 0.3
   zoomAmountButton: 7
@@ -22205,6 +22206,7 @@ MonoBehaviour:
   fitPadding: 0.85
   closestZoom: 0.4
   zoomStep: 0.12
+  orthoHeight: 700
   focusOnShots: 1
   focusHold: 2
   focusClosest: 0.35

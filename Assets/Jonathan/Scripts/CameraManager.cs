@@ -53,6 +53,17 @@ public class CameraManager : MonoBehaviour
 
     private InputAction switchViewAction;
 
+    // the side view frames what's happening, this is the last thing it looked at
+    private Vector3? framePoint;
+    private float frameRadius;
+    private ShipManager shipManager;
+
+    [Header("View Switch")]
+    [SerializeField]
+    private float switchTime = 0.5f;
+    private Coroutine switchBlend;
+    private Camera blendingCamera;
+
     // shots landing within a moment of each other are one volley
     private Bounds? volley;
     private Coroutine volleyFocus;
@@ -116,6 +127,10 @@ public class CameraManager : MonoBehaviour
         volley = null;
         volleyFocus = null;
 
+        // the side view keeps looking at the last volley until something else happens
+        framePoint = area.center;
+        frameRadius = Mathf.Max(area.extents.x, area.extents.z);
+
         var controller = state == CameraState.Side ? sideCameraController : topCameraController;
         controller.FocusOn(area);
     }
@@ -148,6 +163,13 @@ public class CameraManager : MonoBehaviour
     }
 
     public void SetCameraState(CameraState state, bool shareRotation = true) {
+        var switching = shareRotation && state != this.state;
+        var oldController = this.state == CameraState.Side ? sideCameraController : topCameraController;
+        var oldView = oldController.view;
+        var fromPosition = oldView.transform.position;
+        var fromRotation = oldView.transform.rotation;
+        var fromProjection = oldView.projectionMatrix;
+
         this.state = state;
         CameraController cameraController = null;
         CameraController otherController = null;
@@ -180,6 +202,79 @@ public class CameraManager : MonoBehaviour
                     cameraController.MoveTo(centerPos);
                 }
             }
+
+            if (state == CameraState.Side && framePoint != null) {
+                cameraController.Frame(framePoint.Value, frameRadius);
+            }
+
+            if (switching) {
+                if (switchBlend != null) {
+                    StopCoroutine(switchBlend);
+                    if (blendingCamera != null) blendingCamera.ResetProjectionMatrix();
+                }
+                switchBlend = StartCoroutine(BlendSwitch(cameraController, fromPosition, fromRotation, fromProjection));
+            }
+        }
+    }
+
+    // the new view starts where the old one was and glides over, blending the lens too
+    private IEnumerator BlendSwitch(CameraController controller, Vector3 fromPosition, Quaternion fromRotation, Matrix4x4 fromProjection) {
+        var view = controller.view;
+        blendingCamera = view;
+        var follow = controller.followChild.transform;
+        var viewRotation = Quaternion.Inverse(follow.rotation) * view.transform.rotation;
+        follow.rotation = fromRotation * Quaternion.Inverse(viewRotation);
+        follow.position = fromPosition - (view.transform.position - follow.position);
+
+        for (float t = 0; t < switchTime; t += Time.deltaTime) {
+            view.ResetProjectionMatrix();
+            var to = view.projectionMatrix;
+            var k = Mathf.SmoothStep(0f, 1f, t / switchTime);
+
+            var blended = new Matrix4x4();
+            for (int i = 0; i < 16; i++) {
+                blended[i] = Mathf.Lerp(fromProjection[i], to[i], k);
+            }
+            view.projectionMatrix = blended;
+
+            yield return null;
+        }
+
+        view.ResetProjectionMatrix();
+        blendingCamera = null;
+        switchBlend = null;
+    }
+
+    // the side view looks at a spot, sized to fit radius
+    public void Frame(Vector3 point, float radius) {
+        framePoint = point;
+        frameRadius = radius;
+
+        if (state == CameraState.Side) {
+            sideCameraController.Frame(point, radius);
+        }
+    }
+
+    public void FrameFleet(bool player) {
+        if (shipManager == null) shipManager = FindFirstObjectByType<ShipManager>();
+        if (shipManager == null) return;
+
+        Bounds? fleet = null;
+        foreach (var ship in shipManager.ships) {
+            if (ship.team.isPlayer != player || !ship.isAlive) continue;
+
+            var at = ship.transform.position;
+            if (fleet == null) {
+                fleet = new Bounds(at, Vector3.zero);
+            } else {
+                var area = fleet.Value;
+                area.Encapsulate(at);
+                fleet = area;
+            }
+        }
+
+        if (fleet != null) {
+            Frame(fleet.Value.center, Mathf.Max(fleet.Value.extents.x, fleet.Value.extents.z) + 60f);
         }
     }
 

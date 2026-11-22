@@ -272,8 +272,12 @@ Shader "Armadahex/Cloud Fog"
             half4 frag(Varyings input) : SV_Target
             {
                 float3 camWS = GetCameraPositionWS();
-                float3 rdWS = normalize(input.positionWS - camWS);
-                float3 ro = camWS - _GridOrigin.xyz;
+                float3 forward = -UNITY_MATRIX_V[2].xyz;
+                // an orthographic view's rays are parallel and start on the camera plane
+                bool ortho = unity_OrthoParams.w > 0.5;
+                float3 rdWS = ortho ? forward : normalize(input.positionWS - camWS);
+                float3 originWS = ortho ? input.positionWS - forward * dot(input.positionWS - camWS, forward) : camWS;
+                float3 ro = originWS - _GridOrigin.xyz;
                 float3 rd = rdWS;
 
                 float t0, t1;
@@ -281,8 +285,8 @@ Shader "Armadahex/Cloud Fog"
 
                 // stop at anything opaque, like pillars and ships
                 float2 screenUV = input.positionCS.xy / _ScaledScreenParams.xy;
-                float eye = LinearEyeDepth(SampleSceneDepth(screenUV), _ZBufferParams);
-                float3 forward = -UNITY_MATRIX_V[2].xyz;
+                float rawDepth = SampleSceneDepth(screenUV);
+                float eye = ortho ? LinearDepthToEyeDepth(rawDepth) : LinearEyeDepth(rawDepth, _ZBufferParams);
                 t1 = min(t1, eye / max(dot(rdWS, forward), 1e-3));
                 t1 = min(t1, t0 + _MaxDistance);
                 if (t1 <= t0) discard;
