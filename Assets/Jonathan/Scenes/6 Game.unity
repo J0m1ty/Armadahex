@@ -17839,7 +17839,7 @@ MonoBehaviour:
   OrthoFOV: 8.85
   distanceOffset: 0
   FOV: 80
-  moveSpeed: 1.2
+  moveSpeed: 2
   shiftMultiplier: 3
   maxDist: 280
   rotationAmount: 0.5
@@ -22166,7 +22166,7 @@ MonoBehaviour:
   OrthoFOV: 0
   distanceOffset: 0
   FOV: 90
-  moveSpeed: 1.2
+  moveSpeed: 2
   shiftMultiplier: 3
   maxDist: 280
   rotationAmount: 0.5
