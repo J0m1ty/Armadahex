@@ -153,7 +153,7 @@ public class GameOver : MonoBehaviour
     }
 
     public void UpdateShipCounts(Dictionary<TeamType, int> shipCounts) {
-        var s = "/5\n<size=28>Ships</size>";
+        var s = "<size=60%>/5</size>";
         if (friendlyShipsRemainingText != null) {
             foreach (var kvp in shipCounts) {
                 if (kvp.Key == TurnManager.instance.playerTeam.teamType) {

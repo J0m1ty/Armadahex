@@ -163,18 +163,23 @@ public class PanelSlider : MonoBehaviour
         SetAttackInfo(false, null, attkIdent, ammoRemain);
         if (!hasAttackIntent) return;
 
-        this.connectedText.text = contact ? "> CONTACT <" : "> CLEAR <";
-        this.connectedText.color = contact ? new Color(0.35f, 0.6f, 1f) : new Color(0.9f, 0.9f, 0.9f);
+        var theme = UITheme.instance;
+        this.connectedText.text = contact ? "CONTACT" : "CLEAR";
+        this.connectedText.color = contact ? theme.sonar : theme.friendlyInk;
+        this.shipStatus.text = contact ? "SHIP IN THE AREA" : "NOTHING FOUND";
     }
 
+    // the headline is HIT, MISS or SUNK, the rows underneath say what fired and what's left
     public void SetAttackInfo(bool hitStatus, bool? shipDestroyed, string attkIdent, int? ammoRemain) {
         if (!hasAttackIntent) return;
 
-        this.connectedText.text = hitStatus ? "> HIT <" : "> MISS <";
-        this.connectedText.color = hitStatus ? new Color(204f/255f, 24f/255f, 11f/255f) : new Color(0.9f, 0.9f, 0.9f);
-        this.shipStatus.text = shipDestroyed == null ? "N/A" : ((bool)shipDestroyed ? "DESTROYED" : "ALIVE");
-        this.fleetStatus.text = "ACTIVE";
-        this.attkIdent.text = attkIdent == null ? "UNKNOWN" : attkIdent;
-        this.ammoRemain.text = ammoRemain == null ? "UNKNOWN" : (ammoRemain <= 0 ? "FALSE" : (ammoRemain > 100 ? "UNLIMITED" : ammoRemain.ToString()));
+        var theme = UITheme.instance;
+        var sunk = shipDestroyed == true;
+        this.connectedText.text = sunk ? "SUNK" : (hitStatus ? "HIT" : "MISS");
+        this.connectedText.color = sunk ? theme.gold : (hitStatus ? theme.enemy : theme.miss);
+        this.shipStatus.text = shipDestroyed == null ? "NO SHIP" : (sunk ? "SHIP DESTROYED" : "SHIP DAMAGED");
+        this.fleetStatus.text = "FLEET ACTIVE";
+        this.attkIdent.text = attkIdent == null ? "ENEMY FIRE" : attkIdent.ToUpper();
+        this.ammoRemain.text = ammoRemain == null ? "" : (ammoRemain <= 0 ? "NONE LEFT" : (ammoRemain > 100 ? "UNLIMITED" : ammoRemain + " LEFT"));
     }
 }

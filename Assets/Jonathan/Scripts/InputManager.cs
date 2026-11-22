@@ -70,7 +70,7 @@ public class InputManager : MonoBehaviour
         }
 
         if (fireAction.WasPressedThisFrame()) {
-            if (fireButton.isActiveAndEnabled) {
+            if (fireButton.isActiveAndEnabled && fireButton.interactable) {
                 fireButton.onClick.Invoke();
             }
         }

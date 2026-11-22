@@ -293,12 +293,7 @@ public class Selector : MonoBehaviour
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
         
-        for (int i = results.Count - 1; i >= 0; i--) {
-            if (results[i].gameObject.GetComponent<Button>() == null) {
-                results.RemoveAt(i);
-            }
-        }
-
+        // anything the ui raycasts against blocks the board, the fleet tray and panels as well as buttons
         return results.Count > 0;
     }
 

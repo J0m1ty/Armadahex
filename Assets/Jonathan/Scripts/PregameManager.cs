@@ -25,23 +25,6 @@ public enum ConnectionType {
     Offline
 }
 
-[Serializable]
-public class InstructionAnimation {
-    [Header("Animation Info")]
-    public float duration;
-    public float delay;
-    public AnimationCurve curve;
-
-    public float elapsedTime;
-    public bool completed;
-
-    [Header("UI References")]
-    public GameObject stepContainer;
-    public TMP_Text stepText;
-    public TMP_Text stepDescription;
-    public TMP_Text stepDescriptionTargetRef;
-}
-
 public class PregameManager : MonoBehaviour
 {
     [Header("Panel Info")]
@@ -65,23 +48,11 @@ public class PregameManager : MonoBehaviour
     private TMP_Text friendlyPlayerName;
     [SerializeField]
     private TMP_Text friendlyGamesPlayed;
-    [SerializeField]
-    private Image friendlyRankImage;
-    [SerializeField]
-    private TMP_Text friendlyRank;
-    [SerializeField]
-    private TMP_Text friendlyXP;
 
     [SerializeField]
     private TMP_Text enemyPlayerName;
     [SerializeField]
-    private TMP_Text enemyGamesPlayed;  
-    [SerializeField]
-    private Image enemyRankImage;
-    [SerializeField]
-    private TMP_Text enemyRank;
-    [SerializeField]
-    private TMP_Text enemyXP;
+    private TMP_Text enemyGamesPlayed;
 
     [Header("Game Info")]
     [SerializeField]
@@ -104,14 +75,16 @@ public class PregameManager : MonoBehaviour
     private float countdownDuration = 5f;
     [SerializeField]
     private bool countdownStarted;
+    // each new number lands big and settles
+    [SerializeField]
+    private float countdownPunch = 1.4f;
+    [SerializeField]
+    private float countdownSettle = 0.35f;
 
     [Header("UI Connection")]
     [SerializeField] private TMP_Text uiConnectionType;
     [SerializeField] private TMP_Text uiGameType;
     [SerializeField] private TMP_Text uiPlayers;
-
-    [Header("Instruction Animations")]
-    [SerializeField] private InstructionAnimation[] instructionAnimations;
 
     public static string ConnectionTypeToString(ConnectionType ct) {
         switch (ct) {
@@ -126,42 +99,33 @@ public class PregameManager : MonoBehaviour
     }
 
     public void SetInfo(ConnectionType ct, string gameMode, bool advancedAttacks, int timePerTurn, bool firstPlayer) {
-        this.connectionType.text = ConnectionTypeToString(ct);
-        this.gameType.text = gameMode;
-        this.advancedAttacks.text = "Advanced Attacks <color=#FB980E>" + (advancedAttacks ? "Enabled" : "Disabled") + "</color>";
-        this.timePerTurn.text = (timePerTurn > 0 ? "<color=#FB980E>" + timePerTurn + "</color> seconds" : "<color=#FB980E>Unlimited</color> time") + " per turn";
-        this.firstPlayer.text = "Your turn <color=#FB980E>" + (firstPlayer ? "First" : "Second") + "</color>";
+        this.connectionType.text = ConnectionTypeToString(ct).ToUpper();
+        this.gameType.text = gameMode.ToUpper();
+        this.advancedAttacks.text = advancedAttacks ? "ADVANCED ATTACKS" : "CLASSIC ATTACKS";
+        this.timePerTurn.text = timePerTurn > 0 ? timePerTurn + "S PER TURN" : "NO TURN LIMIT";
+        this.firstPlayer.text = firstPlayer ? "YOU GO FIRST" : "THEY GO FIRST";
 
         SetLeaderboardInfo(ct, gameMode);
     }
 
     public void SetLeaderboardInfo(ConnectionType ct, string gameMode) {
-        this.uiConnectionType.text = ConnectionTypeToString(ct);
-        this.uiGameType.text = gameMode;
+        this.uiConnectionType.text = ConnectionTypeToString(ct).ToUpper();
+        this.uiGameType.text = gameMode.ToUpper();
     }
     
+    // ranks and xp aren't tracked yet, so the cards only show names and games played
     public void SetPlayerInfo(string friendlyName, RankInfo rank, int friendlyGamesPlayed, int friendlyXP, string enemyName, RankInfo enemyRank, int enemyGamesPlayed, int enemyXP) {
         this.friendlyPlayerName.text = friendlyName.Length > 0 ? friendlyName : "Player";
-        this.friendlyGamesPlayed.text = friendlyGamesPlayed + " Games Played";
-        if (rank != null) {
-            this.friendlyRankImage.sprite = rank.sprite;
-            this.friendlyRank.text = rank.rank.ToString();
-        }
-        this.friendlyXP.text = friendlyXP + " XP";
+        this.friendlyGamesPlayed.text = friendlyGamesPlayed + " GAMES PLAYED";
 
         this.enemyPlayerName.text = enemyName;
-        this.enemyGamesPlayed.text = enemyGamesPlayed + " Games Played";
-        if (rank != null) {
-            this.enemyRankImage.sprite = enemyRank.sprite;
-            this.enemyRank.text = enemyRank.rank.ToString();
-        }
-        this.enemyXP.text = enemyXP + " XP";
+        this.enemyGamesPlayed.text = enemyGamesPlayed + " GAMES PLAYED";
 
-        SetLeaderboardPlayerInfo(friendlyName, enemyName);
+        SetLeaderboardPlayerInfo(this.friendlyPlayerName.text, enemyName);
     }
 
     public void SetLeaderboardPlayerInfo(string friendlyName, string enemyName) {
-        this.uiPlayers.text = friendlyName.ToUpper() + " VS. " + enemyName.ToUpper();
+        this.uiPlayers.text = friendlyName.ToUpper() + "  VS  " + enemyName.ToUpper();
     }
 
     void Start() {
@@ -176,12 +140,6 @@ public class PregameManager : MonoBehaviour
         AudioManager.instance?.PlayGameModeSound(GameNetworking.instance.gameMode);
 
         waitingForOtherPlayerText.gameObject.SetActive(!GameModeInfo.instance.IsSingleplayer);
-
-        foreach (InstructionAnimation ia in instructionAnimations) {
-            ia.stepText.gameObject.SetActive(false);
-            ia.elapsedTime = 0f;
-            ia.completed = false;
-        }
     }
 
     public void Fade() {
@@ -227,44 +185,21 @@ public class PregameManager : MonoBehaviour
     private IEnumerator Countdown(Action callback) {
         countdownStarted = true;
         float time = countdownDuration;
+        var shown = -1;
         while (time > 0) {
-            countdownText.text = Mathf.CeilToInt(time) + "";
+            var number = Mathf.CeilToInt(time);
+            if (number != shown) {
+                shown = number;
+                countdownText.text = number + "";
+                countdownText.transform.localScale = Vector3.one * countdownPunch;
+            }
+
+            var settle = 1 - Mathf.Exp(-Time.deltaTime / Mathf.Max(0.01f, countdownSettle) * 4);
+            countdownText.transform.localScale = Vector3.Lerp(countdownText.transform.localScale, Vector3.one, settle);
+
             time -= Time.deltaTime;
             yield return null;
         }
         callback();
-    }
-
-    void Update() {
-        foreach (InstructionAnimation ia in instructionAnimations) {
-            if (ia.completed) continue;
-
-            if (ia.delay > 0) {
-                ia.delay -= Time.deltaTime;
-                continue;
-            }
-            
-            ia.elapsedTime += Time.deltaTime;
-            
-            // move ia.stepDescription to ia.ia.stepDescriptionTargetRef and lerp text size
-            // use ia.curve to lerp
-            float t = ia.elapsedTime / ia.duration;
-            if (t > 1f) {
-                t = 1;
-                ia.completed = true;
-            }
-
-            if (t > 0.3f) {
-                ia.stepText.gameObject.SetActive(true);
-
-                //lerp alpha from 0 to 1 twice as fast
-                float alpha = Mathf.Lerp(0, 1, ia.curve.Evaluate((t - 0.3f) * (1/0.3f)));
-                ia.stepText.color = new Color(ia.stepText.color.r, ia.stepText.color.g, ia.stepText.color.b, alpha);
-            }
-            
-            ia.stepDescription.transform.position = Vector3.Lerp(ia.stepDescription.transform.position, ia.stepDescriptionTargetRef.transform.position, ia.curve.Evaluate(t));
-
-            ia.stepDescription.fontSize = Mathf.Lerp(ia.stepDescription.fontSize, ia.stepDescriptionTargetRef.fontSize, ia.curve.Evaluate(t));
-        }
     }
 }

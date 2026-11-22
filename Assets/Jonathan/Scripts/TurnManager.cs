@@ -34,6 +34,10 @@ public class TurnManager : MonoBehaviour
 
     [SerializeField]
     private Color enemyTurnColor;
+
+    // the banner's border and timer chip follow whose turn it is
+    [SerializeField]
+    private ThisOtherThing.UI.Shapes.Rectangle[] turnAccents;
     
     public Team currentTeam;
     public Team otherTeam {
@@ -156,14 +160,14 @@ public class TurnManager : MonoBehaviour
             OnPlayerTurn();
             countdown.StartCountdown();
             if (GameModeInfo.instance.IsAdvancedCombat) {
-                panelSlider.connectedText.text = "Your turn! Select a ship to attack with.";
+                panelSlider.connectedText.text = "Your turn. Aim with the fleet's shot, or pick a ship for its special.";
             }
             else {
-                panelSlider.connectedText.text = "Your turn! Select an enemy target to attack.";
+                panelSlider.connectedText.text = "Your turn. Click a hex on the enemy board to aim.";
             }
         } else {
             OnEnemyTurn();
-            panelSlider.connectedText.text = "Enemy turn! Waiting for enemy's move.";
+            panelSlider.connectedText.text = "Enemy turn. Brace for incoming fire.";
             if (GameModeInfo.instance.IsSingleplayer) {
                 Debug.Log("Starting countdown for bot");
                 countdown.StartCountdownForBot();
@@ -179,6 +183,7 @@ public class TurnManager : MonoBehaviour
 
         turnText.text = "YOUR TURN";
         turnText.color = playerTurnColor;
+        SetTurnAccent(playerTurnColor);
 
         selector.SetTeam(TurnManager.instance.playerTeam, TurnManager.instance.otherTeam.teamBase);
         attackManager.SetState(AttackUIManager.AttackState.SelectShip);
@@ -196,12 +201,27 @@ public class TurnManager : MonoBehaviour
 
         turnText.text = "ENEMY TURN";
         turnText.color = enemyTurnColor;
+        SetTurnAccent(enemyTurnColor);
 
         selector.allowSelectingGrids = false;
         selector.allowSelectingShips = false;
         selector.SetTeam(TurnManager.instance.otherTeam, TurnManager.instance.playerTeam.teamBase);
         attackManager.SetState(AttackUIManager.AttackState.None);
         CameraManager.instance.MoveTo(TurnManager.instance.playerTeam.teamBase.transform.position);
+    }
+
+    private void SetTurnAccent(Color color) {
+        if (turnAccents == null) return;
+        foreach (var accent in turnAccents) {
+            if (accent == null) continue;
+            accent.ShapeProperties.OutlineColor = color;
+            accent.ShapeProperties.FillColor = new Color(color.r, color.g, color.b, accent.ShapeProperties.DrawOutline ? 0.12f : 1f);
+            var shadows = accent.ShadowProperties.Shadows;
+            if (shadows != null) {
+                foreach (var shadow in shadows) shadow.Color = new Color(color.r, color.g, color.b, 0.35f);
+            }
+            accent.ForceMeshUpdate();
+        }
     }
 
     public void NextTurn() {
