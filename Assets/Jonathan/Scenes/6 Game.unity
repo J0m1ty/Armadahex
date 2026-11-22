@@ -11565,6 +11565,9 @@ MonoBehaviour:
   missShakeRoughness: 2
   missShakeFadeInTime: 0
   missShakeFadeOutTime: 4
+  sunkScale: 0.5
+  sunkDepth: 0
+  sinkTime: 0.6
   hit: 0
 --- !u!114 &1007787195
 MonoBehaviour:
@@ -17834,7 +17837,7 @@ MonoBehaviour:
   allowZoomKeys: 0
   allowMousePanning: 0
   movementTime: 10
-  isOrthographic: 1
+  isOrthographic: 0
   OrthoFOV: 8.85
   distanceOffset: 0
   FOV: 50
@@ -17842,11 +17845,11 @@ MonoBehaviour:
   shiftMultiplier: 3
   maxDist: 280
   rotationAmount: 0.5
-  zoomAmount: {x: 0, y: -1, z: 0.05}
+  zoomAmount: {x: 0, y: -10, z: 1}
   zoomRange:
     Min: 20
     Max: 300
-  angleOffset: {x: 0, y: 0}
+  angleOffset: {x: 1, y: 0}
   newPosition: {x: 0, y: 0, z: 0}
   newRotation: {x: 0, y: 0, z: 0, w: 0}
   newZoom: {x: 0, y: 0, z: 0}
@@ -17862,14 +17865,15 @@ MonoBehaviour:
   pullSpeed: 0.7
   closePitch: 12
   farPitch: 38
+  composeAhead: 0.35
   fitBoard: 1
-  fitPadding: 1.2
+  fitPadding: 1.05
   closestZoom: 0.3
   zoomStep: 0.12
   orthoHeight: 700
-  focusOnShots: 0
-  focusHold: 2
-  focusClosest: 0.3
+  focusOnShots: 1
+  focusHold: 1.4
+  focusClosest: 0.6
   zoomAmountButton: 7
 --- !u!1 &1712294340
 GameObject:
@@ -22186,7 +22190,7 @@ MonoBehaviour:
   zoomRange:
     Min: 10
     Max: 150
-  angleOffset: {x: -8, y: 0}
+  angleOffset: {x: -3, y: 0}
   newPosition: {x: 0, y: 0, z: 0}
   newRotation: {x: 0, y: 0, z: 0, w: 0}
   newZoom: {x: 0, y: 0, z: 0}
@@ -22200,8 +22204,9 @@ MonoBehaviour:
   control: 2
   orbitSpeed: 70
   pullSpeed: 0.7
-  closePitch: 18
-  farPitch: 38
+  closePitch: 32
+  farPitch: 45
+  composeAhead: 0.35
   fitBoard: 1
   fitPadding: 0.85
   closestZoom: 0.4

@@ -26,12 +26,26 @@ public class HexPillarTerrain : MonoBehaviour {
     [SerializeField] private float channelSlope = 4f;
 
     [Header("Pillars")]
-    [SerializeField] private float pillarInset = 1.5f;
     [SerializeField] private float heightStep = 3f;
+    // the ranges share height levels this far apart, so they read like a contour map
+    [SerializeField] private float contourStep = 30f;
+    // gap between neighbouring range pillars, 0 joins a level into one flat terrace
+    [SerializeField] private float rangeInset = 0f;
     // tops this close to the water get washed over by the waves, so they're lifted clear or sunk
     [SerializeField] private float waterClearance = 1.5f;
     [SerializeField] private float textureScale = 0.015f;
     [SerializeField] private float seabedDepth = 40f;
+
+    // every board's pillar mesh, so the top view can sink them all
+    private static readonly List<Transform> pillarMeshes = new List<Transform>();
+
+    public static void Sink(float heightScale, float depth) {
+        pillarMeshes.RemoveAll(p => p == null);
+        foreach (var pillars in pillarMeshes) {
+            pillars.localScale = new Vector3(1f, heightScale, 1f);
+            pillars.localPosition = new Vector3(0f, -depth, 0f);
+        }
+    }
 
     private static readonly Vector2Int[] directions = {
         new Vector2Int(1, 0), new Vector2Int(1, -1), new Vector2Int(0, -1),
@@ -142,7 +156,6 @@ public class HexPillarTerrain : MonoBehaviour {
                 var cell = new Vector2Int(q, r);
                 var dist = Distance(cell);
                 var roll = rng.NextDouble();
-                var jitter = rng.Next(0, 3);
                 if (dist < wallStart || dist > outerRadius) continue;
                 // channel floors stay open, and the ranges slope down to them
                 var channelEdge = int.MaxValue;
@@ -165,7 +178,8 @@ public class HexPillarTerrain : MonoBehaviour {
                 var height = (wallHeight * rise + depth) / (1f + tail * tail) - depth;
                 if (dist < wallEnd) height = wallHeight * rise;
 
-                pillars[cell] = Step((height * (0.45f + noise * 0.75f) + jitter * heightStep) * bank);
+                // no per pillar jitter, so neighbours share a level and the contours stay long
+                pillars[cell] = Step(height * (0.45f + noise * 0.75f) * bank, contourStep);
             }
         }
 
@@ -193,19 +207,41 @@ public class HexPillarTerrain : MonoBehaviour {
 
         var color = TeamColor.GetSideColor(teamBase.team);
 
-        // the trim shader pulses outward from the sources by each pillar's position
+        // thinner posts on the board itself, so ships on the next hex over don't clip into them
+        var radii = new Dictionary<Vector2Int, float>();
         foreach (var pillar in pillars) {
-            var start = vertices.Count;
+            radii[pillar.Key] = onBoard.Contains(pillar.Key) ? size * boardPillarScale : size - rangeInset;
+        }
+
+        // a level is outlined only where it drops to a lower one, so each height gets one contour line
+        var rims = new Dictionary<(Vector2Int, int), Vector3[]>();
+        foreach (var pillar in pillars) {
             var center = CellToLocal(pillar.Key);
-            // thinner posts on the board itself, so ships on the next hex over don't clip into them
-            var radius = onBoard.Contains(pillar.Key) ? size * boardPillarScale : size - pillarInset;
-            AddPillar(center, pillar.Value, radius);
+            var radius = radii[pillar.Key];
+            for (var k = 0; k < 6; k++) {
+                var next = pillar.Key + edgeNeighbours[k];
+                var joined = pillars.TryGetValue(next, out var other)
+                    && Mathf.Abs(other - pillar.Value) < 0.01f
+                    && !onBoard.Contains(pillar.Key) && !onBoard.Contains(next);
+                var lower = other < pillar.Value - 0.01f || !pillars.ContainsKey(next);
+                if (joined || (!lower && !onBoard.Contains(pillar.Key))) continue;
+
+                rims[(pillar.Key, k)] = new[] {
+                    center + Corner(k, radius) + Vector3.up * pillar.Value,
+                    center + Corner(k + 1, radius) + Vector3.up * pillar.Value
+                };
+            }
+        }
+
+        var along = ChainContours(rims);
+
+        foreach (var pillar in pillars) {
+            var center = CellToLocal(pillar.Key);
+            var radius = radii[pillar.Key];
+            AddPillar(pillar.Key, center, pillar.Value, radius, along);
 
             // foam around everything that breaks the surface
             if (pillar.Value > 0f) ShoreFoam.Add(transform.position + center, radius, color);
-
-            var data = new Vector2(center.x, center.z);
-            for (var i = start; i < vertices.Count; i++) glowData.Add(data);
         }
 
         var mesh = new Mesh();
@@ -224,6 +260,7 @@ public class HexPillarTerrain : MonoBehaviour {
         obj.layer = gameObject.layer;
         obj.transform.SetParent(transform, false);
         obj.GetComponent<MeshFilter>().sharedMesh = mesh;
+        pillarMeshes.Add(obj.transform);
 
         var meshRenderer = obj.GetComponent<MeshRenderer>();
         meshRenderer.sharedMaterials = new[] { metalMaterial, trimMaterial };
@@ -272,28 +309,81 @@ public class HexPillarTerrain : MonoBehaviour {
         box.center = new Vector3((min.x + max.x) / 2f, -0.5f, (min.y + max.y) / 2f);
     }
 
-    private void AddPillar(Vector3 center, float top, float radius) {
+    // the lattice neighbour across each top edge k, which runs from corner k to corner k + 1
+    private static readonly Vector2Int[] edgeNeighbours = {
+        new Vector2Int(1, 0), new Vector2Int(0, 1), new Vector2Int(-1, 1),
+        new Vector2Int(-1, 0), new Vector2Int(0, -1), new Vector2Int(1, -1)
+    };
+
+    // links rim edges end to start into contour lines, and gives each edge its distance along its line
+    private Dictionary<(Vector2Int, int), float> ChainContours(Dictionary<(Vector2Int, int), Vector3[]> rims) {
+        var starts = new Dictionary<Vector3Int, List<(Vector2Int, int)>>();
+        foreach (var rim in rims) {
+            var key = Key(rim.Value[0]);
+            if (!starts.TryGetValue(key, out var list)) starts[key] = list = new List<(Vector2Int, int)>();
+            list.Add(rim.Key);
+        }
+
+        var along = new Dictionary<(Vector2Int, int), float>();
+        foreach (var first in rims.Keys) {
+            if (along.ContainsKey(first)) continue;
+
+            var edge = first;
+            var length = 0f;
+            while (true) {
+                along[edge] = length;
+                var points = rims[edge];
+                length += Vector3.Distance(points[0], points[1]);
+
+                if (!starts.TryGetValue(Key(points[1]), out var nexts)) break;
+                var found = false;
+                foreach (var next in nexts) {
+                    if (along.ContainsKey(next)) continue;
+                    edge = next;
+                    found = true;
+                    break;
+                }
+                if (!found) break;
+            }
+        }
+        return along;
+    }
+
+    private static Vector3Int Key(Vector3 point) {
+        return new Vector3Int(Mathf.RoundToInt(point.x * 10f), Mathf.RoundToInt(point.y * 10f), Mathf.RoundToInt(point.z * 10f));
+    }
+
+    private void AddPillar(Vector2Int cell, Vector3 center, float top, float radius, Dictionary<(Vector2Int, int), float> along) {
         var bottom = -seabedDepth;
 
         AddRing(center, radius, bottom, top, metalTris);
 
-        // metal cap with a glowing rim so the side color shows from the top camera
+        // metal cap, with a glowing rim only along the edges that drop to a lower level
         var inner = radius * (1f - topRimWidth);
         var c = vertices.Count;
         AddTop(center, Vector3.zero, top);
-        for (var k = 0; k < 6; k++) AddTop(center, Corner(k, inner), top);
+        for (var k = 0; k < 6; k++) AddTop(center, Corner(k, radius), top);
         for (var k = 0; k < 6; k++) {
             metalTris.Add(c);
             metalTris.Add(c + 1 + (k + 1) % 6);
             metalTris.Add(c + 1 + k);
         }
+        for (var i = c; i < vertices.Count; i++) glowData.Add(Vector2.zero);
 
         for (var k = 0; k < 6; k++) {
+            if (!along.TryGetValue((cell, k), out var start)) continue;
+            var end = start + Vector3.Distance(Corner(k, radius), Corner(k + 1, radius));
+
+            // lifted a hair over the cap so they don't fight
             var i = vertices.Count;
-            AddTop(center, Corner(k, inner), top);
-            AddTop(center, Corner(k, radius), top);
-            AddTop(center, Corner(k + 1, radius), top);
-            AddTop(center, Corner(k + 1, inner), top);
+            AddTop(center, Corner(k, inner), top + 0.05f);
+            AddTop(center, Corner(k, radius), top + 0.05f);
+            AddTop(center, Corner(k + 1, radius), top + 0.05f);
+            AddTop(center, Corner(k + 1, inner), top + 0.05f);
+            glowData.Add(new Vector2(start, 1f));
+            glowData.Add(new Vector2(start, 1f));
+            glowData.Add(new Vector2(end, 1f));
+            glowData.Add(new Vector2(end, 1f));
 
             trimTris.Add(i);
             trimTris.Add(i + 2);
@@ -327,6 +417,7 @@ public class HexPillarTerrain : MonoBehaviour {
             uvs.Add(new Vector2(0f, y1) * textureScale);
             uvs.Add(new Vector2(radius, y1) * textureScale);
             uvs.Add(new Vector2(radius, y0) * textureScale);
+            for (var n = 0; n < 4; n++) glowData.Add(Vector2.zero);
 
             tris.Add(i);
             tris.Add(i + 1);
@@ -371,7 +462,11 @@ public class HexPillarTerrain : MonoBehaviour {
     }
 
     private float Step(float height) {
-        var stepped = Mathf.Round(height / heightStep) * heightStep;
+        return Step(height, heightStep);
+    }
+
+    private float Step(float height, float step) {
+        var stepped = Mathf.Round(height / step) * step;
         if (Mathf.Abs(stepped) < waterClearance) stepped = height >= 0f ? waterClearance : -waterClearance;
         return stepped;
     }

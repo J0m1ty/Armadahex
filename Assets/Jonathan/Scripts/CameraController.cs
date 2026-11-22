@@ -106,6 +106,9 @@ public class CameraController : MonoBehaviour
     private float closePitch = 12f;
     [SerializeField]
     private float farPitch = 38f;
+    // framing puts the subject this far (of its radius) below the middle of the screen
+    [SerializeField]
+    private float composeAhead = 0.35f;
     // 0 is pulled all the way in, 1 all the way out
     private float pull = 1f;
     private float pullVelocity;
@@ -362,7 +365,9 @@ public class CameraController : MonoBehaviour
 
         StopFocus(false);
 
-        var offset = point - newCenter;
+        // look a little past the subject, so it sits in the lower middle with the board behind it
+        var ahead = Vector3.ProjectOnPlane(newRotation * Vector3.forward, Vector3.up).normalized;
+        var offset = point + ahead * radius * composeAhead - newCenter;
         newPosition = new Vector3(offset.x, 0, offset.z);
 
         var distance = radius * fitPadding / fitTan;

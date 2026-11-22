@@ -7,7 +7,7 @@ Shader "Armadahex/Pillar Trim"
         _PulseGlow ("Pulse Glow", Float) = 5
         _PulsePeriod ("Pulse Period", Float) = 7
         _PulseWavelength ("Pulse Wavelength", Float) = 260
-        _PulseReach ("Pulse Reach", Float) = 450
+        _PulseSharpness ("Pulse Sharpness", Float) = 6
     }
 
     SubShader
@@ -31,23 +31,20 @@ Shader "Armadahex/Pillar Trim"
             float _PulseGlow;
             float _PulsePeriod;
             float _PulseWavelength;
-            float _PulseReach;
+            float _PulseSharpness;
             CBUFFER_END
-
-            // xy: where a pulse breathes out from, z: its phase offset (set per board by HexPillarTerrain)
-            float4 _PulseSources[3];
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
-                // xy: pillar position around the board center
+                // x: distance along the contour line this rim is part of
                 float2 glowData : TEXCOORD1;
             };
 
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
-                float glow : TEXCOORD0;
+                float along : TEXCOORD0;
                 float fogFactor : TEXCOORD1;
             };
 
@@ -57,22 +54,16 @@ Shader "Armadahex/Pillar Trim"
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 output.fogFactor = ComputeFogFactor(output.positionCS.z);
 
-                // soft rings breathing out from a few sources, fading the further they travel
-                float pulse = 0;
-                for (int i = 0; i < 3; i++)
-                {
-                    float dist = distance(input.glowData.xy, _PulseSources[i].xy);
-                    float phase = (_Time.y / _PulsePeriod - dist / _PulseWavelength + _PulseSources[i].z) * TWO_PI;
-                    float ring = pow(0.5 + 0.5 * sin(phase), 3);
-                    pulse += ring * exp(-dist / _PulseReach);
-                }
-                output.glow = _Glow + _PulseGlow * saturate(pulse);
+                output.along = input.glowData.x;
                 return output;
             }
 
             half4 frag(Varyings input) : SV_Target
             {
-                half3 color = _BaseColor.rgb * input.glow;
+                // light running along the contour lines
+                float phase = (input.along / _PulseWavelength - _Time.y / _PulsePeriod) * TWO_PI;
+                float pulse = pow(0.5 + 0.5 * sin(phase), _PulseSharpness);
+                half3 color = _BaseColor.rgb * (_Glow + _PulseGlow * pulse);
                 color = MixFog(color, input.fogFactor);
                 return half4(color, 1);
             }

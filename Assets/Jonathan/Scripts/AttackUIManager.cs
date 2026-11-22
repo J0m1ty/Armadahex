@@ -255,7 +255,7 @@ public class AttackUIManager : MonoBehaviour
         if (attackState == AttackState.SelectTarget) {
             if (!target.hexRenderer.hexMap.teamBase.team.isPlayer) {
                 selectedTarget = target;
-                CameraManager.instance.Frame(target.hexRenderer.transform.position, target.hexRenderer.hexMap.size * 4f);
+                CameraManager.instance.Frame(target.hexRenderer.transform.position, target.hexRenderer.hexMap.size * 8f);
 
                 SetState(AttackState.SelectAttackOption);
                 

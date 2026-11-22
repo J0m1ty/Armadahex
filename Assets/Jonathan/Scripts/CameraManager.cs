@@ -58,11 +58,16 @@ public class CameraManager : MonoBehaviour
     private float frameRadius;
     private ShipManager shipManager;
 
-    [Header("View Switch")]
+    [Header("Top View Map")]
+    // the pillars sink into flat islands while looking from the top, so the board reads cleanly
     [SerializeField]
-    private float switchTime = 0.5f;
-    private Coroutine switchBlend;
-    private Camera blendingCamera;
+    private float sunkScale = 0.06f;
+    // all the way under the water, so only a faint glow shows through
+    [SerializeField]
+    private float sunkDepth = 14f;
+    [SerializeField]
+    private float sinkTime = 0.6f;
+    private float sunk;
 
     // shots landing within a moment of each other are one volley
     private Bounds? volley;
@@ -100,9 +105,18 @@ public class CameraManager : MonoBehaviour
     }
 
     void Update() {
+        var playing = TurnManager.instance != null && TurnManager.instance.gameActive;
+
         // not during the intro, it still has the rig cameras switched off
-        if (switchViewAction.WasPressedThisFrame() && TurnManager.instance != null && TurnManager.instance.gameActive) {
+        if (switchViewAction.WasPressedThisFrame() && playing) {
             SetCameraState(state == CameraState.Side ? CameraState.Top : CameraState.Side);
+        }
+
+        var target = state == CameraState.Top && playing ? 1f : 0f;
+        if (sunk != target) {
+            sunk = Mathf.MoveTowards(sunk, target, Time.deltaTime / sinkTime);
+            var k = Mathf.SmoothStep(0f, 1f, sunk);
+            HexPillarTerrain.Sink(Mathf.Lerp(1f, sunkScale, k), sunkDepth * k);
         }
     }
 
@@ -163,13 +177,6 @@ public class CameraManager : MonoBehaviour
     }
 
     public void SetCameraState(CameraState state, bool shareRotation = true) {
-        var switching = shareRotation && state != this.state;
-        var oldController = this.state == CameraState.Side ? sideCameraController : topCameraController;
-        var oldView = oldController.view;
-        var fromPosition = oldView.transform.position;
-        var fromRotation = oldView.transform.rotation;
-        var fromProjection = oldView.projectionMatrix;
-
         this.state = state;
         CameraController cameraController = null;
         CameraController otherController = null;
@@ -207,42 +214,7 @@ public class CameraManager : MonoBehaviour
                 cameraController.Frame(framePoint.Value, frameRadius);
             }
 
-            if (switching) {
-                if (switchBlend != null) {
-                    StopCoroutine(switchBlend);
-                    if (blendingCamera != null) blendingCamera.ResetProjectionMatrix();
-                }
-                switchBlend = StartCoroutine(BlendSwitch(cameraController, fromPosition, fromRotation, fromProjection));
-            }
         }
-    }
-
-    // the new view starts where the old one was and glides over, blending the lens too
-    private IEnumerator BlendSwitch(CameraController controller, Vector3 fromPosition, Quaternion fromRotation, Matrix4x4 fromProjection) {
-        var view = controller.view;
-        blendingCamera = view;
-        var follow = controller.followChild.transform;
-        var viewRotation = Quaternion.Inverse(follow.rotation) * view.transform.rotation;
-        follow.rotation = fromRotation * Quaternion.Inverse(viewRotation);
-        follow.position = fromPosition - (view.transform.position - follow.position);
-
-        for (float t = 0; t < switchTime; t += Time.deltaTime) {
-            view.ResetProjectionMatrix();
-            var to = view.projectionMatrix;
-            var k = Mathf.SmoothStep(0f, 1f, t / switchTime);
-
-            var blended = new Matrix4x4();
-            for (int i = 0; i < 16; i++) {
-                blended[i] = Mathf.Lerp(fromProjection[i], to[i], k);
-            }
-            view.projectionMatrix = blended;
-
-            yield return null;
-        }
-
-        view.ResetProjectionMatrix();
-        blendingCamera = null;
-        switchBlend = null;
     }
 
     // the side view looks at a spot, sized to fit radius

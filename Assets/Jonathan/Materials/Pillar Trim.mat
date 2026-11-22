@@ -100,12 +100,12 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _Glow: 2
+    - _Glow: 1
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _PulseGlow: 5
-    - _PulsePeriod: 7
+    - _PulsePeriod: 10
     - _PulseReach: 450
     - _PulseScale: 320
     - _PulseSharpness: 6
