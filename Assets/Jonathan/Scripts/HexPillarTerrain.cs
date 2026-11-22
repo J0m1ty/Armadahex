@@ -26,6 +26,8 @@ public class HexPillarTerrain : MonoBehaviour {
     [Header("Pillars")]
     [SerializeField] private float pillarInset = 1.5f;
     [SerializeField] private float heightStep = 3f;
+    // tops this close to the water get washed over by the waves, so they're lifted clear or sunk
+    [SerializeField] private float waterClearance = 1.5f;
     [SerializeField] private float textureScale = 0.015f;
     [SerializeField] private float seabedDepth = 40f;
 
@@ -360,6 +362,8 @@ public class HexPillarTerrain : MonoBehaviour {
     }
 
     private float Step(float height) {
-        return Mathf.Round(height / heightStep) * heightStep;
+        var stepped = Mathf.Round(height / heightStep) * heightStep;
+        if (Mathf.Abs(stepped) < waterClearance) stepped = height >= 0f ? waterClearance : -waterClearance;
+        return stepped;
     }
 }
