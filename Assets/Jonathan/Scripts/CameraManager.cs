@@ -191,8 +191,9 @@ public class CameraManager : MonoBehaviour
                 }
             }
 
+            // back on the side view, look at what's happening but keep the player's zoom
             if (state == CameraState.Side && framePoint != null) {
-                cameraController.Frame(framePoint.Value, frameRadius);
+                cameraController.Recenter(framePoint.Value);
             }
 
         }

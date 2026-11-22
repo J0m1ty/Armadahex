@@ -6,7 +6,7 @@ Shader "Armadahex/Pillar Trim"
         _Glow ("Glow", Float) = 2
         _PulseGlow ("Pulse Glow", Float) = 5
         _PulsePeriod ("Pulse Period", Float) = 7
-        _PulseWidth ("Pulse Width", Range(0.01, 1)) = 0.15
+        _PulseWidth ("Pulse Width", Range(0.01, 1)) = 0.25
     }
 
     SubShader
@@ -42,7 +42,7 @@ Shader "Armadahex/Pillar Trim"
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
-                float along : TEXCOORD0;
+                float2 along : TEXCOORD0;
                 float fogFactor : TEXCOORD1;
             };
 
@@ -52,16 +52,16 @@ Shader "Armadahex/Pillar Trim"
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 output.fogFactor = ComputeFogFactor(output.positionCS.z);
 
-                output.along = input.glowData.x;
+                output.along = input.glowData;
                 return output;
             }
 
             half4 frag(Varyings input) : SV_Target
             {
                 // a short bright stretch running along each contour, the rest stays its side color
-                float f = frac(input.along - _Time.y / _PulsePeriod);
+                float f = frac(input.along.x - _Time.y / _PulsePeriod);
                 float pulse = saturate(1 - abs(f - 0.5) * 2 / _PulseWidth);
-                pulse *= pulse;
+                pulse *= pulse * input.along.y;
                 half3 color = _BaseColor.rgb * (_Glow + _PulseGlow * pulse);
                 color = MixFog(color, input.fogFactor);
                 return half4(color, 1);

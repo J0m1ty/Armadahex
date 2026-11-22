@@ -365,7 +365,8 @@ public class CameraController : MonoBehaviour
 
         StopFocus(false);
 
-        radius = Mathf.Min(radius, boardRadius);
+        // never tighter than most of the board, so a framed spot keeps its surroundings
+        radius = Mathf.Clamp(radius, boardRadius * 0.6f, boardRadius);
 
         // look a little past the subject, so it sits in the lower middle with the board behind it
         var ahead = Vector3.ProjectOnPlane(newRotation * Vector3.forward, Vector3.up).normalized;
@@ -375,6 +376,14 @@ public class CameraController : MonoBehaviour
 
         var distance = radius * fitPadding / fitTan;
         targetPull = Mathf.InverseLerp(zoomRange.Min, zoomRange.Max, distance);
+    }
+
+    // moves the pivot to a spot without changing how far in the player has pulled
+    public void Recenter(Vector3 point) {
+        if (control != CameraControl.Orbit || boardRadius <= 0) return;
+
+        var offset = point - newCenter;
+        newPosition = new Vector3(offset.x, 0, offset.z);
     }
 
     public void FocusOn(Bounds area) {
