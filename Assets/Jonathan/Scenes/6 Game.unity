@@ -11556,10 +11556,10 @@ MonoBehaviour:
   buildDefaultState: 1
   sideCamera: {fileID: 2115144126}
   topCamera: {fileID: 1708113312}
-  shakeMagnitude: 6
-  shakeRoughness: 4
+  shakeMagnitude: 11
+  shakeRoughness: 7
   shakeFadeInTime: 0
-  shakeFadeOutTime: 6
+  shakeFadeOutTime: 2.5
   missShakeMagnitude: 2
   missShakeRoughness: 2
   missShakeFadeInTime: 0
@@ -14201,7 +14201,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   arrowPrefab: {fileID: 541534417339166546, guid: 1cbfbfb0246d24344ad321de492b69ac, type: 3}
-  height: 20
+  height: 50
   arrowOffset: 5.5
   disableButtons: 0
 --- !u!1 &1293625060

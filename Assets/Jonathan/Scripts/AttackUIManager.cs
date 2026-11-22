@@ -559,12 +559,14 @@ public class AttackUIManager : MonoBehaviour
                     target.SetColor(AttackColor.miss);
                     target.SetFogColorInstant(FogColor.Miss, false);
                     target.ClearFog();
+                    ShotEffects.Shot(target, false);
                     OnAttack?.Invoke(TurnManager.instance.enemyTeam, false, target.coords.index, i == targets.Count - 1);
                 }
                 else if (target.gridRef.shipSegment.isAlive) {
                     target.SetColor(AttackColor.hit);
                     target.SetFogColorInstant(FogColor.Hit, false);
                     target.EnableFlames();
+                    ShotEffects.Shot(target, true);
                     destroyed = target.gridRef.shipSegment.Destroy();
                     OnAttack?.Invoke(TurnManager.instance.enemyTeam, true, target.coords.index, i == targets.Count - 1);
 
@@ -596,7 +598,10 @@ public class AttackUIManager : MonoBehaviour
             if (!GameOver.instance.CheckIfGameOver()) {
                 attackPanel.ResetData();
                 attackPanel.SetAttackInfo(hit, destroyed, selectedShip.shipModel.attackName, selectedOption.info.unlimited ? 1000 : selectedOption.ammoLeft );
-                CameraManager.instance.Shake(hit);
+                // only a hit shakes the camera
+                if (hit) {
+                    CameraManager.instance.Shake(true);
+                }
                 AudioManager.instance?.PlayActionSound(ActionType.Explosion);
                 AudioManager.instance?.PlayHitSound(hit, 3f);
                 attackPanel.QuickActivate();
@@ -634,10 +639,12 @@ public class AttackUIManager : MonoBehaviour
         bool? destroyed = null;
         if (hex.gridRef.shipSegment == null) {
             hex.SetColor(AttackColor.miss);
+            ShotEffects.Shot(hex, false);
         }
         else if (hex.gridRef.shipSegment.isAlive) {
             destroyed = hex.gridRef.shipSegment.Destroy();
             hex.SetColor(AttackColor.hit);
+            ShotEffects.Shot(hex, true);
             hit = true;
         }
 
@@ -670,7 +677,9 @@ public class AttackUIManager : MonoBehaviour
         attackPanel.SetAttackInfo_Save(hit, destroyed, null, null);
         
         if (finalAttack && !GameOver.instance.CheckIfGameOver()) {
-            CameraManager.instance.Shake(attackPanel.persistingHit);
+            if (attackPanel.persistingHit) {
+                CameraManager.instance.Shake(true);
+            }
             AudioManager.instance?.PlayActionSound(ActionType.Explosion);
             AudioManager.instance?.PlayHitSound(attackPanel.persistingHit, 3f);
             attackPanel.QuickActivate(true, GameModeInfo.instance.IsSingleplayer ? (attackPanel.persistingHit ? 4f : null) : null);

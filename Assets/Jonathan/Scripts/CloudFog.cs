@@ -22,6 +22,15 @@ public class CloudFog : MonoBehaviour
     public float hoverInTime = 0.06f;
     public float hoverOutTime = 0.5f;
 
+    [Header("Attack Preview")]
+    public float pulseSpeed = 4f;
+    public float pulseSpacing = 1.2f;
+
+    [Header("Grid")]
+    [Range(0, 1)]
+    public float idleGrid = 0.25f;
+    public float gridTime = 0.4f;
+
     [Header("Hover")]
     public Color hoverGlow = new Color(2.2f, 0.35f, 0.22f);
     [Range(0, 1)]
@@ -36,6 +45,10 @@ public class CloudFog : MonoBehaviour
     private Color[] pixels;
 
     private static Texture3D noise;
+
+    private readonly Vector4[] ripples = new Vector4[4];
+    private int nextRipple;
+    private float gridGlow;
 
     public void Init(HexGrid grid, Material fogMaterial) {
         this.grid = grid;
@@ -95,6 +108,14 @@ public class CloudFog : MonoBehaviour
         WriteMap();
     }
 
+    // a ring that rolls outward through the clouds from a hit
+    public void Ripple(Vector3 worldPosition) {
+        var local = worldPosition - transform.position;
+        ripples[nextRipple] = new Vector4(local.x, local.z, Time.timeSinceLevelLoad, 1);
+        nextRipple = (nextRipple + 1) % ripples.Length;
+        material.SetVectorArray("_Ripples", ripples);
+    }
+
     public void SetHover(HexRenderer hex) {
         foreach (var fog in fogs) {
             fog.hoverTarget = fog.hex == hex ? 1 : 0;
@@ -115,6 +136,11 @@ public class CloudFog : MonoBehaviour
 
     void LateUpdate() {
         material.SetVector("_GridOrigin", transform.position);
+
+        // the hex grid shows faintly in the clouds, and lights up while you pick a target
+        var picking = Selector.instance != null && Selector.instance.allowSelectingGrids && TurnManager.instance != null && TurnManager.instance.gameActive;
+        gridGlow = Ease(gridGlow, picking ? 1 : idleGrid, gridTime, Time.deltaTime);
+        material.SetFloat("_GridGlow", gridGlow);
 
         // the shader parts the clouds softly around the visible hover column
         var border = Selector.instance != null ? Selector.instance.border : null;
@@ -142,7 +168,13 @@ public class CloudFog : MonoBehaviour
             // (and the locked hex already glows, so the hover glow on top would blow it out)
             var locked = fog.current == FogColor.Selected;
             var cover = fog.cover * (1 - (locked ? 1f : hoverCarve) * fog.hover);
-            var glow = fog.glow + hoverGlow * fog.hover * (locked ? 0.25f : 1f);
+            var glow = fog.glow;
+            // attack previews pulse outward along their line
+            if (fog.current == FogColor.Custom && fog.pulseOrder >= 0) {
+                var wave = Mathf.Repeat(fog.pulseOrder * pulseSpacing - Time.time * pulseSpeed, 2 * Mathf.PI);
+                glow *= 0.35f + 1.4f * Mathf.Pow(Mathf.Max(0, Mathf.Cos(wave)), 6);
+            }
+            glow += hoverGlow * fog.hover * (locked ? 0.25f : 1f);
             pixels[x + y * MAP_SIZE] = new Color(glow.r, glow.g, glow.b, cover);
         }
         map.SetPixels(pixels);

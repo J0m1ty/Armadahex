@@ -29,6 +29,9 @@ public class Arrow : MonoBehaviour
     private Transform backTransform;
 
     [SerializeField]
+    private Material arrowMaterial;
+
+    [SerializeField]
     private Renderer frontRenderer;
     [SerializeField]
     private Renderer backRenderer;
@@ -64,13 +67,23 @@ public class Arrow : MonoBehaviour
         frontRenderer = front.GetComponentInChildren<MeshRenderer>();
         backRenderer = back.GetComponentInChildren<MeshRenderer>();
 
-        var material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+        var material = arrowMaterial != null ? new Material(arrowMaterial) : new Material(Shader.Find("Universal Render Pipeline/Lit"));
         material.color = Color.white;
         frontRenderer.material = material;
         backRenderer.material = material;
 
         initialFrontLength = frontRenderer.bounds.size.x;
         initialBackLength = backRenderer.bounds.size.x;
+    }
+
+    // the flow shader needs to know where the head is to run its bands toward it
+    void LateUpdate() {
+        var head = frontRenderer.bounds.center;
+        var dir = head - backRenderer.bounds.center;
+        if (dir.sqrMagnitude < 0.001f) return;
+
+        frontRenderer.sharedMaterial.SetVector("_FlowOrigin", head);
+        frontRenderer.sharedMaterial.SetVector("_FlowDir", dir.normalized);
     }
 
     public void SetLength(float length, SliderPos pos) {

@@ -47,6 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   offset: 0
   totalLength: 64.886925
+  arrowMaterial: {fileID: 2100000, guid: c3d84e31cf194c24b8ccc57e7e3f9410, type: 2}
   front: {fileID: 8241226656716688972}
   back: {fileID: 2928297518343022509}
   slider: {fileID: 3651161697697448654}

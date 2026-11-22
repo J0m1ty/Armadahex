@@ -17,6 +17,17 @@ Shader "Armadahex/Cloud Fog"
         _Warp ("Edge Warp", Float) = 14
         _ColumnSoftness ("Column Softness", Float) = 14
 
+        [Header(Grid)]
+        [HDR] _GridColor ("Grid Color", Color) = (1.6, 0.7, 0.5, 1)
+        _GridWidth ("Grid Line Width", Float) = 2
+
+        [Header(Hit Ripple)]
+        [HDR] _RippleColor ("Ripple Color", Color) = (4, 1.5, 0.5, 1)
+        _RippleSpeed ("Ripple Speed", Float) = 70
+        _RippleWidth ("Ripple Width", Float) = 20
+        _RippleLife ("Ripple Life", Float) = 2.5
+        _RippleLift ("Ripple Lift", Float) = 0.5
+
         [Header(Lighting)]
         _LitColor ("Lit Color", Color) = (1, 0.97, 0.93, 1)
         _ShadowColor ("Shadow Color", Color) = (0.5, 0.55, 0.66, 1)
@@ -67,6 +78,13 @@ Shader "Armadahex/Cloud Fog"
                 float4 _Wind;
                 float _Warp;
                 float _ColumnSoftness;
+                float4 _GridColor;
+                float _GridWidth;
+                float4 _RippleColor;
+                float _RippleSpeed;
+                float _RippleWidth;
+                float _RippleLife;
+                float _RippleLift;
                 float4 _LitColor;
                 float4 _ShadowColor;
                 float4 _AmbientColor;
@@ -82,7 +100,11 @@ Shader "Armadahex/Cloud Fog"
                 float4 _GridOrigin;
                 float4 _MapParams; // size, offset, hex size
                 float4 _Column;    // x, z, top y, on
+                float _GridGlow;
             CBUFFER_END
+
+            // set with SetVectorArray, which can't live in the material cbuffer
+            float4 _Ripples[4]; // x, z, start time, on
 
             #define SQRT3 1.7320508
 
@@ -124,6 +146,21 @@ Shader "Armadahex/Cloud Fog"
             {
                 float size = _MapParams.z;
                 return float2(size * 1.5 * axial.x, size * SQRT3 * (axial.y + axial.x * 0.5));
+            }
+
+            // how close p is to a hex edge, 1 on the line
+            float GridLine(float2 p)
+            {
+                float size = _MapParams.z;
+                float q = (2.0 / 3.0 * p.x) / size;
+                float r = (-1.0 / 3.0 * p.x + SQRT3 / 3.0 * p.y) / size;
+                float3 cube = float3(q, r, -q - r);
+                float3 rounded = round(cube);
+                float3 diff = abs(rounded - cube);
+                if (diff.x > diff.y && diff.x > diff.z) rounded.x = -rounded.y - rounded.z;
+                else if (diff.y > diff.z) rounded.y = -rounded.x - rounded.z;
+                float edge = HexDistance(p - AxialCenter(rounded.xy), size);
+                return 1 - smoothstep(0, _GridWidth, abs(edge));
             }
 
             // smooth bump that reaches zero at the distance to an edge midpoint of the next triangle
@@ -176,6 +213,21 @@ Shader "Armadahex/Cloud Fog"
                 float4 state = HexState(p.xz + warp);
                 glow = state.rgb;
 
+                // hit ripples: a bright ring that lifts the cloud tops as it rolls outward
+                float ripple = 0;
+                [unroll]
+                for (int k = 0; k < 4; k++)
+                {
+                    float4 r = _Ripples[k];
+                    float age = time - r.z;
+                    if (r.w > 0 && age > 0 && age < _RippleLife)
+                    {
+                        float d = (length(p.xz - r.xy) - age * _RippleSpeed) / _RippleWidth;
+                        ripple += exp(-d * d) * (1 - age / _RippleLife);
+                    }
+                }
+                glow += _RippleColor.rgb * ripple;
+
                 float cover = state.a;
                 if (cover <= 0.001) return 0;
 
@@ -183,7 +235,7 @@ Shader "Armadahex/Cloud Fog"
                 // so cleared hexes leave sloped valleys rather than walls
                 float h = (p.y - _BoxMin.y) / (_BoxMax.y - _BoxMin.y);
                 float heap = shape.r * 0.6 + shape.b * 0.4;
-                float top = lerp(1 - _TopNoise, 1, heap) * smoothstep(0, 1, cover);
+                float top = lerp(1 - _TopNoise, 1, heap) * smoothstep(0, 1, cover) + ripple * _RippleLift;
                 float profile = saturate(h / 0.08) * saturate((top - h) / 0.3);
 
                 float base = Remap(shape.r, 1 - _Coverage * cover, 1) * profile;
@@ -286,6 +338,8 @@ Shader "Armadahex/Cloud Fog"
                     float3 color = albedo * (ambient + direct) * lerp(0.75, 1, powder);
                     // glow is strongest low in the deck, like light caught underneath
                     color += glow * _GlowStrength * lerp(1.4, 0.5, h);
+                    // the board's hex grid, traced through the upper cloud
+                    color += _GridColor.rgb * GridLine(p.xz) * _GridGlow * smoothstep(0.3, 0.8, h);
 
                     float extinction = density * _Density;
                     float stepT = exp(-extinction * dt);
