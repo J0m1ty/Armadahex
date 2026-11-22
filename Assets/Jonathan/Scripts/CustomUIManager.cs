@@ -166,7 +166,7 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
             element.gameObject.SetActive(visable);
         }
 
-        turnTimeLimitText.text = $"{turnTimeLimitSlider.value}s Limit";
+        turnTimeLimitText.text = $"{turnTimeLimitSlider.value}S PER TURN";
     }
 
     public void SetDefaults(DefaultValues defaults) {

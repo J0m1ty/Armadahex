@@ -62,8 +62,14 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
     public void Start() {
         winInfo = GameOver.instance?.winInfo;
 
+        // opened without a match (straight from the editor), so show an empty report
         if (winInfo == null) {
-            Debug.LogError("No win info found");
+            Debug.Log("No win info found");
+            gameOverText.text = "NO MATCH";
+            winTypeText.text = "Play a match to see its report here.";
+            xpGainText.text = "";
+            topImage.transform.parent.gameObject.SetActive(false);
+            bottomImage.transform.parent.gameObject.SetActive(false);
             return;
         }
 
@@ -75,7 +81,8 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
 
         AudioManager.instance?.PlayResultSound(isWinner);
         
-        gameOverText.text = isWinner ? "MISSION SUCCESS" : "MISSION FAILED";
+        gameOverText.text = isWinner ? "VICTORY" : "DEFEAT";
+        gameOverText.color = isWinner ? UITheme.instance.gold : UITheme.instance.enemy;
         
         if (isWinner) {
             switch (winInfo.winType) {
@@ -110,7 +117,7 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
 
         if (winInfo.matchTime != null) {
             var timeSpan = TimeSpan.FromSeconds((double)winInfo.matchTime);
-            matchTimeText.text = timeSpan.Minutes + ":" + timeSpan.Seconds.ToString("D2") + "m";
+            matchTimeText.text = timeSpan.Minutes + ":" + timeSpan.Seconds.ToString("D2");
         }
 
         if (winInfo.playerTeamAccuracy != null) {
