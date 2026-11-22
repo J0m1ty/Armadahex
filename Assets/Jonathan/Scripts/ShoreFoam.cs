@@ -7,6 +7,9 @@ using UnityEngine;
 public class ShoreFoam : MonoBehaviour
 {
     [Header("Bake")]
+    // foam reaches out this many times the pillar's size, up to the max width
+    [SerializeField]
+    private float widthScale = 1.2f;
     [SerializeField]
     private float width = 30f;
     [SerializeField]
@@ -19,11 +22,11 @@ public class ShoreFoam : MonoBehaviour
     [Range(0f, 1f)]
     private float tintAmount = 0.85f;
     [SerializeField]
-    private float intensity = 1.6f;
+    private float intensity = 0.6f;
     [SerializeField]
-    private float bandCount = 3f;
+    private float bandCount = 2f;
     [SerializeField]
-    private float bandSpeed = 1.5f;
+    private float bandSpeed = 0.6f;
     [SerializeField]
     [Range(0f, 1f)]
     private float edgeWidth = 0.3f;
@@ -68,6 +71,10 @@ public class ShoreFoam : MonoBehaviour
         Bake();
     }
 
+    private float Reach(Pillar p) {
+        return Mathf.Min(width, p.radius * widthScale);
+    }
+
     private void Bake() {
         if (pillars.Count == 0) {
             Shader.SetGlobalVector(rectId, Vector4.zero);
@@ -77,7 +84,7 @@ public class ShoreFoam : MonoBehaviour
         var min = new Vector2(float.MaxValue, float.MaxValue);
         var max = new Vector2(float.MinValue, float.MinValue);
         foreach (var p in pillars) {
-            var reach = Vector2.one * (p.radius + width);
+            var reach = Vector2.one * (p.radius + Reach(p));
             min = Vector2.Min(min, p.center - reach);
             max = Vector2.Max(max, p.center + reach);
         }
@@ -97,7 +104,8 @@ public class ShoreFoam : MonoBehaviour
         var pixels = new Color32[w * h];
 
         foreach (var p in pillars) {
-            var reach = p.radius + width;
+            var foamWidth = Reach(p);
+            var reach = p.radius + foamWidth;
             var x0 = Mathf.Max(0, Mathf.FloorToInt((p.center.x - reach - min.x) / texel));
             var x1 = Mathf.Min(w - 1, Mathf.CeilToInt((p.center.x + reach - min.x) / texel));
             var y0 = Mathf.Max(0, Mathf.FloorToInt((p.center.y - reach - min.y) / texel));
@@ -111,9 +119,9 @@ public class ShoreFoam : MonoBehaviour
 
                     // distance to a hex with corners on the x axis
                     var d = Mathf.Max(dy, dx * 0.8660254f + dy * 0.5f) - p.radius * 0.8660254f;
-                    if (d > width) continue;
+                    if (d > foamWidth) continue;
 
-                    var f = 1f - Mathf.Max(d, 0f) / width;
+                    var f = 1f - Mathf.Max(d, 0f) / foamWidth;
                     var i = y * w + x;
                     if (f <= foam[i]) continue;
 
