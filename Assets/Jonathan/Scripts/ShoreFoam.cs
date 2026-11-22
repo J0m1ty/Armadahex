@@ -60,6 +60,8 @@ public class ShoreFoam : MonoBehaviour
 
     void OnDestroy() {
         pillars.Clear();
+        // shader globals outlive play mode, so a leftover rect would draw foam from a missing map
+        Shader.SetGlobalVector(rectId, Vector4.zero);
         if (map != null) Destroy(map);
     }
 
