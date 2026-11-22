@@ -163,7 +163,7 @@ public class Selector : MonoBehaviour
                     HoverClouds(hex);
 
                     hexBorder.SetVisibility(true);
-                    playerHexHighlight.transform.position = RingPosition(hex);
+                    playerHexHighlight.transform.position = hex.transform.position;
                 } else {
                     hexBorder.SetVisibility(false);
                     HoverClouds(null);
@@ -185,7 +185,7 @@ public class Selector : MonoBehaviour
             if (selectedHex != null) selectedHex.RemoveFogOverrideColor();
             selectedHex = hex;
             HoverClouds(hex);
-            playerHexHighlight.transform.position = RingPosition(hex);
+            playerHexHighlight.transform.position = hex.transform.position;
             hexBorder.SetVisibility(true);
             hexBorder.SetColor(lockedInColor);
             hexBorder.SetHeight(lockedInHeight);
@@ -198,16 +198,6 @@ public class Selector : MonoBehaviour
     // roughly where the cloud tops read over a hex, as a height above the board
     private static float CloudSurface(CloudFog clouds, float cover) {
         return Mathf.Lerp(clouds.cloudBase, clouds.cloudTop, 0.75f * cover);
-    }
-
-    // over the clouds the ring sits on their tops, so it shows where the mouse is from any angle
-    private Vector3 RingPosition(HexRenderer hex) {
-        var position = hex.transform.position;
-        var clouds = hex.hexMap.clouds;
-        if (clouds != null && hex.fog != null && !hex.fog.cleared && hex.fog.cover > 0.5f) {
-            position.y = hex.hexMap.transform.position.y + CloudSurface(clouds, hex.fog.cover);
-        }
-        return position;
     }
 
     // walks the ray down through the cloud layer and returns the first hex still covered by its cloud

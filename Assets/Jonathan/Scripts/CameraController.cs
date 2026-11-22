@@ -127,9 +127,9 @@ public class CameraController : MonoBehaviour
     // fraction of the distance one scroll notch moves
     [SerializeField]
     private float zoomStep = 0.12f;
-    // how far past the whole board a pivot view can pull out
+    // a pivot view pulls out to just under the height a hop goes to, this fraction of it
     [SerializeField]
-    private float farthestZoom = 1f;
+    private float hopZoom = 0.9f;
     private float fitDistance;
     private float fitPull = 1f;
     // how high an orthographic view sits, it only matters for fog and clipping
@@ -288,7 +288,13 @@ public class CameraController : MonoBehaviour
 
         var fit = boardRadius * fitPadding / fitTan;
         fitDistance = fit;
-        zoomRange = new MinMaxFloat(fit * closestZoom, fit * Mathf.Max(1f, farthestZoom));
+        var farthest = fit;
+        if (control == CameraControl.Orbit) {
+            // the camera's height pulled all the way out stays under where a hop from the whole board view goes
+            var sinFar = Mathf.Sin(farPitch * Mathf.Deg2Rad);
+            farthest = Mathf.Max(fit, hopZoom * (fit * sinFar + hopHeight) / sinFar);
+        }
+        zoomRange = new MinMaxFloat(fit * closestZoom, farthest);
         // the whole board is the resting zoom, even when it can pull out further
         fitPull = Mathf.InverseLerp(zoomRange.Min, zoomRange.Max, fit);
 
