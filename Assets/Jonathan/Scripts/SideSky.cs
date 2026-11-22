@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// shifts the sky and the horizon haze toward each side's color as the camera moves between the two bases
+// shifts the sky and the horizon haze toward the color of whichever side the camera has been over
 [RequireComponent(typeof(TeamManager))]
 public class SideSky : MonoBehaviour
 {
@@ -16,15 +16,18 @@ public class SideSky : MonoBehaviour
     private Color enemyHorizon = new Color(1f, 0.38f, 0.22f);
     // the haze along the water and the bottom of the sky share one color so they read as one band
     [SerializeField]
-    private Color friendlyHaze = new Color(0.52f, 0.66f, 0.8f);
+    private Color friendlyHaze = new Color(0.42f, 0.6f, 0.86f);
     [SerializeField]
-    private Color enemyHaze = new Color(0.8f, 0.55f, 0.52f);
+    private Color enemyHaze = new Color(0.9f, 0.48f, 0.42f);
 
     // the part of the way between the bases the blend happens over
     [SerializeField]
     private float blendStart = 0.3f;
     [SerializeField]
     private float blendEnd = 0.7f;
+    // the sky drifts toward the color of where the camera is, so quick moves don't snap it
+    [SerializeField]
+    private float settleTime = 6f;
 
     private static readonly int topId = Shader.PropertyToID("_SkyGradientTop");
     private static readonly int horizonId = Shader.PropertyToID("_HorizonLineColor");
@@ -32,6 +35,7 @@ public class SideSky : MonoBehaviour
 
     private TeamManager teamManager;
     private Material sky;
+    private float blend = -1f;
 
     void Start() {
         teamManager = GetComponent<TeamManager>();
@@ -67,7 +71,9 @@ public class SideSky : MonoBehaviour
         cam.y = 0;
 
         var along = Vector3.Dot(cam, axis) / axis.sqrMagnitude;
-        var t = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(blendStart, blendEnd, along));
+        var target = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(blendStart, blendEnd, along));
+        blend = blend < 0f ? target : Mathf.Lerp(blend, target, 1f - Mathf.Exp(-Time.deltaTime / settleTime));
+        var t = blend;
 
         sky.SetColor(topId, Color.Lerp(friendlyTop, enemyTop, t));
         sky.SetColor(horizonId, Color.Lerp(friendlyHorizon, enemyHorizon, t));
