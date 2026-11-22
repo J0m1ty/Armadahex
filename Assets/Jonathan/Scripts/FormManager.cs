@@ -16,7 +16,6 @@ public class FormManager : MonoBehaviour
     [SerializeField] private UIButton loginTab;
     [SerializeField] private UIButton signupTab;
     [SerializeField] private TMP_Text submitText;
-    [SerializeField] private TMP_Text modeNote;
 
     public string username => usernameField.text;
     public string password => passwordField.text;
@@ -72,11 +71,6 @@ public class FormManager : MonoBehaviour
             confirmField.transform.parent.gameObject.SetActive(signUp);
         }
         if (submitText != null) submitText.text = signUp ? "CREATE ACCOUNT" : "LOG IN";
-        if (modeNote != null) {
-            modeNote.text = signUp
-                ? "Pick a name (4-16 letters, numbers or _) and a password of 6 or more."
-                : "New here? Switch to Sign up.";
-        }
 
         GetComponent<NoticeManager>()?.SetState(NoticeState.Default);
         Focus(usernameField);
