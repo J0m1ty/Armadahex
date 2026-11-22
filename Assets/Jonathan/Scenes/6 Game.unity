@@ -2826,8 +2826,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SideSky
   friendlyTop: {r: 0.13, g: 0.33, b: 0.58, a: 1}
   enemyTop: {r: 0.7264151, g: 0.22957456, b: 0.299552, a: 1}
-  friendlyHorizon: {r: 0.4, g: 0.62, b: 1, a: 1}
-  enemyHorizon: {r: 1, g: 0.35, b: 0.25, a: 1}
+  friendlyHorizon: {r: 0.03137255, g: 0.015686275, b: 0.69411767, a: 1}
+  enemyHorizon: {r: 0.78431374, g: 0.12941177, b: 0.19607843, a: 1}
   friendlyHaze: {r: 0.42, g: 0.6, b: 0.86, a: 1}
   enemyHaze: {r: 0.9, g: 0.48, b: 0.42, a: 1}
   blendStart: 0.3
