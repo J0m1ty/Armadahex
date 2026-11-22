@@ -639,13 +639,12 @@ public class AttackUIManager : MonoBehaviour
         
         var hit = false;
         bool? destroyed = null;
+        // your board shows misses with pegs and hits with the glowing hull, so no cell colors
         if (hex.gridRef.shipSegment == null) {
-            hex.SetColor(AttackColor.miss);
             ShotEffects.Shot(hex, false);
         }
         else if (hex.gridRef.shipSegment.isAlive) {
             destroyed = hex.gridRef.shipSegment.Destroy();
-            hex.SetColor(AttackColor.hit);
             ShotEffects.Shot(hex, true);
             hit = true;
         }

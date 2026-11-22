@@ -253,6 +253,35 @@ public class HexGrid : MonoBehaviour
         hexes.Add(gridUnit);
     }
 
+    // your own board: no filled cells, just a faint glowing edge on each hex at the water line,
+    // like the grid traced through the enemy's clouds
+    public void ShowEdgesOnly(Material edgeMaterial, Color color) {
+        var material = new Material(edgeMaterial);
+        material.name = "Hex Edge";
+        material.SetFloat("_Scale", 0.04f);
+        material.SetFloat("_BandGlow", 0f);
+        material.SetFloat("_Intensity", 0.8f);
+
+        foreach (var hex in hexes) {
+            var tile = hex.hexRenderer;
+            foreach (var fill in tile.GetComponentsInChildren<MeshRenderer>(true)) {
+                fill.enabled = false;
+            }
+
+            var edge = new GameObject("Edge", typeof(HexBorder));
+            edge.layer = 2; // ignore raycast, the tile's collider still takes the hover
+            edge.transform.SetParent(tile.transform, false);
+
+            var border = edge.GetComponent<HexBorder>();
+            border.SetMaterial(material);
+            border.SetColor(color);
+            border.SetVisibility(true);
+            // a thin band just under the surface, so the water softens it
+            edge.transform.localPosition = Vector3.up * (-2.5f - tile.transform.position.y);
+            border.GenerateMesh(2f, size * 0.97f, isFlatTopped);
+        }
+    }
+
     public void CheckTerrain() {
         foreach (GridUnit hex in hexes) {
             CheckTerrain(hex);

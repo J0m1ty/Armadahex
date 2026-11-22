@@ -90,6 +90,9 @@ public class TeamManager : MonoBehaviour {
     public List<TerrainBlock> terrainBlocks;
 
     public List<Team> teams;
+
+    [SerializeField]
+    private Color edgeColor = new Color(0.08f, 0.25f, 0.7f);
     
     public ShipManager shipManager { get; private set; }
 
@@ -138,6 +141,10 @@ public class TeamManager : MonoBehaviour {
                 var hr = hex.hexRenderer;
                 hr.SetColor(Color.Lerp(TeamColor.GetSideColor(team), AttackColor.none, 0.5f));
                 hr.SetFogColorInstant(FogColor.Normal);
+            }
+
+            if (team.isPlayer && Selector.instance != null) {
+                team.teamBase.hexMap.ShowEdgesOnly(Selector.instance.border.borderMaterial, edgeColor);
             }
         }
     }

@@ -5,7 +5,7 @@ using UnityEngine;
 // Hit and miss feedback built from glowing HexBorder walls, so it shares the hover column's additive look.
 // Enemy board: pegs left in the clouds (tall red for a hit, short white for a miss, like battleship pegs)
 // until a sunk ship is revealed, which then glows red all over.
-// Your board: no pegs, since you can see your ships; the hull glows red over each hit hex instead.
+// Your board: miss pegs too, but hits just make the hull glow red over the hit hex, since you can see your ships.
 // Both boards get a splash per hex and one shockwave ring per volley.
 public class ShotEffects : MonoBehaviour
 {
@@ -64,9 +64,7 @@ public class ShotEffects : MonoBehaviour
             }
         }
         else {
-            if (fogged) {
-                effects.pegs[hex] = effects.Spawn(hex, missColor, size * 0.16f, size * 0.16f, 0f, 24f, 0.35f, false);
-            }
+            effects.pegs[hex] = effects.Spawn(hex, missColor, size * 0.16f, size * 0.16f, 0f, 24f, 0.35f, false);
 
             effects.Spawn(hex, missColor, size * 0.25f, size * 0.45f, 40f, 6f, 0.6f, true);
             if (wave) {
