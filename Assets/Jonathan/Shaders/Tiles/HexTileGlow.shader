@@ -10,6 +10,8 @@ Shader "Armadahex/Hex Tile Glow"
         [HDR] _EdgeColor ("Edge Color", Color) = (0.1, 0.35, 1, 1)
         _EdgeTop ("Edge Width On Top", Float) = 1.6
         _EdgeSide ("Edge Depth Down The Sides", Float) = 2.5
+        _CornerWidth ("Corner Edge Width", Float) = 1.2
+        _DepthFade ("Corner Edge Fade Depth", Float) = 70
         _HexSize ("Hex Size", Float) = 25
         _TopY ("Tile Top (world y)", Float) = 0
     }
@@ -40,6 +42,8 @@ Shader "Armadahex/Hex Tile Glow"
                 float4 _EdgeColor;
                 float _EdgeTop;
                 float _EdgeSide;
+                float _CornerWidth;
+                float _DepthFade;
                 float _HexSize;
                 float _TopY;
             CBUFFER_END
@@ -88,7 +92,19 @@ Shader "Armadahex/Hex Tile Glow"
                 }
                 else
                 {
-                    edge = 1 - smoothstep(0, _EdgeSide, _TopY - input.positionWS.y);
+                    float below = _TopY - input.positionWS.y;
+                    float rim = 1 - smoothstep(0, _EdgeSide, below);
+
+                    // the column's vertical corners glow too, fading into the depths
+                    float corner = 1e5;
+                    [unroll]
+                    for (int k = 0; k < 6; k++)
+                    {
+                        float angle = radians(60.0 * k);
+                        corner = min(corner, distance(input.positionOS.xz, float2(cos(angle), sin(angle)) * _HexSize));
+                    }
+                    float vertical = (1 - smoothstep(0, _CornerWidth, corner)) * exp(-max(below, 0) / _DepthFade);
+                    edge = max(rim, vertical);
                 }
 
                 Light sun = GetMainLight();

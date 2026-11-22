@@ -7013,7 +7013,7 @@ MonoBehaviour:
   height: 150
   noiseScale: 0.008
   heightVariation:
-    Min: -4
+    Min: -9
     Max: -3
   hexes:
   - hexRenderer: {fileID: 0}

@@ -212,6 +212,11 @@ public class Ship : MonoBehaviour
             shipRenderer.receiveShadows = false;
         }
 
+        // your fleet gets a blue aura, an artistic touch so it doesn't read as plain realistic models
+        if (team.isPlayer) {
+            ShipAura.Apply(this);
+        }
+
         setToSunk = false;
 
         UpdateVisibility();

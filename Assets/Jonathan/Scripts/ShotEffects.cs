@@ -108,22 +108,7 @@ public class ShotEffects : MonoBehaviour
         glows[ship] = material;
         glowPoints[ship] = new List<Vector4>();
 
-        foreach (var filter in ship.internals.shipMesh.GetComponentsInChildren<MeshFilter>(true)) {
-            if (filter.sharedMesh == null || filter.GetComponent<MeshRenderer>() == null) continue;
-
-            var copy = new GameObject("Hit Glow", typeof(MeshFilter), typeof(MeshRenderer));
-            copy.layer = 2; // not the ship or outline layer, so the outline and selection ignore it
-            copy.transform.SetParent(filter.transform, false);
-            copy.GetComponent<MeshFilter>().sharedMesh = filter.sharedMesh;
-
-            var copyRenderer = copy.GetComponent<MeshRenderer>();
-            copyRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            copyRenderer.receiveShadows = false;
-            var materials = new Material[Mathf.Max(1, filter.sharedMesh.subMeshCount)];
-            for (int i = 0; i < materials.Length; i++) materials[i] = material;
-            copyRenderer.sharedMaterials = materials;
-        }
-
+        ShipAura.CopyMeshes(ship, material, "Hit Glow");
         return material;
     }
 
