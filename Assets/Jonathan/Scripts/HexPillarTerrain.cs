@@ -29,10 +29,12 @@ public class HexPillarTerrain : MonoBehaviour {
     [SerializeField] private float heightStep = 3f;
     // the ranges share height levels this far apart, so they read like a contour map
     [SerializeField] private float contourStep = 30f;
+    // under the water the levels step down closer together, and never sit just under the surface
+    [SerializeField] private float underwaterStep = 10f;
     // gap between neighbouring range pillars, 0 joins a level into one flat terrace
     [SerializeField] private float rangeInset = 0f;
     // about how far apart the pulses running along a contour are
-    [SerializeField] private float pulseSpacing = 400f;
+    [SerializeField] private float pulseSpacing = 1500f;
     // tops this close to the water get washed over by the waves, so they're lifted clear or sunk
     [SerializeField] private float waterClearance = 1.5f;
     [SerializeField] private float textureScale = 0.015f;
@@ -170,7 +172,7 @@ public class HexPillarTerrain : MonoBehaviour {
                 if (dist < wallEnd) height = wallHeight * rise;
 
                 // no per pillar jitter, so neighbours share a level and the contours stay long
-                pillars[cell] = Step(height * (0.45f + noise * 0.75f) * bank, contourStep);
+                pillars[cell] = Contour(height * (0.45f + noise * 0.75f) * bank);
             }
         }
 
@@ -196,18 +198,18 @@ public class HexPillarTerrain : MonoBehaviour {
             radii[pillar.Key] = onBoard.Contains(pillar.Key) ? size * boardPillarScale : size - rangeInset;
         }
 
-        // each level is outlined wherever its neighbour is at another height (or missing),
-        // so every level set gets closed boundary curves, at the top of a drop and the foot of a rise
+        // each level is outlined only on its outside, where it drops to a lower level or the water,
+        // so a cliff behind it doesn't get a line along its foot
         var rims = new Dictionary<(Vector2Int, int), Vector3[]>();
         foreach (var pillar in pillars) {
             var center = CellToLocal(pillar.Key);
             var radius = radii[pillar.Key];
             for (var k = 0; k < 6; k++) {
                 var next = pillar.Key + edgeNeighbours[k];
-                var joined = pillars.TryGetValue(next, out var other)
-                    && Mathf.Abs(other - pillar.Value) < 0.01f
-                    && !onBoard.Contains(pillar.Key) && !onBoard.Contains(next);
-                if (joined) continue;
+                var outside = !pillars.TryGetValue(next, out var other)
+                    || other < pillar.Value - 0.01f
+                    || onBoard.Contains(pillar.Key) || onBoard.Contains(next);
+                if (!outside) continue;
 
                 rims[(pillar.Key, k)] = new[] {
                     center + Corner(k, radius) + Vector3.up * pillar.Value,
@@ -488,12 +490,14 @@ public class HexPillarTerrain : MonoBehaviour {
         return (Mathf.Abs(cell.x) + Mathf.Abs(cell.y) + Mathf.Abs(cell.x + cell.y)) / 2;
     }
 
-    private float Step(float height) {
-        return Step(height, heightStep);
+    // range heights: shared levels above the water, closer steps below it, nothing skimming the surface
+    private float Contour(float height) {
+        if (height > contourStep * 0.5f) return Mathf.Round(height / contourStep) * contourStep;
+        return Mathf.Min(-underwaterStep, Mathf.Round(height / underwaterStep) * underwaterStep);
     }
 
-    private float Step(float height, float step) {
-        var stepped = Mathf.Round(height / step) * step;
+    private float Step(float height) {
+        var stepped = Mathf.Round(height / heightStep) * heightStep;
         if (Mathf.Abs(stepped) < waterClearance) stepped = height >= 0f ? waterClearance : -waterClearance;
         return stepped;
     }

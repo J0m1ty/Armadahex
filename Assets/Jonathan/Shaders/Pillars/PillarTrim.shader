@@ -6,7 +6,7 @@ Shader "Armadahex/Pillar Trim"
         _Glow ("Glow", Float) = 2
         _PulseGlow ("Pulse Glow", Float) = 5
         _PulsePeriod ("Pulse Period", Float) = 7
-        _PulseWidth ("Pulse Width", Range(0.01, 1)) = 0.08
+        _PulseWidth ("Pulse Width", Range(0.01, 1)) = 0.15
     }
 
     SubShader
