@@ -39,14 +39,26 @@ public static class GameInput
         }
     }
 
-    public static void Rebind(InputAction action, int bindingIndex, Action onDone = null) {
+    // key labels on screen listen for this
+    public static event Action bindingsChanged;
+
+    // keyboardOnly keeps the mouse out, so the click that started the rebind can't become the new key
+    public static void Rebind(InputAction action, int bindingIndex, Action onDone = null, bool keyboardOnly = false) {
         action.Disable();
-        action.PerformInteractiveRebinding(bindingIndex)
+        var rebind = action.PerformInteractiveRebinding(bindingIndex)
             .WithCancelingThrough("<Keyboard>/escape")
+            .WithControlsExcluding("<Pointer>/position")
+            .WithControlsExcluding("<Pointer>/delta")
+            .WithControlsExcluding("<Mouse>/scroll");
+        if (keyboardOnly) {
+            rebind.WithControlsExcluding("<Mouse>");
+        }
+        rebind
             .OnComplete(operation => {
                 operation.Dispose();
                 action.Enable();
                 SaveBindings();
+                bindingsChanged?.Invoke();
                 onDone?.Invoke();
             })
             .OnCancel(operation => {
@@ -64,6 +76,7 @@ public static class GameInput
     public static void ResetBindings() {
         actions.RemoveAllBindingOverrides();
         PlayerPrefs.DeleteKey(Constants.INPUT_BINDINGS_PREF_KEY);
+        bindingsChanged?.Invoke();
     }
 
     private static void LoadBindings() {
