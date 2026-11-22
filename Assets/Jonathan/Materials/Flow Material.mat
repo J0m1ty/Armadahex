@@ -204,8 +204,8 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Gravity: 9
-    - _HeightScale: 0.25
-    - _HeightScaleModulated: 2.6
+    - _HeightScale: 0.1
+    - _HeightScaleModulated: 1.2
     - _Max_fog: 1
     - _Metallic: 0
     - _Min_fog: 0
@@ -219,7 +219,7 @@ Material:
     - _ReceiveShadows: 1
     - _RefractionStrength: 0.29
     - _Scaling: 20
-    - _Smoothness: 0.88
+    - _Smoothness: 0.8
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _Speed: 0.1
