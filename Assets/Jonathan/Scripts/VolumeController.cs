@@ -13,6 +13,9 @@ public class VolumeController : MonoBehaviour {
         
         mainVolumeSlider.value = GetMainVolume();
         musicVolumeSlider.value = GetMusicVolume(false);
+
+        mainVolumeSlider.onValueChanged.AddListener(SetMainVolume);
+        musicVolumeSlider.onValueChanged.AddListener(SetMusicVolume);
     }
 
     public static void UpdateVolume() {

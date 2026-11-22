@@ -48,7 +48,13 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
         isQuickConnecting = false;
         isConnecting = false;
 
-        noticeManager.SetError("Disconnected from server.");
+        // a refused login disconnects too, and its own message is the useful one
+        if (cause != DisconnectCause.CustomAuthenticationFailed) {
+            noticeManager.SetError("Lost the connection to the server. Try again.");
+        }
+        else if (noticeManager.state == NoticeState.Connecting) {
+            noticeManager.SetError("The server refused that login.");
+        }
     }
 
     public override void OnCustomAuthenticationResponse(Dictionary<string, object> data)
@@ -114,11 +120,12 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
             }
             else if (debugMessage.Contains("username", System.StringComparison.OrdinalIgnoreCase) ||
                     debugMessage.Contains("password", System.StringComparison.OrdinalIgnoreCase)) {
-                noticeManager.SetError("Invalid username or password.");
+                // a new name is registered on its first login, so a refusal means the name is someone else's or the password is wrong
+                noticeManager.SetError(formManager.signingUp ? "That name can't be used. It may belong to someone else." : "Wrong username or password.");
                 formManager.Incorrect();
             }
             else if (debugMessage.Contains("Token invalid or expired")) {
-                noticeManager.SetError("Please try again.");
+                noticeManager.SetError("Your session ran out. Log in again.");
 
                 PlayerPrefs.DeleteKey(Constants.TOKEN_PREF_KEY);
             }
@@ -151,6 +158,11 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
 
     public void Login() {
         if (isConnecting || noticeManager.fatal) {
+            return;
+        }
+
+        if (!formManager.Check(out var error)) {
+            noticeManager.SetError(error);
             return;
         }
 
@@ -201,19 +213,19 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
         }
         else {
             if (username.Length < 4 || username.Length > 16) {
-                noticeManager.SetError("Username must be between 4 and 16 characters.");
+                noticeManager.SetError("Usernames are 4 to 16 characters.");
                 return;
             }
 
             if (password.Length < 6) {
-                noticeManager.SetError("Password should be at least 6 characters.");
+                noticeManager.SetError("Passwords are at least 6 characters.");
                 formManager.Incorrect();
                 return;
             }
 
             if (!System.Text.RegularExpressions.Regex.IsMatch(username, "^[a-zA-Z0-9_]*$") ||
                 !System.Text.RegularExpressions.Regex.IsMatch(password, "^[a-zA-Z0-9_]*$")) {
-                noticeManager.SetError("Invalid characters.");
+                noticeManager.SetError("Use only letters, numbers and _.");
                 formManager.Clear();
                 return;
             }

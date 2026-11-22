@@ -15,6 +15,8 @@ public class SingleplayerStart : MonoBehaviour
     void Start() {
         difficultySlider.value = (int)BotAI.SavedDifficulty;
         SetDifficultyText();
+
+        difficultySlider.onValueChanged.AddListener(SetDifficulty);
     }
 
     public void SetDifficulty(float difficulty) {
@@ -23,7 +25,7 @@ public class SingleplayerStart : MonoBehaviour
     }
 
     private void SetDifficultyText() {
-        difficultyText.text = "AI (" + BotAI.SavedDifficulty + ")";
+        difficultyText.text = BotAI.SavedDifficulty.ToString().ToUpper();
     }
 
     public void StartGame() {
