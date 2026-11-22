@@ -4007,10 +4007,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IntroCamera
   teamManager: {fileID: 224746698}
-  back: 0.12
-  across: 0.2
-  height: 320
-  focus: 0.7
+  back: -0.1
+  across: 0.55
+  height: 420
+  focus: 0.55
 --- !u!114 &270042339
 MonoBehaviour:
   m_ObjectHideFlags: 0

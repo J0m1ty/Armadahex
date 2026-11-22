@@ -10,17 +10,17 @@ public class IntroCamera : MonoBehaviour
     private TeamManager teamManager;
 
     [Header("Framing")]
-    // starts low behind the player's base, off to one side, looking across at the enemy
+    // starts out to sea beside the player's base, looking across at both boards
     // distances are relative to the distance between the two bases
     [SerializeField]
-    private float back = 0.12f;
+    private float back = -0.1f;
     [SerializeField]
-    private float across = 0.2f;
+    private float across = 0.55f;
     [SerializeField]
-    private float height = 320f;
+    private float height = 420f;
     // where between the bases it looks, 0 is the player's base and 1 the enemy's
     [SerializeField]
-    private float focus = 0.7f;
+    private float focus = 0.55f;
 
     private Camera cam;
     private List<Camera> hidden = new List<Camera>();
