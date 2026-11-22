@@ -106,9 +106,6 @@ public class CameraController : MonoBehaviour
     private float closePitch = 12f;
     [SerializeField]
     private float farPitch = 38f;
-    // framing puts the subject this far (of its radius) below the middle of the screen
-    [SerializeField]
-    private float composeAhead = 0.35f;
     // 0 is pulled all the way in, 1 all the way out
     private float pull = 1f;
     private float pullVelocity;
@@ -355,45 +352,8 @@ public class CameraController : MonoBehaviour
         return new Vector3(0, Mathf.Abs(zoomAmount.y), -Mathf.Abs(zoomAmount.z)).normalized;
     }
 
-    public Camera view {
-        get { return newCameraChild.GetComponentInChildren<Camera>(true); }
-    }
-
-    // an orbiting view looks at a spot and pulls in or out to fit it, and stays there
-    public void Frame(Vector3 point, float radius) {
-        if (control != CameraControl.Orbit || boardRadius <= 0) return;
-
-        StopFocus(false);
-
-        // never tighter than most of the board, so a framed spot keeps its surroundings
-        radius = Mathf.Clamp(radius, boardRadius * 0.6f, boardRadius);
-
-        // look a little past the subject, so it sits in the lower middle with the board behind it
-        var ahead = Vector3.ProjectOnPlane(newRotation * Vector3.forward, Vector3.up).normalized;
-        // none when framing the whole board, so it orbits around the middle
-        var offset = point + ahead * radius * (1f - radius / boardRadius) * composeAhead - newCenter;
-        newPosition = new Vector3(offset.x, 0, offset.z);
-
-        var distance = radius * fitPadding / fitTan;
-        targetPull = Mathf.InverseLerp(zoomRange.Min, zoomRange.Max, distance);
-    }
-
-    // moves the pivot to a spot without changing how far in the player has pulled
-    public void Recenter(Vector3 point) {
-        if (control != CameraControl.Orbit || boardRadius <= 0) return;
-
-        var offset = point - newCenter;
-        newPosition = new Vector3(offset.x, 0, offset.z);
-    }
-
     public void FocusOn(Bounds area) {
         if (!focusOnShots || !isActiveAndEnabled || boardRadius <= 0) return;
-
-        if (control == CameraControl.Orbit) {
-            // keep most of the board around the shots
-            Frame(area.center, Mathf.Max(Mathf.Max(area.extents.x, area.extents.z) + boardRadius * 0.25f, boardRadius * 0.6f));
-            return;
-        }
 
         // a new volley during a focus keeps the place to go back to
         if (focus != null) {
@@ -526,6 +486,7 @@ public class CameraController : MonoBehaviour
 
         StopFocus(true);
         newPosition = new Vector3(0, 0, 0);
+        targetPull = 1f;
         newCenter = position;
 
         // far moves hop up over the terrain, slide across, then drop back down
@@ -544,6 +505,7 @@ public class CameraController : MonoBehaviour
         if (!AlreadyAt(position)) {
             StopFocus(true);
             newPosition = new Vector3(0, 0, 0);
+            targetPull = 1f;
         }
         newCenter = position;
         center = newCenter;

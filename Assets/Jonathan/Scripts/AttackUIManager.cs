@@ -482,6 +482,7 @@ public class AttackUIManager : MonoBehaviour
         var scan = selectedOption.info.isScan;
         var shape = selectedPattern.cells != null && selectedPattern.cells.Length > 0;
         if (scan || shape || selectedPattern.directions.Any(d => d.step > 1)) {
+            ClearPreviewFog(at);
             var tint = Color.Lerp(scan ? FogState.fogScan : FogState.friendlySelected, FogState.fogNormal, 0.3f);
             foreach (var hex in PatternTargets(at, selectedPattern, false, out _)) {
                 if (hex.gridRef == at) continue;

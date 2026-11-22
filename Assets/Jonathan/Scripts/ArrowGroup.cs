@@ -56,6 +56,32 @@ public class ArrowGroup : MonoBehaviour
         }
     }
 
+    // a shape whose cells all sit in straight lines from the target (a star, a v) gets an arrow per line;
+    // other shapes and sweeps just light their hexes
+    private AttackDirection[] Directions(AttackPattern pattern) {
+        if (pattern.cells == null || pattern.cells.Length == 0) return pattern.directions;
+        if (selectedOption != null && selectedOption.info.isScan) return new AttackDirection[0];
+
+        var steps = new[] { new Vector2Int(1, 0), new Vector2Int(0, 1), new Vector2Int(-1, 1), new Vector2Int(-1, 0), new Vector2Int(0, -1), new Vector2Int(1, -1) };
+        var rotations = new[] { Rotation.One, Rotation.Two, Rotation.Three };
+        var arrows = new List<AttackDirection>();
+        foreach (var cell in pattern.cells) {
+            if (cell == Vector2Int.zero) continue;
+
+            var found = false;
+            for (var k = 0; k < 6 && !found; k++) {
+                for (var n = 1; n <= 8 && !found; n++) {
+                    if (steps[k] * n == cell) {
+                        arrows.Add(new AttackDirection { rotation = rotations[k % 3], reverse = k >= 3, length = n });
+                        found = true;
+                    }
+                }
+            }
+            if (!found) return new AttackDirection[0];
+        }
+        return arrows.ToArray();
+    }
+
     public void SetPatternPreview(AttackPattern pattern) {
         Debug.Log("Setting pattern preview to " + pattern.name);
 
@@ -81,7 +107,7 @@ public class ArrowGroup : MonoBehaviour
         shownPattern = pattern;
         shownTarget = selectedTarget;
         
-        foreach (AttackDirection dir in pattern.directions) {
+        foreach (AttackDirection dir in Directions(pattern)) {
             var obj = Instantiate(arrowPrefab, transform);
             var arrow = obj.GetComponent<Arrow>();
             arrow.offset = arrowOffset;

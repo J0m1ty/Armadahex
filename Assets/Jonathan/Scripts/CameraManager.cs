@@ -53,11 +53,6 @@ public class CameraManager : MonoBehaviour
 
     private InputAction switchViewAction;
 
-    // the side view frames what's happening, this is the last thing it looked at
-    private Vector3? framePoint;
-    private float frameRadius;
-    private ShipManager shipManager;
-
 
     // shots landing within a moment of each other are one volley
     private Bounds? volley;
@@ -121,10 +116,6 @@ public class CameraManager : MonoBehaviour
         var area = volley.Value;
         volley = null;
         volleyFocus = null;
-
-        // the side view keeps looking at the last volley until something else happens
-        framePoint = area.center;
-        frameRadius = Mathf.Max(area.extents.x, area.extents.z);
 
         var controller = state == CameraState.Side ? sideCameraController : topCameraController;
         controller.FocusOn(area);
@@ -191,44 +182,6 @@ public class CameraManager : MonoBehaviour
                 }
             }
 
-            // back on the side view, look at what's happening but keep the player's zoom
-            if (state == CameraState.Side && framePoint != null) {
-                cameraController.Recenter(framePoint.Value);
-            }
-
-        }
-    }
-
-    // the side view looks at a spot, sized to fit radius
-    public void Frame(Vector3 point, float radius) {
-        framePoint = point;
-        frameRadius = radius;
-
-        if (state == CameraState.Side) {
-            sideCameraController.Frame(point, radius);
-        }
-    }
-
-    public void FrameFleet(bool player) {
-        if (shipManager == null) shipManager = FindFirstObjectByType<ShipManager>();
-        if (shipManager == null) return;
-
-        Bounds? fleet = null;
-        foreach (var ship in shipManager.ships) {
-            if (ship.team.isPlayer != player || !ship.isAlive) continue;
-
-            var at = ship.transform.position;
-            if (fleet == null) {
-                fleet = new Bounds(at, Vector3.zero);
-            } else {
-                var area = fleet.Value;
-                area.Encapsulate(at);
-                fleet = area;
-            }
-        }
-
-        if (fleet != null) {
-            Frame(fleet.Value.center, Mathf.Max(fleet.Value.extents.x, fleet.Value.extents.z) + 60f);
         }
     }
 

@@ -17974,7 +17974,6 @@ MonoBehaviour:
   pullSpeed: 0.7
   closePitch: 12
   farPitch: 38
-  composeAhead: 0.35
   fitBoard: 1
   fitPadding: 1.05
   closestZoom: 0.3
@@ -22309,13 +22308,12 @@ MonoBehaviour:
   hopHeight: 230
   hopRiseTime: 0.3
   hopSlideTime: 0.6
-  hopUp: 0
+  hopUp: 1
   control: 2
   orbitSpeed: 70
   pullSpeed: 0.7
   closePitch: 55
   farPitch: 60
-  composeAhead: 0.35
   fitBoard: 1
   fitPadding: 0.85
   closestZoom: 0.4
