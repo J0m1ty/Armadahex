@@ -96,7 +96,7 @@ public class CameraManager : MonoBehaviour
 
     void Update() {
         // not during the intro, it still has the rig cameras switched off
-        if (switchViewAction.WasPressedThisFrame() && TurnManager.instance != null && TurnManager.instance.gameActive) {
+        if (switchViewAction.WasPressedThisFrame() && TurnManager.instance != null && TurnManager.instance.gameActive && !GameInput.typing) {
             SetCameraState(state == CameraState.Side ? CameraState.Top : CameraState.Side);
         }
     }

@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using TMPro;
 
 // the game's input actions (Resources/Controls), shared by every script so a rebind reaches all of them
 public static class GameInput
@@ -21,6 +23,20 @@ public static class GameInput
     // "Map/Action", e.g. "Camera/Move"
     public static InputAction Get(string action) {
         return actions.FindAction(action, true);
+    }
+
+    // true while a text field has focus, so typing (chat, names) doesn't trigger hotkeys
+    public static bool typing {
+        get {
+            var selected = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
+            if (selected == null) return false;
+
+            var field = selected.GetComponent<TMP_InputField>();
+            if (field != null && field.isFocused) return true;
+
+            var legacy = selected.GetComponent<UnityEngine.UI.InputField>();
+            return legacy != null && legacy.isFocused;
+        }
     }
 
     public static void Rebind(InputAction action, int bindingIndex, Action onDone = null) {

@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Linq;
+using UnityEngine.EventSystems;
 
 public static class AttackColor {
     // grey is default
@@ -87,6 +88,9 @@ public class AttackUIManager : MonoBehaviour
 
     private BotAI bot;
 
+    // the weapon or pattern the arrow keys are on
+    private int highlighted;
+
     [Header("Other")]
     public GameObject skipButton;
     public audioScript gameAudio;
@@ -101,6 +105,10 @@ public class AttackUIManager : MonoBehaviour
 
     public void SetState(AttackState state) {
         attackState = state;
+        highlighted = -1;
+
+        // a button clicked earlier would otherwise take the enter key too
+        if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
 
         backButton.onClick.RemoveAllListeners();
         backButtonParent.GetComponentInChildren<TMP_Text>().text = "UNDO";
@@ -152,6 +160,7 @@ public class AttackUIManager : MonoBehaviour
             case AttackState.SelectTarget:
                 directiveText.transform.parent.gameObject.gameObject.SetActive(true);
                 directiveText.text = "SELECT A TARGET";
+                if (selectedShip != null) directiveText.text += " - " + selectedShip.shipModel.name.ToUpper();
                 selector.allowSelectingGrids = true;
                 selector.SetTeam(TurnManager.instance.playerTeam, TurnManager.instance.enemyTeam.teamBase);
                 
@@ -230,6 +239,111 @@ public class AttackUIManager : MonoBehaviour
                 errorText.text = "No ships have ammo left";
             }
         }
+    }
+
+    public void SelectNextShip() {
+        if (!GameModeInfo.instance.IsAdvancedCombat) {
+            SelectRandomShip();
+            return;
+        }
+
+        var fleet = shipManager.playerShips;
+        var start = selectedShip != null ? fleet.IndexOf(selectedShip) : -1;
+        for (var i = 1; i <= fleet.Count; i++) {
+            var ship = fleet[(start + i) % fleet.Count];
+            if (ship.isAlive && ship.hasAmmoLeft) {
+                SwapShip(ship);
+                return;
+            }
+        }
+    }
+
+    public void SelectShipOfType(ShipType type) {
+        if (!GameModeInfo.instance.IsAdvancedCombat) return;
+
+        var ship = shipManager.playerShips.Find(s => s.shipModel.type == type);
+        if (ship != null) SwapShip(ship);
+    }
+
+    // picks a ship, or after a target is picked swaps the ship and keeps the target
+    private void SwapShip(Ship ship) {
+        if (attackState == AttackState.SelectShip) {
+            SelectShip(ship);
+            return;
+        }
+
+        var choosing = attackState == AttackState.SelectTarget || attackState == AttackState.SelectAttackOption
+            || attackState == AttackState.SelectAttackPattern || attackState == AttackState.Confirm;
+        if (!choosing || ship == selectedShip) return;
+
+        if (!ship.isAlive || !ship.hasAmmoLeft) {
+            errorText.gameObject.SetActive(true);
+            errorText.text = ship.isAlive ? "This ship has no ammo left" : "This ship is sunk";
+            return;
+        }
+
+        // drop the old ship's preview and start its weapon choice over, on the same target
+        if (selectedTarget != null) {
+            foreach (var hex in selectedTarget.hexRenderer.hexMap.hexes) {
+                if (hex == selectedTarget) continue;
+                hex.hexRenderer.RemoveFogOverrideColor();
+            }
+        }
+
+        selectedShip = ship;
+        selectedOption = null;
+        selectedPattern = null;
+
+        var target = selectedTarget;
+        if (target != null) {
+            attackState = AttackState.SelectTarget;
+            SelectTarget(target);
+        }
+        else {
+            directiveText.text = "SELECT A TARGET - " + ship.shipModel.name.ToUpper();
+        }
+    }
+
+    // arrow keys move along the weapon or pattern buttons, previewing patterns like hovering does
+    public void CycleChoice(int direction) {
+        var buttons = ChoiceButtons();
+        if (buttons.Count == 0) return;
+
+        highlighted = highlighted < 0 ? (direction > 0 ? 0 : buttons.Count - 1) : (highlighted + direction + buttons.Count) % buttons.Count;
+
+        for (var i = 0; i < buttons.Count; i++) {
+            var colors = buttons[i].colors;
+            buttons[i].targetGraphic.CrossFadeColor(i == highlighted ? colors.highlightedColor : colors.normalColor, colors.fadeDuration, true, true);
+        }
+
+        if (attackState == AttackState.SelectAttackPattern) {
+            arrowGroup.gameObject.SetActive(true);
+            arrowGroup.SetPatternPreview(highlighted);
+        }
+    }
+
+    // enter on a highlighted weapon or pattern, returns false when there's nothing to pick
+    public bool ChooseHighlighted() {
+        var buttons = ChoiceButtons();
+        if (highlighted < 0 || highlighted >= buttons.Count) return false;
+
+        buttons[highlighted].onClick.Invoke();
+        return true;
+    }
+
+    private List<Button> ChoiceButtons() {
+        Transform parent = null;
+        if (attackState == AttackState.SelectAttackOption) parent = optionsParent.transform;
+        if (attackState == AttackState.SelectAttackPattern) parent = patternsParent.transform;
+
+        var buttons = new List<Button>();
+        if (parent == null) return buttons;
+
+        foreach (Transform child in parent) {
+            var button = child.GetComponent<Button>();
+            if (button != null && child.gameObject.activeInHierarchy) buttons.Add(button);
+        }
+        return buttons;
     }
 
     public void SelectShip(Ship ship) {

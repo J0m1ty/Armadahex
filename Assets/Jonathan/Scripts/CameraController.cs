@@ -186,7 +186,7 @@ public class CameraController : MonoBehaviour
     }
 
     void LateUpdate() {
-        if (TurnManager.instance != null && TurnManager.instance.gameActive) {
+        if (TurnManager.instance != null && TurnManager.instance.gameActive && !GameInput.typing) {
             switch (control) {
                 case CameraControl.Free:
                     HandleMouseInput();
