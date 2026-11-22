@@ -116,6 +116,10 @@ Material:
     - _SpecularHighlights: 1
     - _Speed: -0.25
     - _SrcBlend: 5
+    - _SunGlowExponent: 30
+    - _SunGlowStrength: 1.5
+    - _SunThinExponent: 60
+    - _SunThinning: 0.95
     - _UVSec: 0
     - _ZWrite: 0
     m_Colors:
@@ -125,5 +129,6 @@ Material:
     - _SkyColor: {r: 0, g: 0.036156174, b: 0.16911763, a: 1}
     - _SkyColor0: {r: 0.6503027, g: 0.70802695, b: 0.71323526, a: 0.5}
     - _SkyColor1: {r: 0.3825692, g: 0.42283732, b: 0.42647058, a: 0.5}
+    - _SunGlowColor: {r: 1, g: 0.75, b: 0.45, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

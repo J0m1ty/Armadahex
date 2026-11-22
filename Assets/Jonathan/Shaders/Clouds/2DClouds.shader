@@ -9,6 +9,11 @@ Shader "FStarVR/2DClouds" {
 		_ScatterMap1 ("Scatter Map 2", 2D) = "white" {}
 		_DensityMap ("Density Map", 2D) = "white" {}
 		_TextureMap ("Texture Map", 2D) = "white" {}
+		_SunGlowColor ("Sun Glow Color", Color) = (1, 0.75, 0.45, 1)
+		_SunGlowExponent ("Sun Glow Exponent", Float) = 8
+		_SunGlowStrength ("Sun Glow Strength", Range(0.0, 2.0)) = 0.8
+		_SunThinning ("Sun Thinning", Range(0.0, 1.0)) = 0.9
+		_SunThinExponent ("Sun Thin Exponent", Float) = 150
 	}
 
 	SubShader {
@@ -36,6 +41,13 @@ Shader "FStarVR/2DClouds" {
 			fixed4 _TextureMap_ST;
 			fixed _Speed;
 			fixed _Density;
+			half4 _SunGlowColor;
+			half _SunGlowExponent;
+			half _SunGlowStrength;
+			half _SunThinning;
+			half _SunThinExponent;
+			// set globally by urp for the main directional light
+			float4 _MainLightPosition;
 
 			struct appdata {
 				fixed4 vertex : POSITION;
@@ -46,11 +58,13 @@ Shader "FStarVR/2DClouds" {
 				fixed4 pos : SV_POSITION;
 				fixed4 uv0 : TEXCOORD0;
 				fixed4 uv1 : TEXCOORD1;
+				float3 worldPos : TEXCOORD2;
 			};
 
 			v2f vert (appdata v) {
 				v2f o;
 				o.pos = UnityObjectToClipPos(v.vertex);
+				o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 				o.uv0.xy = TRANSFORM_TEX(v.texcoord, _ScatterMap0)* fixed2(2, 2) + _Time.x * _Speed * fixed2(1.5, 1.0);
 				o.uv0.zw = TRANSFORM_TEX(v.texcoord, _ScatterMap1)* fixed2(2, 2) + _Time.x * _Speed * fixed2(1.0, 1.2);
 				o.uv1.xy = TRANSFORM_TEX(v.texcoord, _DensityMap) * fixed2(10, 10.5) + _Time.x * _Speed * fixed2(0.75, 0.5);
@@ -70,6 +84,12 @@ Shader "FStarVR/2DClouds" {
 				col.a = saturate(fbm.xyz * _CloudColor.a * 2);
 
 				col.rgb = _CloudColor.rgb;
+
+				// light up and thin out the clouds around the sun
+				float3 viewDir = normalize(i.worldPos - _WorldSpaceCameraPos);
+				half toSun = saturate(dot(viewDir, _MainLightPosition.xyz));
+				col.rgb += _SunGlowColor.rgb * pow(toSun, _SunGlowExponent) * _SunGlowStrength;
+				col.a *= 1 - pow(toSun, _SunThinExponent) * _SunThinning;
 				return col;
 			}
 			ENDCG

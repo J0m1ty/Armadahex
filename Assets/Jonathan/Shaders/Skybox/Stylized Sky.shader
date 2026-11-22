@@ -6,6 +6,13 @@
         _SunDiscColor ("Color", Color) = (1, 1, 1, 1)
         _SunDiscMultiplier ("Multiplier", float) = 25
         _SunDiscExponent ("Exponent", float) = 125000
+        // above 1 the disc goes hdr and blooms
+        _SunDiscIntensity ("Intensity", float) = 1
+
+        [Header(Sun Glow)]
+        // a wide hdr glow around the sun that bleeds into the clouds through bloom
+        _SunGlowExponent ("Exponent", float) = 40
+        _SunGlowIntensity ("Intensity", float) = 0
 
         [Header(Sun Halo)]
         _SunHaloColor ("Color", Color) = (0.8970588, 0.7760561, 0.6661981, 1)
@@ -42,6 +49,9 @@
             float3 _SunDiscColor;
             float _SunDiscExponent;
             float _SunDiscMultiplier;
+            float _SunDiscIntensity;
+            float _SunGlowExponent;
+            float _SunGlowIntensity;
 
             float3 _SunHaloColor;
             float _SunHaloExponent;
@@ -77,7 +87,7 @@
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            half4 frag (v2f i) : SV_Target
             {
                 // Masks.
                 float maskHorizon = dot(normalize(i.worldPosition), float3(0, 1, 0));
@@ -100,7 +110,8 @@
                 // Sky gradient.
                 float3 skyGradientColor = lerp(_SkyGradientTop, _SkyGradientBottom, pow(1 - saturate(maskHorizon), _SkyGradientExponent));
 
-                float3 finalColor = lerp(saturate(sunHaloColor + horizonLineColor + skyGradientColor), _SunDiscColor, maskSun);
+                float3 finalColor = lerp(saturate(sunHaloColor + horizonLineColor + skyGradientColor), _SunDiscColor * _SunDiscIntensity, maskSun);
+                finalColor += _SunHaloColor * pow(saturate(maskSunDir), _SunGlowExponent) * _SunGlowIntensity;
                 return float4(finalColor, 1);
             }
             ENDCG
