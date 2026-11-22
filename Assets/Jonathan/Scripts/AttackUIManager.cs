@@ -555,15 +555,14 @@ public class AttackUIManager : MonoBehaviour
             for (int i = 0; i < targets.Count; i++) {
                 var target = targets[i];
                 
+                // the clouds and pegs show what happened, so the enemy cells keep their color
                 if (target.gridRef.shipSegment == null) {
-                    target.SetColor(AttackColor.miss);
                     target.SetFogColorInstant(FogColor.Miss, false);
                     target.ClearFog();
                     ShotEffects.Shot(target, false);
                     OnAttack?.Invoke(TurnManager.instance.enemyTeam, false, target.coords.index, i == targets.Count - 1);
                 }
                 else if (target.gridRef.shipSegment.isAlive) {
-                    target.SetColor(AttackColor.hit);
                     target.SetFogColorInstant(FogColor.Hit, false);
                     target.EnableFlames();
                     ShotEffects.Shot(target, true);
@@ -594,6 +593,9 @@ public class AttackUIManager : MonoBehaviour
             foreach (var hex in selectedTarget.hexRenderer.hexMap.hexes) {
                 hex.hexRenderer.RemoveFogOverrideColor();
             }
+
+            // the shot is away, so drop the locked in target
+            Selector.instance.ClearSelection();
 
             if (!GameOver.instance.CheckIfGameOver()) {
                 attackPanel.ResetData();

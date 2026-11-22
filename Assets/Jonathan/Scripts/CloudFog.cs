@@ -30,9 +30,10 @@ public class CloudFog : MonoBehaviour
     public float gridTime = 0.4f;
 
     [Header("Hover")]
-    public Color hoverGlow = new Color(2.2f, 0.35f, 0.22f);
+    // a softer take on the lock-in gold, so hovering never reads as a red hit
+    public Color hoverGlow = new Color(1.2f, 0.6f, 0.12f);
     [Range(0, 1)]
-    public float hoverCarve = 0.7f;
+    public float hoverCarve = 0.15f;
 
     private HexGrid grid;
     private Material material;

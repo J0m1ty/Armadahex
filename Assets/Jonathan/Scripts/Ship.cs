@@ -303,6 +303,10 @@ public class Ship : MonoBehaviour
             }
 
             Selector.SetLayerAllChildren(transform, null, Selector.instance.deadLayer);
+
+            if (!isPlayer) {
+                ShotEffects.Revealed(this);
+            }
         }
         
         if (hidden && !destroyed) {

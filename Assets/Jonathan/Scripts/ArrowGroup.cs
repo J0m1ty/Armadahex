@@ -12,6 +12,10 @@ public class ArrowGroup : MonoBehaviour
     private GridUnit selectedTarget;
     private Attack selectedOption;
 
+    // what the arrows show now, so confirming the same preview doesn't grow them again
+    private AttackPattern shownPattern;
+    private GridUnit shownTarget;
+
     public float height;
     public float arrowOffset;
 
@@ -72,6 +76,10 @@ public class ArrowGroup : MonoBehaviour
         }
 
         transform.position = new Vector3(selectedTarget.hexRenderer.transform.position.x, height, selectedTarget.hexRenderer.transform.position.z);
+
+        var grow = pattern != shownPattern || selectedTarget != shownTarget;
+        shownPattern = pattern;
+        shownTarget = selectedTarget;
         
         foreach (AttackDirection dir in pattern.directions) {
             var obj = Instantiate(arrowPrefab, transform);
@@ -167,7 +175,7 @@ public class ArrowGroup : MonoBehaviour
                 }
             }
 
-            arrow.SetArrow(dir.rotation, rev, s, SliderPos.Back);
+            arrow.SetArrow(dir.rotation, rev, s, SliderPos.Back, grow);
             arrows.Add(arrow);
         }
 

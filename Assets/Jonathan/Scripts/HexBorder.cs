@@ -17,6 +17,8 @@ public class HexBorder : MonoBehaviour
     public bool isFlatTopped;
 
     public bool isVisible;
+    public bool capped;
+    public float capHeight; // local height of the lid, e.g. the water line
 
     private void Awake() {
         meshFilter = GetComponent<MeshFilter>();
@@ -102,6 +104,23 @@ public class HexBorder : MonoBehaviour
 
             uvs.Add(new Vector2(0, progress));
             uvs.Add(new Vector2(1, progress));
+        }
+
+        // a flat glowing lid, so a thin peg still shows from straight above
+        if (capped) {
+            int center = vertices.Count;
+            float capV = height > 0 ? Mathf.Clamp01(capHeight / height) : 0;
+            vertices.Add(new Vector3(0, capHeight, 0));
+            uvs.Add(new Vector2(capV, 0));
+            for (int i = 0; i < 6; i++) {
+                vertices.Add(GetVertex(size, capHeight, i, isFlatTopped));
+                uvs.Add(new Vector2(capV, 0));
+            }
+            for (int i = 0; i < 6; i++) {
+                triangles.Add(center);
+                triangles.Add(center + 1 + (i + 1) % 6);
+                triangles.Add(center + 1 + i);
+            }
         }
 
         mesh.Clear();

@@ -115,8 +115,12 @@ public class Arrow : MonoBehaviour
         backRenderer.sharedMaterial.color = color;
     }
 
+    // grows at a steady speed, so a long torpedo line travels out instead of snapping
     [SerializeField]
-    private float growTime = 0.3f;
+    private float growTime = 0.2f;
+    [SerializeField]
+    private float growSpeed = 900f;
+    private float growDuration;
     private float growLength;
     private SliderPos growPos;
     private float growStart = -1;
@@ -124,12 +128,12 @@ public class Arrow : MonoBehaviour
     // grow out from the target instead of popping in
     void Update() {
         if (growStart < 0) return;
-        var t = Mathf.Clamp01((Time.time - growStart) / growTime);
+        var t = Mathf.Clamp01((Time.time - growStart) / growDuration);
         SetLength(growLength * (1 - Mathf.Pow(1 - t, 3)), growPos);
         if (t >= 1) growStart = -1;
     }
 
-    public void SetArrow(Rotation rotation, bool reverse, float length, SliderPos spos) {
+    public void SetArrow(Rotation rotation, bool reverse, float length, SliderPos spos, bool grow = true) {
         transform.localPosition = Vector3.zero;
 
         var r = 0;
@@ -152,9 +156,16 @@ public class Arrow : MonoBehaviour
         r = CoordinateSystem.Mod(r, 360);
 
         transform.localRotation = Quaternion.Euler(0, r - 30, 0);
-        SetLength(0, spos);
         growLength = length;
         growPos = spos;
-        growStart = Time.time;
+        if (grow) {
+            SetLength(0, spos);
+            growStart = Time.time;
+            growDuration = growTime + length / growSpeed;
+        }
+        else {
+            SetLength(length, spos);
+            growStart = -1;
+        }
     }
 }
