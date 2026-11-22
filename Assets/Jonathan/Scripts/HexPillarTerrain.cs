@@ -35,6 +35,8 @@ public class HexPillarTerrain : MonoBehaviour {
     [SerializeField] private float rangeInset = 0f;
     // about how far apart the pulses running along a contour are
     [SerializeField] private float pulseSpacing = 1500f;
+    // how far the glow wraps down the outside wall below each outline
+    [SerializeField] private float rimDrop = 4f;
     // tops this close to the water get washed over by the waves, so they're lifted clear or sunk
     [SerializeField] private float waterClearance = 1.5f;
     [SerializeField] private float textureScale = 0.015f;
@@ -202,13 +204,16 @@ public class HexPillarTerrain : MonoBehaviour {
         // so a cliff behind it doesn't get a line along its foot
         var rims = new Dictionary<(Vector2Int, int), Vector3[]>();
         foreach (var pillar in pillars) {
+            // the small posts on the board stay plain, and nothing glows under the water by the foam
+            if (onBoard.Contains(pillar.Key) || pillar.Value < 0f) continue;
+
             var center = CellToLocal(pillar.Key);
             var radius = radii[pillar.Key];
             for (var k = 0; k < 6; k++) {
                 var next = pillar.Key + edgeNeighbours[k];
                 var outside = !pillars.TryGetValue(next, out var other)
                     || other < pillar.Value - 0.01f
-                    || onBoard.Contains(pillar.Key) || onBoard.Contains(next);
+                    || onBoard.Contains(next);
                 if (!outside) continue;
 
                 rims[(pillar.Key, k)] = new[] {
@@ -335,9 +340,12 @@ public class HexPillarTerrain : MonoBehaviour {
         return contours;
     }
 
-    // corners are at least a hex side apart, so half a unit is plenty to match them
-    private static Vector3Int Key(Vector3 point) {
-        return new Vector3Int(Mathf.RoundToInt(point.x * 2f), Mathf.RoundToInt(point.y * 2f), Mathf.RoundToInt(point.z * 2f));
+    // hex corners sit on a lattice of half a size across and half a hex height deep, so this keys them exactly
+    private Vector3Int Key(Vector3 point) {
+        return new Vector3Int(
+            Mathf.RoundToInt(point.x / (size * 0.5f)),
+            Mathf.RoundToInt(point.y * 2f),
+            Mathf.RoundToInt(point.z / (size * Mathf.Sqrt(3f) * 0.5f)));
     }
 
     // one glowing band along a boundary curve, mitred at every corner so neighbouring hexes merge,
@@ -362,6 +370,10 @@ public class HexPillarTerrain : MonoBehaviour {
         var pulses = closed ? Mathf.Max(1f, Mathf.Round(length / pulseSpacing)) : length / pulseSpacing;
         var scale = pulses / length;
 
+        // each contour starts its pulse somewhere else, so the short ones don't all light up together
+        var seed = Key(rims[contour[0]][0]);
+        var phase = Mathf.Repeat(seed.x * 0.618f + seed.y * 0.137f + seed.z * 0.414f, 1f);
+
         var along = 0f;
         for (var i = 0; i < count; i++) {
             var points = rims[contour[i]];
@@ -375,11 +387,13 @@ public class HexPillarTerrain : MonoBehaviour {
 
             // lifted a hair over the cap so they don't fight
             var lift = Vector3.up * 0.05f;
+            var start = phase + along * scale;
+            var end = phase + (along + edgeLength) * scale;
             var v = vertices.Count;
-            AddTrimVertex(startInner + lift, along * scale);
-            AddTrimVertex(points[0] + lift, along * scale);
-            AddTrimVertex(points[1] + lift, (along + edgeLength) * scale);
-            AddTrimVertex(endInner + lift, (along + edgeLength) * scale);
+            AddTrimVertex(startInner + lift, start);
+            AddTrimVertex(points[0] + lift, start);
+            AddTrimVertex(points[1] + lift, end);
+            AddTrimVertex(endInner + lift, end);
 
             trimTris.Add(v);
             trimTris.Add(v + 2);
@@ -387,6 +401,22 @@ public class HexPillarTerrain : MonoBehaviour {
             trimTris.Add(v);
             trimTris.Add(v + 3);
             trimTris.Add(v + 2);
+
+            // and a strip down the top of the outside wall, pushed out a hair so it doesn't fight the metal
+            var outward = -inward[i] * 0.05f;
+            var drop = Vector3.down * rimDrop;
+            v = vertices.Count;
+            AddTrimVertex(points[0] + outward + drop, start);
+            AddTrimVertex(points[0] + outward, start);
+            AddTrimVertex(points[1] + outward, end);
+            AddTrimVertex(points[1] + outward + drop, end);
+
+            trimTris.Add(v);
+            trimTris.Add(v + 1);
+            trimTris.Add(v + 2);
+            trimTris.Add(v);
+            trimTris.Add(v + 2);
+            trimTris.Add(v + 3);
 
             along += edgeLength;
         }

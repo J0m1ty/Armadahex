@@ -365,9 +365,12 @@ public class CameraController : MonoBehaviour
 
         StopFocus(false);
 
+        radius = Mathf.Min(radius, boardRadius);
+
         // look a little past the subject, so it sits in the lower middle with the board behind it
         var ahead = Vector3.ProjectOnPlane(newRotation * Vector3.forward, Vector3.up).normalized;
-        var offset = point + ahead * radius * composeAhead - newCenter;
+        // none when framing the whole board, so it orbits around the middle
+        var offset = point + ahead * radius * (1f - radius / boardRadius) * composeAhead - newCenter;
         newPosition = new Vector3(offset.x, 0, offset.z);
 
         var distance = radius * fitPadding / fitTan;
@@ -378,7 +381,8 @@ public class CameraController : MonoBehaviour
         if (!focusOnShots || !isActiveAndEnabled || boardRadius <= 0) return;
 
         if (control == CameraControl.Orbit) {
-            Frame(area.center, Mathf.Max(area.extents.x, area.extents.z) + boardRadius * 0.25f);
+            // keep most of the board around the shots
+            Frame(area.center, Mathf.Max(Mathf.Max(area.extents.x, area.extents.z) + boardRadius * 0.25f, boardRadius * 0.6f));
             return;
         }
 

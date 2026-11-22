@@ -149,9 +149,14 @@ public class Selector : MonoBehaviour
         HexRenderer hex = null;
         if (lastMovedFrames < (1/Time.deltaTime) * 10f && selectedHex == null) {
             RaycastHit hit;
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(pointer), out hit, 1000, 1 << enemyHexLayer)) {
+            var ray = Camera.main.ScreenPointToRay(pointer);
+            // the clouds are what you see on the enemy board, so pick the hex under them first
+            hex = CloudHex(ray);
+            if (hex == null && Physics.Raycast(ray, out hit, 1000, 1 << enemyHexLayer)) {
                 hex = hit.transform.GetComponent<HexRenderer>();
+            }
 
+            if (hex != null) {
                 // part the clouds over the hovered hex
                 HoverClouds(hex);
 
@@ -187,6 +192,44 @@ public class Selector : MonoBehaviour
         }
     }
     
+    // walks the ray down through the cloud layer and returns the first hex still covered by its cloud
+    private HexRenderer CloudHex(Ray ray) {
+        var team = TurnManager.instance.enemyTeam;
+        if (team == null) return null;
+
+        var grid = team.teamBase.hexMap;
+        var clouds = grid.clouds;
+        if (clouds == null || ray.direction.y >= 0f) return null;
+
+        var baseY = grid.transform.position.y;
+        var top = ray.GetPoint((baseY + clouds.cloudTop - ray.origin.y) / ray.direction.y);
+        var bottom = ray.GetPoint((baseY + clouds.cloudBase - ray.origin.y) / ray.direction.y);
+
+        var steps = Mathf.Max(1, Mathf.CeilToInt(Vector3.Distance(top, bottom) / (grid.size * 0.25f)));
+        for (var i = 0; i <= steps; i++) {
+            var point = Vector3.Lerp(top, bottom, i / (float)steps);
+
+            HexRenderer nearest = null;
+            var best = grid.size * grid.size;
+            foreach (var unit in grid.hexes) {
+                var hex = unit.hexRenderer;
+                if (hex == null || !hex.gameObject.activeInHierarchy) continue;
+
+                var offset = hex.transform.position - point;
+                offset.y = 0f;
+                if (offset.sqrMagnitude < best) {
+                    best = offset.sqrMagnitude;
+                    nearest = hex;
+                }
+            }
+
+            if (nearest != null && nearest.fog != null && !nearest.fog.cleared && nearest.fog.cover > 0.5f) {
+                return nearest;
+            }
+        }
+        return null;
+    }
+
     private void HoverClouds(HexRenderer hex) {
         var clouds = hex != null ? hex.hexMap.clouds : null;
 

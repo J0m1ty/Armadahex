@@ -11565,9 +11565,6 @@ MonoBehaviour:
   missShakeRoughness: 2
   missShakeFadeInTime: 0
   missShakeFadeOutTime: 4
-  sunkScale: 0.5
-  sunkDepth: 0
-  sinkTime: 0.6
   hit: 0
 --- !u!114 &1007787195
 MonoBehaviour:
@@ -17873,7 +17870,7 @@ MonoBehaviour:
   orthoHeight: 700
   focusOnShots: 1
   focusHold: 1.4
-  focusClosest: 0.6
+  focusClosest: 0.75
   zoomAmountButton: 7
 --- !u!1 &1712294340
 GameObject:
@@ -22204,8 +22201,8 @@ MonoBehaviour:
   control: 2
   orbitSpeed: 70
   pullSpeed: 0.7
-  closePitch: 32
-  farPitch: 45
+  closePitch: 55
+  farPitch: 60
   composeAhead: 0.35
   fitBoard: 1
   fitPadding: 0.85
