@@ -165,7 +165,17 @@ public class CameraController : MonoBehaviour
     private InputAction orbitAction;
     private InputAction pointAction;
 
+    private bool started;
+    private bool settled;
+
     void Start() {
+        Init();
+    }
+
+    private void Init() {
+        if (started) return;
+        started = true;
+
         followChild = transform.GetChild(0).gameObject;
 
         moveAction = GameInput.Get("Camera/Move");
@@ -188,6 +198,31 @@ public class CameraController : MonoBehaviour
         newPosition = transform.position;
         newRotation = transform.rotation;
         newZoom = followChild.transform.localPosition + (zoomAmount * -distanceOffset); 
+    }
+
+    // the first time a view is switched to it starts where it's heading, instead of showing a frame
+    // from where it sat in the scene and easing over from there
+    public void Settle() {
+        if (settled) return;
+        settled = true;
+        Init();
+
+        if (fitBoard) {
+            FitBoard();
+        }
+        if (control == CameraControl.Orbit && boardRadius > 0) {
+            pull = targetPull;
+            newZoom = PullOffset(pull);
+        }
+
+        center = newCenter;
+        appliedCenter = center;
+        transform.position = center + newPosition;
+        if (newRotation.w != 0f || newRotation.x != 0f || newRotation.y != 0f || newRotation.z != 0f) {
+            transform.rotation = newRotation;
+        }
+        followChild.transform.localPosition = newZoom;
+        followChild.transform.LookAt(transform.position);
     }
 
     void LateUpdate() {

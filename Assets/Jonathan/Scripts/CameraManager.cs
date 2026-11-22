@@ -182,6 +182,8 @@ public class CameraManager : MonoBehaviour
                 }
             }
 
+            cameraController.Settle();
+
         }
     }
 
