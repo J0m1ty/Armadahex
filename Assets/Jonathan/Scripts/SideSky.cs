@@ -11,9 +11,9 @@ public class SideSky : MonoBehaviour
     [SerializeField]
     private Color enemyTop = new Color(0.42f, 0.14f, 0.18f);
     [SerializeField]
-    private Color friendlyHorizon = new Color(1f, 0.72f, 0.4f);
+    private Color friendlyHorizon = new Color(0.4f, 0.62f, 1f);
     [SerializeField]
-    private Color enemyHorizon = new Color(1f, 0.38f, 0.22f);
+    private Color enemyHorizon = new Color(1f, 0.35f, 0.25f);
     // the haze along the water and the bottom of the sky share one color so they read as one band
     [SerializeField]
     private Color friendlyHaze = new Color(0.42f, 0.6f, 0.86f);
