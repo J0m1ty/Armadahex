@@ -1,5 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="Base.uss" />
+    <ui:Style src="Theme.uss" />
+    <ui:Style src="Options.uss" />
     <ui:VisualElement class="page">
         <ui:VisualElement name="home">
             <ui:Label text="ARMADAHEX" class="h1" />
@@ -44,27 +46,58 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <ui:VisualElement name="settingsPage" class="hidden">
-            <ui:VisualElement class="row">
-                <ui:Button name="settingsBack" text="Back" />
-                <KeyLabel action="UI/Cancel" />
-                <ui:Label text="Settings" class="h1" />
+        <ui:VisualElement name="settingsPage" class="hidden screen options">
+            <Backdrop class="backdrop" />
+            <ui:Button name="settingsBack" class="back">
+                <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip" />
+                <ui:Label text="BACK" picking-mode="Ignore" class="back-text" />
+            </ui:Button>
+            <ui:VisualElement class="options-column">
+                <ui:Label text="OPTIONS" class="options-title" />
+                <ui:VisualElement class="options-tabs">
+                    <ui:Button name="audioTab" text="AUDIO" focusable="false" class="tab lit" />
+                    <ui:Button name="controlsTab" text="CONTROLS" focusable="false" class="tab" />
+                </ui:VisualElement>
+                <ui:VisualElement class="options-body panel">
+                    <ui:VisualElement class="panel-edge" picking-mode="Ignore" />
+                    <ui:VisualElement class="option-row">
+                        <ui:Label text="SOUND" class="option-name" />
+                        <ui:Toggle name="soundToggle" value="true" class="option-toggle" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="option-row">
+                        <ui:Label text="MAIN VOLUME" class="option-name" />
+                        <ui:Slider name="mainVolume" low-value="0" high-value="1" fill="true" class="option-slider" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="option-row">
+                        <ui:Label text="MUSIC VOLUME" class="option-name" />
+                        <ui:Slider name="musicVolume" low-value="0" high-value="1" fill="true" class="option-slider" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="options-footer" />
             </ui:VisualElement>
-            <ui:Label text="Audio" class="h2" />
-            <ui:Slider name="mainVolume" label="Main volume" low-value="0" high-value="1" />
-            <ui:Slider name="musicVolume" label="Music volume" low-value="0" high-value="1" />
-            <ui:Label text="Bot difficulty lives on the home screen next to Bot training. Keys are on the Controls page." class="note" />
         </ui:VisualElement>
 
-        <ui:VisualElement name="controlsPage" class="hidden grow">
-            <ui:VisualElement class="row">
-                <ui:Button name="controlsBack" text="Back" />
-                <KeyLabel action="UI/Cancel" />
-                <ui:Label text="Controls" class="h1" />
+        <ui:VisualElement name="controlsPage" class="hidden screen options">
+            <Backdrop class="backdrop" />
+            <ui:Button name="controlsBack" class="back">
+                <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip" />
+                <ui:Label text="BACK" picking-mode="Ignore" class="back-text" />
+            </ui:Button>
+            <ui:VisualElement class="options-column">
+                <ui:Label text="OPTIONS" class="options-title" />
+                <ui:VisualElement class="options-tabs">
+                    <ui:Button name="audioTab" text="AUDIO" focusable="false" class="tab" />
+                    <ui:Button name="controlsTab" text="CONTROLS" focusable="false" class="tab lit" />
+                </ui:VisualElement>
+                <ui:VisualElement class="options-body panel">
+                    <ui:VisualElement class="panel-edge" picking-mode="Ignore" />
+                    <ui:ListView name="controlsList" fixed-item-height="56" class="controls-list" />
+                </ui:VisualElement>
+                <ui:VisualElement class="options-footer">
+                    <ui:Button name="resetControls" text="RESET TO DEFAULTS" class="text-button" />
+                    <ui:Button name="saveControls" text="SAVE CHANGES" class="plate save" />
+                </ui:VisualElement>
             </ui:VisualElement>
-            <ui:Label text="Click a key, then press the new one. Esc cancels. Changes save straight away and show up in game." class="note" />
-            <ui:Button name="resetControls" text="Reset to defaults" />
-            <ui:ListView name="controlsList" fixed-item-height="36" class="controls-list" />
         </ui:VisualElement>
 
         <ui:VisualElement name="progressionPage" class="hidden">

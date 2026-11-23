@@ -88,7 +88,67 @@
     color: rgb(120, 140, 165);
 }
 
-/* back, top left on every page: a chevron and a word; Esc does the same */
+/* tabs: the picked one underlined in the accent */
+.tab {
+    flex-grow: 1;
+    height: 56px;
+    margin: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0 0 2px 0;
+    border-radius: 0;
+    border-color: rgba(255, 255, 255, 0.08);
+    color: rgb(120, 140, 165);
+    font-size: 22px;
+    letter-spacing: 6px;
+    -unity-font-style: bold;
+    transition-duration: 0.15s;
+}
+
+.tab:hover {
+    color: rgb(214, 226, 240);
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.tab.lit {
+    color: rgb(240, 246, 255);
+    border-color: var(--accent);
+}
+
+/* a quiet button that is only its word */
+.text-button {
+    margin: 0;
+    padding: 8px 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    color: rgb(120, 140, 165);
+    font-size: 16px;
+    letter-spacing: 4px;
+    transition-duration: 0.15s;
+}
+
+.text-button:hover {
+    background-color: rgba(0, 0, 0, 0);
+    color: var(--accent);
+}
+
+/* a key, drawn as a chip; a KeyLabel inside follows the player's bindings */
+.key-chip {
+    min-width: 48px;
+    margin: 0;
+    padding: 3px 10px;
+    border-width: 2px;
+    border-color: rgb(58, 74, 98);
+    border-radius: 3px;
+    color: rgb(120, 140, 165);
+    font-size: 15px;
+    letter-spacing: 1px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    transition-duration: 0.15s;
+}
+
+/* back, top left on every page: its key and the word; on hover the key fills in */
 .back {
     position: absolute;
     left: 48px;
@@ -96,7 +156,7 @@
     flex-direction: row;
     align-items: center;
     margin: 0;
-    padding: 8px 16px 8px 8px;
+    padding: 8px;
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
 }
@@ -105,32 +165,31 @@
     background-color: rgba(0, 0, 0, 0);
 }
 
-.back-icon {
-    width: 12px;
-    height: 24px;
+.back > .key-chip {
     margin-right: 16px;
-    background-image: url("project://database/Assets/Jonathan/UI/Textures/Chevron.png");
-    -unity-background-image-tint-color: rgb(120, 140, 165);
-    transition-duration: 0.15s;
 }
 
 .back-text {
-    padding: 0;
+    padding: 0 0 2px 0;
     margin: 0;
     color: rgb(120, 140, 165);
     font-size: 22px;
-    letter-spacing: 6px;
-    -unity-font-style: bold;
+    letter-spacing: 4px;
     transition-duration: 0.15s;
 }
 
-.back:hover > .back-icon {
-    -unity-background-image-tint-color: var(--accent);
-    translate: -4px 0;
+.back:hover > .key-chip {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
 }
 
 .back:hover > .back-text {
     color: var(--accent);
+}
+
+.invisible {
+    visibility: hidden;
 }
 
 .dim {

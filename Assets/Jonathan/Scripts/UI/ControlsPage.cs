@@ -9,6 +9,7 @@ public class ControlsPage : MonoBehaviour
     [SerializeField] private UIDocument document;
     [SerializeField] private string list = "controlsList";
     [SerializeField] private string resetButton = "resetControls";
+    [SerializeField] private string saveButton = "saveControls";
     [SerializeField] private string[] maps = { "Gameplay", "Camera" };
 
     // true while waiting for a key, and for a frame after, so the esc that cancels doesn't also leave the page
@@ -25,6 +26,7 @@ public class ControlsPage : MonoBehaviour
 
     private List<Row> rows = new List<Row>();
     private ListView view;
+    private Button save;
     private Row waiting;
 
     void Start() {
@@ -34,11 +36,22 @@ public class ControlsPage : MonoBehaviour
         view.bindItem = BindRow;
         view.itemsSource = rows;
         view.selectionType = SelectionType.None;
+        // the wheel still scrolls, the bar is just noise
+        view.Q<ScrollView>().verticalScrollerVisibility = ScrollerVisibility.Hidden;
+
+        // a new key applies straight away, it's kept for next time once saved
+        save = root.Q<Button>(saveButton);
+        UIKit.OnClick(save, () => {
+            GameInput.SaveBindings();
+            Unsaved(false);
+        });
 
         UIKit.OnClick(root.Q(resetButton), () => {
             GameInput.ResetBindings();
+            Unsaved(false);
             Build();
         });
+        Unsaved(false);
         Build();
     }
 
@@ -112,9 +125,15 @@ public class ControlsPage : MonoBehaviour
             waiting = null;
             doneFrame = Time.frameCount;
             view.RefreshItems();
+            Unsaved(true);
             // enter or space on a still-focused button would start another rebind
             UIKit.Blur(document);
-        }, keyboard);
+        }, keyboard, false);
+    }
+
+    // the save button only shows while there's something to save; it keeps its space so nothing moves
+    private void Unsaved(bool unsaved) {
+        save?.EnableInClassList("invisible", !unsaved);
     }
 
     private static string Pretty(string part) {

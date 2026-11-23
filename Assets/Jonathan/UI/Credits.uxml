@@ -41,7 +41,7 @@
             <ui:Label text="Canandaigua, NY 14424" class="credit-note"/>
         </ui:ScrollView>
         <ui:Button name="done" class="back">
-            <ui:VisualElement picking-mode="Ignore" class="back-icon"/>
+            <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip"/>
             <ui:Label text="BACK" picking-mode="Ignore" class="back-text"/>
         </ui:Button>
     </ui:VisualElement>

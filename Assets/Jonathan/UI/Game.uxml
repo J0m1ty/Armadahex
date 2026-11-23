@@ -27,13 +27,13 @@
             <ui:VisualElement class="box">
                 <ui:Label text="How to play" class="h2" />
                 <ui:Label text="[CLICK] Aim, then lock a hex" />
-                <KeyLabel action="Gameplay/Choice 1" format="{0} Pick a ship (1-5)" />
-                <KeyLabel action="Gameplay/Fire" format="{0} Fire" />
-                <KeyLabel action="Gameplay/Cancel" format="{0} Step back" />
+                <KeyLabel action="Gameplay/Choice 1" format="[{0}] Pick a ship (1-5)" />
+                <KeyLabel action="Gameplay/Fire" format="[{0}] Fire" />
+                <KeyLabel action="Gameplay/Cancel" format="[{0}] Step back" />
                 <ui:Label text="[WASD] Pan the camera" />
-                <KeyLabel action="Gameplay/Switch View" format="{0} Pivot or top view" />
-                <KeyLabel action="Gameplay/Scoreboard" format="{0} Hold for the scoreboard" />
-                <KeyLabel action="Gameplay/Switch Ship" format="{0} A random ship" />
+                <KeyLabel action="Gameplay/Switch View" format="[{0}] Pivot or top view" />
+                <KeyLabel action="Gameplay/Scoreboard" format="[{0}] Hold for the scoreboard" />
+                <KeyLabel action="Gameplay/Switch Ship" format="[{0}] A random ship" />
             </ui:VisualElement>
             <ui:VisualElement class="box">
                 <ui:Label text="Battle stations in" />

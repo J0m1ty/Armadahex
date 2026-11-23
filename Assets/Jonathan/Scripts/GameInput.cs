@@ -49,8 +49,9 @@ public static class GameInput
     // key labels on screen listen for this
     public static event Action bindingsChanged;
 
-    // keyboardOnly keeps the mouse out, so the click that started the rebind can't become the new key
-    public static void Rebind(InputAction action, int bindingIndex, Action onDone = null, bool keyboardOnly = false) {
+    // keyboardOnly keeps the mouse out, so the click that started the rebind can't become the new key;
+    // save false leaves the new key unsaved until SaveBindings
+    public static void Rebind(InputAction action, int bindingIndex, Action onDone = null, bool keyboardOnly = false, bool save = true) {
         action.Disable();
         var rebind = action.PerformInteractiveRebinding(bindingIndex)
             .WithCancelingThrough("<Keyboard>/escape")
@@ -64,7 +65,7 @@ public static class GameInput
             .OnComplete(operation => {
                 operation.Dispose();
                 action.Enable();
-                SaveBindings();
+                if (save) SaveBindings();
                 bindingsChanged?.Invoke();
                 onDone?.Invoke();
             })

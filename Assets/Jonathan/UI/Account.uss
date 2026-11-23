@@ -40,32 +40,6 @@
     margin-bottom: 16px;
 }
 
-.tab {
-    flex-grow: 1;
-    height: 56px;
-    margin: 0;
-    padding: 0;
-    background-color: rgba(0, 0, 0, 0);
-    border-width: 0 0 2px 0;
-    border-radius: 0;
-    border-color: rgba(255, 255, 255, 0.08);
-    color: rgb(120, 140, 165);
-    font-size: 22px;
-    letter-spacing: 6px;
-    -unity-font-style: bold;
-    transition-duration: 0.15s;
-}
-
-.tab:hover {
-    color: rgb(214, 226, 240);
-    background-color: rgba(0, 0, 0, 0);
-}
-
-.tab.lit {
-    color: rgb(240, 246, 255);
-    border-color: var(--accent);
-}
-
 /* fields: filled boxes named by their placeholder; focus lights a bar on the left */
 .field {
     width: auto;
