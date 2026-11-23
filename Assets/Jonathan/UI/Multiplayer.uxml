@@ -1,0 +1,24 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="Base.uss" />
+    <ui:VisualElement class="page">
+        <ui:VisualElement class="row">
+            <ui:VisualElement name="back" class="row">
+                <ui:Button name="backButton" text="Back" />
+                <KeyLabel action="UI/Cancel" />
+            </ui:VisualElement>
+            <ui:Label text="Multiplayer" class="h1" />
+        </ui:VisualElement>
+        <ui:Label name="stats" />
+
+        <ui:VisualElement name="modes" class="row" />
+
+        <ui:Label name="stateHeader" text="SELECT GAME MODE" class="h2" />
+        <ui:Label name="stateName" />
+        <ui:Label name="stateDescription" class="note" />
+        <ui:TextField name="code" label="Code" max-length="4" />
+        <ui:Button name="join" text="Play" />
+        <ui:Label text="Pick a mode above. Matches pair you with the next player looking for the same mode." class="note" />
+
+        <ui:Label name="matchmaking" class="h2 hidden" />
+    </ui:VisualElement>
+</ui:UXML>

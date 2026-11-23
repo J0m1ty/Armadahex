@@ -1,0 +1,49 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="Base.uss" />
+    <ui:VisualElement class="page">
+        <ui:Label name="result" text="VICTORY" class="h1" />
+        <ui:Label name="comments" text="Win by conquest" />
+        <ui:Label name="xpGain" />
+
+        <ui:Label text="Match stats" class="h2" />
+        <ui:VisualElement class="row">
+            <ui:Label text="Match time:" />
+            <ui:Label name="matchTime" text="-" />
+        </ui:VisualElement>
+        <ui:VisualElement class="row">
+            <ui:Label text="Accuracy:" />
+            <ui:Label name="accuracy" text="-" />
+        </ui:VisualElement>
+        <ui:VisualElement class="row">
+            <ui:Label text="Ships lost:" />
+            <ui:Label name="shipsLost" text="-" />
+        </ui:VisualElement>
+        <ui:VisualElement class="row">
+            <ui:Label text="Special attacks:" />
+            <ui:Label name="specials" text="-" />
+        </ui:VisualElement>
+
+        <ui:Label text="Players" class="h2" />
+        <ui:VisualElement class="row">
+            <ui:VisualElement>
+                <ui:Label text="Victor" />
+                <ui:Label name="winnerName" text="Player" class="h2" />
+                <ui:Label name="winnerXp" />
+            </ui:VisualElement>
+            <ui:Image name="topImage" class="shot" />
+        </ui:VisualElement>
+        <ui:VisualElement class="row">
+            <ui:VisualElement>
+                <ui:Label text="Defeated" />
+                <ui:Label name="loserName" text="Player" class="h2" />
+                <ui:Label name="loserXp" />
+            </ui:VisualElement>
+            <ui:Image name="bottomImage" class="shot" />
+        </ui:VisualElement>
+
+        <ui:VisualElement class="row">
+            <ui:Button name="done" text="Done" />
+            <KeyLabel action="UI/Submit" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

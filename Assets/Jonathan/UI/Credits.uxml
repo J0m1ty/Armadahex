@@ -1,0 +1,43 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="Base.uss" />
+    <ui:VisualElement class="page">
+        <ui:VisualElement class="row">
+            <ui:Button name="done" text="Done" />
+            <KeyLabel action="UI/Cancel" />
+            <ui:Label text="Credits" class="h1" />
+        </ui:VisualElement>
+        <ui:ScrollView name="credits" class="grow">
+            <ui:Label text="DEVELOPMENT TEAM" class="h2" />
+            <ui:Label text="PROJECT LEAD" />
+            <ui:Label text="Jonathan Schultz" />
+            <ui:Label text="PROJECT CO-LEADS" />
+            <ui:Label text="Nick Ward &amp; David Smith" />
+            <ui:Label text="SHADER PROGRAMMER" />
+            <ui:Label text="Kyle Diehm" />
+            <ui:Label text="SOUNDTRACK PRODUCER" />
+            <ui:Label text="Juniper Lasky" />
+            <ui:Label text="VOICE ANNOUNCER" />
+            <ui:Label text="Justin Roof" />
+            <ui:Label text="LOGO DESIGNER" />
+            <ui:Label text="Zoe Wilson" />
+            <ui:Label text="SOUND FX CURATOR" />
+            <ui:Label text="Jeremy Dale" />
+            <ui:Label text="SPECIAL THANKS TO..." class="h2" />
+            <ui:Label text="PANEL MEMBERS" />
+            <ui:Label text="Will McLaughlin" />
+            <ui:Label text="Rick Cook" />
+            <ui:Label text="Amy McGowan" />
+            <ui:Label text="David Ghidiu" />
+            <ui:Label text="Jeff Kidd" />
+            <ui:Label text="ASSOCIATE PROFESSOR" />
+            <ui:Label text="Paul Engin" />
+            <ui:Label text="MANDATORY MUMBO JUMBO" class="h2" />
+            <ui:Label text="Submitted in partial fufillment of Associate in Science Degree" class="note" />
+            <ui:Label text="Game Programming and Design: CSC 256" class="note" />
+            <ui:Label text="Finger Lakes Community College" class="note" />
+            <ui:Label text="3325 Marvin Sands Drive" class="note" />
+            <ui:Label text="Canandaigua, NY 14424" class="note" />
+            <ui:Label text="ARMADAHEX" />
+        </ui:ScrollView>
+    </ui:VisualElement>
+</ui:UXML>

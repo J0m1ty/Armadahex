@@ -1,0 +1,92 @@
+/* only where things sit over the game */
+.fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    font-size: 18px;
+}
+
+.pregame {
+    align-items: center;
+    justify-content: center;
+}
+
+.pregame > * {
+    margin-bottom: 12px;
+}
+
+.countdown {
+    font-size: 120px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.banner {
+    position: absolute;
+    top: 16px;
+    align-self: center;
+}
+
+.corner {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    align-items: flex-end;
+}
+
+.turn-info {
+    position: absolute;
+    top: 110px;
+    left: 0;
+    width: 420px;
+}
+
+.attack-info {
+    position: absolute;
+    top: 110px;
+    right: 0;
+    width: 360px;
+}
+
+.scoreboard {
+    position: absolute;
+    top: 280px;
+    align-self: center;
+    align-items: center;
+}
+
+.chat {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    width: 420px;
+    height: 220px;
+}
+
+.bottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 16px;
+    align-items: center;
+}
+
+.bottom > * {
+    margin-top: 8px;
+}
+
+.ship-image {
+    width: 200px;
+    height: 40px;
+}
+
+.fleet-key {
+    width: 150px;
+}
+
+.fleet-icon {
+    width: 128px;
+    height: 36px;
+}

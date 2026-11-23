@@ -1,0 +1,48 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="Base.uss" />
+    <ui:VisualElement class="page">
+        <ui:VisualElement class="row">
+            <ui:VisualElement name="back" class="row">
+                <ui:Button name="backButton" text="Back" />
+                <KeyLabel action="UI/Cancel" />
+            </ui:VisualElement>
+            <ui:Label text="Custom game" class="h1" />
+        </ui:VisualElement>
+        <ui:Label name="stats" />
+
+        <ui:Label text="1. Preset" class="h2" />
+        <ui:DropdownField name="presets" label="Preset" />
+        <ui:Label text="A preset fills in the rules. Change any rule and it becomes a custom game." class="note" />
+
+        <ui:Label text="2. Rules" class="h2" />
+        <ui:Label text="Match" />
+        <ui:Toggle name="allowChat" label="Allow chat" value="true" />
+        <ui:Toggle name="unlimitedTime" label="Unlimited time" />
+        <ui:VisualElement name="timeLimit" class="row">
+            <ui:SliderInt name="turnTime" label="Turn time" low-value="25" high-value="90" />
+            <ui:Label name="turnTimeText" />
+        </ui:VisualElement>
+        <ui:Label text="Mission" />
+        <ui:Toggle name="advancedAttacks" label="Advanced attacks" value="true" />
+        <ui:Toggle name="unlimitedAmmo" label="Unlimited ammo" />
+        <ui:Toggle name="salvo" label="Salvo shots" />
+        <ui:Toggle name="bonus" label="Bonus shots" />
+
+        <ui:Label text="3. Share and start" class="h2" />
+        <ui:Button name="create" text="Create" />
+        <ui:VisualElement name="codeContainer">
+            <ui:VisualElement class="row">
+                <ui:TextField name="code" label="Join code" readonly="true" />
+                <ui:Button name="copy" text="Copy" />
+            </ui:VisualElement>
+            <ui:Label text="Send the code to a friend. They join from Multiplayer, under Join Custom." class="note" />
+        </ui:VisualElement>
+
+        <ui:Label name="matchmaking" class="h2 hidden" />
+
+        <ui:VisualElement name="connectingOverlay" class="page overlay hidden">
+            <ui:Label text="Connecting..." class="h1" />
+            <ui:Label text="Please wait for the host" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,105 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="Base.uss" />
+    <ui:VisualElement class="page">
+        <ui:VisualElement name="home">
+            <ui:Label text="ARMADAHEX" class="h1" />
+            <ui:Label text="LAST STAND" />
+            <ui:VisualElement class="row">
+                <ui:Label name="connection" text="OFFLINE" />
+                <ui:Label name="ping" text="0 ms" />
+            </ui:VisualElement>
+            <ui:Label name="stats" />
+            <ui:Label text="Signed in as" />
+            <ui:Label name="playerName" text="Player" class="h2" />
+
+            <ui:VisualElement class="row">
+                <ui:Button name="botTraining" text="Bot training" />
+                <ui:Label text="A quick match against the AI" />
+            </ui:VisualElement>
+            <ui:VisualElement class="row">
+                <ui:SliderInt name="difficulty" label="Bot difficulty" low-value="0" high-value="2" />
+                <ui:Label name="difficultyValue" text="EASY" />
+            </ui:VisualElement>
+            <ui:VisualElement class="row">
+                <ui:Button name="multiplayer" text="Multiplayer" />
+                <ui:Label text="Play the modes online, or join a code" />
+            </ui:VisualElement>
+            <ui:VisualElement class="row">
+                <ui:Button name="customGame" text="Custom game" />
+                <ui:Label text="Set the rules and share a code" />
+            </ui:VisualElement>
+            <ui:VisualElement class="row">
+                <ui:Button name="progression" text="Progression" />
+                <ui:Label text="Captains, achievements and stats" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="row">
+                <ui:Button name="settings" text="Settings" />
+                <ui:Button name="controls" text="Controls" />
+                <ui:Button name="credits" text="Credits" />
+            </ui:VisualElement>
+            <ui:VisualElement class="row">
+                <ui:Button name="logout" text="Log out" />
+                <ui:Button name="quit" text="Quit" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="settingsPage" class="hidden">
+            <ui:VisualElement class="row">
+                <ui:Button name="settingsBack" text="Back" />
+                <KeyLabel action="UI/Cancel" />
+                <ui:Label text="Settings" class="h1" />
+            </ui:VisualElement>
+            <ui:Label text="Audio" class="h2" />
+            <ui:Slider name="mainVolume" label="Main volume" low-value="0" high-value="1" />
+            <ui:Slider name="musicVolume" label="Music volume" low-value="0" high-value="1" />
+            <ui:Label text="Bot difficulty lives on the home screen next to Bot training. Keys are on the Controls page." class="note" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="controlsPage" class="hidden grow">
+            <ui:VisualElement class="row">
+                <ui:Button name="controlsBack" text="Back" />
+                <KeyLabel action="UI/Cancel" />
+                <ui:Label text="Controls" class="h1" />
+            </ui:VisualElement>
+            <ui:Label text="Click a key, then press the new one. Esc cancels. Changes save straight away and show up in game." class="note" />
+            <ui:Button name="resetControls" text="Reset to defaults" />
+            <ui:ListView name="controlsList" fixed-item-height="36" class="controls-list" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="progressionPage" class="hidden">
+            <ui:VisualElement class="row">
+                <ui:Button name="progressionBack" text="Back" />
+                <KeyLabel action="UI/Cancel" />
+                <ui:Label text="Progression" class="h1" />
+            </ui:VisualElement>
+            <ui:VisualElement class="row">
+                <ui:Button name="captainsTab" text="Captains" />
+                <ui:Button name="achievementsTab" text="Achievements" />
+                <ui:Button name="statisticsTab" text="Statistics" />
+            </ui:VisualElement>
+            <ui:VisualElement name="captains">
+                <ui:VisualElement class="row">
+                    <ui:Button text="No captain (plays as before)" class="lit" />
+                    <ui:Button text="Locked" enabled="false" />
+                    <ui:Button text="Locked" enabled="false" />
+                    <ui:Button text="Locked" enabled="false" />
+                </ui:VisualElement>
+                <ui:Label text="Captains are on the way" class="h2" />
+                <ui:Label text="Each captain will bring a passive and a special ability. Pick one here before a match. Bots get their own settings, separate from captains." class="note" />
+            </ui:VisualElement>
+            <ui:VisualElement name="achievements">
+                <ui:Label text="No achievements yet" class="h2" />
+                <ui:Label text="Achievements will be listed here with your progress toward each one." class="note" />
+            </ui:VisualElement>
+            <ui:VisualElement name="statistics">
+                <ui:Label text="Matches: —" />
+                <ui:Label text="Wins: —" />
+                <ui:Label text="Accuracy: —" />
+                <ui:Label text="Ships sunk: —" />
+                <ui:Label text="Nothing recorded yet" class="h2" />
+                <ui:Label text="Match results aren't saved yet. Once they are, your totals and per-mode numbers show up here." class="note" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="Base.uss" />
+    <ui:VisualElement name="page" class="page">
+        <ui:Label text="ARMADAHEX" class="h1" />
+        <ui:Label text="LAST STAND" />
+        <KeyLabel name="notice" action="UI/Submit" format="Click anywhere or press {0} to play" />
+        <ui:Label name="connecting" text="Connecting..." />
+        <ui:Label name="error" class="error" />
+        <ui:Label name="version" text="v1.0" />
+    </ui:VisualElement>
+</ui:UXML>

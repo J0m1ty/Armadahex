@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="Base.uss" />
+    <ui:VisualElement class="page">
+        <ui:Label text="ARMADAHEX" class="h1" />
+        <ui:VisualElement class="row">
+            <ui:Button name="loginTab" text="Log in" />
+            <ui:Button name="signupTab" text="Sign up" />
+        </ui:VisualElement>
+        <ui:TextField name="username" label="Username" max-length="16" />
+        <ui:TextField name="password" label="Password" password="true" />
+        <ui:TextField name="confirm" label="Confirm password" password="true" />
+        <ui:Label name="error" class="error" />
+        <ui:Label name="fatal" class="error" />
+        <ui:Label name="connecting" text="Connecting..." />
+        <ui:Button name="submit" text="Log in" />
+    </ui:VisualElement>
+</ui:UXML>

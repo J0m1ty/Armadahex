@@ -1,0 +1,86 @@
+/* a blank slate: unity's default controls on a plain page, only layout here */
+.page {
+    flex-grow: 1;
+    align-items: flex-start;
+    padding: 32px;
+    background-color: white;
+    font-size: 18px;
+}
+
+.row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.row > * {
+    flex-shrink: 0;
+    margin-right: 12px;
+}
+
+.box {
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.92);
+}
+
+.h1 {
+    font-size: 40px;
+    -unity-font-style: bold;
+}
+
+.h2 {
+    font-size: 26px;
+    -unity-font-style: bold;
+}
+
+.note {
+    max-width: 640px;
+    white-space: normal;
+}
+
+.error {
+    color: rgb(190, 0, 0);
+}
+
+.lit {
+    -unity-font-style: bold;
+    border-color: black;
+}
+
+.hidden {
+    display: none;
+}
+
+TextField, Slider, SliderInt, DropdownField {
+    width: 520px;
+}
+
+.grow {
+    flex-grow: 1;
+    align-self: stretch;
+}
+
+.controls-list {
+    flex-grow: 1;
+    width: 720px;
+}
+
+.control-name {
+    width: 360px;
+}
+
+.control-key {
+    width: 220px;
+}
+
+.overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.shot {
+    width: 300px;
+    height: 186px;
+}
