@@ -28,6 +28,10 @@ public class CreditsScroller : MonoBehaviour
     [SerializeField]
     private float scrollWait;
 
+    // lines fade out over this many points as they reach the top or bottom of the screen
+    [SerializeField]
+    private float fadeDistance = 160f;
+
     void Start() {
         scrollView = document.rootVisualElement.Q<ScrollView>(element);
 
@@ -39,7 +43,9 @@ public class CreditsScroller : MonoBehaviour
     }
 
     void Update() {
-        if (!doScrolling || scrollView == null) return;
+        if (scrollView == null) return;
+        Fade();
+        if (!doScrolling) return;
 
         if (scrollWait > 0f) {
             scrollWait -= Time.deltaTime;
@@ -50,6 +56,15 @@ public class CreditsScroller : MonoBehaviour
             var offset = scrollView.scrollOffset;
             offset.y = Mathf.Min(range, offset.y + Time.deltaTime * scrollSpeed * range);
             scrollView.scrollOffset = offset;
+        }
+    }
+
+    private void Fade() {
+        var view = scrollView.contentViewport.worldBound;
+        foreach (var line in scrollView.contentContainer.Children()) {
+            var bounds = line.worldBound;
+            var edge = Mathf.Min(bounds.center.y - view.yMin, view.yMax - bounds.center.y);
+            line.style.opacity = Mathf.Clamp01(edge / fadeDistance);
         }
     }
 }

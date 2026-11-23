@@ -35,6 +35,7 @@ public class FormManager : MonoBehaviour
                 usernameField.SetEnabled(value);
                 passwordField.SetEnabled(value);
                 confirmField?.SetEnabled(value);
+                submitButton?.SetEnabled(value);
             }
         }
     }
@@ -95,7 +96,7 @@ public class FormManager : MonoBehaviour
             confirmField.value = "";
             UIKit.Show(confirmField, signUp);
         }
-        if (submitButton != null) submitButton.text = signUp ? "Create account" : "Log in";
+        if (submitButton != null) submitButton.text = signUp ? "CREATE ACCOUNT" : "ENTER";
 
         GetComponent<NoticeManager>()?.SetState(NoticeState.Default);
         Focus(usernameField);
@@ -113,7 +114,7 @@ public class FormManager : MonoBehaviour
             error = "Enter a password.";
         }
         else if (signingUp && confirmField != null && confirmField.value != password) {
-            error = "The passwords don't match.";
+            error = "Passwords don't match.";
             confirmField.value = "";
             Focus(confirmField);
         }

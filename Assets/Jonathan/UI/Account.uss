@@ -1,0 +1,137 @@
+.account {
+    justify-content: center;
+    align-items: center;
+}
+
+/* sized to the log in layout and centered; sign up's extra field spills below, so only the bottom moves */
+.account-stack {
+    height: 577px;
+    overflow: visible;
+}
+
+.account-stack > * {
+    flex-shrink: 0;
+}
+
+.account-logo {
+    align-items: flex-start;
+    margin-bottom: 40px;
+}
+
+.account-logo > .logo-text {
+    font-size: 88px;
+    letter-spacing: 5px;
+}
+
+.account-logo > .streak {
+    align-self: stretch;
+    height: 5px;
+    margin-top: -11px;
+}
+
+.card {
+    width: 600px;
+    padding: 48px;
+}
+
+/* tabs: two halves, the picked one underlined in the accent */
+.tabs {
+    flex-direction: row;
+    margin-bottom: 16px;
+}
+
+.tab {
+    flex-grow: 1;
+    height: 56px;
+    margin: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0 0 2px 0;
+    border-radius: 0;
+    border-color: rgba(255, 255, 255, 0.08);
+    color: rgb(120, 140, 165);
+    font-size: 22px;
+    letter-spacing: 6px;
+    -unity-font-style: bold;
+    transition-duration: 0.15s;
+}
+
+.tab:hover {
+    color: rgb(214, 226, 240);
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.tab.lit {
+    color: rgb(240, 246, 255);
+    border-color: var(--accent);
+}
+
+/* fields: filled boxes named by their placeholder; focus lights a bar on the left */
+.field {
+    width: auto;
+    margin: 16px 0 0 0;
+}
+
+.field > .unity-base-text-field__input {
+    height: 64px;
+    padding: 0 20px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-width: 0 0 0 3px;
+    border-color: rgba(0, 0, 0, 0);
+    border-radius: 0;
+    color: rgb(240, 246, 255);
+    font-size: 24px;
+    transition-duration: 0.15s;
+}
+
+.field:focus > .unity-base-text-field__input {
+    border-color: var(--accent);
+    background-color: rgba(255, 255, 255, 0.09);
+}
+
+.field .unity-base-text-field__input--placeholder {
+    color: rgb(90, 108, 130);
+}
+
+/* errors get their own line above the button, always there so nothing moves */
+.message-slot {
+    height: 56px;
+    justify-content: center;
+}
+
+.message {
+    padding: 0;
+    margin: 0;
+    font-size: 20px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.submit {
+    height: 72px;
+    font-size: 26px;
+    letter-spacing: 8px;
+}
+
+/* connecting covers the button's own text while it waits */
+.submit:disabled {
+    opacity: 1;
+    color: rgba(0, 0, 0, 0);
+}
+
+.submit > .busy {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    background-image: url("project://database/Assets/Jonathan/UI/Textures/Plate.png");
+    -unity-background-image-tint-color: rgb(40, 50, 66);
+    -unity-slice-left: 44;
+    -unity-slice-right: 44;
+    -unity-slice-scale: 0.5625px;
+    color: rgb(170, 186, 206);
+    -unity-text-align: middle-center;
+}

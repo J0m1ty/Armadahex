@@ -1,11 +1,22 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <ui:Style src="Base.uss" />
-    <ui:VisualElement name="page" class="page">
-        <ui:Label text="ARMADAHEX" class="h1" />
-        <ui:Label text="LAST STAND" />
-        <KeyLabel name="notice" action="UI/Submit" format="Click anywhere or press {0} to play" />
-        <ui:Label name="connecting" text="Connecting..." />
-        <ui:Label name="error" class="error" />
-        <ui:Label name="version" text="v1.0" />
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Jonathan/UI/Base.uss?fileID=7433441132597879392&amp;guid=b5a44b40eb90f1741a8fbe41765e4d07&amp;type=3#Base"/>
+    <Style src="project://database/Assets/Jonathan/UI/Theme.uss?fileID=7433441132597879392&amp;guid=a20a5efdaf552f84b94acbaf1eb4b9b6&amp;type=3#Theme"/>
+    <Style src="project://database/Assets/Jonathan/UI/Title.uss?fileID=7433441132597879392&amp;guid=3cb5f2c0d5df22348956c72e4e53bf48&amp;type=3#Title"/>
+    <ui:VisualElement name="page" class="screen title">
+        <Backdrop class="backdrop"/>
+        <ui:VisualElement picking-mode="Ignore" class="logo">
+            <ui:Label name="logoText" text="ARMADAHEX" class="logo-text"/>
+            <LightStreak target="logoText" peak-text="HEX" class="streak"/>
+            <ui:VisualElement class="tagline">
+                <ui:Label text="LAST STAND" class="subtitle"/>
+                <ui:Label text="[BETA]" class="tag accent"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement picking-mode="Ignore" class="prompt-slot">
+            <ui:Label name="notice" text="CLICK ANYWHERE TO PLAY" class="prompt" style="-unity-font-definition: url(&quot;project://database/Assets/Jonathan/UI/Fonts/Aquire.asset?fileID=11400000&amp;guid=437b93cc89bc62e489db496df81e2e17&amp;type=2#Aquire&quot;);"/>
+            <ui:Label name="connecting" text="CONNECTING" class="prompt dim hidden"/>
+            <ui:Label name="error" class="prompt danger hidden"/>
+        </ui:VisualElement>
+        <ui:Label name="version" text="v0.1" class="version dim"/>
     </ui:VisualElement>
 </ui:UXML>

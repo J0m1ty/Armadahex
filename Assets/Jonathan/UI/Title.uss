@@ -1,0 +1,73 @@
+.title {
+    justify-content: center;
+    align-items: center;
+}
+
+.logo {
+    align-items: flex-start;
+    margin-bottom: 96px;
+}
+
+.logo-text {
+    font-size: 148px;
+    letter-spacing: 8px;
+    padding: 0;
+    margin: 0;
+    color: rgb(240, 246, 255);
+    -unity-font-definition: url("project://database/Assets/Jonathan/UI/Fonts/Aquire Bold.asset");
+}
+
+.streak {
+    align-self: stretch;
+    height: 8px;
+    margin-top: -18px;
+}
+
+.tagline {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-top: 12px;
+}
+
+.tagline > Label {
+    padding: 0;
+    margin: 0;
+    -unity-font-definition: url("project://database/Assets/Jonathan/UI/Fonts/Segoe UI.asset");
+}
+
+.tagline > .subtitle {
+    font-size: 48px;
+    letter-spacing: 18px;
+}
+
+.tagline > .tag {
+    margin-left: 16px;
+    margin-top: 8px;
+    font-size: 24px;
+    letter-spacing: 4px;
+}
+
+.prompt-slot {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 144px;
+    height: 32px;
+}
+
+.prompt {
+    position: absolute;
+    left: 0;
+    right: 0;
+    font-size: 22px;
+    letter-spacing: 6px;
+    -unity-text-align: middle-center;
+}
+
+.version {
+    position: absolute;
+    right: 32px;
+    bottom: 24px;
+    font-size: 16px;
+    letter-spacing: 2px;
+}

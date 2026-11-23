@@ -1,17 +1,32 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="Base.uss" />
-    <ui:VisualElement class="page">
-        <ui:Label text="ARMADAHEX" class="h1" />
-        <ui:VisualElement class="row">
-            <ui:Button name="loginTab" text="Log in" />
-            <ui:Button name="signupTab" text="Sign up" />
+    <ui:Style src="Theme.uss" />
+    <ui:Style src="Account.uss" />
+    <ui:VisualElement class="screen account">
+        <Backdrop class="backdrop" />
+        <ui:VisualElement class="account-stack" picking-mode="Ignore">
+            <ui:VisualElement class="account-logo" picking-mode="Ignore">
+                <ui:Label name="logoText" text="ARMADAHEX" class="logo-text" />
+                <LightStreak target="logoText" peak-text="HEX" class="streak" />
+            </ui:VisualElement>
+            <ui:VisualElement class="card panel">
+                <ui:VisualElement class="panel-edge" picking-mode="Ignore" />
+                <ui:VisualElement class="tabs">
+                    <ui:Button name="loginTab" text="LOG IN" focusable="false" class="tab" />
+                    <ui:Button name="signupTab" text="SIGN UP" focusable="false" class="tab" />
+                </ui:VisualElement>
+                <ui:TextField name="username" placeholder-text="Username" max-length="16" class="field" />
+                <ui:TextField name="password" placeholder-text="Password" password="true" mask-character="•" class="field" />
+                <ui:TextField name="confirm" placeholder-text="Confirm password" password="true" mask-character="•" class="field" />
+                <ui:VisualElement class="message-slot">
+                    <ui:Label name="error" class="message danger hidden" />
+                    <ui:Label name="fatal" class="message danger hidden" />
+                </ui:VisualElement>
+                <ui:Button name="submit" text="ENTER" class="plate submit">
+                    <Brackets class="brackets" />
+                    <ui:Label name="connecting" text="CONNECTING" class="busy hidden" />
+                </ui:Button>
+            </ui:VisualElement>
         </ui:VisualElement>
-        <ui:TextField name="username" label="Username" max-length="16" />
-        <ui:TextField name="password" label="Password" password="true" />
-        <ui:TextField name="confirm" label="Confirm password" password="true" />
-        <ui:Label name="error" class="error" />
-        <ui:Label name="fatal" class="error" />
-        <ui:Label name="connecting" text="Connecting..." />
-        <ui:Button name="submit" text="Log in" />
     </ui:VisualElement>
 </ui:UXML>

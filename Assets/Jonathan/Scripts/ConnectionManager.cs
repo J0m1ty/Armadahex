@@ -45,15 +45,18 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
     public override void OnDisconnected(DisconnectCause cause) {
         Debug.Log("Disconnected from server: " + cause);
 
+        // only a login in progress cares; logging out also lands here, a moment after this scene loads
+        bool wasConnecting = isQuickConnecting || isConnecting;
         isQuickConnecting = false;
         isConnecting = false;
+        if (!wasConnecting) return;
 
         // a refused login disconnects too, and its own message is the useful one
         if (cause != DisconnectCause.CustomAuthenticationFailed) {
-            noticeManager.SetError("Lost the connection to the server. Try again.");
+            noticeManager.SetError("Couldn't reach the server. Try again.");
         }
         else if (noticeManager.state == NoticeState.Connecting) {
-            noticeManager.SetError("The server refused that login.");
+            noticeManager.SetError("Login failed. Try again.");
         }
     }
 
@@ -105,7 +108,7 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
 
             if (debugMessage.Contains("Version mismatch")) {
                 Debug.Log("Outdated version error");
-                noticeManager.SetError("Outdated client version, please update.", true);
+                noticeManager.SetError("This version is out of date. Update to play.", true);
             }
             else {
                 Debug.Log("Other error, redirecting to login");
@@ -116,21 +119,21 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
             isConnecting = false;
 
             if (debugMessage.Contains("Version mismatch")) {
-                noticeManager.SetError("Outdated client version, please update.", true);
+                noticeManager.SetError("This version is out of date. Update to play.", true);
             }
             else if (debugMessage.Contains("username", System.StringComparison.OrdinalIgnoreCase) ||
                     debugMessage.Contains("password", System.StringComparison.OrdinalIgnoreCase)) {
                 // a new name is registered on its first login, so a refusal means the name is someone else's or the password is wrong
-                noticeManager.SetError(formManager.signingUp ? "That name can't be used. It may belong to someone else." : "Wrong username or password.");
+                noticeManager.SetError(formManager.signingUp ? "That username is taken." : "Wrong username or password.");
                 formManager.Incorrect();
             }
             else if (debugMessage.Contains("Token invalid or expired")) {
-                noticeManager.SetError("Your session ran out. Log in again.");
+                noticeManager.SetError("Your session expired. Log in again.");
 
                 PlayerPrefs.DeleteKey(Constants.TOKEN_PREF_KEY);
             }
             else {
-                noticeManager.SetError("An unknown error occurred.");
+                noticeManager.SetError("Something went wrong. Try again.");
             }
         }
     }
@@ -218,14 +221,14 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
             }
 
             if (password.Length < 6) {
-                noticeManager.SetError("Passwords are at least 6 characters.");
+                noticeManager.SetError("Passwords need at least 6 characters.");
                 formManager.Incorrect();
                 return;
             }
 
             if (!System.Text.RegularExpressions.Regex.IsMatch(username, "^[a-zA-Z0-9_]*$") ||
                 !System.Text.RegularExpressions.Regex.IsMatch(password, "^[a-zA-Z0-9_]*$")) {
-                noticeManager.SetError("Use only letters, numbers and _.");
+                noticeManager.SetError("Use only letters, numbers and underscores.");
                 formManager.Clear();
                 return;
             }

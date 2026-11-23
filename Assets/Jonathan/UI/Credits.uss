@@ -1,0 +1,64 @@
+/* the roll fills the screen and starts and ends with the screen empty around the middle */
+.roll {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.roll .unity-scroll-view__content-container {
+    align-items: center;
+    padding: 480px 0;
+}
+
+.credits-logo {
+    align-items: flex-start;
+    margin-bottom: 32px;
+}
+
+.credits-logo > .logo-text {
+    font-size: 96px;
+    letter-spacing: 6px;
+}
+
+.credits-logo > .streak {
+    align-self: stretch;
+    height: 6px;
+    margin-top: -12px;
+}
+
+.roll Label {
+    padding: 0;
+    margin: 0;
+    -unity-text-align: middle-center;
+}
+
+.roll .credit-section {
+    margin: 96px 0 40px 0;
+    padding-bottom: 12px;
+    border-bottom-width: 2px;
+    border-color: rgba(200, 220, 255, 0.25);
+    font-size: 20px;
+    letter-spacing: 10px;
+    -unity-font-style: bold;
+    color: rgb(120, 140, 165);
+}
+
+.roll .credit-role {
+    font-size: 16px;
+    letter-spacing: 6px;
+    color: rgb(120, 140, 165);
+}
+
+.roll .credit-name {
+    margin-bottom: 32px;
+    font-size: 30px;
+    color: rgb(240, 246, 255);
+}
+
+.roll .credit-note {
+    margin-bottom: 8px;
+    font-size: 18px;
+    color: rgb(150, 168, 190);
+}

@@ -1,0 +1,146 @@
+/* the shared look: dark screens over the Backdrop, spacing in steps of 8px; Aquire is only for the logo */
+.screen {
+    --accent: rgb(236, 242, 250);
+    --accent-hover: rgb(255, 255, 255);
+    --accent-ink: rgb(10, 14, 24);
+    flex-grow: 1;
+    color: rgb(214, 226, 240);
+    -unity-font-definition: url("project://database/Assets/Jonathan/UI/Fonts/Segoe UI.asset");
+}
+
+.backdrop {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* the ARMADAHEX wordmark and the streak under it; each screen sets the size */
+.logo-text {
+    padding: 0;
+    margin: 0;
+    color: rgb(240, 246, 255);
+    -unity-font-definition: url("project://database/Assets/Jonathan/UI/Fonts/Aquire Bold.asset");
+}
+
+/* a panel with two cut corners, tinted dark, and its outline drawn by a .panel-edge child */
+.panel {
+    background-image: url("project://database/Assets/Jonathan/UI/Textures/Panel.png");
+    -unity-background-image-tint-color: rgba(14, 22, 40, 0.92);
+    -unity-slice-left: 28;
+    -unity-slice-right: 28;
+    -unity-slice-top: 28;
+    -unity-slice-bottom: 28;
+}
+
+.panel-edge {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("project://database/Assets/Jonathan/UI/Textures/Panel Edge.png");
+    -unity-background-image-tint-color: rgba(200, 220, 255, 0.16);
+    -unity-slice-left: 28;
+    -unity-slice-right: 28;
+    -unity-slice-top: 28;
+    -unity-slice-bottom: 28;
+}
+
+/* lines at the corners of a .plate, drawn outside it */
+.brackets {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* the main action: a long hex plate in the accent */
+.plate {
+    overflow: visible;
+    margin: 0;
+    padding: 0 32px;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: url("project://database/Assets/Jonathan/UI/Textures/Plate.png");
+    -unity-background-image-tint-color: var(--accent);
+    -unity-slice-left: 44;
+    -unity-slice-right: 44;
+    -unity-slice-scale: 0.5625px;
+    border-width: 0;
+    color: var(--accent-ink);
+    -unity-font-style: bold;
+    transition-duration: 0.15s;
+}
+
+.plate:hover {
+    background-color: rgba(0, 0, 0, 0);
+    -unity-background-image-tint-color: var(--accent-hover);
+}
+
+.plate:active {
+    scale: 0.98 0.98;
+}
+
+.plate:disabled {
+    -unity-background-image-tint-color: rgb(40, 50, 66);
+    color: rgb(120, 140, 165);
+}
+
+/* back, top left on every page: a chevron and a word; Esc does the same */
+.back {
+    position: absolute;
+    left: 48px;
+    top: 48px;
+    flex-direction: row;
+    align-items: center;
+    margin: 0;
+    padding: 8px 16px 8px 8px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+}
+
+.back:hover {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.back-icon {
+    width: 12px;
+    height: 24px;
+    margin-right: 16px;
+    background-image: url("project://database/Assets/Jonathan/UI/Textures/Chevron.png");
+    -unity-background-image-tint-color: rgb(120, 140, 165);
+    transition-duration: 0.15s;
+}
+
+.back-text {
+    padding: 0;
+    margin: 0;
+    color: rgb(120, 140, 165);
+    font-size: 22px;
+    letter-spacing: 6px;
+    -unity-font-style: bold;
+    transition-duration: 0.15s;
+}
+
+.back:hover > .back-icon {
+    -unity-background-image-tint-color: var(--accent);
+    translate: -4px 0;
+}
+
+.back:hover > .back-text {
+    color: var(--accent);
+}
+
+.dim {
+    color: rgb(120, 140, 165);
+}
+
+.accent {
+    color: var(--accent);
+}
+
+.danger {
+    color: rgb(255, 110, 100);
+}
