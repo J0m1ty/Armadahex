@@ -1,33 +1,46 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
-// the menu's home and its pages (settings, controls, progression), esc goes back home
+// the menu's home and its pages (settings, controls, progression), the progression page has tabs
 public class MenuPages : MonoBehaviour
 {
-    [SerializeField] private GameObject home;
-    [SerializeField] private GameObject[] pages;
+    [SerializeField] private UIDocument document;
+    [SerializeField] private string home = "home";
+    [SerializeField] private string[] pages = { "settingsPage", "controlsPage", "progressionPage" };
 
-    private InputAction cancelAction;
+    [Header("Progression tabs")]
+    [SerializeField] private string[] tabs = { "captainsTab", "achievementsTab", "statisticsTab" };
+    [SerializeField] private string[] panels = { "captains", "achievements", "statistics" };
 
     void Start() {
-        cancelAction = GameInput.Get("UI/Cancel");
-        Show(-1);
-    }
-
-    void Update() {
-        if (cancelAction.WasPressedThisFrame() && !ControlsPage.busy && !GameInput.typing) {
-            Show(-1);
+        var root = document.rootVisualElement;
+        for (var i = 0; i < tabs.Length; i++) {
+            var index = i;
+            UIKit.OnClick(root.Q(tabs[i]), () => SelectTab(index), ClickSound.Light);
         }
+
+        SelectTab(0);
+        Show(-1);
     }
 
     // -1 is home
     public void Show(int index) {
-        home.SetActive(index < 0);
+        var root = document.rootVisualElement;
+        UIKit.Show(root.Q(home), index < 0);
         for (var i = 0; i < pages.Length; i++) {
-            pages[i].SetActive(i == index);
+            UIKit.Show(root.Q(pages[i]), i == index);
         }
 
-        if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
+        UIKit.Blur(document);
+    }
+
+    public void SelectTab(int index) {
+        var root = document.rootVisualElement;
+        for (var i = 0; i < tabs.Length; i++) {
+            UIKit.SetLit(root.Q(tabs[i]), i == index);
+        }
+        for (var i = 0; i < panels.Length; i++) {
+            UIKit.Show(root.Q(panels[i]), i == index);
+        }
     }
 }

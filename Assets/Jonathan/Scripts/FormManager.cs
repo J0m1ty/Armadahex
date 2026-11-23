@@ -1,24 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
+using System.Text.RegularExpressions;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 // the login and sign up form: tab moves between fields, enter submits
 public class FormManager : MonoBehaviour
 {
-    public TMP_InputField usernameField;
-    public TMP_InputField passwordField;
+    [SerializeField] private UIDocument document;
 
-    [Header("Sign up")]
-    [SerializeField] private TMP_InputField confirmField;
-    [SerializeField] private UIButton loginTab;
-    [SerializeField] private UIButton signupTab;
-    [SerializeField] private TMP_Text submitText;
+    private TextField usernameField;
+    private TextField passwordField;
+    private TextField confirmField;
+    private Button loginTab;
+    private Button signupTab;
+    private Button submitButton;
 
-    public string username => usernameField.text;
-    public string password => passwordField.text;
+    public string username => usernameField.value;
+    public string password => passwordField.value;
 
     // the server makes an account the first time it sees a name, so both modes log in, sign up only adds the checks
     public bool signingUp { get; private set; }
@@ -30,19 +30,46 @@ public class FormManager : MonoBehaviour
         set {
             _isEnabled = value;
 
-            if (!(usernameField == null && passwordField == null)) {
-                usernameField.interactable = value;
-                passwordField.interactable = value;
-                if (confirmField != null) confirmField.interactable = value;
+            Find();
+            if (usernameField != null) {
+                usernameField.SetEnabled(value);
+                passwordField.SetEnabled(value);
+                confirmField?.SetEnabled(value);
             }
         }
     }
 
+    // the title has no form, only the account screen does
+    private void Find() {
+        if (usernameField != null || document == null) return;
+
+        var root = document.rootVisualElement;
+        if (root == null) return;
+        usernameField = root.Q<TextField>("username");
+        passwordField = root.Q<TextField>("password");
+        confirmField = root.Q<TextField>("confirm");
+        loginTab = root.Q<Button>("loginTab");
+        signupTab = root.Q<Button>("signupTab");
+        submitButton = root.Q<Button>("submit");
+    }
+
     void Start() {
+        Find();
         if (usernameField == null) return;
 
-        if (loginTab != null) loginTab.onClick.AddListener(() => SetMode(false));
-        if (signupTab != null) signupTab.onClick.AddListener(() => SetMode(true));
+        // names and passwords only take letters, numbers and _
+        foreach (var field in new[] { usernameField, passwordField, confirmField }) {
+            if (field == null) continue;
+            var f = field;
+            f.RegisterValueChangedCallback(e => {
+                var clean = Regex.Replace(e.newValue ?? "", "[^a-zA-Z0-9_]", "");
+                if (clean != e.newValue) f.SetValueWithoutNotify(clean);
+            });
+        }
+
+        if (loginTab != null) UIKit.OnClick(loginTab, () => SetMode(false), ClickSound.Light);
+        if (signupTab != null) UIKit.OnClick(signupTab, () => SetMode(true), ClickSound.Light);
+        if (submitButton != null) UIKit.OnClick(submitButton, () => GetComponent<ConnectionManager>().Login(), ClickSound.Heavy);
         SetMode(false);
     }
 
@@ -52,11 +79,9 @@ public class FormManager : MonoBehaviour
         var keyboard = Keyboard.current;
         if (keyboard == null) return;
 
-        if (keyboard.tabKey.wasPressedThisFrame) {
-            Step(keyboard.shiftKey.isPressed ? -1 : 1);
-        }
-
         if (keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame) {
+            // a focused button clicks itself
+            if (UIKit.Focused(document) is Button) return;
             GetComponent<ConnectionManager>().Login();
         }
     }
@@ -64,13 +89,13 @@ public class FormManager : MonoBehaviour
     public void SetMode(bool signUp) {
         signingUp = signUp;
 
-        if (loginTab != null) loginTab.SetLit(!signUp);
-        if (signupTab != null) signupTab.SetLit(signUp);
+        UIKit.SetLit(loginTab, !signUp);
+        UIKit.SetLit(signupTab, signUp);
         if (confirmField != null) {
-            confirmField.text = "";
-            confirmField.transform.parent.gameObject.SetActive(signUp);
+            confirmField.value = "";
+            UIKit.Show(confirmField, signUp);
         }
-        if (submitText != null) submitText.text = signUp ? "CREATE ACCOUNT" : "LOG IN";
+        if (submitButton != null) submitButton.text = signUp ? "Create account" : "Log in";
 
         GetComponent<NoticeManager>()?.SetState(NoticeState.Default);
         Focus(usernameField);
@@ -87,38 +112,29 @@ public class FormManager : MonoBehaviour
         else if (password.Length == 0) {
             error = "Enter a password.";
         }
-        else if (signingUp && confirmField != null && confirmField.text != password) {
+        else if (signingUp && confirmField != null && confirmField.value != password) {
             error = "The passwords don't match.";
-            confirmField.text = "";
+            confirmField.value = "";
             Focus(confirmField);
         }
         return error == null;
     }
 
-    private void Step(int direction) {
-        var fields = new List<TMP_InputField> { usernameField, passwordField };
-        if (signingUp && confirmField != null) fields.Add(confirmField);
-
-        var current = fields.FindIndex(f => f.isFocused);
-        var next = current < 0 ? 0 : (current + direction + fields.Count) % fields.Count;
-        Focus(fields[next]);
-    }
-
-    private void Focus(TMP_InputField field) {
-        if (field == null || EventSystem.current == null) return;
-        EventSystem.current.SetSelectedGameObject(field.gameObject);
-        field.ActivateInputField();
+    private void Focus(TextField field) {
+        if (field == null) return;
+        // focus waits a frame, a field that was just shown can't take it yet
+        field.schedule.Execute(() => field.Focus());
     }
 
     public void Clear() {
-        usernameField.text = "";
-        passwordField.text = "";
-        if (confirmField != null) confirmField.text = "";
+        usernameField.value = "";
+        passwordField.value = "";
+        if (confirmField != null) confirmField.value = "";
     }
 
     public void Incorrect() {
-        passwordField.text = "";
-        if (confirmField != null) confirmField.text = "";
+        passwordField.value = "";
+        if (confirmField != null) confirmField.value = "";
         Focus(passwordField);
     }
 }

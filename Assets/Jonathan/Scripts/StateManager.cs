@@ -1,37 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-
-[Serializable]
-public class GameModeCard {
-    public TMP_Text name;
-    public Image overlay;
-
-    public void SetEnabled(bool enabled) {
-        if (name == null) {
-            return;
-        }
-
-        name.gameObject.SetActive(enabled);
-    }
-
-    public void SetOverlay(float alpha) {
-        if (overlay == null) {
-            return;
-        }
-
-        overlay.color = new Color(overlay.color.r, overlay.color.g, overlay.color.b, alpha);
-    }
-}
+using UnityEngine.UIElements;
 
 public class StateManager : MonoBehaviour
 {
-    public const float NO_OVERLAY = 0f;
-    public const float UNSELECTED_OVERLAY = 0.5f;
-
     [Serializable]
     public struct MenuState {
         public GameMode gameMode;
@@ -41,9 +15,6 @@ public class StateManager : MonoBehaviour
         [TextArea(3, 10)]
         public string description;
 
-        public GameModeCard card;
-
-        public Button select;
         public string buttonText;
         
         public bool showInput;
@@ -61,41 +32,53 @@ public class StateManager : MonoBehaviour
     private MenuState[] states;
 
     [SerializeField]
-    private TMP_Text stateName;
+    private UIDocument document;
 
-    [SerializeField]
-    private TMP_Text stateHeader;
-
-    [SerializeField]
-    private TMP_Text stateDescription;
-
-    [SerializeField]
+    // every mode but the default gets a button in here
+    private VisualElement modes;
+    private Label stateName;
+    private Label stateHeader;
+    private Label stateDescription;
     private Button stateButton;
+    public TextField stateInput { get; private set; }
 
-    [SerializeField]
-    public TMP_InputField stateInput;
+    private Dictionary<string, Button> modeButtons = new Dictionary<string, Button>();
+
+    private void Awake() {
+        var root = document.rootVisualElement;
+        modes = root.Q("modes");
+        stateName = root.Q<Label>("stateName");
+        stateHeader = root.Q<Label>("stateHeader");
+        stateDescription = root.Q<Label>("stateDescription");
+        stateButton = root.Q<Button>("join");
+        stateInput = root.Q<TextField>("code");
+    }
 
     private void Start() {
+        foreach (MenuState state in states) {
+            if (!state.isDefault) {
+                var name = state.name;
+                var button = new Button { text = name.ToUpper(), name = name };
+                UIKit.OnClick(button, () => SetState(name), ClickSound.Light);
+                modes.Add(button);
+                modeButtons[name] = button;
+            }
+        }
+
         foreach (MenuState state in states) {
             if (state.isDefault) {
                 SetState(state.name);
             }
-
-            if (state.select != null) {
-                state.select.onClick.AddListener(() => {
-                    SetState(state.name);
-                });
-            }
         }
 
-        stateInput.onValueChanged.AddListener((string value) => {
-            DisplayButton(value.Length == 4);
+        stateInput.RegisterValueChangedCallback(e => {
+            DisplayButton(e.newValue.Length == 4);
         });
     }
 
     public void DisplayButton(bool display) {
         if (currentState.hideButtonUntilValidInput) {
-            stateButton.gameObject.SetActive(currentState.isDefault ? false : display);
+            UIKit.Show(stateButton, currentState.isDefault ? false : display);
         }
     }
 
@@ -121,39 +104,33 @@ public class StateManager : MonoBehaviour
 
         currentState = states[index];
 
-        if (currentState.isDefault) {
-            foreach (MenuState state in states) {
-                state.card.SetOverlay(NO_OVERLAY);
-            }
+        foreach (var pair in modeButtons) {
+            UIKit.SetLit(pair.Value, pair.Key == currentState.name);
+        }
 
-            stateName.gameObject.SetActive(false);
-            stateDescription.gameObject.SetActive(false);
-            stateButton.gameObject.SetActive(false);
+        if (currentState.isDefault) {
+            UIKit.Show(stateName, false);
+            UIKit.Show(stateDescription, false);
+            UIKit.Show(stateButton, false);
 
             stateHeader.text = "SELECT GAME MODE";
         }
         else {
-            foreach (MenuState state in states) {
-                state.card.SetOverlay(UNSELECTED_OVERLAY);
-            }
-
-            stateName.gameObject.SetActive(true);
-            stateDescription.gameObject.SetActive(true);
-            stateButton.gameObject.SetActive(true);
+            UIKit.Show(stateName, true);
+            UIKit.Show(stateDescription, true);
+            UIKit.Show(stateButton, true);
 
             stateHeader.text = "DETAILS";
-
-            currentState.card.SetOverlay(NO_OVERLAY);
         }
         
         stateName.text = currentState.name;
         
         stateDescription.text = currentState.description;
 
-        stateButton.GetComponentInChildren<TMP_Text>().text = currentState.buttonText;
+        stateButton.text = currentState.buttonText;
         
-        stateInput.text = "";
-        stateInput.gameObject.SetActive(currentState.showInput);
+        stateInput.value = "";
+        UIKit.Show(stateInput, currentState.showInput);
 
         DisplayButton(false);
     }

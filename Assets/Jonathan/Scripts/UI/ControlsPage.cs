@@ -1,18 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using TMPro;
+using UnityEngine.UIElements;
 
 // every rebindable key in the Camera and Gameplay maps, click one and press the new key (esc cancels)
 public class ControlsPage : MonoBehaviour
 {
-    [SerializeField] private Transform list;
-    // templates, hidden: a row has a "Name" text and a UIButton "Bind", a header has one text
-    [SerializeField] private GameObject rowTemplate;
-    [SerializeField] private GameObject headerTemplate;
-    [SerializeField] private Button resetButton;
+    [SerializeField] private UIDocument document;
+    [SerializeField] private string list = "controlsList";
+    [SerializeField] private string resetButton = "resetControls";
     [SerializeField] private string[] maps = { "Gameplay", "Camera" };
 
     // true while waiting for a key, and for a frame after, so the esc that cancels doesn't also leave the page
@@ -20,12 +16,26 @@ public class ControlsPage : MonoBehaviour
     private static bool listening;
     private static int doneFrame = -10;
 
-    private List<GameObject> rows = new List<GameObject>();
+    // a map name (action null) or one binding of an action
+    private class Row {
+        public string name;
+        public InputAction action;
+        public int index;
+    }
+
+    private List<Row> rows = new List<Row>();
+    private ListView view;
+    private Row waiting;
 
     void Start() {
-        rowTemplate.SetActive(false);
-        headerTemplate.SetActive(false);
-        resetButton.onClick.AddListener(() => {
+        var root = document.rootVisualElement;
+        view = root.Q<ListView>(list);
+        view.makeItem = MakeRow;
+        view.bindItem = BindRow;
+        view.itemsSource = rows;
+        view.selectionType = SelectionType.None;
+
+        UIKit.OnClick(root.Q(resetButton), () => {
             GameInput.ResetBindings();
             Build();
         });
@@ -33,17 +43,13 @@ public class ControlsPage : MonoBehaviour
     }
 
     private void Build() {
-        foreach (var row in rows) Destroy(row);
         rows.Clear();
 
         foreach (var mapName in maps) {
             var map = GameInput.actions.FindActionMap(mapName);
             if (map == null) continue;
 
-            var header = Instantiate(headerTemplate, list);
-            header.SetActive(true);
-            header.GetComponentInChildren<TMP_Text>().text = mapName.ToUpper();
-            rows.Add(header);
+            rows.Add(new Row { name = mapName.ToUpper() });
 
             foreach (var action in map.actions) {
                 for (var i = 0; i < action.bindings.Count; i++) {
@@ -51,10 +57,11 @@ public class ControlsPage : MonoBehaviour
                     if (binding.isComposite || !Rebindable(binding)) continue;
 
                     var name = action.name + (binding.isPartOfComposite ? " " + Pretty(binding.name) : "");
-                    AddRow(action, i, name);
+                    rows.Add(new Row { name = name, action = action, index = i });
                 }
             }
         }
+        view.RefreshItems();
     }
 
     // pointer movement and the wheel aren't keys
@@ -64,32 +71,50 @@ public class ControlsPage : MonoBehaviour
         return !path.Contains("position") && !path.Contains("delta") && !path.Contains("scroll") && !path.StartsWith("<Gamepad>");
     }
 
-    private void AddRow(InputAction action, int index, string name) {
-        var row = Instantiate(rowTemplate, list);
-        row.SetActive(true);
-        rows.Add(row);
+    private VisualElement MakeRow() {
+        var row = new VisualElement();
+        row.AddToClassList("row");
+        var name = new Label { name = "name" };
+        name.AddToClassList("control-name");
+        row.Add(name);
+        var bind = new Button { name = "bind" };
+        bind.AddToClassList("control-key");
+        row.Add(bind);
+        UIKit.OnClick(bind, () => StartRebind(row.userData as Row, bind), ClickSound.Light);
+        return row;
+    }
 
-        row.transform.Find("Name").GetComponent<TMP_Text>().text = name;
-        var button = row.transform.Find("Bind").GetComponent<UIButton>();
-        var label = button.label;
-        label.text = action.GetBindingDisplayString(index).ToUpper();
+    private void BindRow(VisualElement element, int index) {
+        var row = rows[index];
+        element.userData = row;
 
-        var keyboard = action.bindings[index].path.StartsWith("<Keyboard>");
-        button.onClick.AddListener(() => {
-            if (listening) return;
-            listening = true;
-            label.text = "PRESS A KEY...";
-            button.SetLit(true);
+        var name = element.Q<Label>("name");
+        var bind = element.Q<Button>("bind");
+        name.text = row.name;
+        name.EnableInClassList("h2", row.action == null);
+        UIKit.Show(bind, row.action != null);
+        if (row.action == null) return;
 
-            GameInput.Rebind(action, index, () => {
-                listening = false;
-                doneFrame = Time.frameCount;
-                button.SetLit(false);
-                label.text = action.GetBindingDisplayString(index).ToUpper();
-                // enter or space on a still-selected button would start another rebind
-                if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
-            }, keyboard);
-        });
+        var listeningHere = waiting == row;
+        bind.text = listeningHere ? "PRESS A KEY..." : row.action.GetBindingDisplayString(row.index).ToUpper();
+        UIKit.SetLit(bind, listeningHere);
+    }
+
+    private void StartRebind(Row row, Button button) {
+        if (listening || row == null || row.action == null) return;
+        listening = true;
+        waiting = row;
+        view.RefreshItems();
+
+        var keyboard = row.action.bindings[row.index].path.StartsWith("<Keyboard>");
+        GameInput.Rebind(row.action, row.index, () => {
+            listening = false;
+            waiting = null;
+            doneFrame = Time.frameCount;
+            view.RefreshItems();
+            // enter or space on a still-focused button would start another rebind
+            UIKit.Blur(document);
+        }, keyboard);
     }
 
     private static string Pretty(string part) {

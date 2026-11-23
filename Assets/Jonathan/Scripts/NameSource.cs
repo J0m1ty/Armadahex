@@ -1,19 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+using UnityEngine.UIElements;
 using Photon.Pun;
 
-[RequireComponent(typeof(TMP_Text))]
 public class NameSource : MonoBehaviour
 {
-    private TMP_Text nameText;
+    [SerializeField]
+    private UIDocument document;
+
+    [SerializeField]
+    private string element;
+
+    private Label nameText;
 
     [SerializeField]
     private bool useEnemyName = false;
 
     void Awake() {
-        nameText = GetComponent<TMP_Text>();
+        nameText = document.rootVisualElement.Q<Label>(element);
 
         var name = "Player" + (useEnemyName ? "2" : "1");
 

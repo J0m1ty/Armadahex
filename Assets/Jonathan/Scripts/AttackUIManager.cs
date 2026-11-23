@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 using System.Linq;
-using UnityEngine.EventSystems;
 
 public static class AttackColor {
     // grey is default
@@ -45,49 +43,50 @@ public class AttackUIManager : MonoBehaviour
     [SerializeField]
     private PanelSlider attackPanel;
 
-    [Header("Multi Use")]
-    public TMP_Text directiveText;
+    [Header("UI")]
+    [SerializeField]
+    private UIDocument document;
+
+    // multi use
+    private Label directiveText;
     // the keys that work right now, under the directive
-    public TMP_Text hintText;
-    public Image selectionDisplay;
-    public GameObject selectionUI;
-    public GameObject backButtonParent;
-    public Button backButton;
-    public GameObject bottomUI;
+    private Label hintText;
+    private Image selectionDisplay;
+    private VisualElement selectionUI;
+    private VisualElement backButtonParent;
+    public Button backButton { get; private set; }
+    private VisualElement bottomUI;
 
-    [Header("Error Text")]
-    public TMP_Text errorText;
+    private Label errorText;
 
-    [Header("Directive Text")]
     private Ship selectedShip;
 
-    [Header("Target Text")]
     private GridUnit selectedTarget;
 
-    [Header("Fleet")]
     // the ship keys along the bottom, always in fleet order
-    public GameObject fleetParent;
-    public FleetKey shipKeyPrefab;
+    private VisualElement fleetParent;
     private List<FleetKey> fleetKeys = new List<FleetKey>();
 
-    [Header("Attack Options")]
-    public TMP_Text selectedShipText;
-    public GameObject optionsParent;
-    public GameObject optionPrefab;
+    // attack options
+    private Label selectedShipText;
+    private VisualElement optionsParent;
     private Attack selectedOption;
 
-    [Header("Attack Patterns")]
-    public TMP_Text selectedOptionText;
-    public GameObject patternsParent;
-    public GameObject patternPrefab;
+    // attack patterns
+    private Label selectedOptionText;
+    private VisualElement patternsParent;
     private AttackPattern selectedPattern;
     [SerializeField]
     private ArrowGroup arrowGroup;
 
-    [Header("Confirmation Text")]
-    public TMP_Text infoText;
+    // confirmation
+    private Label infoText;
     // the fire key stays in the tray and only lights up once a hex is locked
-    public Button confirmButton;
+    public Button confirmButton { get; private set; }
+
+    // what the back and fire buttons do in the current state
+    private System.Action backAction;
+    private System.Action confirmAction;
 
     [Header("Game Stats")]
     public int shotsFired;
@@ -108,8 +107,8 @@ public class AttackUIManager : MonoBehaviour
         ammoLeft = -1
     };
     [Header("Other")]
-    public GameObject skipButton;
     public audioScript gameAudio;
+    private VisualElement skipButton;
 
     void Awake() {
         selector = GetComponent<Selector>();
@@ -117,31 +116,52 @@ public class AttackUIManager : MonoBehaviour
         shotsFired = 0;
         shotsHit = 0;
         advancedShotsFired = 0;
+
+        var root = document.rootVisualElement;
+        directiveText = root.Q<Label>("directiveText");
+        hintText = root.Q<Label>("hintText");
+        selectionDisplay = root.Q<Image>("shipImage");
+        selectionUI = root.Q("selection");
+        backButtonParent = root.Q("backContainer");
+        backButton = root.Q<Button>("back");
+        bottomUI = root.Q("bottom");
+        errorText = root.Q<Label>("errorText");
+        fleetParent = root.Q("fleet");
+        selectedShipText = root.Q<Label>("shipName");
+        optionsParent = root.Q("weapons");
+        selectedOptionText = root.Q<Label>("optionName");
+        patternsParent = root.Q("angles");
+        infoText = root.Q<Label>("fireInfo");
+        confirmButton = root.Q<Button>("fire");
+        skipButton = root.Q("skip");
+
+        UIKit.OnClick(backButton, () => backAction?.Invoke(), ClickSound.Light);
+        UIKit.OnClick(confirmButton, () => confirmAction?.Invoke(), ClickSound.Heavy);
     }
 
     public void SetState(AttackState state) {
         attackState = state;
 
         // a button clicked earlier would otherwise take the enter key too
-        if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
+        UIKit.Blur(document);
 
-        backButton.onClick.RemoveAllListeners();
-        backButtonParent.GetComponentInChildren<TMP_Text>().text = "BACK";
+        backAction = null;
+        backButton.text = "BACK";
 
         if (state != AttackState.Error) {
-            directiveText.transform.parent.gameObject.SetActive(false);
-            errorText.gameObject.SetActive(false);
-            selectionUI.SetActive(false);
-            selectedOptionText.gameObject.SetActive(false);
-            confirmButton.interactable = false;
-            optionsParent.SetActive(state == AttackState.SelectAttackOption);
+            UIKit.Show(directiveText.parent, false);
+            UIKit.Show(errorText, false);
+            UIKit.Show(selectionUI, false);
+            UIKit.Show(selectedOptionText, false);
+            confirmButton.SetEnabled(false);
+            UIKit.Show(optionsParent, state == AttackState.SelectAttackOption);
             if (state != AttackState.SelectAttackPattern && state != AttackState.Confirm) ClearChoices(patternsParent);
             arrowGroup.gameObject.SetActive(false);
-            backButtonParent.SetActive(false);
-            skipButton.SetActive(false);
+            UIKit.Show(backButtonParent, false);
+            UIKit.Show(skipButton, false);
 
-            confirmButton.onClick.RemoveAllListeners();
-            backButton.onClick.RemoveAllListeners();
+            confirmAction = null;
+            backAction = null;
         }
 
         var aiming = state == AttackState.SelectShip || state == AttackState.SelectAttackPattern || state == AttackState.Confirm;
@@ -153,20 +173,20 @@ public class AttackUIManager : MonoBehaviour
             selector.allowSelectingGrids = false;
             selector.allowSelectingShips = false;
 
-            skipButton.SetActive(state != AttackState.AttackOver);
+            UIKit.Show(skipButton, state != AttackState.AttackOver);
 
-            infoText.gameObject.SetActive(state == AttackState.Confirm);
+            UIKit.Show(infoText, state == AttackState.Confirm);
 
-            bottomUI.SetActive(true);
+            UIKit.Show(bottomUI, true);
         }
         else {
-            bottomUI.SetActive(false);
+            UIKit.Show(bottomUI, false);
         }
 
         switch (state) {
             case AttackState.SelectShip:
                 // nothing picked: the fleet's plain shot follows the mouse, or pick a ship from the cards
-                directiveText.transform.parent.gameObject.SetActive(true);
+                UIKit.Show(directiveText.parent, true);
                 directiveText.text = GameModeInfo.instance.IsAdvancedCombat ? "CLICK A HEX TO AIM, OR PICK A SHIP" : "CLICK A HEX TO AIM";
                 hintText.text = GameModeInfo.instance.IsAdvancedCombat ? Range(FleetInOrder().Count) + " SHIP" : "";
                 AimingUI();
@@ -175,46 +195,38 @@ public class AttackUIManager : MonoBehaviour
                 }
                 break;
             case AttackState.Error:
-                errorText.gameObject.SetActive(true);
+                UIKit.Show(errorText, true);
                 break;
             case AttackState.SelectAttackOption:
                 // a ship with more than one special picks which first
-                directiveText.transform.parent.gameObject.SetActive(true);
+                UIKit.Show(directiveText.parent, true);
                 directiveText.text = "PICK A WEAPON";
                 hintText.text = Range(Specials(selectedShip).Count) + " WEAPON   " + KeyHint.Key("Gameplay/Cancel") + " BACK";
                 AimingUI();
-                backButton.onClick.AddListener(() => {
-                    Back();
-                });
-                backButtonParent.SetActive(true);
+                backAction = Back;
+                UIKit.Show(backButtonParent, true);
                 break;
             case AttackState.SelectAttackPattern:
-                directiveText.transform.parent.gameObject.SetActive(true);
+                UIKit.Show(directiveText.parent, true);
                 directiveText.text = "CLICK A HEX TO LOCK";
                 hintText.text = AngleHint() + KeyHint.Key("Gameplay/Cancel") + " BACK";
                 AimingUI();
-                backButton.onClick.AddListener(() => {
-                    Back();
-                });
-                backButtonParent.SetActive(true);
+                backAction = Back;
+                UIKit.Show(backButtonParent, true);
                 break;
             case AttackState.Confirm:
-                directiveText.transform.parent.gameObject.SetActive(true);
+                UIKit.Show(directiveText.parent, true);
                 directiveText.text = "TARGET LOCKED";
                 hintText.text = KeyHint.Key("Gameplay/Fire") + " FIRE   " + AngleHint() + KeyHint.Key("Gameplay/Cancel") + " UNLOCK";
                 AimingUI();
-                confirmButton.interactable = true;
-                confirmButton.onClick.AddListener(() => {
-                    ConfirmAttack();
-                });
-                backButton.onClick.AddListener(() => {
-                    Back();
-                });
-                backButtonParent.GetComponentInChildren<TMP_Text>().text = "UNLOCK";
-                backButtonParent.SetActive(true);
+                confirmButton.SetEnabled(true);
+                confirmAction = ConfirmAttack;
+                backAction = Back;
+                backButton.text = "UNLOCK";
+                UIKit.Show(backButtonParent, true);
                 break;
             case AttackState.AttackOver:
-                bottomUI.SetActive(false);
+                UIKit.Show(bottomUI, false);
                 break;
             default:
                 break;
@@ -240,8 +252,8 @@ public class AttackUIManager : MonoBehaviour
         selector.allowSelectingGrids = true;
 
         if (GameModeInfo.instance.IsAdvancedCombat) {
-            selectionUI.SetActive(selectedShip != null);
-            selectedOptionText.gameObject.SetActive(selectedShip != null && selectedOption != null);
+            UIKit.Show(selectionUI, selectedShip != null);
+            UIKit.Show(selectedOptionText, selectedShip != null && selectedOption != null);
         }
     }
 
@@ -249,7 +261,7 @@ public class AttackUIManager : MonoBehaviour
     private void MarkFleet() {
         var aiming = attackState == AttackState.SelectShip || attackState == AttackState.SelectAttackOption
             || attackState == AttackState.SelectAttackPattern || attackState == AttackState.Confirm;
-        fleetParent.SetActive(aiming && GameModeInfo.instance.IsAdvancedCombat);
+        UIKit.Show(fleetParent, aiming && GameModeInfo.instance.IsAdvancedCombat);
 
         var fleet = FleetInOrder();
         for (var i = 0; i < fleetKeys.Count && i < fleet.Count; i++) {
@@ -302,7 +314,7 @@ public class AttackUIManager : MonoBehaviour
         if (attackState != AttackState.SelectShip || !GameModeInfo.instance.IsAdvancedCombat) return;
 
         if (!ship.isAlive) {
-            errorText.gameObject.SetActive(true);
+            UIKit.Show(errorText, true);
             errorText.text = "This ship is sunk";
             return;
         }
@@ -335,7 +347,7 @@ public class AttackUIManager : MonoBehaviour
                 break;
             case AttackState.SelectAttackOption:
                 var buttons = ChoiceButtons(optionsParent);
-                if (index < buttons.Count && buttons[index].interactable) buttons[index].onClick.Invoke();
+                if (index < buttons.Count && buttons[index].enabledSelf) UIKit.Click(buttons[index]);
                 break;
             case AttackState.SelectAttackPattern:
             case AttackState.Confirm:
@@ -386,15 +398,14 @@ public class AttackUIManager : MonoBehaviour
         var fleet = FleetInOrder();
         for (var i = 0; i < fleet.Count; i++) {
             var ship = fleet[i];
-            var key = Instantiate(shipKeyPrefab, fleetParent.transform);
-            key.gameObject.SetActive(true);
+            var key = new FleetKey(fleetParent);
 
             // the specials it has left
             var left = Specials(ship).Where(Ready).Sum(a => a.ammoLeft);
             key.Set(i + 1, ship.shipModel.display, ShortName(ship.shipModel.type), ship.isAlive, left);
 
             // clicking another ship swaps to it, clicking the picked one puts it back
-            key.button.onClick.AddListener(() => {
+            UIKit.OnClick(key.button, () => {
                 var swap = attackState != AttackState.SelectShip;
                 var same = ship == selectedShip;
                 if (swap) BackToFleet();
@@ -416,7 +427,7 @@ public class AttackUIManager : MonoBehaviour
     // the weapon list for a ship with more than one special, used ones say spent
     public void GenerateAttackOptions() {
         ShowShip();
-        selectedOptionText.gameObject.SetActive(false);
+        UIKit.Show(selectedOptionText, false);
 
         ClearChoices(optionsParent);
         var number = 1;
@@ -424,12 +435,12 @@ public class AttackUIManager : MonoBehaviour
             var ready = Ready(attack);
             var label = attack.info.name.ToUpper();
             var chosen = attack;
-            AddChoice(optionsParent, optionPrefab, number++, label, ready ? attack.ammoLeft + " LEFT" : "SPENT", ready, () => ChooseAttack(chosen));
+            AddChoice(optionsParent, number++, label, ready ? attack.ammoLeft + " LEFT" : "SPENT", ready, () => ChooseAttack(chosen));
         }
     }
 
     private void ShowShip() {
-        selectionDisplay.transform.parent.gameObject.SetActive(true);
+        UIKit.Show(selectionDisplay.parent, true);
         selectionDisplay.sprite = selectedShip.shipModel.display;
         selectedShipText.text = selectedShip.shipModel.name;
     }
@@ -451,7 +462,7 @@ public class AttackUIManager : MonoBehaviour
 
         ShowShip();
         selectedOptionText.text = selectedOption.info.name.ToUpper() + (selectedOption.info.unlimited ? "" : "  ·  " + selectedOption.ammoLeft + " LEFT");
-        selectedOptionText.gameObject.SetActive(true);
+        UIKit.Show(selectedOptionText, true);
 
         // one shape needs no buttons
         var patterns = selectedOption.info.options;
@@ -459,7 +470,7 @@ public class AttackUIManager : MonoBehaviour
 
         for (var i = 0; i < patterns.Length; i++) {
             var index = i;
-            AddChoice(patternsParent, patternPrefab, i + 1, patterns[i].name.ToUpper(), "", true, () => SetPattern(index));
+            AddChoice(patternsParent, i + 1, patterns[i].name.ToUpper(), "", true, () => SetPattern(index));
         }
     }
 
@@ -529,7 +540,7 @@ public class AttackUIManager : MonoBehaviour
         if (!aimingState) return;
 
         if (target.hexRenderer.hexMap.teamBase.team.isPlayer) {
-            errorText.gameObject.SetActive(true);
+            UIKit.Show(errorText, true);
             errorText.text = "You can't select a friendly target";
             return;
         }
@@ -582,9 +593,9 @@ public class AttackUIManager : MonoBehaviour
     public void GenerateConfirmationInfo() {
         if (attackState == AttackState.Confirm) {
             // dont show shots left if unlimited
-            if (!infoText) return;
+            if (infoText == null) return;
 
-            infoText.gameObject.SetActive(!selectedOption.info.unlimited);
+            UIKit.Show(infoText, !selectedOption.info.unlimited);
             infoText.text = selectedOption.ammoLeft + " left";
         }
     }
@@ -693,37 +704,29 @@ public class AttackUIManager : MonoBehaviour
         return false;
     }
 
-    private void ClearChoices(GameObject parent) {
-        var old = new List<GameObject>();
-        foreach (Transform child in parent.transform) old.Add(child.gameObject);
-        foreach (var obj in old) {
-            obj.SetActive(false);
-            Destroy(obj);
-        }
+    private void ClearChoices(VisualElement parent) {
+        parent.Clear();
     }
 
-    private Button AddChoice(GameObject parent, GameObject prefab, int number, string label, string detail, bool ready, UnityEngine.Events.UnityAction onClick) {
-        var obj = Instantiate(prefab, parent.transform);
-        obj.SetActive(true);
-        obj.GetComponent<ChoiceKey>().Set(number, label, detail, ready);
+    // a numbered choice (a weapon or an angle): its key, a label and a small note
+    private Button AddChoice(VisualElement parent, int number, string label, string detail, bool ready, System.Action onClick) {
+        var text = KeyHint.Key("Gameplay/Choice " + number) + " " + (ready ? label : "<s>" + label + "</s>");
+        if (!string.IsNullOrEmpty(detail)) text += "  " + detail;
 
-        var button = obj.GetComponent<Button>();
-        if (ready) button.onClick.AddListener(onClick);
+        var button = new Button { text = text, focusable = false };
+        button.SetEnabled(ready);
+        if (ready) UIKit.OnClick(button, onClick, ClickSound.Light);
+        parent.Add(button);
         return button;
     }
 
     // the chosen angle stays lit
     private void MarkChosen(Button button, bool chosen) {
-        button.GetComponent<ChoiceKey>().SetChosen(chosen);
+        UIKit.SetLit(button, chosen);
     }
 
-    private List<Button> ChoiceButtons(GameObject parent) {
-        var buttons = new List<Button>();
-        foreach (Transform child in parent.transform) {
-            var button = child.GetComponent<Button>();
-            if (button != null && child.gameObject.activeInHierarchy) buttons.Add(button);
-        }
-        return buttons;
+    private List<Button> ChoiceButtons(VisualElement parent) {
+        return parent.Children().OfType<Button>().ToList();
     }
 
     public void SkipTurn() {

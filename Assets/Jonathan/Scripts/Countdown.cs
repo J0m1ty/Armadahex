@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+using UnityEngine.UIElements;
 
-[RequireComponent(typeof(TMP_Text))]
 public class Countdown : MonoBehaviour
 {
-    private TMP_Text countdownText;
+    [SerializeField]
+    private UIDocument document;
+    [SerializeField]
+    private string element = "turnTimer";
+    private Label countdownText;
 
     public int currentTime => int.Parse(countdownText.text.Replace("s", ""));
 
@@ -29,19 +32,17 @@ public class Countdown : MonoBehaviour
     [SerializeField]
     private AttackUIManager attackManager;
 
-    private Color normalColor;
     [SerializeField]
     private Color lowColor;
 
     void Awake() {
-        countdownText = GetComponent<TMP_Text>();
+        countdownText = document.rootVisualElement.Q<Label>(element);
 
         resetTime = normalResetTime;
 
         isPaused = false;
         botTurn = false;
 
-        normalColor = countdownText.color;
     }
 
     void Start() {
@@ -88,7 +89,7 @@ public class Countdown : MonoBehaviour
         }
         else {
             countdownText.text = resetTime.ToString() + "s";
-            countdownText.color = normalColor;
+            countdownText.style.color = StyleKeyword.Null;
         }
 
         StartCoroutine(CountdownCoroutine(overrideTime));
@@ -136,7 +137,7 @@ public class Countdown : MonoBehaviour
             else {
                 countdownText.text = time.ToString() + "s";
                 if (doColor) {
-                    countdownText.color = time < 5 ? lowColor : normalColor;
+                    countdownText.style.color = time < 5 ? lowColor : new StyleColor(StyleKeyword.Null);
                 }
             }
 

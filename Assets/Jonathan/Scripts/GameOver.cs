@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
+using UnityEngine.UIElements;
 
 public enum WinType {
     None = 0,
@@ -38,7 +39,8 @@ public class GameOver : MonoBehaviour
 
     [Header("Ships Remaining")]
     [SerializeField]
-    public TMPro.TMP_Text friendlyShipsRemainingText;
+    private UIDocument document;
+    private Label friendlyShipsRemainingText => document != null ? document.rootVisualElement.Q<Label>("score") : null;
     
     [SerializeField]
     private MyBox.SceneReference gameScene;

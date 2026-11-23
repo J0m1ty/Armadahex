@@ -1,21 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
 
 public class VolumeController : MonoBehaviour {
-    [SerializeField] private Slider mainVolumeSlider;
-    [SerializeField] private Slider musicVolumeSlider;
+    [SerializeField] private UIDocument document;
+
+    private Slider mainVolumeSlider;
+    private Slider musicVolumeSlider;
 
     void Start() {
+        mainVolumeSlider = document.rootVisualElement.Q<Slider>("mainVolume");
+        musicVolumeSlider = document.rootVisualElement.Q<Slider>("musicVolume");
+
         UpdateVolume();
         
         mainVolumeSlider.value = GetMainVolume();
         musicVolumeSlider.value = GetMusicVolume(false);
 
-        mainVolumeSlider.onValueChanged.AddListener(SetMainVolume);
-        musicVolumeSlider.onValueChanged.AddListener(SetMusicVolume);
+        mainVolumeSlider.RegisterValueChangedCallback(e => SetMainVolume(e.newValue));
+        musicVolumeSlider.RegisterValueChangedCallback(e => SetMusicVolume(e.newValue));
     }
 
     public static void UpdateVolume() {

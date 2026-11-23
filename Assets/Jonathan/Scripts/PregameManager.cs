@@ -2,8 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEngine.UI;
-using TMPro;
+using UnityEngine.UIElements;
 
 public enum Rank {
     Ensign,
@@ -29,9 +28,9 @@ public class PregameManager : MonoBehaviour
 {
     [Header("Panel Info")]
     [SerializeField]
-    private GameObject pregameDisplay;
-    [SerializeField]
-    private GameObject uiDisplay;
+    private UIDocument document;
+    private VisualElement pregameDisplay;
+    private VisualElement uiDisplay;
     [SerializeField]
     private Color fadeInFrom;
     [SerializeField]
@@ -43,34 +42,21 @@ public class PregameManager : MonoBehaviour
     [SerializeField]
     private IntroCamera introCamera;
 
-    [Header("Player Info")]
-    [SerializeField]
-    private TMP_Text friendlyPlayerName;
-    [SerializeField]
-    private TMP_Text friendlyGamesPlayed;
+    private Label friendlyPlayerName;
+    private Label friendlyGamesPlayed;
+    private Label enemyPlayerName;
+    private Label enemyGamesPlayed;
 
-    [SerializeField]
-    private TMP_Text enemyPlayerName;
-    [SerializeField]
-    private TMP_Text enemyGamesPlayed;
+    private Label connectionType;
+    private Label gameType;
+    private Label advancedAttacks;
+    private Label timePerTurn;
+    private Label firstPlayer;
 
-    [Header("Game Info")]
-    [SerializeField]
-    private TMP_Text connectionType;
-    [SerializeField]
-    private TMP_Text gameType;
-    [SerializeField]
-    private TMP_Text advancedAttacks;
-    [SerializeField]
-    private TMP_Text timePerTurn;
-    [SerializeField]
-    private TMP_Text firstPlayer;
+    private Label waitingForOtherPlayerText;
+    private Label countdownText;
 
     [Header("Countdown Info")]
-    [SerializeField]
-    private TMP_Text waitingForOtherPlayerText; 
-    [SerializeField]
-    private TMP_Text countdownText; 
     [SerializeField]
     private float countdownDuration = 5f;
     [SerializeField]
@@ -81,10 +67,31 @@ public class PregameManager : MonoBehaviour
     [SerializeField]
     private float countdownSettle = 0.35f;
 
-    [Header("UI Connection")]
-    [SerializeField] private TMP_Text uiConnectionType;
-    [SerializeField] private TMP_Text uiGameType;
-    [SerializeField] private TMP_Text uiPlayers;
+    // the scoreboard
+    private Label uiConnectionType;
+    private Label uiGameType;
+    private Label uiPlayers;
+
+    // other scripts can set the info before this one starts
+    void Awake() {
+        var root = document.rootVisualElement;
+        pregameDisplay = root.Q("pregame");
+        uiDisplay = root.Q("hud");
+        friendlyPlayerName = root.Q<Label>("friendlyName");
+        friendlyGamesPlayed = root.Q<Label>("friendlyGames");
+        enemyPlayerName = root.Q<Label>("enemyName");
+        enemyGamesPlayed = root.Q<Label>("enemyGames");
+        connectionType = root.Q<Label>("connectionType");
+        gameType = root.Q<Label>("gameType");
+        advancedAttacks = root.Q<Label>("advancedAttacks");
+        timePerTurn = root.Q<Label>("timePerTurn");
+        firstPlayer = root.Q<Label>("firstPlayer");
+        waitingForOtherPlayerText = root.Q<Label>("waiting");
+        countdownText = root.Q<Label>("countdownText");
+        uiConnectionType = root.Q<Label>("boardType");
+        uiGameType = root.Q<Label>("boardMode");
+        uiPlayers = root.Q<Label>("boardPlayers");
+    }
 
     public static string ConnectionTypeToString(ConnectionType ct) {
         switch (ct) {
@@ -133,13 +140,13 @@ public class PregameManager : MonoBehaviour
 
         countdownText.text = countdownDuration + "";
 
-        pregameDisplay.SetActive(true);
-        uiDisplay.SetActive(false);
+        UIKit.Show(pregameDisplay, true);
+        UIKit.Show(uiDisplay, false);
         Fade();
 
         AudioManager.instance?.PlayGameModeSound(GameNetworking.instance.gameMode);
 
-        waitingForOtherPlayerText.gameObject.SetActive(!GameModeInfo.instance.IsSingleplayer);
+        UIKit.Show(waitingForOtherPlayerText, !GameModeInfo.instance.IsSingleplayer);
     }
 
     public void Fade() {
@@ -149,11 +156,11 @@ public class PregameManager : MonoBehaviour
     private IEnumerator FadeCoroutine() {
         float time = 0;
         while (time < fadeInDuration) {
-            pregameDisplay.GetComponent<Image>().color = Color.Lerp(fadeInFrom, fadeInTo, time / fadeInDuration);
+            pregameDisplay.style.backgroundColor = Color.Lerp(fadeInFrom, fadeInTo, time / fadeInDuration);
             time += Time.deltaTime;
             yield return null;
         }
-        pregameDisplay.GetComponent<Image>().color = fadeInTo;
+        pregameDisplay.style.backgroundColor = fadeInTo;
 
         fadedIn = true;
 
@@ -168,11 +175,11 @@ public class PregameManager : MonoBehaviour
         if (TurnManager.instance.loading || countdownStarted || !fadedIn) return;
 
         Debug.Log("Starting countdown...");
-        waitingForOtherPlayerText.gameObject.SetActive(false);
+        UIKit.Show(waitingForOtherPlayerText, false);
 
         StartCountdown(() => {
-            pregameDisplay.SetActive(false);
-            uiDisplay.SetActive(true);
+            UIKit.Show(pregameDisplay, false);
+            UIKit.Show(uiDisplay, true);
             if (introCamera != null) introCamera.End();
             TurnManager.instance.StartGame();
         });
@@ -186,16 +193,18 @@ public class PregameManager : MonoBehaviour
         countdownStarted = true;
         float time = countdownDuration;
         var shown = -1;
+        var scale = 1f;
         while (time > 0) {
             var number = Mathf.CeilToInt(time);
             if (number != shown) {
                 shown = number;
                 countdownText.text = number + "";
-                countdownText.transform.localScale = Vector3.one * countdownPunch;
+                scale = countdownPunch;
             }
 
             var settle = 1 - Mathf.Exp(-Time.deltaTime / Mathf.Max(0.01f, countdownSettle) * 4);
-            countdownText.transform.localScale = Vector3.Lerp(countdownText.transform.localScale, Vector3.one, settle);
+            scale = Mathf.Lerp(scale, 1, settle);
+            countdownText.style.scale = new Scale(Vector3.one * scale);
 
             time -= Time.deltaTime;
             yield return null;

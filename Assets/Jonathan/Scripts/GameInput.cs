@@ -1,8 +1,7 @@
 using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using TMPro;
+using UnityEngine.UIElements;
 
 // the game's input actions (Resources/Controls), shared by every script so a rebind reaches all of them
 public static class GameInput
@@ -28,16 +27,24 @@ public static class GameInput
     // true while a text field has focus, so typing (chat, names) doesn't trigger hotkeys
     public static bool typing {
         get {
-            var selected = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
-            if (selected == null) return false;
+            // looked up once a frame, a scene has one or two documents
+            if (Time.frameCount != documentsFrame) {
+                documentsFrame = Time.frameCount;
+                documents = UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None);
+            }
 
-            var field = selected.GetComponent<TMP_InputField>();
-            if (field != null && field.isFocused) return true;
-
-            var legacy = selected.GetComponent<UnityEngine.UI.InputField>();
-            return legacy != null && legacy.isFocused;
+            foreach (var document in documents) {
+                var focused = UIKit.Focused(document) as VisualElement;
+                if (focused == null) continue;
+                var field = focused as TextField ?? focused.GetFirstAncestorOfType<TextField>();
+                if (field != null && !field.isReadOnly) return true;
+            }
+            return false;
         }
     }
+
+    private static UIDocument[] documents = new UIDocument[0];
+    private static int documentsFrame = -1;
 
     // key labels on screen listen for this
     public static event Action bindingsChanged;

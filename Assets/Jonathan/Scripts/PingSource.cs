@@ -1,19 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+using UnityEngine.UIElements;
 using Photon.Pun;
 
-[RequireComponent(typeof(TMP_Text))]
 public class PingSource : MonoBehaviour
 {
-    private TMP_Text pingText;
+    [SerializeField]
+    private UIDocument document;
+
+    [SerializeField]
+    private string element;
+
+    private Label pingText;
 
     [SerializeField]
     private int interval = 1;
 
     void Start() {
-        pingText = GetComponent<TMP_Text>();
+        pingText = document.rootVisualElement.Q<Label>(element);
         
         StartCoroutine(UpdatePing());
     }

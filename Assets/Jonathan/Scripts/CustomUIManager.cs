@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 using System;
-using TMPro;
 using Photon.Pun;
 using MyBox;
 using System.Linq;
@@ -12,66 +11,62 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 using System.Text.RegularExpressions;
 
 public class CustomUIManager : MonoBehaviourPunCallbacks {
-    [Header("Presets UI")]
-    [SerializeField] private TMP_Dropdown missionsDropdown;
+    [SerializeField] private UIDocument document;
 
-    [Header("Match options")]
-    [SerializeField] private Toggle allowMatchChat;
-    [SerializeField] private Toggle isUnlimitedTime;
-    [SerializeField] private TMP_Text turnTimeLimitText;
-    [SerializeField] private Slider turnTimeLimitSlider;
+    // presets ui
+    private DropdownField missionsDropdown;
 
-    [Header("Mission options")]
-    [SerializeField] private Toggle isAdvancedAttacks;
-    [SerializeField] private Toggle isUnlimitedAdvancedAmmo;
-    [SerializeField] private Toggle isSalvo;
-    [SerializeField] private Toggle isBonus;
+    // match options
+    private Toggle allowMatchChat;
+    private Toggle isUnlimitedTime;
+    private Label turnTimeLimitText;
+    private SliderInt turnTimeLimitSlider;
+
+    // mission options
+    private Toggle isAdvancedAttacks;
+    private Toggle isUnlimitedAdvancedAmmo;
+    private Toggle isSalvo;
+    private Toggle isBonus;
     
-    [Header("Code sharing")]
-    [SerializeField] private TMP_InputField codeInputField;
+    // code sharing
+    private TextField codeInputField;
+    // the code, its label and the copy button show together
+    private VisualElement codeContainer;
     private string code {
         get {
-            return codeInputField.text;
+            return codeInputField.value;
         }
         set {
-            codeInputField.text = value;
+            codeInputField.value = value;
         }
     }
-    [SerializeField] private Button startButton;
+    private Button startButton;
     private string buttonText {
         get {
-            return startButton.GetComponentInChildren<TMP_Text>().text;
+            return startButton.text;
         }
         set {
-            startButton.GetComponentInChildren<TMP_Text>().text = value;
+            startButton.text = value;
         }
     }
 
-    [Header("Other")]
-    [SerializeField] private GameObject connectingOverlay;
-    [SerializeField] private GameObject matchmakingPanel;
+    // other
+    private VisualElement connectingOverlay;
+    private Label matchmakingPanel;
     private string matchmakingText {
         get {
-            return matchmakingPanel.GetComponentInChildren<TMP_Text>().text;
+            return matchmakingPanel.text;
         }
         set {
-            matchmakingPanel.GetComponentInChildren<TMP_Text>().text = value;
-        }
-    }
-    private Material matchmakingMaterial {
-        get {
-            return matchmakingPanel.GetComponent<Image>().material;
-        }
-        set {
-            matchmakingPanel.GetComponent<Image>().material = value;
+            matchmakingPanel.text = value;
         }
     }
     private Color panelColor {
         get {
-            return matchmakingMaterial.GetColor("_AccentColor");
+            return matchmakingPanel.resolvedStyle.color;
         }
         set {
-            matchmakingMaterial.SetColor("_AccentColor", value);
+            matchmakingPanel.style.color = value;
         }
     }
     [SerializeField] private Color matchmakingColor;
@@ -120,12 +115,13 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
     [Serializable]
     public class VisabilityElement {
         public string name;
-        public GameObject gameObject;
+        // the element's name in the document
+        public string element;
         public DependUpon dependUpon;
         [ConditionalField(nameof(dependUpon), false, DependUpon.Stages, DependUpon.Both)]
         public CollectionWrapper<CustomsStage> visableStages;
         [ConditionalField(nameof(dependUpon), false, DependUpon.Toggle, DependUpon.Both)]
-        public Toggle toggle;
+        public string toggle;
         [ConditionalField(nameof(dependUpon), false, DependUpon.Toggle, DependUpon.Both)]
         public bool invert;
     }
@@ -140,14 +136,14 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
 
     public void DisableButtons(bool disable) {
         try {
-            missionsDropdown.interactable = !disable;
-            allowMatchChat.interactable = !disable;
-            isUnlimitedTime.interactable = !disable;
-            turnTimeLimitSlider.interactable = !disable;
-            isAdvancedAttacks.interactable = !disable;
-            isUnlimitedAdvancedAmmo.interactable = !disable;
-            isSalvo.interactable = !disable;
-            isBonus.interactable = !disable;
+            missionsDropdown.SetEnabled(!disable);
+            allowMatchChat.SetEnabled(!disable);
+            isUnlimitedTime.SetEnabled(!disable);
+            turnTimeLimitSlider.SetEnabled(!disable);
+            isAdvancedAttacks.SetEnabled(!disable);
+            isUnlimitedAdvancedAmmo.SetEnabled(!disable);
+            isSalvo.SetEnabled(!disable);
+            isBonus.SetEnabled(!disable);
         }
         catch (Exception) {}
     }
@@ -160,10 +156,10 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
             }
 
             if (element.dependUpon == DependUpon.Toggle || element.dependUpon == DependUpon.Both) {
-                visable = element.toggle.isOn ^ element.invert;
+                visable = document.rootVisualElement.Q<Toggle>(element.toggle).value ^ element.invert;
             }
 
-            element.gameObject.SetActive(visable);
+            UIKit.Show(document.rootVisualElement.Q(element.element), visable);
         }
 
         turnTimeLimitText.text = $"{turnTimeLimitSlider.value}S PER TURN";
@@ -172,16 +168,16 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
     public void SetDefaults(DefaultValues defaults) {
         if (defaults.overrideValues) {
             gameMode = GameMode.Customs; // set to customs so that it doesn't change back to customs after
-            missionsDropdown.value = (int) defaults.gameMode;
+            missionsDropdown.index = (int) defaults.gameMode;
             if (defaults.overrideAllowMatchChat) {
-                allowMatchChat.isOn = defaults.allowMatchChat;
+                allowMatchChat.value = defaults.allowMatchChat;
             }
-            isUnlimitedTime.isOn = defaults.isUnlimitedTime;
-            turnTimeLimitSlider.value = defaults.turnTimeLimit;
-            isAdvancedAttacks.isOn = defaults.isAdvancedAttacks;
-            isUnlimitedAdvancedAmmo.isOn = defaults.isUnlimitedAdvancedAmmo;
-            isSalvo.isOn = defaults.isSalvo;
-            isBonus.isOn = defaults.isBonus;
+            isUnlimitedTime.value = defaults.isUnlimitedTime;
+            turnTimeLimitSlider.value = (int)defaults.turnTimeLimit;
+            isAdvancedAttacks.value = defaults.isAdvancedAttacks;
+            isUnlimitedAdvancedAmmo.value = defaults.isUnlimitedAdvancedAmmo;
+            isSalvo.value = defaults.isSalvo;
+            isBonus.value = defaults.isBonus;
             // now set game mode
             gameMode = defaults.gameMode;
         }
@@ -194,7 +190,7 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
     }
 
     public void SetDropdown() {
-        SetDefaults((GameMode) missionsDropdown.value);
+        SetDefaults((GameMode) missionsDropdown.index);
     }
 
     public static string PrettyEnum(string enumString) {
@@ -203,10 +199,9 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
     }
 
     public void LoadDropdown(GameMode defaultMode = GameMode.AdvancedCombat) {
-        missionsDropdown.ClearOptions();
-        missionsDropdown.AddOptions(Enum.GetNames(typeof(GameMode)).ToList().ConvertAll(PrettyEnum));
+        missionsDropdown.choices = Enum.GetNames(typeof(GameMode)).ToList().ConvertAll(PrettyEnum);
 
-        missionsDropdown.value = (int) defaultMode;
+        missionsDropdown.index = (int) defaultMode;
 
         SetDefaults(defaultMode);
     }
@@ -226,13 +221,13 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
         if (gameMode != GameMode.Customs) {
             var defaultValues = this.defaultValues.Find(d => d.gameMode == gameMode);
 
-            if ((defaultValues.overrideAllowMatchChat && allowMatchChat.isOn != defaultValues.allowMatchChat) ||
-                isUnlimitedTime.isOn != defaultValues.isUnlimitedTime ||
+            if ((defaultValues.overrideAllowMatchChat && allowMatchChat.value != defaultValues.allowMatchChat) ||
+                isUnlimitedTime.value != defaultValues.isUnlimitedTime ||
                 turnTimeLimitSlider.value != defaultValues.turnTimeLimit ||
-                isAdvancedAttacks.isOn != defaultValues.isAdvancedAttacks ||
-                isUnlimitedAdvancedAmmo.isOn != defaultValues.isUnlimitedAdvancedAmmo ||
-                isSalvo.isOn != defaultValues.isSalvo ||
-                isBonus.isOn != defaultValues.isBonus) {
+                isAdvancedAttacks.value != defaultValues.isAdvancedAttacks ||
+                isUnlimitedAdvancedAmmo.value != defaultValues.isUnlimitedAdvancedAmmo ||
+                isSalvo.value != defaultValues.isSalvo ||
+                isBonus.value != defaultValues.isBonus) {
                     
                 LoadDropdown(GameMode.Customs);
 
@@ -242,14 +237,37 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
     }
 
     void Awake() {
-        connectingOverlay.SetActive(PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient);
+        var root = document.rootVisualElement;
+        missionsDropdown = root.Q<DropdownField>("presets");
+        allowMatchChat = root.Q<Toggle>("allowChat");
+        isUnlimitedTime = root.Q<Toggle>("unlimitedTime");
+        turnTimeLimitText = root.Q<Label>("turnTimeText");
+        turnTimeLimitSlider = root.Q<SliderInt>("turnTime");
+        isAdvancedAttacks = root.Q<Toggle>("advancedAttacks");
+        isUnlimitedAdvancedAmmo = root.Q<Toggle>("unlimitedAmmo");
+        isSalvo = root.Q<Toggle>("salvo");
+        isBonus = root.Q<Toggle>("bonus");
+        codeInputField = root.Q<TextField>("code");
+        codeContainer = root.Q("codeContainer");
+        startButton = root.Q<Button>("create");
+        connectingOverlay = root.Q("connectingOverlay");
+        matchmakingPanel = root.Q<Label>("matchmaking");
+
+        // any rule change, and the preset
+        foreach (var toggle in new[] { allowMatchChat, isUnlimitedTime, isAdvancedAttacks, isUnlimitedAdvancedAmmo, isSalvo, isBonus }) {
+            toggle.RegisterValueChangedCallback(_ => UpdateValue());
+        }
+        turnTimeLimitSlider.RegisterValueChangedCallback(_ => UpdateValue());
+        missionsDropdown.RegisterValueChangedCallback(_ => SetDropdown());
+
+        UIKit.Show(connectingOverlay,PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient);
     }
 
     void Start() {
         LoadDropdown();
 
         code = "";
-        codeInputField.transform.parent.gameObject.SetActive(false);
+        UIKit.Show(codeContainer, false);
     }
 
     private bool cancelAction;
@@ -320,12 +338,12 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
         
         roomOptions.CustomRoomProperties = new Hashtable() {
             { Constants.GAME_MODE_PROP_KEY, gameMode.ToString() },
-            { "AllowChat", allowMatchChat.isOn },
-            { "TurnTimeLimit", isUnlimitedTime.isOn ? 0 : turnTimeLimitSlider.value },
-            { "IsAdvancedCombat", isAdvancedAttacks.isOn },
-            { "IsUnlimitedAmmo", isUnlimitedAdvancedAmmo.isOn },
-            { "IsSalvo", isSalvo.isOn },
-            { "IsBonus", isBonus.isOn }
+            { "AllowChat", allowMatchChat.value },
+            { "TurnTimeLimit", isUnlimitedTime.value ? 0f : (float)turnTimeLimitSlider.value },
+            { "IsAdvancedCombat", isAdvancedAttacks.value },
+            { "IsUnlimitedAmmo", isUnlimitedAdvancedAmmo.value },
+            { "IsSalvo", isSalvo.value },
+            { "IsBonus", isBonus.value }
         };
 
         roomOptions.MaxPlayers = Constants.ROOM_NUM_EXPECTED_PLAYERS;
@@ -336,7 +354,7 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
 
         code = CreateCode();
 
-        codeInputField.transform.parent.gameObject.SetActive(true);
+        UIKit.Show(codeContainer, true);
 
         PhotonNetwork.CreateRoom(code, roomOptions, typedLobby);
     }
@@ -376,7 +394,7 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
 
     public void Cancel() {
         if (stage == CustomsStage.Error) {
-            startButton.interactable = true;
+            startButton.SetEnabled(true);
         }
 
         cancelAction = false;
@@ -386,7 +404,7 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
 
         panelColor = matchmakingColor;
 
-        codeInputField.transform.parent.gameObject.SetActive(false);
+        UIKit.Show(codeContainer, false);
     }
 
     public void Error(string message, float lifetime = 0) {
@@ -398,14 +416,14 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
 
         buttonText = "ERROR";
 
-        startButton.interactable = false;
+        startButton.SetEnabled(false);
         
         SetStage(CustomsStage.Error);
         matchmakingText = message;
 
         panelColor = errorColor;
 
-        codeInputField.transform.parent.gameObject.SetActive(false);
+        UIKit.Show(codeContainer, false);
     }
 
     public void StartGame() {
@@ -428,7 +446,7 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
     }
 
     public void InputToClipboard() {
-        GUIUtility.systemCopyBuffer = codeInputField.text;
+        GUIUtility.systemCopyBuffer = codeInputField.value;
     }
 
     public static string CreateCode() {

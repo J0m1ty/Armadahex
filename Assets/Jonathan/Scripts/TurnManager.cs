@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using TMPro;
+using UnityEngine.UIElements;
 
 public class TurnManager : MonoBehaviour
 {
@@ -27,7 +27,9 @@ public class TurnManager : MonoBehaviour
 
     [Header("UI")]
     [SerializeField]
-    private TMP_Text turnText;
+    private UIDocument document;
+
+    private Label turnText => document.rootVisualElement.Q<Label>("turnText");
 
     [SerializeField]
     private Color playerTurnColor;
@@ -35,9 +37,6 @@ public class TurnManager : MonoBehaviour
     [SerializeField]
     private Color enemyTurnColor;
 
-    // the banner's border and timer chip follow whose turn it is
-    [SerializeField]
-    private ThisOtherThing.UI.Shapes.Rectangle[] turnAccents;
     
     public Team currentTeam;
     public Team otherTeam {
@@ -182,8 +181,7 @@ public class TurnManager : MonoBehaviour
         consecutiveTurns++;
 
         turnText.text = "YOUR TURN";
-        turnText.color = playerTurnColor;
-        SetTurnAccent(playerTurnColor);
+        turnText.style.color = playerTurnColor;
 
         selector.SetTeam(TurnManager.instance.playerTeam, TurnManager.instance.otherTeam.teamBase);
         attackManager.SetState(AttackUIManager.AttackState.SelectShip);
@@ -200,28 +198,13 @@ public class TurnManager : MonoBehaviour
         consecutiveTurns++;
 
         turnText.text = "ENEMY TURN";
-        turnText.color = enemyTurnColor;
-        SetTurnAccent(enemyTurnColor);
+        turnText.style.color = enemyTurnColor;
 
         selector.allowSelectingGrids = false;
         selector.allowSelectingShips = false;
         selector.SetTeam(TurnManager.instance.otherTeam, TurnManager.instance.playerTeam.teamBase);
         attackManager.SetState(AttackUIManager.AttackState.None);
         CameraManager.instance.MoveTo(TurnManager.instance.playerTeam.teamBase.transform.position);
-    }
-
-    private void SetTurnAccent(Color color) {
-        if (turnAccents == null) return;
-        foreach (var accent in turnAccents) {
-            if (accent == null) continue;
-            accent.ShapeProperties.OutlineColor = color;
-            accent.ShapeProperties.FillColor = new Color(color.r, color.g, color.b, accent.ShapeProperties.DrawOutline ? 0.12f : 1f);
-            var shadows = accent.ShadowProperties.Shadows;
-            if (shadows != null) {
-                foreach (var shadow in shadows) shadow.Color = new Color(color.r, color.g, color.b, 0.35f);
-            }
-            accent.ForceMeshUpdate();
-        }
     }
 
     public void NextTurn() {

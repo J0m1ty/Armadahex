@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public enum NoticeState
 {
@@ -18,7 +18,8 @@ public class NoticeManager : MonoBehaviour
 {
     [Serializable]
     public struct Notice {
-        public TMP_Text text;
+        // the label's name in the document
+        public string element;
         public NoticeState state;
         public NoticeState[] paralells;
         public bool disableForm;
@@ -27,24 +28,31 @@ public class NoticeManager : MonoBehaviour
     public NoticeState state { get; private set; }
 
     [SerializeField]
+    private UIDocument document;
+
+    [SerializeField]
     private Notice[] notices;
 
     public bool fatal => state == NoticeState.Fatal;
 
+    private Label Text(Notice notice) {
+        return document.rootVisualElement.Q<Label>(notice.element);
+    }
+
     public void SetState(NoticeState state) {
         this.state = state;
-        
+
         bool disable = false;
         foreach (Notice notice in notices) {
             if (notice.state == state || Array.IndexOf(notice.paralells, state) != -1) {
-                notice.text.gameObject.SetActive(true);
+                UIKit.Show(Text(notice), true);
 
                 if (notice.disableForm) {
                     disable = true;
                 }
             }
             else {
-                notice.text.gameObject.SetActive(false);
+                UIKit.Show(Text(notice), false);
             }
         }
 
@@ -57,7 +65,8 @@ public class NoticeManager : MonoBehaviour
 
         foreach (Notice notice in notices) {
             if ((fatal && notice.state == NoticeState.Fatal) || (!fatal && notice.state == NoticeState.Error)) {
-                notice.text.text = error;
+                var text = Text(notice);
+                if (text != null) text.text = error;
             }
         }
     }

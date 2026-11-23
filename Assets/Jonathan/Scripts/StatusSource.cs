@@ -1,19 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+using UnityEngine.UIElements;
 using Photon.Pun;
 
-[RequireComponent(typeof(TMP_Text))]
 public class StatusSource : MonoBehaviour
 {
-    private TMP_Text statusText;
+    [SerializeField]
+    private UIDocument document;
+
+    [SerializeField]
+    private string element;
+
+    private Label statusText;
 
     [SerializeField]
     private int interval = 1;
 
     void Start() {
-        statusText = GetComponent<TMP_Text>();
+        statusText = document.rootVisualElement.Q<Label>(element);
         
         StartCoroutine(UpdateStatus());
     }

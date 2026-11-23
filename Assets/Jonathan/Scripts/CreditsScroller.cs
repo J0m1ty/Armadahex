@@ -1,13 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
 
-[RequireComponent(typeof(ScrollRect))]
-public class CreditsScroller : MonoBehaviour, IScrollHandler, IDragHandler
+public class CreditsScroller : MonoBehaviour
 {
-    private ScrollRect scrollView;
+    [SerializeField]
+    private UIDocument document;
+
+    [SerializeField]
+    private string element = "credits";
+
+    private ScrollView scrollView;
     
     [SerializeField]
     private bool doScrolling;
@@ -24,27 +28,28 @@ public class CreditsScroller : MonoBehaviour, IScrollHandler, IDragHandler
     [SerializeField]
     private float scrollWait;
 
-    void Awake() {
-        scrollView = GetComponent<ScrollRect>();
+    void Start() {
+        scrollView = document.rootVisualElement.Q<ScrollView>(element);
+
+        // scrolling or dragging by hand pauses the roll
+        scrollView.RegisterCallback<WheelEvent>(_ => scrollWait = interactionScrollWait, TrickleDown.TrickleDown);
+        scrollView.RegisterCallback<PointerDownEvent>(_ => scrollWait = interactionScrollWait, TrickleDown.TrickleDown);
 
         scrollWait = initialScrollWait;
     }
 
-    public void OnScroll(PointerEventData eventData) {
-        scrollWait = interactionScrollWait;
-    }
-
-    public void OnDrag(PointerEventData eventData) {
-        scrollWait = interactionScrollWait;
-    }
-
     void Update() {
-        if (!doScrolling) return;
+        if (!doScrolling || scrollView == null) return;
 
         if (scrollWait > 0f) {
             scrollWait -= Time.deltaTime;
         } else {
-            scrollView.verticalNormalizedPosition -= Time.deltaTime * scrollSpeed;
+            // scrollSpeed is the share of the whole list per second, as with the old normalized position
+            var range = scrollView.contentContainer.layout.height - scrollView.contentViewport.layout.height;
+            if (range <= 0 || float.IsNaN(range)) return;
+            var offset = scrollView.scrollOffset;
+            offset.y = Mathf.Min(range, offset.y + Time.deltaTime * scrollSpeed * range);
+            scrollView.scrollOffset = offset;
         }
     }
 }

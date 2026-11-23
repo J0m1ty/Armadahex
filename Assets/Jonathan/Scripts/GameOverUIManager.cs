@@ -4,9 +4,8 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
-using TMPro;
 using System;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class GameOverUIManager : MonoBehaviourPunCallbacks
 {
@@ -19,32 +18,27 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
 
     [Header("UI References")]
     [SerializeField]
-    private TMP_Text gameOverText;
-    [SerializeField]
-    private TMP_Text winTypeText;
-    [SerializeField]
-    private TMP_Text xpGainText;
-    [SerializeField]
+    private UIDocument document;
+
+    private Label gameOverText;
+    private Label winTypeText;
+    private Label xpGainText;
     private Image topImage;
-    [SerializeField]
     private Image bottomImage;
-    [SerializeField]
-    private TMP_Text matchTimeText;
-    [SerializeField]
-    private TMP_Text accuracyText;
-    [SerializeField]
-    private TMP_Text shipsLostText;
-    [SerializeField]
-    private TMP_Text advancedAttacksUsedText;
+    private Label matchTimeText;
+    private Label accuracyText;
+    private Label shipsLostText;
+    private Label advancedAttacksUsedText;
+
+    private Label winnerXpGainText;
+    private Label loserXpGainText;
+    private Label winnerNameText;
+    private Label loserNameText;
 
     [SerializeField]
-    private TMP_Text winnerXpGainText;
+    private Color victoryColor = new Color(0.1f, 0.55f, 0.1f);
     [SerializeField]
-    private TMP_Text loserXpGainText;
-    [SerializeField]
-    private TMP_Text winnerNameText;
-    [SerializeField]
-    private TMP_Text loserNameText;
+    private Color defeatColor = new Color(0.75f, 0.1f, 0.1f);
 
     public void Leave() {
         if (PhotonNetwork.InRoom) {
@@ -60,6 +54,21 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
     }
 
     public void Start() {
+        var root = document.rootVisualElement;
+        gameOverText = root.Q<Label>("result");
+        winTypeText = root.Q<Label>("comments");
+        xpGainText = root.Q<Label>("xpGain");
+        topImage = root.Q<Image>("topImage");
+        bottomImage = root.Q<Image>("bottomImage");
+        matchTimeText = root.Q<Label>("matchTime");
+        accuracyText = root.Q<Label>("accuracy");
+        shipsLostText = root.Q<Label>("shipsLost");
+        advancedAttacksUsedText = root.Q<Label>("specials");
+        winnerXpGainText = root.Q<Label>("winnerXp");
+        loserXpGainText = root.Q<Label>("loserXp");
+        winnerNameText = root.Q<Label>("winnerName");
+        loserNameText = root.Q<Label>("loserName");
+
         winInfo = GameOver.instance?.winInfo;
 
         // opened without a match (straight from the editor), so show an empty report
@@ -68,8 +77,8 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
             gameOverText.text = "NO MATCH";
             winTypeText.text = "Play a match to see its report here.";
             xpGainText.text = "";
-            topImage.transform.parent.gameObject.SetActive(false);
-            bottomImage.transform.parent.gameObject.SetActive(false);
+            UIKit.Show(topImage, false);
+            UIKit.Show(bottomImage, false);
             return;
         }
 
@@ -82,7 +91,7 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
         AudioManager.instance?.PlayResultSound(isWinner);
         
         gameOverText.text = isWinner ? "VICTORY" : "DEFEAT";
-        gameOverText.color = isWinner ? UITheme.instance.gold : UITheme.instance.enemy;
+        gameOverText.style.color = isWinner ? victoryColor : defeatColor;
         
         if (isWinner) {
             switch (winInfo.winType) {
@@ -146,17 +155,15 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
         if (winInfo.playerImage != null && winInfo.enemyImage != null) {
             var topTex = isWinner ? winInfo.playerImage : winInfo.enemyImage;
             var bottomTex = isWinner ? winInfo.enemyImage : winInfo.playerImage;
-            topImage.sprite = Sprite.Create(topTex, new Rect(0, 0, topTex.width, topTex.height), new Vector2(0.5f, 0.5f));
-            bottomImage.sprite = Sprite.Create(bottomTex, new Rect(0, 0, bottomTex.width, bottomTex.height), new Vector2(0.5f, 0.5f));
-
-            // MAINTAIN aspect
-            topImage.preserveAspect = true;
-            bottomImage.preserveAspect = true;
+            topImage.image = topTex;
+            bottomImage.image = bottomTex;
+            topImage.scaleMode = ScaleMode.ScaleToFit;
+            bottomImage.scaleMode = ScaleMode.ScaleToFit;
         }
         else {
             // need to hide images
-            topImage.transform.parent.gameObject.SetActive(false);
-            bottomImage.transform.parent.gameObject.SetActive(false);
+            UIKit.Show(topImage, false);
+            UIKit.Show(bottomImage, false);
         }
     }
 }

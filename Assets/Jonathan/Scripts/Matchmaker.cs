@@ -3,9 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
 using Photon.Realtime;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 [Serializable]
@@ -26,37 +25,32 @@ public class Matchmaker : MonoBehaviourPunCallbacks
     private GameMode gameMode;
 
     [SerializeField]
-    private TMP_Text buttonText;
+    private UIDocument document;
 
-    [SerializeField]
-    private GameObject matchmakingPanel;
+    // the play button, its text follows the search
+    private Button button;
+    private TextElement buttonText => button;
+
+    // a line of text that shows the countdown, the search and errors
+    private Label matchmakingPanel;
     private string matchmakingText {
         get {
-            return matchmakingPanel.GetComponentInChildren<TMP_Text>().text;
+            return matchmakingPanel.text;
         }
         set {
-            matchmakingPanel.GetComponentInChildren<TMP_Text>().text = value;
-        }
-    }
-    private Material matchmakingMaterial {
-        get {
-            return matchmakingPanel.GetComponent<Image>().material;
-        }
-        set {
-            matchmakingPanel.GetComponent<Image>().material = value;
+            matchmakingPanel.text = value;
         }
     }
     private Color panelColor {
         get {
-            return matchmakingMaterial.GetColor("_AccentColor");
+            return matchmakingPanel.resolvedStyle.color;
         }
         set {
-            matchmakingMaterial.SetColor("_AccentColor", value);
+            matchmakingPanel.style.color = value;
         }
     }
 
-    [SerializeField]
-    private GameObject backButton; // hide this when searching    
+    private VisualElement backButton; // hide this when searching
 
     [SerializeField]
     private Color matchmakingColor;
@@ -70,8 +64,8 @@ public class Matchmaker : MonoBehaviourPunCallbacks
         }
         set {
             _stage = value;
-            matchmakingPanel.SetActive(_stage != MatchmakingStage.None);
-            backButton.SetActive(_stage == MatchmakingStage.None);
+            UIKit.Show(matchmakingPanel, _stage != MatchmakingStage.None);
+            UIKit.Show(backButton, _stage == MatchmakingStage.None);
             stateManager.lockedIn = _stage != MatchmakingStage.None;
         }
     }
@@ -84,7 +78,10 @@ public class Matchmaker : MonoBehaviourPunCallbacks
     void Awake() {
         stateManager = GetComponent<StateManager>();
 
-        matchmakingMaterial = matchmakingPanel.GetComponent<Image>().material;
+        var root = document.rootVisualElement;
+        button = root.Q<Button>("join");
+        matchmakingPanel = root.Q<Label>("matchmaking");
+        backButton = root.Q("back");
 
         if (hideOnAwake) {
             stage = MatchmakingStage.None;
@@ -109,7 +106,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
             gameMode = stateManager.currentState.gameMode;
 
             if (gameMode == GameMode.Customs) {
-                string joinCode = stateManager.stateInput.text.ToUpper();
+                string joinCode = stateManager.stateInput.value.ToUpper();
 
                 if (!ValidateCode(joinCode)) {
                     Error("Invalid code", 2.5f);
@@ -171,7 +168,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
         }
         
         if (gameMode == GameMode.Customs) {
-            string joinCode = stateManager.stateInput.text.ToUpper();
+            string joinCode = stateManager.stateInput.value.ToUpper();
 
             if (!ValidateCode(joinCode)) {
                 Error("Invalid code", 2.5f);
@@ -267,14 +264,14 @@ public class Matchmaker : MonoBehaviourPunCallbacks
 
     private void Cancel() {
         if (stage == MatchmakingStage.Error) {
-            buttonText.GetComponentInParent<Button>().interactable = true;
+            button.SetEnabled(true);
         }
 
         cancelAction = false;
         stage = MatchmakingStage.None;
         
-        stateManager.stateInput.interactable = true;
-        buttonText.GetComponentInParent<Button>().interactable = true;
+        stateManager.stateInput.SetEnabled(true);
+        button.SetEnabled(true);
         buttonText.text = stateManager.currentState.buttonText;
 
         panelColor = matchmakingColor;
@@ -285,8 +282,8 @@ public class Matchmaker : MonoBehaviourPunCallbacks
     private void Error(string message, float lifetime = 0) {
         panelColor = errorColor;
 
-        stateManager.stateInput.interactable = false;
-        buttonText.GetComponentInParent<Button>().interactable = false;
+        stateManager.stateInput.SetEnabled(false);
+        button.SetEnabled(false);
 
         stage = MatchmakingStage.Error;
         matchmakingText = message;

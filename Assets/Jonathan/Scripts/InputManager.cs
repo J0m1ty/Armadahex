@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 using UnityEngine.InputSystem;
 
 public enum KeyMode {
@@ -14,12 +14,13 @@ public class InputManager : MonoBehaviour
     [Header("Scoreboard")]
     [SerializeField] private bool hideScoreboardOnStart = true;
     [SerializeField] private KeyMode scoreboardMode = KeyMode.Hold;
-    [SerializeField] private GameObject scoreboard;
+    [SerializeField] private UIDocument document;
+    private VisualElement scoreboard;
 
     [Header("Interactions")]
     [SerializeField] private AttackUIManager attackManager;
-    [SerializeField] private Button fireButton;
-    [SerializeField] private Button cancelButton;
+    private Button fireButton;
+    private Button cancelButton;
 
     // bindings live in Resources/Controls, under Gameplay
     private InputAction scoreboardAction;
@@ -30,6 +31,11 @@ public class InputManager : MonoBehaviour
     private InputAction[] choiceActions = new InputAction[5];
 
     void Start() {
+        var root = document.rootVisualElement;
+        scoreboard = root.Q("scoreboard");
+        fireButton = root.Q<Button>("fire");
+        cancelButton = root.Q<Button>("back");
+
         for (var i = 0; i < choiceActions.Length; i++) {
             choiceActions[i] = GameInput.Get("Gameplay/Choice " + (i + 1));
         }
@@ -40,7 +46,7 @@ public class InputManager : MonoBehaviour
         cancelAction = GameInput.Get("Gameplay/Cancel");
 
         if (hideScoreboardOnStart) {
-            scoreboard.SetActive(false);
+            UIKit.Show(scoreboard, false);
         }
     }
     
@@ -49,14 +55,14 @@ public class InputManager : MonoBehaviour
 
         if (scoreboardAction.WasPressedThisFrame()) {
             if (scoreboardMode == KeyMode.Toggle) {
-                scoreboard.SetActive(!scoreboard.activeSelf);
+                UIKit.Show(scoreboard, !UIKit.IsShown(scoreboard));
             } else {
-                scoreboard.SetActive(true);
+                UIKit.Show(scoreboard, true);
             }
         }
 
         if (scoreboardAction.WasReleasedThisFrame() && scoreboardMode == KeyMode.Hold) {
-            scoreboard.SetActive(false);
+            UIKit.Show(scoreboard, false);
         }
 
         if (switchShipAction.WasPressedThisFrame()) {
@@ -70,14 +76,14 @@ public class InputManager : MonoBehaviour
         }
 
         if (fireAction.WasPressedThisFrame()) {
-            if (fireButton.isActiveAndEnabled && fireButton.interactable) {
-                fireButton.onClick.Invoke();
+            if (UIKit.IsShown(fireButton) && fireButton.enabledSelf) {
+                UIKit.Click(fireButton);
             }
         }
 
         if (cancelAction.WasPressedThisFrame()) {
-            if (cancelButton.isActiveAndEnabled) {
-                cancelButton.onClick.Invoke();
+            if (UIKit.IsShown(cancelButton)) {
+                UIKit.Click(cancelButton);
             }
         }
     }

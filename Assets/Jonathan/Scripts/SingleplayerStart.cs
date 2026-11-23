@@ -2,21 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using TMPro;
+using UnityEngine.UIElements;
 
 public class SingleplayerStart : MonoBehaviour
 {
     public MyBox.SceneReference gameScene;
 
-    [SerializeField] private Slider difficultySlider;
-    [SerializeField] private TMP_Text difficultyText;
+    [SerializeField] private UIDocument document;
+
+    private SliderInt difficultySlider;
+    private Label difficultyText;
 
     void Start() {
+        difficultySlider = document.rootVisualElement.Q<SliderInt>("difficulty");
+        difficultyText = document.rootVisualElement.Q<Label>("difficultyValue");
+
         difficultySlider.value = (int)BotAI.SavedDifficulty;
         SetDifficultyText();
 
-        difficultySlider.onValueChanged.AddListener(SetDifficulty);
+        difficultySlider.RegisterValueChangedCallback(e => SetDifficulty(e.newValue));
     }
 
     public void SetDifficulty(float difficulty) {

@@ -1,14 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+using UnityEngine.UIElements;
 using Photon.Pun;
 
 public class MatchChat : MonoBehaviourPunCallbacks
 {
-    [SerializeField] private Button disableMatchChatButton;
-    private TMP_Text buttonText => disableMatchChatButton.GetComponentInChildren<TMP_Text>();
+    [SerializeField] private UIDocument document;
+    private Button disableMatchChatButton => document.rootVisualElement.Q<Button>("mute");
 
     public bool allowChat;
 
@@ -22,8 +21,8 @@ public class MatchChat : MonoBehaviourPunCallbacks
 
     public void DisableChat(bool share) {
         allowChat = false;
-        buttonText.text = "CHAT DISABLED";
-        disableMatchChatButton.interactable = false;
+        disableMatchChatButton.text = "CHAT DISABLED";
+        disableMatchChatButton.SetEnabled(false);
 
         if (share) {
             photonView.RPC("DisableChatRPC", RpcTarget.Others);

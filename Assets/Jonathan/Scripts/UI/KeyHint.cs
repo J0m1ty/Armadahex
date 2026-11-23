@@ -1,43 +1,11 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using TMPro;
+using UnityEngine.UIElements;
 
-// a key label that follows the bindings, so a rebind on the controls page shows up everywhere
-[RequireComponent(typeof(TMP_Text))]
-public class KeyHint : MonoBehaviour
+// key names that follow the bindings, so a rebind on the controls page shows up everywhere
+public static class KeyHint
 {
-    // "Map/Action", e.g. "Gameplay/Fire"
-    public string action;
-    // text either side, e.g. "" and " BACK"
-    public string prefix;
-    public string suffix;
-
-    private TMP_Text text;
-
-    void Awake() {
-        text = GetComponent<TMP_Text>();
-    }
-
-    void OnEnable() {
-        GameInput.bindingsChanged += Refresh;
-        Refresh();
-    }
-
-    void OnDisable() {
-        GameInput.bindingsChanged -= Refresh;
-    }
-
-    public void Set(string action) {
-        this.action = action;
-        Refresh();
-    }
-
-    public void Refresh() {
-        if (text == null || string.IsNullOrEmpty(action)) return;
-        text.text = prefix + Display(action) + suffix;
-    }
-
-    // the first keyboard binding's name, e.g. "Enter" or "1"
+    // the first keyboard binding's name, e.g. "ENTER" or "1"
     public static string Display(string action) {
         var found = GameInput.actions.FindAction(action);
         if (found == null) return "?";
@@ -52,10 +20,44 @@ public class KeyHint : MonoBehaviour
         return found.GetBindingDisplayString(InputBinding.DisplayStringOptions.DontIncludeInteractions).ToUpper();
     }
 
-    // an inline keycap for rich text, e.g. Key("Gameplay/Cancel") + " BACK"
+    // an inline key, e.g. Key("Gameplay/Cancel") + " BACK" reads "[ESC] BACK"
     public static string Key(string action) {
-        var theme = UITheme.instance;
-        var line = theme != null ? ColorUtility.ToHtmlStringRGB(theme.lineStrong) : "2D4565";
-        return "<mark=#" + line + "AA padding=\"10,10,6,6\">" + Display(action) + "</mark>";
+        return "[" + Display(action) + "]";
+    }
+}
+
+// a label that shows an action's key, e.g. <KeyLabel action="Gameplay/Fire" format="{0} FIRE" />
+[UxmlElement]
+public partial class KeyLabel : Label
+{
+    private string _action;
+    private string _format = "{0}";
+
+    [UxmlAttribute]
+    public string action {
+        get => _action;
+        set { _action = value; Refresh(); }
+    }
+
+    // {0} is the key
+    [UxmlAttribute]
+    public string format {
+        get => _format;
+        set { _format = string.IsNullOrEmpty(value) ? "{0}" : value; Refresh(); }
+    }
+
+    public KeyLabel() {
+        RegisterCallback<AttachToPanelEvent>(_ => {
+            GameInput.bindingsChanged += Refresh;
+            Refresh();
+        });
+        RegisterCallback<DetachFromPanelEvent>(_ => GameInput.bindingsChanged -= Refresh);
+    }
+
+    public void Refresh() {
+        if (string.IsNullOrEmpty(_action)) return;
+        // the editor's ui builder has no input actions to read
+        var key = Application.isPlaying ? KeyHint.Key(_action) : "[" + _action + "]";
+        text = string.Format(_format, key);
     }
 }

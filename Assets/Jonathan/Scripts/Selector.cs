@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using MyBox;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using Photon.Pun;
@@ -288,6 +288,14 @@ public class Selector : MonoBehaviour
     }
 
     private bool IsPointerOverUIObject() {
+        // anything pickable in a ui toolkit document blocks the board: buttons, the tray, panels
+        foreach (var document in FindObjectsByType<UIDocument>(FindObjectsSortMode.None)) {
+            var panel = document.rootVisualElement?.panel;
+            if (panel == null) continue;
+            var position = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(pointer.x, Screen.height - pointer.y));
+            if (panel.Pick(position) != null) return true;
+        }
+
         PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
         eventDataCurrentPosition.position = pointer;
         List<RaycastResult> results = new List<RaycastResult>();

@@ -1,16 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+using UnityEngine.UIElements;
 using Photon.Pun;
 
-[RequireComponent(typeof(TMP_Text))]
 public class StatsUpdater : MonoBehaviour
 {
-    private TMP_Text text;
+    [SerializeField]
+    private UIDocument document;
+
+    [SerializeField]
+    private string element;
+
+    private Label text;
 
     private void Awake() {
-        text = GetComponent<TMP_Text>();
+        text = document.rootVisualElement.Q<Label>(element);
     }
 
     void Update() {
