@@ -62,7 +62,7 @@
                     <ui:VisualElement class="panel-edge" picking-mode="Ignore" />
                     <ui:VisualElement class="option-row">
                         <ui:Label text="SOUND" class="option-name" />
-                        <ui:Toggle name="soundToggle" value="true" class="option-toggle" />
+                        <Switch name="soundToggle" value="true" />
                     </ui:VisualElement>
                     <ui:VisualElement class="option-row">
                         <ui:Label text="MAIN VOLUME" class="option-name" />
@@ -94,8 +94,8 @@
                     <ui:ListView name="controlsList" fixed-item-height="56" class="controls-list" />
                 </ui:VisualElement>
                 <ui:VisualElement class="options-footer">
-                    <ui:Button name="resetControls" text="RESET TO DEFAULTS" class="text-button" />
-                    <ui:Button name="saveControls" text="SAVE CHANGES" class="plate save" />
+                    <ui:Button name="resetControls" text="RESET TO DEFAULTS" class="text-button reset" />
+                    <ui:Button name="saveControls" text="SAVE CHANGES" class="save" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>

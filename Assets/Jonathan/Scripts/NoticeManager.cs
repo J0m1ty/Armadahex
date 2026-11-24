@@ -62,6 +62,7 @@ public class NoticeManager : MonoBehaviour
 
     public void SetError(string error, bool fatal = false) {
         SetState(fatal ? NoticeState.Fatal : NoticeState.Error);
+        GetComponent<FormManager>().Shake();
 
         foreach (Notice notice in notices) {
             if ((fatal && notice.state == NoticeState.Fatal) || (!fatal && notice.state == NoticeState.Error)) {

@@ -151,46 +151,83 @@
     color: var(--accent-ink);
 }
 
-/* under the card: reset and save, the same height on every tab */
+/* under the card: reset sits at the right, and slides over to make room when there's something to save */
 .options-footer {
     flex-direction: row;
     justify-content: flex-end;
     align-items: center;
-    height: 96px;
+    height: 56px;
+    margin-top: 8px;
+}
+
+.options-footer > .reset {
+    transition-duration: 0.2s;
 }
 
 .options-footer > .save {
-    height: 48px;
-    margin-left: 40px;
-    padding: 0 40px;
-    font-size: 18px;
-    letter-spacing: 4px;
-    -unity-slice-scale: 0.375px;
-}
-
-/* a setting that's on or off: a box that fills in when it's on */
-.option-toggle {
+    position: absolute;
+    right: 0;
+    width: 200px;
+    height: 40px;
     margin: 0;
-}
-
-.option-toggle .unity-toggle__checkmark {
-    width: 52px;
-    height: 28px;
-    background-image: none;
+    padding: 0;
     background-color: rgba(0, 0, 0, 0);
     border-width: 2px;
     border-color: rgb(58, 74, 98);
     border-radius: 3px;
+    color: rgb(214, 226, 240);
+    font-size: 16px;
+    letter-spacing: 4px;
+    opacity: 0;
+    visibility: hidden;
+    transition-duration: 0.2s;
+}
+
+.options-footer > .save:hover {
+    background-color: rgba(0, 0, 0, 0);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.options-footer.unsaved > .reset {
+    translate: -232px 0;
+}
+
+.options-footer.unsaved > .save {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ON / OFF: a pill, the picked side filled in */
+.switch {
+    flex-direction: row;
+    padding: 2px;
+    border-width: 2px;
+    border-color: rgb(58, 74, 98);
+    border-radius: 18px;
+}
+
+.switch:hover {
+    border-color: var(--accent);
+}
+
+.switch__side {
+    width: 56px;
+    height: 28px;
+    margin: 0;
+    padding: 0;
+    border-radius: 14px;
+    color: rgb(120, 140, 165);
+    font-size: 15px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
     transition-duration: 0.15s;
 }
 
-.option-toggle:hover .unity-toggle__checkmark {
-    border-color: var(--accent);
-}
-
-.option-toggle:checked .unity-toggle__checkmark {
+.switch__side--picked {
     background-color: var(--accent);
-    border-color: var(--accent);
+    color: var(--accent-ink);
 }
 
 .controls-list .control-name.h2 {
@@ -202,4 +239,18 @@
 .controls-list .unity-list-view__item,
 .controls-list .unity-list-view__item:hover {
     background-color: rgba(0, 0, 0, 0);
+}
+
+/* a key bound to more than one action */
+.controls-list .conflict {
+    width: 24px;
+    height: 24px;
+    margin: 0 12px 0 0;
+    padding: 0;
+    border-radius: 12px;
+    background-color: rgb(225, 75, 70);
+    color: rgb(255, 255, 255);
+    font-size: 15px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
 }

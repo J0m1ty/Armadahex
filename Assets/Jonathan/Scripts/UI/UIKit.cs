@@ -81,4 +81,22 @@ public static class UIKit
         var focused = Focused(document) as VisualElement;
         focused?.Blur();
     }
+
+    // a quick side to side shake, for a button whose action just failed
+    public static void Shake(VisualElement element) {
+        if (element == null) return;
+
+        var start = Time.realtimeSinceStartup;
+        IVisualElementScheduledItem shake = null;
+        shake = element.schedule.Execute(() => {
+            var t = (Time.realtimeSinceStartup - start) / 0.4f;
+            if (t >= 1) {
+                element.style.translate = StyleKeyword.Null;
+                shake.Pause();
+                return;
+            }
+            var x = Mathf.Sin(t * Mathf.PI * 6) * 10 * (1 - t);
+            element.style.translate = new Translate(x, 0);
+        }).Every(16);
+    }
 }

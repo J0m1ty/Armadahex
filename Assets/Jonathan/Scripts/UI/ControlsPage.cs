@@ -90,6 +90,10 @@ public class ControlsPage : MonoBehaviour
         var name = new Label { name = "name" };
         name.AddToClassList("control-name");
         row.Add(name);
+        // a key bound to more than one action gets a red mark; it still saves, the player may mean it
+        var conflict = new Label("!") { name = "conflict" };
+        conflict.AddToClassList("conflict");
+        row.Add(conflict);
         var bind = new Button { name = "bind" };
         bind.AddToClassList("control-key");
         row.Add(bind);
@@ -103,9 +107,11 @@ public class ControlsPage : MonoBehaviour
 
         var name = element.Q<Label>("name");
         var bind = element.Q<Button>("bind");
+        var conflict = element.Q<Label>("conflict");
         name.text = row.name;
         name.EnableInClassList("h2", row.action == null);
         UIKit.Show(bind, row.action != null);
+        UIKit.Show(conflict, row.action != null && Duplicated(row));
         if (row.action == null) return;
 
         var listeningHere = waiting == row;
@@ -131,9 +137,23 @@ public class ControlsPage : MonoBehaviour
         }, keyboard, false);
     }
 
-    // the save button only shows while there's something to save; it keeps its space so nothing moves
+    // the save button only shows while there's something to save, reset slides over for it
     private void Unsaved(bool unsaved) {
-        save?.EnableInClassList("invisible", !unsaved);
+        save?.parent.EnableInClassList("unsaved", unsaved);
+    }
+
+    private static string Path(Row row) {
+        return row.action.bindings[row.index].effectivePath;
+    }
+
+    // only keys count: the mouse buttons are shared on purpose (click selects, drag pans)
+    private bool Duplicated(Row row) {
+        var path = Path(row);
+        if (!path.StartsWith("<Keyboard>")) return false;
+        foreach (var other in rows) {
+            if (other != row && other.action != null && string.Equals(Path(other), path, System.StringComparison.OrdinalIgnoreCase)) return true;
+        }
+        return false;
     }
 
     private static string Pretty(string part) {

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 // two lines just outside a hex plate button, one over its top and one under its bottom, each running
-// down into the cut ends: they tighten on hover, and an echo pulses outward and fades, like the miss marker
+// down into the cut ends: they tighten on hover
 [UxmlElement]
 public partial class Brackets : VisualElement
 {
@@ -16,9 +16,6 @@ public partial class Brackets : VisualElement
     [UxmlAttribute]
     public float reach { get; set; } = 0.6f;
 
-    // seconds between echoes
-    [UxmlAttribute]
-    public float period { get; set; } = 2.4f;
 
     private Color color = Color.white;
     private float hover;
@@ -60,13 +57,6 @@ public partial class Brackets : VisualElement
         // the resting lines, closer and brighter while hovered
         Draw(painter, width, height, Mathf.Lerp(gap, gap * 0.5f, hover), Mathf.Lerp(0.45f, 1, hover));
 
-        // the echo: out and away, then quiet until the next one
-        var t = Mathf.Repeat(Time.realtimeSinceStartup, period) / period;
-        var pulse = Mathf.Clamp01(t / 0.45f);
-        if (pulse < 1) {
-            var ease = 1 - (1 - pulse) * (1 - pulse);
-            Draw(painter, width, height, gap + ease * 18, (1 - pulse) * 0.6f);
-        }
     }
 
     private void Draw(Painter2D painter, float width, float height, float offset, float alpha) {

@@ -127,6 +127,10 @@ public class FormManager : MonoBehaviour
         field.schedule.Execute(() => field.Focus());
     }
 
+    public void Shake() {
+        UIKit.Shake(submitButton);
+    }
+
     public void Clear() {
         usernameField.value = "";
         passwordField.value = "";
