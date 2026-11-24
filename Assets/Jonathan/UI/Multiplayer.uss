@@ -1,0 +1,179 @@
+/* multiplayer: a strip of playlists on the left, a panel fixed to the right that shows the picked one and plays it */
+.multiplayer-title {
+    position: absolute;
+    left: 56px;
+    top: 128px;
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 40px;
+    letter-spacing: 8px;
+}
+
+.back-anchor {
+    position: absolute;
+    left: 48px;
+    top: 48px;
+}
+
+.back-anchor > .back {
+    position: relative;
+    left: 0;
+    top: 0;
+}
+
+/* the strip runs under the title to the side panel, and scrolls sideways */
+.mode-scroll {
+    position: absolute;
+    left: 0;
+    right: 560px;
+    top: 216px;
+    bottom: 96px;
+}
+
+.mode-scroll .unity-scroll-view__content-container {
+    flex-direction: row;
+    height: 100%;
+    padding: 0 56px;
+}
+
+.mode-strip {
+    flex-direction: row;
+    align-items: stretch;
+    height: 100%;
+}
+
+/* a playlist: its picture in a solid frame, the name at the bottom left */
+.mode-card {
+    width: 400px;
+    margin-right: 24px;
+    justify-content: flex-end;
+    border-width: 4px;
+    border-color: rgb(34, 46, 66);
+    background-color: rgb(14, 22, 40);
+    -unity-background-scale-mode: scale-and-crop;
+    transition-duration: 0.15s;
+}
+
+.mode-card:hover {
+    border-color: rgb(120, 140, 165);
+}
+
+.mode-card.lit {
+    border-color: var(--accent);
+}
+
+.mode-card__band {
+    height: 104px;
+    padding: 0 28px 24px 28px;
+    justify-content: flex-end;
+    background-color: rgba(6, 11, 22, 0.82);
+}
+
+.mode-card__name {
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 28px;
+    letter-spacing: 4px;
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.mode-card.locked {
+    opacity: 0.45;
+}
+
+.mode-card.locked:hover {
+    border-color: rgb(34, 46, 66);
+}
+
+.mode-card__tag {
+    position: absolute;
+    top: 24px;
+    left: 28px;
+}
+
+.mode-command {
+    background-image: url("project://database/Assets/Jonathan/Sprites/gameModeImages/blurple revenge.png");
+}
+
+.mode-advanced-combat {
+    background-image: url("project://database/Assets/Jonathan/Sprites/gameModeImages/ur not urself when ur hungry.png");
+}
+
+.mode-tactical-salvo {
+    background-image: url("project://database/Assets/Jonathan/Sprites/gameModeImages/tokyo troubles.png");
+}
+
+.mode-bonus-barrage {
+    background-image: url("project://database/Assets/Jonathan/Sprites/gameModeImages/IMageONE.png");
+}
+
+.mode-classic-battleship {
+    background-image: url("project://database/Assets/Jonathan/Sprites/gameModeImages/IMage two.png");
+}
+
+/* the side panel: what's picked up top, how to play it at the bottom */
+.side {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 560px;
+    padding: 128px 56px 72px 56px;
+    justify-content: space-between;
+    background-color: rgba(10, 16, 30, 0.94);
+    border-left-width: 2px;
+    border-color: rgba(200, 220, 255, 0.12);
+}
+
+.side-stats {
+    margin: 0;
+    padding: 0;
+    color: rgb(120, 140, 165);
+    font-size: 22px;
+    letter-spacing: 2px;
+}
+
+.side-name {
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 40px;
+    letter-spacing: 4px;
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.side-description {
+    margin: 24px 0 0 0;
+    padding: 0;
+    color: rgb(170, 186, 206);
+    font-size: 21px;
+    white-space: normal;
+}
+
+.side-bottom {
+    align-items: stretch;
+}
+
+.side .field {
+    margin: 0 0 24px 0;
+}
+
+.side-status {
+    height: 40px;
+    margin: 0 0 16px 0;
+    padding: 0;
+    color: rgb(214, 226, 240);
+    font-size: 20px;
+    letter-spacing: 4px;
+    -unity-text-align: middle-center;
+}
+
+.side .play {
+    height: 72px;
+    font-size: 24px;
+    letter-spacing: 8px;
+}

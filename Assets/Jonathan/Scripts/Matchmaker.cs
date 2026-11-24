@@ -41,22 +41,15 @@ public class Matchmaker : MonoBehaviourPunCallbacks
             matchmakingPanel.text = value;
         }
     }
-    private Color panelColor {
-        get {
-            return matchmakingPanel.resolvedStyle.color;
-        }
+    // errors show in the shared danger color
+    private bool panelError {
         set {
-            matchmakingPanel.style.color = value;
+            matchmakingPanel.EnableInClassList("danger", value);
         }
     }
 
     private VisualElement backButton; // hide this when searching
 
-    [SerializeField]
-    private Color matchmakingColor;
-    [SerializeField]
-    private Color errorColor;
-    
     private MatchmakingStage _stage = MatchmakingStage.None;
     public MatchmakingStage stage {
         get {
@@ -100,7 +93,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
             return;
         }
         
-        panelColor = matchmakingColor;
+        panelError = false;
 
         if (stage == MatchmakingStage.None) {
             gameMode = stateManager.currentState.gameMode;
@@ -274,13 +267,13 @@ public class Matchmaker : MonoBehaviourPunCallbacks
         button.SetEnabled(true);
         buttonText.text = stateManager.currentState.buttonText;
 
-        panelColor = matchmakingColor;
+        panelError = false;
 
         stateManager.lockedIn = false;
     }
 
     private void Error(string message, float lifetime = 0) {
-        panelColor = errorColor;
+        panelError = true;
 
         stateManager.stateInput.SetEnabled(false);
         button.SetEnabled(false);

@@ -34,19 +34,21 @@ public class StateManager : MonoBehaviour
     [SerializeField]
     private UIDocument document;
 
-    // every mode but the default gets a button in here
+    // every mode but the default gets a card in here
     private VisualElement modes;
+    private Label stats;
     private Label stateName;
     private Label stateHeader;
     private Label stateDescription;
     private Button stateButton;
     public TextField stateInput { get; private set; }
 
-    private Dictionary<string, Button> modeButtons = new Dictionary<string, Button>();
+    private Dictionary<string, VisualElement> modeButtons = new Dictionary<string, VisualElement>();
 
     private void Awake() {
         var root = document.rootVisualElement;
         modes = root.Q("modes");
+        stats = root.Q<Label>("stats");
         stateName = root.Q<Label>("stateName");
         stateHeader = root.Q<Label>("stateHeader");
         stateDescription = root.Q<Label>("stateDescription");
@@ -58,10 +60,10 @@ public class StateManager : MonoBehaviour
         foreach (MenuState state in states) {
             if (!state.isDefault) {
                 var name = state.name;
-                var button = new Button { text = name.ToUpper(), name = name };
-                UIKit.OnClick(button, () => SetState(name), ClickSound.Light);
-                modes.Add(button);
-                modeButtons[name] = button;
+                var card = Card(name);
+                UIKit.OnClick(card, () => SetState(name), ClickSound.Light);
+                modes.Add(card);
+                modeButtons[name] = card;
             }
         }
 
@@ -108,6 +110,7 @@ public class StateManager : MonoBehaviour
             UIKit.SetLit(pair.Value, pair.Key == currentState.name);
         }
 
+        UIKit.Show(stats, currentState.isDefault);
         if (currentState.isDefault) {
             UIKit.Show(stateName, false);
             UIKit.Show(stateDescription, false);
@@ -123,7 +126,7 @@ public class StateManager : MonoBehaviour
             stateHeader.text = "DETAILS";
         }
         
-        stateName.text = currentState.name;
+        stateName.text = currentState.name.ToUpper();
         
         stateDescription.text = currentState.description;
 
@@ -144,5 +147,20 @@ public class StateManager : MonoBehaviour
             }
             i++;
         }
+    }
+
+    // a playlist's card: its picture (from the mode's class in the stylesheet) with the name along the bottom
+    private static VisualElement Card(string name) {
+        var card = new VisualElement { name = name };
+        card.AddToClassList("mode-card");
+        card.AddToClassList("mode-" + name.ToLower().Replace(' ', '-'));
+
+        var band = new VisualElement();
+        band.AddToClassList("mode-card__band");
+        var label = new Label(name.ToUpper());
+        label.AddToClassList("mode-card__name");
+        band.Add(label);
+        card.Add(band);
+        return card;
     }
 }

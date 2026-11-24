@@ -1,24 +1,43 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="Base.uss" />
-    <ui:VisualElement class="page">
-        <ui:VisualElement class="row">
-            <ui:VisualElement name="back" class="row">
-                <ui:Button name="backButton" text="Back" />
-                <KeyLabel action="UI/Cancel" />
+    <ui:Style src="Theme.uss" />
+    <ui:Style src="Multiplayer.uss" />
+    <ui:VisualElement class="screen">
+        <Backdrop class="backdrop" />
+        <ui:Label text="MULTIPLAYER" class="multiplayer-title" />
+
+        <ui:ScrollView mode="Horizontal" horizontal-scroller-visibility="Hidden" vertical-scroller-visibility="Hidden" class="mode-scroll">
+            <ui:VisualElement name="modes" class="mode-strip">
+                <ui:VisualElement class="mode-card mode-command locked">
+                    <ui:Label text="SOON" class="key-chip mode-card__tag" />
+                    <ui:VisualElement class="mode-card__band">
+                        <ui:Label text="COMMAND" class="mode-card__name" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
             </ui:VisualElement>
-            <ui:Label text="Multiplayer" class="h1" />
+        </ui:ScrollView>
+
+        <ui:VisualElement class="side">
+            <ui:VisualElement>
+                <ui:Label name="stats" class="side-stats" />
+                <ui:Label name="stateHeader" class="hidden" />
+                <ui:Label name="stateName" class="side-name" />
+                <ui:Label name="stateDescription" class="side-description" />
+            </ui:VisualElement>
+            <ui:VisualElement class="side-bottom">
+                <ui:TextField name="code" placeholder-text="Code" max-length="4" class="field" />
+                <ui:Label name="matchmaking" class="side-status hidden" />
+                <ui:Button name="join" text="PLAY" class="plate play">
+                    <Brackets class="brackets" />
+                </ui:Button>
+            </ui:VisualElement>
         </ui:VisualElement>
-        <ui:Label name="stats" />
 
-        <ui:VisualElement name="modes" class="row" />
-
-        <ui:Label name="stateHeader" text="SELECT GAME MODE" class="h2" />
-        <ui:Label name="stateName" />
-        <ui:Label name="stateDescription" class="note" />
-        <ui:TextField name="code" label="Code" max-length="4" />
-        <ui:Button name="join" text="Play" />
-        <ui:Label text="Pick a mode above. Matches pair you with the next player looking for the same mode." class="note" />
-
-        <ui:Label name="matchmaking" class="h2 hidden" />
+        <ui:VisualElement name="back" class="back-anchor">
+            <ui:Button name="backButton" class="back">
+                <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip" />
+                <ui:Label text="BACK" picking-mode="Ignore" class="back-text" />
+            </ui:Button>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

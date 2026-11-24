@@ -40,33 +40,6 @@
     margin-bottom: 16px;
 }
 
-/* fields: filled boxes named by their placeholder; focus lights a bar on the left */
-.field {
-    width: auto;
-    margin: 16px 0 0 0;
-}
-
-.field > .unity-base-text-field__input {
-    height: 64px;
-    padding: 0 20px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border-width: 0 0 0 3px;
-    border-color: rgba(0, 0, 0, 0);
-    border-radius: 0;
-    color: rgb(240, 246, 255);
-    font-size: 24px;
-    transition-duration: 0.15s;
-}
-
-.field:focus > .unity-base-text-field__input {
-    border-color: var(--accent);
-    background-color: rgba(255, 255, 255, 0.09);
-}
-
-.field .unity-base-text-field__input--placeholder {
-    color: rgb(90, 108, 130);
-}
-
 /* errors get their own line above the button, always there so nothing moves */
 .message-slot {
     height: 56px;
