@@ -21,5 +21,5 @@ MonoBehaviour:
   passive: When you sink a ship, one enemy hex is revealed.
   specialName: Flare
   special: Once per game, reveal a small area without firing.
-  unlockedByDefault: 1
-  unlockedBy: 
+  source: 0
+  requirement: 

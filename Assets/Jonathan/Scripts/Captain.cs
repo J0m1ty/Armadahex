@@ -2,6 +2,20 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// where a captain comes from
+public enum CaptainSource {
+    Starter,
+    Campaign,
+    Achievement
+}
+
+// locked until its requirement is met, then unlockable until the player claims it
+public enum CaptainState {
+    Locked,
+    Unlockable,
+    Unlocked
+}
+
 // one captain: who they are and the passive and special they bring to a match that uses captains.
 // a new captain is a new file in Resources/Captains. captains aren't played yet, only picked
 [CreateAssetMenu(menuName = "Armadahex/Captain")]
@@ -27,9 +41,9 @@ public class Captain : ScriptableObject
     public string special;
 
     [Header("Unlock")]
-    public bool unlockedByDefault;
-    // how a locked captain is found, e.g. "CAMPAIGN" or "ACHIEVEMENT"
-    public string unlockedBy;
+    public CaptainSource source;
+    // exactly what unlocks them, e.g. "Clear Mission 4: Iron Strait" or "Play 30 multiplayer games"
+    public string requirement;
 
     public string initials {
         get {
@@ -56,22 +70,37 @@ public static class Captains
         return All.FirstOrDefault(c => c.id == id);
     }
 
-    // found through the campaign or achievements, which mark them in PlayerPrefs
+    // starters are always unlocked; the campaign and achievements mark the rest unlockable, the player claims them
+    public static CaptainState State(Captain captain) {
+        if (captain.source == CaptainSource.Starter) return CaptainState.Unlocked;
+        return (CaptainState)PlayerPrefs.GetInt(Constants.CAPTAIN_STATE_PREF_PREFIX + captain.id, (int)CaptainState.Locked);
+    }
+
     public static bool IsUnlocked(Captain captain) {
-        return captain.unlockedByDefault || PlayerPrefs.GetInt(Constants.CAPTAIN_UNLOCKED_PREF_PREFIX + captain.id, 0) == 1;
+        return State(captain) == CaptainState.Unlocked;
+    }
+
+    // what the campaign or an achievement calls when the requirement is met
+    public static void MakeUnlockable(Captain captain) {
+        if (State(captain) == CaptainState.Locked) PlayerPrefs.SetInt(Constants.CAPTAIN_STATE_PREF_PREFIX + captain.id, (int)CaptainState.Unlockable);
+    }
+
+    // the player claiming an unlockable captain
+    public static void Unlock(Captain captain) {
+        if (State(captain) == CaptainState.Unlockable) PlayerPrefs.SetInt(Constants.CAPTAIN_STATE_PREF_PREFIX + captain.id, (int)CaptainState.Unlocked);
     }
 
     public static int unlockedCount => All.Count(IsUnlocked);
 
-    // the captain taken into matches, the first unlocked one until the player picks
-    public static Captain chosen {
+    // the active captain, taken into matches; the first unlocked one until the player picks
+    public static Captain active {
         get {
             var picked = Find(PlayerPrefs.GetString(Constants.CAPTAIN_PREF_KEY, ""));
             return picked != null && IsUnlocked(picked) ? picked : All.FirstOrDefault(IsUnlocked);
         }
     }
 
-    public static void Choose(Captain captain) {
+    public static void MakeActive(Captain captain) {
         if (captain == null || !IsUnlocked(captain)) return;
         PlayerPrefs.SetString(Constants.CAPTAIN_PREF_KEY, captain.id);
     }

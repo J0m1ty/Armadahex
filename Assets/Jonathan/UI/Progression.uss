@@ -25,6 +25,11 @@
     width: 520px;
     margin-right: 40px;
     padding: 32px;
+    -unity-background-image-tint-color: rgba(24, 36, 62, 0.97);
+}
+
+.captain-card > .panel-edge {
+    -unity-background-image-tint-color: rgba(200, 220, 255, 0.32);
 }
 
 .captain-card__head {
@@ -91,18 +96,58 @@
 
 .captain-card__foot {
     flex-grow: 1;
-    flex-direction: row;
     justify-content: flex-end;
-    align-items: flex-end;
 }
 
-.captain-lock {
-    flex-grow: 1;
+/* where an earned captain comes from: a lock while it's still locked, the source and the exact requirement */
+.captain-source {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 16px;
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.captain-source__lock {
+    width: 20px;
+    height: 26px;
+    margin-right: 16px;
+    color: rgb(120, 140, 165);
+}
+
+.captain-source__kind {
     margin: 0;
     padding: 0;
     color: rgb(120, 140, 165);
-    font-size: 15px;
-    letter-spacing: 4px;
+    font-size: 13px;
+    letter-spacing: 6px;
+    -unity-font-style: bold;
+}
+
+.captain-source__requirement {
+    margin: 4px 0 0 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 18px;
+    white-space: normal;
+}
+
+.captain-active {
+    height: 64px;
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 22px;
+    letter-spacing: 10px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.captain-action {
+    height: 64px;
+    font-size: 22px;
+    letter-spacing: 8px;
+    -unity-slice-scale: 0.5px;
 }
 
 .captain-card--locked .captain-card__portrait,
@@ -138,12 +183,12 @@
 }
 
 .captain-tile {
-    width: 156px;
-    margin: 0 16px 16px 0;
+    width: 18%;
+    margin: 0 2% 24px 0;
 }
 
 .captain-tile__portrait {
-    height: 156px;
+    height: 200px;
     border-width: 3px;
     border-color: rgb(34, 46, 66);
     transition-duration: 0.15s;
@@ -158,32 +203,41 @@
 }
 
 .captain-tile__name {
-    margin: 8px 0 0 0;
+    margin: 10px 0 0 0;
     padding: 0;
     color: rgb(214, 226, 240);
-    font-size: 14px;
+    font-size: 16px;
     letter-spacing: 2px;
 }
 
-.captain-tile--locked {
-    opacity: 0.35;
+.captain-tile--locked .captain-initials,
+.captain-tile--locked .captain-tile__name {
+    opacity: 0.4;
 }
 
-.captain-tile__chosen {
+.captain-tile__lock {
     position: absolute;
-    left: 8px;
-    top: 8px;
+    right: 12px;
+    bottom: 12px;
+    width: 16px;
+    height: 21px;
+    color: rgb(120, 140, 165);
+}
+
+.captain-tile--unlockable .captain-tile__portrait {
+    border-color: rgb(150, 170, 200);
+}
+
+.captain-tile__tag {
+    position: absolute;
+    left: 10px;
+    top: 10px;
     min-width: 0;
-    padding: 1px 6px;
-    font-size: 11px;
+    padding: 1px 8px;
+    font-size: 12px;
     background-color: var(--accent);
     border-color: var(--accent);
     color: var(--accent-ink);
-    display: none;
-}
-
-.captain-tile--chosen .captain-tile__chosen {
-    display: flex;
 }
 
 /* stats: three columns along the bottom */

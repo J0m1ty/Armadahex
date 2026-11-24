@@ -21,5 +21,5 @@ MonoBehaviour:
   passive: The enemy's largest ship is shown on a ring of hexes.
   specialName: Sonar Sweep
   special: Once per game, learn how many ships are in a row.
-  unlockedByDefault: 0
-  unlockedBy: Achievement
+  source: 2
+  requirement: Play 30 multiplayer games

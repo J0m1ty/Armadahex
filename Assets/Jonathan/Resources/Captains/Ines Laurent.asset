@@ -21,5 +21,5 @@ MonoBehaviour:
   passive: A turn where you hit gives you one more shot.
   specialName: Barrage
   special: Once per game, fire at four scattered hexes.
-  unlockedByDefault: 0
-  unlockedBy: Campaign
+  source: 1
+  requirement: 'Clear Mission 6: Iron Rain'

@@ -8,8 +8,11 @@ using UnityEngine.UIElements;
 public partial class ProgressionView : VisualElement
 {
     private const string dash = "—";
+    // tiles fade out over this many points as they near the bottom of the library
+    private const float fadeDistance = 120f;
 
     private Captain highlighted;
+    private ScrollView grid;
     private readonly Dictionary<Captain, VisualElement> tiles = new Dictionary<Captain, VisualElement>();
 
     public ProgressionView() {
@@ -19,7 +22,7 @@ public partial class ProgressionView : VisualElement
     private void Build() {
         if (!Application.isPlaying) return;
 
-        var grid = this.Q<ScrollView>("captainGrid");
+        grid = this.Q<ScrollView>("captainGrid");
         if (grid == null || tiles.Count > 0) return;
 
         foreach (var captain in Captains.All) {
@@ -28,26 +31,32 @@ public partial class ProgressionView : VisualElement
             tiles[captain] = tile;
         }
 
-        UIKit.OnClick(this.Q("chooseCaptain"), () => {
-            Captains.Choose(highlighted);
+        // one button, its job follows the captain: unlock a claimable one, or make an unlocked one active
+        UIKit.OnClick(this.Q("captainAction"), () => {
+            if (highlighted == null) return;
+            if (Captains.State(highlighted) == CaptainState.Unlockable) Captains.Unlock(highlighted);
+            else Captains.MakeActive(highlighted);
             Highlight(highlighted);
         });
 
-        Highlight(Captains.chosen);
+        Highlight(Captains.active);
         FillStats();
+        schedule.Execute(Fade).Every(16);
     }
 
     private VisualElement Tile(Captain captain) {
         var tile = new VisualElement();
         tile.AddToClassList("captain-tile");
-        tile.EnableInClassList("captain-tile--locked", !Captains.IsUnlocked(captain));
 
         var portrait = Portrait(captain);
         portrait.AddToClassList("captain-tile__portrait");
-        var chosen = new Label("CHOSEN");
-        chosen.AddToClassList("key-chip");
-        chosen.AddToClassList("captain-tile__chosen");
-        portrait.Add(chosen);
+        var tag = new Label { name = "tag" };
+        tag.AddToClassList("key-chip");
+        tag.AddToClassList("captain-tile__tag");
+        portrait.Add(tag);
+        var lockIcon = new LockIcon { name = "lock" };
+        lockIcon.AddToClassList("captain-tile__lock");
+        portrait.Add(lockIcon);
         tile.Add(portrait);
 
         var name = new Label(captain.captainName.ToUpper());
@@ -77,10 +86,19 @@ public partial class ProgressionView : VisualElement
         highlighted = captain;
         if (captain == null) return;
 
-        var chosen = Captains.chosen;
+        var active = Captains.active;
         foreach (var pair in tiles) {
-            pair.Value.EnableInClassList("lit", pair.Key == captain);
-            pair.Value.EnableInClassList("captain-tile--chosen", pair.Key == chosen);
+            var state = Captains.State(pair.Key);
+            var tile = pair.Value;
+            tile.EnableInClassList("lit", pair.Key == captain);
+            tile.EnableInClassList("captain-tile--locked", state == CaptainState.Locked);
+            tile.EnableInClassList("captain-tile--unlockable", state == CaptainState.Unlockable);
+            tile.EnableInClassList("captain-tile--active", pair.Key == active);
+
+            var tag = tile.Q<Label>("tag");
+            tag.text = pair.Key == active ? "ACTIVE" : state == CaptainState.Unlockable ? "NEW" : "";
+            UIKit.Show(tag, tag.text != "");
+            UIKit.Show(tile.Q("lock"), state == CaptainState.Locked);
         }
 
         var portrait = this.Q("captainPortrait");
@@ -89,23 +107,40 @@ public partial class ProgressionView : VisualElement
         big.AddToClassList("captain-card__portrait");
         portrait.Add(big);
 
-        var unlocked = Captains.IsUnlocked(captain);
+        var captainState = Captains.State(captain);
         this.Q<Label>("captainName").text = captain.captainName.ToUpper();
         this.Q<Label>("captainEpithet").text = captain.epithet.ToUpper();
         this.Q<Label>("passiveName").text = captain.passiveName;
         this.Q<Label>("passive").text = captain.passive;
         this.Q<Label>("specialName").text = captain.specialName;
         this.Q<Label>("special").text = captain.special;
-        this.Q("captainCard").EnableInClassList("captain-card--locked", !unlocked);
+        this.Q("captainCard").EnableInClassList("captain-card--locked", captainState == CaptainState.Locked);
 
-        var lockLabel = this.Q<Label>("captainLock");
-        lockLabel.text = unlocked ? "" : "FOUND IN THE " + captain.unlockedBy.ToUpper();
-        UIKit.Show(lockLabel, !unlocked);
+        // where they come from, always shown for captains that had to be earned
+        var source = this.Q("captainSource");
+        UIKit.Show(source, captain.source != CaptainSource.Starter);
+        UIKit.Show(this.Q("captainSourceLock"), captainState == CaptainState.Locked);
+        this.Q<Label>("captainSourceKind").text = captain.source.ToString().ToUpper();
+        this.Q<Label>("captainRequirement").text = captain.requirement;
 
-        var choose = this.Q<Button>("chooseCaptain");
-        UIKit.Show(choose, unlocked);
-        choose.text = captain == chosen ? "CHOSEN" : "CHOOSE";
-        choose.SetEnabled(captain != chosen);
+        // the foot: ACTIVE for the active captain, otherwise the one thing to do, if anything
+        var isActive = captain == active;
+        UIKit.Show(this.Q("captainActive"), isActive);
+        var action = this.Q<Button>("captainAction");
+        UIKit.Show(action, !isActive && captainState != CaptainState.Locked);
+        action.text = captainState == CaptainState.Unlockable ? "UNLOCK" : "MAKE ACTIVE";
+    }
+
+    // tiles near the bottom edge of the library fade out, so it reads as more below
+    private void Fade() {
+        if (grid == null) return;
+
+        var view = grid.contentViewport.worldBound;
+        foreach (var tile in tiles.Values) {
+            var bounds = tile.worldBound;
+            var below = view.yMax - bounds.center.y;
+            tile.style.opacity = Mathf.Clamp01(below / fadeDistance);
+        }
     }
 
     private void FillStats() {

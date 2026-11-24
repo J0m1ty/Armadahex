@@ -21,5 +21,5 @@ MonoBehaviour:
   passive: Your first shot each game also reveals the hexes around it.
   specialName: Broadside
   special: Once per game, fire at three hexes in a line.
-  unlockedByDefault: 1
-  unlockedBy: 
+  source: 0
+  requirement: 

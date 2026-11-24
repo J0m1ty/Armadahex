@@ -27,7 +27,7 @@ public static class Constants
     public const string PLAYER_COLOR_PREF_KEY = "PlayerColor";
     public const string ENEMY_COLOR_PREF_KEY = "EnemyColor";
     public const string CAPTAIN_PREF_KEY = "Captain";
-    public const string CAPTAIN_UNLOCKED_PREF_PREFIX = "CaptainUnlocked_";
+    public const string CAPTAIN_STATE_PREF_PREFIX = "CaptainState_";
     // stats, nothing records these yet; the progression page shows a dash for any that are missing
     public const string STAT_CAMPAIGN_PROGRESS = "StatCampaignProgress";
     public const string STAT_SINGLEPLAYER_GAMES = "StatSingleplayerGames";
