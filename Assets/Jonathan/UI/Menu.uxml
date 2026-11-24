@@ -2,6 +2,7 @@
     <ui:Style src="Base.uss" />
     <ui:Style src="Theme.uss" />
     <ui:Style src="Options.uss" />
+    <ui:Style src="Progression.uss" />
     <ui:VisualElement class="page">
         <ui:VisualElement name="home">
             <ui:Label text="ARMADAHEX" class="h1" />
@@ -130,39 +131,97 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <ui:VisualElement name="progressionPage" class="hidden">
-            <ui:VisualElement class="row">
-                <ui:Button name="progressionBack" text="Back" />
-                <KeyLabel action="UI/Cancel" />
-                <ui:Label text="Progression" class="h1" />
-            </ui:VisualElement>
-            <ui:VisualElement class="row">
-                <ui:Button name="captainsTab" text="Captains" />
-                <ui:Button name="achievementsTab" text="Achievements" />
-                <ui:Button name="statisticsTab" text="Statistics" />
-            </ui:VisualElement>
-            <ui:VisualElement name="captains">
-                <ui:VisualElement class="row">
-                    <ui:Button text="No captain (plays as before)" class="lit" />
-                    <ui:Button text="Locked" enabled="false" />
-                    <ui:Button text="Locked" enabled="false" />
-                    <ui:Button text="Locked" enabled="false" />
+        <ui:VisualElement name="progressionPage" class="hidden screen progression">
+            <Backdrop class="backdrop" />
+            <ui:Button name="progressionBack" class="back">
+                <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip" />
+                <ui:Label text="BACK" picking-mode="Ignore" class="back-text" />
+            </ui:Button>
+            <ui:Label text="PROGRESSION" class="page-title" />
+            <ProgressionView class="progression-body">
+                <ui:VisualElement class="progression-top">
+                    <ui:VisualElement name="captainCard" class="captain-card panel">
+                        <ui:VisualElement class="panel-edge" picking-mode="Ignore" />
+                        <ui:VisualElement class="captain-card__head">
+                            <ui:VisualElement name="captainPortrait" />
+                            <ui:VisualElement class="captain-card__who">
+                                <ui:Label name="captainName" class="captain-name" />
+                                <ui:Label name="captainEpithet" class="captain-epithet" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="captain-ability">
+                            <ui:Label text="PASSIVE" class="captain-ability__kind" />
+                            <ui:Label name="passiveName" class="captain-ability__name" />
+                            <ui:Label name="passive" class="captain-ability__text" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="captain-ability">
+                            <ui:Label text="SPECIAL" class="captain-ability__kind" />
+                            <ui:Label name="specialName" class="captain-ability__name" />
+                            <ui:Label name="special" class="captain-ability__text" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="captain-card__foot">
+                            <ui:Label name="captainLock" class="captain-lock" />
+                            <ui:Button name="chooseCaptain" text="CHOOSE" class="outline-button" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:ScrollView name="captainGrid" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" class="captain-grid" />
                 </ui:VisualElement>
-                <ui:Label text="Captains are on the way" class="h2" />
-                <ui:Label text="Each captain will bring a passive and a special ability. Pick one here before a match. Bots get their own settings, separate from captains." class="note" />
-            </ui:VisualElement>
-            <ui:VisualElement name="achievements">
-                <ui:Label text="No achievements yet" class="h2" />
-                <ui:Label text="Achievements will be listed here with your progress toward each one." class="note" />
-            </ui:VisualElement>
-            <ui:VisualElement name="statistics">
-                <ui:Label text="Matches: —" />
-                <ui:Label text="Wins: —" />
-                <ui:Label text="Accuracy: —" />
-                <ui:Label text="Ships sunk: —" />
-                <ui:Label text="Nothing recorded yet" class="h2" />
-                <ui:Label text="Match results aren't saved yet. Once they are, your totals and per-mode numbers show up here." class="note" />
-            </ui:VisualElement>
+                <ui:VisualElement class="progression-stats">
+                    <ui:VisualElement class="stat-group">
+                        <ui:Label text="SINGLEPLAYER" class="stat-heading" />
+                        <ui:VisualElement class="stat-row">
+                            <ui:Label text="CAMPAIGN" class="stat-name" />
+                            <ui:Label name="statCampaign" class="stat-value" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="stat-row">
+                            <ui:Label text="GAMES PLAYED" class="stat-name" />
+                            <ui:Label name="statSingleplayerGames" class="stat-value" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="stat-group stat-group--middle">
+                        <ui:Label text="MULTIPLAYER" class="stat-heading" />
+                        <ui:VisualElement class="stat-row">
+                            <ui:Label text="EXPERIENCE" class="stat-name" />
+                            <ui:Label name="statMultiplayerXp" class="stat-value" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="stat-row">
+                            <ui:Label text="RANK" class="stat-name" />
+                            <ui:Label name="statMultiplayerRank" class="stat-value" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="stat-row">
+                            <ui:Label text="WON" class="stat-name" />
+                            <ui:Label name="statWins" class="stat-value" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="stat-row">
+                            <ui:Label text="LOST" class="stat-name" />
+                            <ui:Label name="statLosses" class="stat-value" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="stat-group">
+                        <ui:Label text="PERSONAL" class="stat-heading" />
+                        <ui:VisualElement class="stat-row">
+                            <ui:Label text="FAVORITE CAPTAIN" class="stat-name" />
+                            <ui:Label name="statFavoriteCaptain" class="stat-value" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="stat-row">
+                            <ui:Label text="FAVORITE SQUARE" class="stat-name" />
+                            <ui:Label name="statFavoriteSquare" class="stat-value" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="stat-row">
+                            <ui:Label text="FAVORITE WEAPON" class="stat-name" />
+                            <ui:Label name="statFavoriteWeapon" class="stat-value" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="stat-row">
+                            <ui:Label text="TIME PLAYED" class="stat-name" />
+                            <ui:Label name="statTimePlayed" class="stat-value" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="stat-row">
+                            <ui:Label text="CAPTAINS" class="stat-name" />
+                            <ui:Label name="statCaptains" class="stat-value" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ProgressionView>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

@@ -115,6 +115,45 @@
     border-color: var(--accent);
 }
 
+/* a page's title, top left under back */
+.page-title {
+    position: absolute;
+    left: 56px;
+    top: 128px;
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 40px;
+    letter-spacing: 8px;
+}
+
+/* a secondary action: an outline that lights on hover */
+.outline-button {
+    height: 44px;
+    margin: 0;
+    padding: 0 32px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 2px;
+    border-color: rgb(58, 74, 98);
+    border-radius: 3px;
+    color: rgb(214, 226, 240);
+    font-size: 16px;
+    letter-spacing: 4px;
+    transition-duration: 0.15s;
+}
+
+.outline-button:hover {
+    background-color: rgba(0, 0, 0, 0);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.outline-button:disabled {
+    opacity: 1;
+    border-color: rgba(0, 0, 0, 0);
+    color: rgb(120, 140, 165);
+}
+
 /* a quiet button that is only its word */
 .text-button {
     margin: 0;

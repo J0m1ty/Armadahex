@@ -1,0 +1,236 @@
+/* progression: the highlighted captain's card and the library above, the player's stats along the bottom */
+.progression {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.progression-body {
+    position: absolute;
+    left: 56px;
+    right: 56px;
+    top: 216px;
+    bottom: 56px;
+}
+
+.progression-top {
+    flex-grow: 1;
+    flex-direction: row;
+}
+
+/* the captain's card */
+.captain-card {
+    width: 520px;
+    margin-right: 40px;
+    padding: 32px;
+}
+
+.captain-card__head {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.captain-card__portrait {
+    width: 112px;
+    height: 112px;
+    margin-right: 24px;
+}
+
+.captain-card__portrait > .captain-initials {
+    font-size: 44px;
+}
+
+.captain-name {
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 32px;
+    letter-spacing: 3px;
+    -unity-font-style: bold;
+}
+
+.captain-epithet {
+    margin: 4px 0 0 0;
+    padding: 0;
+    color: rgb(120, 140, 165);
+    font-size: 15px;
+    letter-spacing: 6px;
+}
+
+.captain-ability {
+    margin-bottom: 20px;
+}
+
+.captain-ability__kind {
+    margin: 0;
+    padding: 0;
+    color: rgb(120, 140, 165);
+    font-size: 13px;
+    letter-spacing: 6px;
+    -unity-font-style: bold;
+}
+
+.captain-ability__name {
+    margin: 4px 0 0 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 21px;
+    -unity-font-style: bold;
+}
+
+.captain-ability__text {
+    margin: 4px 0 0 0;
+    padding: 0;
+    color: rgb(170, 186, 206);
+    font-size: 17px;
+    white-space: normal;
+}
+
+.captain-card__foot {
+    flex-grow: 1;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+.captain-lock {
+    flex-grow: 1;
+    margin: 0;
+    padding: 0;
+    color: rgb(120, 140, 165);
+    font-size: 15px;
+    letter-spacing: 4px;
+}
+
+.captain-card--locked .captain-card__portrait,
+.captain-card--locked .captain-name {
+    opacity: 0.45;
+}
+
+/* a portrait, or initials on a dark square until there's one */
+.captain-portrait {
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(20, 30, 52);
+    -unity-background-scale-mode: scale-and-crop;
+}
+
+.captain-initials {
+    margin: 0;
+    padding: 0;
+    color: rgb(120, 140, 165);
+    font-size: 36px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+}
+
+/* the library: small tiles that wrap and scroll up and down */
+.captain-grid {
+    flex-grow: 1;
+}
+
+.captain-grid .unity-scroll-view__content-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.captain-tile {
+    width: 156px;
+    margin: 0 16px 16px 0;
+}
+
+.captain-tile__portrait {
+    height: 156px;
+    border-width: 3px;
+    border-color: rgb(34, 46, 66);
+    transition-duration: 0.15s;
+}
+
+.captain-tile:hover > .captain-tile__portrait {
+    border-color: rgb(120, 140, 165);
+}
+
+.captain-tile.lit > .captain-tile__portrait {
+    border-color: var(--accent);
+}
+
+.captain-tile__name {
+    margin: 8px 0 0 0;
+    padding: 0;
+    color: rgb(214, 226, 240);
+    font-size: 14px;
+    letter-spacing: 2px;
+}
+
+.captain-tile--locked {
+    opacity: 0.35;
+}
+
+.captain-tile__chosen {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    min-width: 0;
+    padding: 1px 6px;
+    font-size: 11px;
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+    display: none;
+}
+
+.captain-tile--chosen .captain-tile__chosen {
+    display: flex;
+}
+
+/* stats: three columns along the bottom */
+.progression-stats {
+    flex-direction: row;
+    margin-top: 32px;
+}
+
+.stat-group {
+    flex-grow: 1;
+    flex-basis: 0;
+}
+
+.stat-group--middle {
+    margin: 0 48px;
+}
+
+.stat-heading {
+    margin: 0 0 8px 0;
+    padding: 0 0 8px 0;
+    border-bottom-width: 2px;
+    border-color: rgba(200, 220, 255, 0.25);
+    color: rgb(120, 140, 165);
+    font-size: 16px;
+    letter-spacing: 8px;
+    -unity-font-style: bold;
+}
+
+.stat-row {
+    flex-direction: row;
+    justify-content: space-between;
+    height: 32px;
+    align-items: center;
+}
+
+.stat-name {
+    margin: 0;
+    padding: 0;
+    color: rgb(170, 186, 206);
+    font-size: 16px;
+    letter-spacing: 2px;
+}
+
+.stat-value {
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 17px;
+    -unity-font-style: bold;
+}

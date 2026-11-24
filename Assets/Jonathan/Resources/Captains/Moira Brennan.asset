@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d0ebe88ce8351e4b89898861d67007e, type: 3}
+  m_Name: Moira Brennan
+  m_EditorClassIdentifier: Assembly-CSharp::Captain
+  id: brennan
+  captainName: Moira Brennan
+  epithet: The Ironclad
+  order: 7
+  portrait: {fileID: 0}
+  passiveName: Ironclad
+  passive: The first hit on each of your ships is shrugged off.
+  specialName: Brace
+  special: Once per game, your fleet ignores the next enemy turn.
+  unlockedByDefault: 0
+  unlockedBy: Campaign

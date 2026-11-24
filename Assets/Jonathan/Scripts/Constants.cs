@@ -26,5 +26,18 @@ public static class Constants
     public const string INPUT_BINDINGS_PREF_KEY = "InputBindings";
     public const string PLAYER_COLOR_PREF_KEY = "PlayerColor";
     public const string ENEMY_COLOR_PREF_KEY = "EnemyColor";
+    public const string CAPTAIN_PREF_KEY = "Captain";
+    public const string CAPTAIN_UNLOCKED_PREF_PREFIX = "CaptainUnlocked_";
+    // stats, nothing records these yet; the progression page shows a dash for any that are missing
+    public const string STAT_CAMPAIGN_PROGRESS = "StatCampaignProgress";
+    public const string STAT_SINGLEPLAYER_GAMES = "StatSingleplayerGames";
+    public const string STAT_MULTIPLAYER_XP = "StatMultiplayerXp";
+    public const string STAT_MULTIPLAYER_RANK = "StatMultiplayerRank";
+    public const string STAT_WINS = "StatWins";
+    public const string STAT_LOSSES = "StatLosses";
+    public const string STAT_FAVORITE_CAPTAIN = "StatFavoriteCaptain";
+    public const string STAT_FAVORITE_SQUARE = "StatFavoriteSquare";
+    public const string STAT_FAVORITE_WEAPON = "StatFavoriteWeapon";
+    public const string STAT_SECONDS_PLAYED = "StatSecondsPlayed";
     public const int ROOM_NUM_EXPECTED_PLAYERS = 2;
 }
