@@ -13,6 +13,8 @@ public class GridUnit {
 
     public bool isEdge;
     public bool preventShips;
+    // fired on by either side; a hit if a ship sits here, otherwise a miss
+    public bool attacked;
 
     public GridUnit(CoordinateSystem coords, HexRenderer hex) {
         this.coords = coords;

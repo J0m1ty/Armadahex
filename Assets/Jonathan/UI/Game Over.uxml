@@ -1,49 +1,48 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="Base.uss" />
-    <ui:VisualElement class="page">
-        <ui:Label name="result" text="VICTORY" class="h1" />
-        <ui:Label name="comments" text="Win by conquest" />
-        <ui:Label name="xpGain" />
-
-        <ui:Label text="Match stats" class="h2" />
-        <ui:VisualElement class="row">
-            <ui:Label text="Match time:" />
-            <ui:Label name="matchTime" text="-" />
-        </ui:VisualElement>
-        <ui:VisualElement class="row">
-            <ui:Label text="Accuracy:" />
-            <ui:Label name="accuracy" text="-" />
-        </ui:VisualElement>
-        <ui:VisualElement class="row">
-            <ui:Label text="Ships lost:" />
-            <ui:Label name="shipsLost" text="-" />
-        </ui:VisualElement>
-        <ui:VisualElement class="row">
-            <ui:Label text="Special attacks:" />
-            <ui:Label name="specials" text="-" />
+    <ui:Style src="Theme.uss" />
+    <ui:Style src="GameOver.uss" />
+    <ui:VisualElement class="screen game-over">
+        <Backdrop class="backdrop" />
+        <ui:VisualElement class="go-head">
+            <ui:Label name="result" text="VICTORY" class="go-result" />
+            <ui:Label name="comments" class="go-comments" />
         </ui:VisualElement>
 
-        <ui:Label text="Players" class="h2" />
-        <ui:VisualElement class="row">
-            <ui:VisualElement>
-                <ui:Label text="Victor" />
-                <ui:Label name="winnerName" text="Player" class="h2" />
-                <ui:Label name="winnerXp" />
+        <ui:VisualElement name="boards" class="go-boards">
+            <ui:VisualElement class="go-side panel">
+                <ui:VisualElement class="panel-edge" picking-mode="Ignore" />
+                <ui:VisualElement class="go-side__head">
+                    <ui:VisualElement name="playerSwatch" class="go-swatch" />
+                    <ui:Label name="playerName" class="go-name" />
+                    <ui:Label name="playerWinner" text="WINNER" class="key-chip go-winner" />
+                </ui:VisualElement>
+                <BoardView name="playerBoard" class="go-board" />
+                <ui:VisualElement class="stat-row"><ui:Label text="SHOTS" class="stat-name" /><ui:Label name="playerShots" class="stat-value" /></ui:VisualElement>
+                <ui:VisualElement class="stat-row"><ui:Label text="HITS" class="stat-name" /><ui:Label name="playerHits" class="stat-value" /></ui:VisualElement>
+                <ui:VisualElement class="stat-row"><ui:Label text="ACCURACY" class="stat-name" /><ui:Label name="playerAccuracy" class="stat-value" /></ui:VisualElement>
+                <ui:VisualElement class="stat-row"><ui:Label text="SHIPS SUNK" class="stat-name" /><ui:Label name="playerSunk" class="stat-value" /></ui:VisualElement>
+                <ui:VisualElement class="stat-row"><ui:Label text="SHIPS LEFT" class="stat-name" /><ui:Label name="playerLeft" class="stat-value" /></ui:VisualElement>
             </ui:VisualElement>
-            <ui:Image name="topImage" class="shot" />
-        </ui:VisualElement>
-        <ui:VisualElement class="row">
-            <ui:VisualElement>
-                <ui:Label text="Defeated" />
-                <ui:Label name="loserName" text="Player" class="h2" />
-                <ui:Label name="loserXp" />
+
+            <ui:VisualElement class="go-side panel">
+                <ui:VisualElement class="panel-edge" picking-mode="Ignore" />
+                <ui:VisualElement class="go-side__head">
+                    <ui:VisualElement name="enemySwatch" class="go-swatch" />
+                    <ui:Label name="enemyName" class="go-name" />
+                    <ui:Label name="enemyWinner" text="WINNER" class="key-chip go-winner" />
+                </ui:VisualElement>
+                <BoardView name="enemyBoard" class="go-board" />
+                <ui:VisualElement class="stat-row"><ui:Label text="SHOTS" class="stat-name" /><ui:Label name="enemyShots" class="stat-value" /></ui:VisualElement>
+                <ui:VisualElement class="stat-row"><ui:Label text="HITS" class="stat-name" /><ui:Label name="enemyHits" class="stat-value" /></ui:VisualElement>
+                <ui:VisualElement class="stat-row"><ui:Label text="ACCURACY" class="stat-name" /><ui:Label name="enemyAccuracy" class="stat-value" /></ui:VisualElement>
+                <ui:VisualElement class="stat-row"><ui:Label text="SHIPS SUNK" class="stat-name" /><ui:Label name="enemySunk" class="stat-value" /></ui:VisualElement>
+                <ui:VisualElement class="stat-row"><ui:Label text="SHIPS LEFT" class="stat-name" /><ui:Label name="enemyLeft" class="stat-value" /></ui:VisualElement>
             </ui:VisualElement>
-            <ui:Image name="bottomImage" class="shot" />
         </ui:VisualElement>
 
-        <ui:VisualElement class="row">
-            <ui:Button name="done" text="Done" />
-            <KeyLabel action="UI/Submit" />
-        </ui:VisualElement>
+        <ui:Button name="done" text="CONTINUE" class="plate go-continue">
+            <Brackets class="brackets" />
+        </ui:Button>
     </ui:VisualElement>
 </ui:UXML>

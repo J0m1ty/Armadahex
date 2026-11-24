@@ -799,6 +799,7 @@ public class AttackUIManager : MonoBehaviour
                 var target = targets[i];
 
                 // the clouds and pegs show what happened, so the enemy cells keep their color
+                target.gridRef.attacked = true;
                 if (target.gridRef.shipSegment == null) {
                     target.SetFogColorInstant(FogColor.Miss, false);
                     target.ClearFog();
@@ -888,6 +889,7 @@ public class AttackUIManager : MonoBehaviour
         
         var hit = false;
         bool? destroyed = null;
+        hex.gridRef.attacked = true;
         // your board shows misses with pegs and hits with the glowing hull, so no cell colors
         if (hex.gridRef.shipSegment == null) {
             ShotEffects.Shot(hex, false);

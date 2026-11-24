@@ -1,0 +1,85 @@
+/* game over: the result on top, both boards side by side with their numbers, continue at the bottom */
+.game-over {
+    align-items: center;
+    padding: 64px 0 56px 0;
+}
+
+.go-head {
+    align-items: center;
+}
+
+.go-result {
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 72px;
+    letter-spacing: 20px;
+    -unity-font-style: bold;
+}
+
+.go-result.danger {
+    color: rgb(255, 110, 100);
+}
+
+.go-comments {
+    margin: 8px 0 0 0;
+    padding: 0;
+    color: rgb(120, 140, 165);
+    font-size: 20px;
+    letter-spacing: 8px;
+}
+
+.go-boards {
+    flex-grow: 1;
+    flex-direction: row;
+    margin: 40px 0;
+}
+
+.go-side {
+    width: 640px;
+    margin: 0 24px;
+    padding: 28px 32px;
+}
+
+.go-side__head {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.go-swatch {
+    width: 18px;
+    height: 18px;
+    margin-right: 14px;
+    border-radius: 3px;
+}
+
+.go-name {
+    flex-grow: 1;
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 24px;
+    letter-spacing: 3px;
+    -unity-font-style: bold;
+}
+
+.go-winner {
+    min-width: 0;
+    padding: 2px 10px;
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+}
+
+.go-board {
+    flex-grow: 1;
+    margin-bottom: 16px;
+}
+
+.go-continue {
+    width: 420px;
+    height: 72px;
+    font-size: 24px;
+    letter-spacing: 8px;
+}

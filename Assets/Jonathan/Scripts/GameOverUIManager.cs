@@ -1,12 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System.Linq;
-using UnityEngine.SceneManagement;
-using Photon.Pun;
 using System;
+using UnityEngine;
 using UnityEngine.UIElements;
+using Photon.Pun;
 
+// the game over screen: the result, both boards as they ended with each side's numbers, and continue
 public class GameOverUIManager : MonoBehaviourPunCallbacks
 {
     [Header("Scene References")]
@@ -14,31 +11,11 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
     [SerializeField]
     private string menuScene;
 
-    private WinInfo winInfo;
-
     [Header("UI References")]
     [SerializeField]
     private UIDocument document;
 
-    private Label gameOverText;
-    private Label winTypeText;
-    private Label xpGainText;
-    private Image topImage;
-    private Image bottomImage;
-    private Label matchTimeText;
-    private Label accuracyText;
-    private Label shipsLostText;
-    private Label advancedAttacksUsedText;
-
-    private Label winnerXpGainText;
-    private Label loserXpGainText;
-    private Label winnerNameText;
-    private Label loserNameText;
-
-    [SerializeField]
-    private Color victoryColor = new Color(0.1f, 0.55f, 0.1f);
-    [SerializeField]
-    private Color defeatColor = new Color(0.75f, 0.1f, 0.1f);
+    private WinInfo winInfo;
 
     public void Leave() {
         if (PhotonNetwork.InRoom) {
@@ -55,115 +32,52 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
 
     public void Start() {
         var root = document.rootVisualElement;
-        gameOverText = root.Q<Label>("result");
-        winTypeText = root.Q<Label>("comments");
-        xpGainText = root.Q<Label>("xpGain");
-        topImage = root.Q<Image>("topImage");
-        bottomImage = root.Q<Image>("bottomImage");
-        matchTimeText = root.Q<Label>("matchTime");
-        accuracyText = root.Q<Label>("accuracy");
-        shipsLostText = root.Q<Label>("shipsLost");
-        advancedAttacksUsedText = root.Q<Label>("specials");
-        winnerXpGainText = root.Q<Label>("winnerXp");
-        loserXpGainText = root.Q<Label>("loserXp");
-        winnerNameText = root.Q<Label>("winnerName");
-        loserNameText = root.Q<Label>("loserName");
+        var result = root.Q<Label>("result");
+        var comments = root.Q<Label>("comments");
 
         winInfo = GameOver.instance?.winInfo;
 
-        // opened without a match (straight from the editor), so show an empty report
+        // opened without a match (straight from the editor), so there's nothing to show but the way out
         if (winInfo == null) {
             Debug.Log("No win info found");
-            gameOverText.text = "NO MATCH";
-            winTypeText.text = "Play a match to see its report here.";
-            xpGainText.text = "";
-            UIKit.Show(topImage, false);
-            UIKit.Show(bottomImage, false);
+            result.text = "NO MATCH";
+            comments.text = "";
+            UIKit.Show(root.Q("boards"), false);
             return;
         }
 
-        Debug.Log("Game over: " + winInfo.winningTeam + " won");
-        Debug.Log("Win type: " + winInfo.winType);
-        Debug.Log("Player team: " + winInfo.playerTeam + " (" + winInfo.playerName + ")" + " vs " + winInfo.enemyName + " (" + winInfo.enemyName + ")");
-
         var isWinner = winInfo.winningTeam == winInfo.playerTeam;
+        result.text = isWinner ? "VICTORY" : "DEFEAT";
+        result.EnableInClassList("danger", !isWinner);
 
-        AudioManager.instance?.PlayResultSound(isWinner);
-        
-        gameOverText.text = isWinner ? "VICTORY" : "DEFEAT";
-        gameOverText.style.color = isWinner ? victoryColor : defeatColor;
-        
-        if (isWinner) {
-            switch (winInfo.winType) {
-                case WinType.Conquest:
-                    winTypeText.text = "Win by conquest";
-                    break;
-                case WinType.Abandonment:
-                    winTypeText.text = "Win by abandonment";
-                    break;
-                case WinType.Surrender:
-                    winTypeText.text = "Win by surrender";
-                    break;
-            }
-        }
-        else {
-            switch (winInfo.winType) {
-                case WinType.Conquest:
-                    winTypeText.text = "Defeat by conquest";
-                    break;
-                case WinType.Abandonment:
-                    winTypeText.text = "Defeat by abandonment";
-                    break;
-                case WinType.Surrender:
-                    winTypeText.text = "Defeat by surrender";
-                    break;
-            }
-        }
-
-        if (winInfo.winnerXpGain != null && winInfo.loserXpLoss != null) {
-            xpGainText.text = (isWinner ? "+" : "-") + (isWinner ? winInfo.winnerXpGain : winInfo.loserXpLoss) + " XP";
-        }
-
+        var how = winInfo.winType switch {
+            WinType.Conquest => "BY CONQUEST",
+            WinType.Abandonment => "BY ABANDONMENT",
+            WinType.Surrender => "BY SURRENDER",
+            _ => ""
+        };
         if (winInfo.matchTime != null) {
-            var timeSpan = TimeSpan.FromSeconds((double)winInfo.matchTime);
-            matchTimeText.text = timeSpan.Minutes + ":" + timeSpan.Seconds.ToString("D2");
+            var time = TimeSpan.FromSeconds((double)winInfo.matchTime);
+            how += "  ·  " + (int)time.TotalMinutes + ":" + time.Seconds.ToString("D2");
         }
+        comments.text = how;
 
-        if (winInfo.playerTeamAccuracy != null) {
-            accuracyText.text = ((int)winInfo.playerTeamAccuracy) + "%";
-        }
+        // each side's shots landed on the other side's board
+        Side(root, "player", winInfo.playerName, SideColors.Player, winInfo.playerBoard, winInfo.enemyBoard, isWinner);
+        Side(root, "enemy", winInfo.enemyName, SideColors.Enemy, winInfo.enemyBoard, winInfo.playerBoard, !isWinner);
+    }
 
-        if (winInfo.playerTeamShipsLost != null) {
-            shipsLostText.text = "" + winInfo.playerTeamShipsLost;
-        }
+    private static void Side(VisualElement root, string side, string name, Color color, BoardSnapshot own, BoardSnapshot target, bool winner) {
+        root.Q<Label>(side + "Name").text = string.IsNullOrEmpty(name) ? (side == "player" ? "YOU" : "ENEMY") : name.ToUpper();
+        root.Q(side + "Swatch").style.backgroundColor = color;
+        UIKit.Show(root.Q(side + "Winner"), winner);
+        root.Q<BoardView>(side + "Board").Show(own, color);
 
-        if (winInfo.playerTeamAdvancedAttacksUsed != null) {
-            advancedAttacksUsedText.text = "" + winInfo.playerTeamAdvancedAttacksUsed;
-        }
-
-        if (winInfo.winnerXpGain != null) {
-            winnerXpGainText.text = "+" + winInfo.winnerXpGain + " XP";
-        }
-
-        if (winInfo.loserXpLoss != null) {
-            loserXpGainText.text = "-" + winInfo.loserXpLoss + " XP";
-        }
-        
-        winnerNameText.text = isWinner ? winInfo.playerName : winInfo.enemyName;
-        loserNameText.text = isWinner ? winInfo.enemyName : winInfo.playerName;
-        
-        if (winInfo.playerImage != null && winInfo.enemyImage != null) {
-            var topTex = isWinner ? winInfo.playerImage : winInfo.enemyImage;
-            var bottomTex = isWinner ? winInfo.enemyImage : winInfo.playerImage;
-            topImage.image = topTex;
-            bottomImage.image = bottomTex;
-            topImage.scaleMode = ScaleMode.ScaleToFit;
-            bottomImage.scaleMode = ScaleMode.ScaleToFit;
-        }
-        else {
-            // need to hide images
-            UIKit.Show(topImage, false);
-            UIKit.Show(bottomImage, false);
-        }
+        if (target == null || own == null) return;
+        root.Q<Label>(side + "Shots").text = target.shots.ToString();
+        root.Q<Label>(side + "Hits").text = target.hits.ToString();
+        root.Q<Label>(side + "Accuracy").text = target.shots > 0 ? Mathf.RoundToInt(100f * target.hits / target.shots) + "%" : "—";
+        root.Q<Label>(side + "Sunk").text = target.shipsSunk.ToString();
+        root.Q<Label>(side + "Left").text = own.shipsLeft + " / " + own.shipCount;
     }
 }

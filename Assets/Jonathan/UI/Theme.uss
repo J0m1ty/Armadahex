@@ -258,6 +258,41 @@
     visibility: hidden;
 }
 
+/* a heading over rows of stats, each a name and a value */
+.stat-heading {
+    margin: 0 0 8px 0;
+    padding: 0 0 8px 0;
+    border-bottom-width: 2px;
+    border-color: rgba(200, 220, 255, 0.25);
+    color: rgb(120, 140, 165);
+    font-size: 16px;
+    letter-spacing: 8px;
+    -unity-font-style: bold;
+}
+
+.stat-row {
+    flex-direction: row;
+    justify-content: space-between;
+    height: 32px;
+    align-items: center;
+}
+
+.stat-name {
+    margin: 0;
+    padding: 0;
+    color: rgb(170, 186, 206);
+    font-size: 16px;
+    letter-spacing: 2px;
+}
+
+.stat-value {
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 17px;
+    -unity-font-style: bold;
+}
+
 .dim {
     color: rgb(120, 140, 165);
 }

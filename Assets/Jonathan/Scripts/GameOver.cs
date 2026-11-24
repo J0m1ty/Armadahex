@@ -27,6 +27,9 @@ public class WinInfo {
     public float? playerTeamAccuracy;
     public int? playerTeamShipsLost;
     public int? playerTeamAdvancedAttacksUsed;
+    // both boards as they ended, drawn on the game over screen
+    public BoardSnapshot playerBoard;
+    public BoardSnapshot enemyBoard;
 }
 
 public class GameOver : MonoBehaviour
@@ -194,15 +197,12 @@ public class GameOver : MonoBehaviour
             playerTeamAccuracy = accuracy * 100f,
             playerTeamShipsLost = shipManager.playerShips.FindAll(s => !s.isAlive).Count,
             playerTeamAdvancedAttacksUsed = attackManager.advancedShotsFired,
+            playerBoard = BoardSnapshot.Take(TurnManager.instance.playerTeam.teamBase.hexMap, true),
+            enemyBoard = BoardSnapshot.Take(TurnManager.instance.enemyTeam.teamBase.hexMap, false),
         };
-        
-        if (IsWebGL) {
-            Debug.Log("WebGL detected, skipping screenshots");
-            ScreenshotsTaken();
-        }
-        else {
-            screenshotSaver.TakeScreenshots();
-        }
+
+        // the boards are copied as data, so there's nothing to wait for
+        ScreenshotsTaken();
     }
 
     public void ScreenshotsTaken() {
