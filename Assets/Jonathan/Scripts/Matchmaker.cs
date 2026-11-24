@@ -32,22 +32,11 @@ public class Matchmaker : MonoBehaviourPunCallbacks
     private Button button;
     private TextElement buttonText => button;
 
-    // a line of text that shows the countdown, the search and errors
-    private Label matchmakingPanel;
-    private string matchmakingText {
-        get {
-            return matchmakingPanel.text;
-        }
-        set {
-            matchmakingPanel.text = value;
-        }
-    }
-    // errors show in the shared danger color
-    private bool panelError {
-        set {
-            matchmakingPanel.EnableInClassList("danger", value);
-        }
-    }
+    // the search lives in the play button: the countdown, the running time, the result or an error.
+    // this is the text it shows while it's busy; hovering it during a search reads CANCEL
+    private string matchmakingText;
+    private bool hovering;
+    private float searchStart;
 
     private VisualElement backButton; // hide this when searching
 
@@ -58,8 +47,8 @@ public class Matchmaker : MonoBehaviourPunCallbacks
         }
         set {
             _stage = value;
-            UIKit.Show(matchmakingPanel, _stage != MatchmakingStage.None);
             UIKit.Show(backButton, _stage == MatchmakingStage.None);
+            if (_stage == MatchmakingStage.Searching) searchStart = Time.time;
             stateManager.lockedIn = _stage != MatchmakingStage.None;
         }
     }
@@ -74,12 +63,32 @@ public class Matchmaker : MonoBehaviourPunCallbacks
 
         var root = document.rootVisualElement;
         button = root.Q<Button>("join");
-        matchmakingPanel = root.Q<Label>("matchmaking");
         backButton = root.Q("back");
+        button.RegisterCallback<PointerEnterEvent>(_ => hovering = true);
+        button.RegisterCallback<PointerLeaveEvent>(_ => hovering = false);
 
         if (hideOnAwake) {
             stage = MatchmakingStage.None;
             cancelAction = false;
+        }
+    }
+
+    void Update() {
+        var busy = stage != MatchmakingStage.None || cancelAction;
+        button.EnableInClassList("search-busy", busy && stage != MatchmakingStage.Found && stage != MatchmakingStage.Error);
+        button.EnableInClassList("search-error", stage == MatchmakingStage.Error);
+        if (!busy) return;
+
+        var cancelable = !cancelAction && (stage == MatchmakingStage.Pre || stage == MatchmakingStage.Searching);
+        if (cancelable && hovering) {
+            buttonText.text = "CANCEL";
+        }
+        else if (stage == MatchmakingStage.Searching && !cancelAction) {
+            var time = Mathf.FloorToInt(Time.time - searchStart);
+            buttonText.text = "SEARCHING  " + time / 60 + ":" + (time % 60).ToString("00");
+        }
+        else {
+            buttonText.text = matchmakingText;
         }
     }
 
@@ -94,7 +103,6 @@ public class Matchmaker : MonoBehaviourPunCallbacks
             return;
         }
         
-        panelError = false;
 
         if (stage == MatchmakingStage.None) {
             if (stateManager.current == null) return;
@@ -110,7 +118,6 @@ public class Matchmaker : MonoBehaviourPunCallbacks
             }
 
             stage = MatchmakingStage.Pre;
-            buttonText.text = "CANCEL";
             StartCoroutine(Countdown());
         }
         else if (stage != MatchmakingStage.Found) {
@@ -119,8 +126,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
             }
             else {
                 cancelAction = true;
-                buttonText.text = "Canceling";
-                matchmakingText = "CANCELING...";
+                matchmakingText = "CANCELING";
             }
         }
     }
@@ -133,16 +139,13 @@ public class Matchmaker : MonoBehaviourPunCallbacks
                 yield break;
             }
 
-            matchmakingText = count.ToString();
+            matchmakingText = "STARTING IN " + count;
 
             yield return new WaitForSeconds(1);
             count--;
 
             if (count == 0) {
                 stage = MatchmakingStage.Searching;
-                
-                matchmakingText = "SEARCHING...";
-                buttonText.text = "CANCEL SEARCH";
 
                 gameMode = stateManager.current.id;
 
@@ -269,19 +272,18 @@ public class Matchmaker : MonoBehaviourPunCallbacks
         button.SetEnabled(true);
         buttonText.text = stateManager.buttonText;
 
-        panelError = false;
 
         stateManager.lockedIn = false;
     }
 
     private void Error(string message, float lifetime = 0) {
-        panelError = true;
 
         stateManager.stateInput.SetEnabled(false);
         button.SetEnabled(false);
 
         stage = MatchmakingStage.Error;
-        matchmakingText = message;
+        matchmakingText = message.ToUpper();
+        UIKit.Shake(button);
 
         if (lifetime > 0) {
             Invoke("Cancel", lifetime);
@@ -296,7 +298,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
         PhotonNetwork.CurrentRoom.IsVisible = false;
         PlayerPrefs.SetString(Constants.PLAYLIST_PREF_KEY, gameMode);
 
-        matchmakingText = "Match found!";
+        matchmakingText = "MATCH FOUND";
 
         Invoke("LoadLevel", 2f);
     }

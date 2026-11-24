@@ -12,14 +12,12 @@
 
         <ui:VisualElement class="side">
             <ui:VisualElement>
-                <ui:Label name="stats" class="side-stats" />
                 <ui:Label name="stateHeader" class="hidden" />
                 <ui:Label name="stateName" class="side-name" />
                 <ui:Label name="stateDescription" class="side-description" />
             </ui:VisualElement>
             <ui:VisualElement class="side-bottom">
                 <ui:TextField name="code" placeholder-text="Code" max-length="4" class="field" />
-                <ui:Label name="matchmaking" class="side-status hidden" />
                 <ui:Button name="join" text="PLAY" class="plate play">
                     <Brackets class="brackets" />
                 </ui:Button>

@@ -94,14 +94,6 @@
     border-color: rgba(200, 220, 255, 0.12);
 }
 
-.side-stats {
-    margin: 0;
-    padding: 0;
-    color: rgb(120, 140, 165);
-    font-size: 22px;
-    letter-spacing: 2px;
-}
-
 .side-name {
     margin: 0;
     padding: 0;
@@ -128,18 +120,25 @@
     margin: 0 0 24px 0;
 }
 
-.side-status {
-    height: 40px;
-    margin: 0 0 16px 0;
-    padding: 0;
-    color: rgb(214, 226, 240);
-    font-size: 20px;
-    letter-spacing: 4px;
-    -unity-text-align: middle-center;
-}
-
 .side .play {
     height: 72px;
     font-size: 24px;
     letter-spacing: 8px;
+}
+
+/* while it counts down or searches, the play button goes dark and shows the time; an error turns it red */
+.side .play.search-busy {
+    -unity-background-image-tint-color: rgb(40, 50, 66);
+    color: rgb(240, 246, 255);
+}
+
+.side .play.search-busy:hover {
+    -unity-background-image-tint-color: rgb(58, 72, 94);
+}
+
+.side .play.search-error,
+.side .play.search-error:disabled {
+    -unity-background-image-tint-color: rgb(150, 48, 44);
+    color: rgb(255, 235, 232);
+    opacity: 1;
 }

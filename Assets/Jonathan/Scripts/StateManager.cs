@@ -15,7 +15,6 @@ public class StateManager : MonoBehaviour
     private UIDocument document;
 
     private VisualElement modes;
-    private Label stats;
     private Label stateName;
     private Label stateDescription;
     private Button stateButton;
@@ -29,7 +28,6 @@ public class StateManager : MonoBehaviour
     private void Awake() {
         var root = document.rootVisualElement;
         modes = root.Q("modes");
-        stats = root.Q<Label>("stats");
         stateName = root.Q<Label>("stateName");
         stateDescription = root.Q<Label>("stateDescription");
         stateButton = root.Q<Button>("join");
@@ -54,11 +52,9 @@ public class StateManager : MonoBehaviour
         });
     }
 
-    // a code playlist only shows its button once the code is whole
+    // a code playlist's button stays put but only works once the code is whole, so nothing jumps
     public void DisplayButton(bool display) {
-        if (current != null && current.usesCode) {
-            UIKit.Show(stateButton, display);
-        }
+        stateButton.SetEnabled(current == null || !current.usesCode || display);
     }
 
     // picking the picked one again puts it back down
@@ -72,7 +68,6 @@ public class StateManager : MonoBehaviour
         }
 
         var picked = current != null;
-        UIKit.Show(stats, !picked);
         UIKit.Show(stateName, picked);
         UIKit.Show(stateDescription, picked);
         UIKit.Show(stateButton, picked);
