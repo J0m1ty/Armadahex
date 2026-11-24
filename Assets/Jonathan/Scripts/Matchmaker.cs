@@ -22,7 +22,8 @@ public class Matchmaker : MonoBehaviourPunCallbacks
 {
     private StateManager stateManager;
 
-    private GameMode gameMode;
+    // the playlist id being searched for
+    private string gameMode;
 
     [SerializeField]
     private UIDocument document;
@@ -96,9 +97,10 @@ public class Matchmaker : MonoBehaviourPunCallbacks
         panelError = false;
 
         if (stage == MatchmakingStage.None) {
-            gameMode = stateManager.currentState.gameMode;
+            if (stateManager.current == null) return;
+            gameMode = stateManager.current.id;
 
-            if (gameMode == GameMode.Customs) {
+            if (gameMode == Playlists.Custom) {
                 string joinCode = stateManager.stateInput.value.ToUpper();
 
                 if (!ValidateCode(joinCode)) {
@@ -142,7 +144,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
                 matchmakingText = "SEARCHING...";
                 buttonText.text = "CANCEL SEARCH";
 
-                gameMode = stateManager.currentState.gameMode;
+                gameMode = stateManager.current.id;
 
                 JoinRandomRoom();
             }
@@ -160,7 +162,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
             return;
         }
         
-        if (gameMode == GameMode.Customs) {
+        if (gameMode == Playlists.Custom) {
             string joinCode = stateManager.stateInput.value.ToUpper();
 
             if (!ValidateCode(joinCode)) {
@@ -176,10 +178,10 @@ public class Matchmaker : MonoBehaviourPunCallbacks
 
         Debug.Log("Looking to join " + gameMode);
 
-        TypedLobby typedLobby = new TypedLobby(gameMode.ToString(), LobbyType.Default);
+        TypedLobby typedLobby = new TypedLobby(gameMode, LobbyType.Default);
         
         Hashtable expectedCustomRoomProperties = new Hashtable() {
-            { Constants.GAME_MODE_PROP_KEY, gameMode.ToString() }
+            { Constants.GAME_MODE_PROP_KEY, gameMode }
         };
         PhotonNetwork.JoinRandomRoom(expectedCustomRoomProperties, Constants.ROOM_NUM_EXPECTED_PLAYERS, MatchmakingMode.FillRoom, typedLobby, null, null);
     }
@@ -191,7 +193,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
             if (cancelAction) {
                 PhotonNetwork.LeaveRoom();
             }
-            else if (gameMode == GameMode.Customs) {
+            else if (gameMode == Playlists.Custom) {
                 Error("Invalid code", 2.5f);
 
                 PhotonNetwork.LeaveRoom();
@@ -224,11 +226,11 @@ public class Matchmaker : MonoBehaviourPunCallbacks
         
         roomOptions.CustomRoomPropertiesForLobby = new string[] { Constants.GAME_MODE_PROP_KEY };
         roomOptions.CustomRoomProperties = new Hashtable() {
-            { Constants.GAME_MODE_PROP_KEY, gameMode.ToString() }
+            { Constants.GAME_MODE_PROP_KEY, gameMode }
         };
         roomOptions.MaxPlayers = Constants.ROOM_NUM_EXPECTED_PLAYERS;
 
-        TypedLobby typedLobby = new TypedLobby(gameMode.ToString(), LobbyType.Default);
+        TypedLobby typedLobby = new TypedLobby(gameMode, LobbyType.Default);
 
         PhotonNetwork.CreateRoom(null, roomOptions, typedLobby);
     }
@@ -237,7 +239,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
     {
         Debug.Log("Failed to join room: " + message);
 
-        if (gameMode == GameMode.Customs) {
+        if (gameMode == Playlists.Custom) {
             Error("Invalid code", 2.5f);
             return;
         }
@@ -265,7 +267,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
         
         stateManager.stateInput.SetEnabled(true);
         button.SetEnabled(true);
-        buttonText.text = stateManager.currentState.buttonText;
+        buttonText.text = stateManager.buttonText;
 
         panelError = false;
 
@@ -292,7 +294,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
         stage = MatchmakingStage.Found;
 
         PhotonNetwork.CurrentRoom.IsVisible = false;
-        PlayerPrefs.SetInt(Constants.GAME_MODE_PREF_KEY, (int)gameMode);
+        PlayerPrefs.SetString(Constants.PLAYLIST_PREF_KEY, gameMode);
 
         matchmakingText = "Match found!";
 

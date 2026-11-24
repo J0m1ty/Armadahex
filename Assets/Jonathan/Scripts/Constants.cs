@@ -9,6 +9,8 @@ public static class Constants
     public const string NICK_NAME_PREF_KEY = "NickName";
     public const string GAME_MODE_PROP_KEY = "gm";
     public const string GAME_MODE_PREF_KEY = "GameMode";
+    // the playlist id a match is about to play, from the menus to the game scene
+    public const string PLAYLIST_PREF_KEY = "Playlist";
     public const string CUSTOMS_IS_SINGLEPLAYER_PREF_KEY = "CustomsIsSingleplayer";
     public const string CUSTOMS_IS_ADVANCED_COMBAT_PREF_KEY = "CustomsIsAdvancedCombat";
     public const string CUSTOMS_IS_SALVO_PREF_KEY = "CustomsIsSalvo";

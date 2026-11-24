@@ -43,9 +43,9 @@
     height: 100%;
 }
 
-/* a playlist: its picture in a solid frame, the name at the bottom left */
+/* a playlist: a solid frame (its art inside, once it has some), the name at the bottom left */
 .mode-card {
-    width: 400px;
+    width: 520px;
     margin-right: 24px;
     justify-content: flex-end;
     border-width: 4px;
@@ -78,40 +78,6 @@
     letter-spacing: 4px;
     -unity-font-style: bold;
     white-space: normal;
-}
-
-.mode-card.locked {
-    opacity: 0.45;
-}
-
-.mode-card.locked:hover {
-    border-color: rgb(34, 46, 66);
-}
-
-.mode-card__tag {
-    position: absolute;
-    top: 24px;
-    left: 28px;
-}
-
-.mode-command {
-    background-image: url("project://database/Assets/Jonathan/Sprites/gameModeImages/blurple revenge.png");
-}
-
-.mode-advanced-combat {
-    background-image: url("project://database/Assets/Jonathan/Sprites/gameModeImages/ur not urself when ur hungry.png");
-}
-
-.mode-tactical-salvo {
-    background-image: url("project://database/Assets/Jonathan/Sprites/gameModeImages/tokyo troubles.png");
-}
-
-.mode-bonus-barrage {
-    background-image: url("project://database/Assets/Jonathan/Sprites/gameModeImages/IMageONE.png");
-}
-
-.mode-classic-battleship {
-    background-image: url("project://database/Assets/Jonathan/Sprites/gameModeImages/IMage two.png");
 }
 
 /* the side panel: what's picked up top, how to play it at the bottom */

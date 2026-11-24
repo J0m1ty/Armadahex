@@ -12,7 +12,8 @@ using Random = UnityEngine.Random;
 public class GameNetworking : MonoBehaviourPunCallbacks {
     public static GameNetworking instance;
 
-    public GameMode gameMode { get; private set; }
+    // the playlist id this match plays (see Playlist)
+    public string gameMode { get; private set; }
 
     [SerializeField]
     private Countdown countdown;
@@ -56,15 +57,15 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
         displayLoaded = false;
         privateMultiplayer = false;
 
-        if (!PlayerPrefs.HasKey(Constants.GAME_MODE_PREF_KEY) || !PhotonNetwork.InRoom) {
-            PlayerPrefs.SetInt(Constants.GAME_MODE_PREF_KEY, (int)GameMode.Customs);
+        if (!PlayerPrefs.HasKey(Constants.PLAYLIST_PREF_KEY) || !PhotonNetwork.InRoom) {
+            PlayerPrefs.SetString(Constants.PLAYLIST_PREF_KEY, Playlists.Custom);
         }
 
-        gameMode = (GameMode)PlayerPrefs.GetInt(Constants.GAME_MODE_PREF_KEY);
+        gameMode = PlayerPrefs.GetString(Constants.PLAYLIST_PREF_KEY, Playlists.Custom);
 
         Debug.Log("Game mode is " + gameMode);
 
-        if (gameMode == GameMode.Customs) {
+        if (gameMode == Playlists.Custom) {
             if (!PhotonNetwork.InRoom) {
                 GameModeInfo.instance.SetCustomWithPrefs();
 
@@ -80,10 +81,10 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
                 // set game mode to one from room properties, if it doesn't exist stick with custom
                 if (roomProps.ContainsKey(Constants.GAME_MODE_PROP_KEY)) {
-                    gameMode = (GameMode)Enum.Parse(typeof(GameMode), (string)roomProps[Constants.GAME_MODE_PROP_KEY]);
+                    gameMode = (string)roomProps[Constants.GAME_MODE_PROP_KEY];
                 }
 
-                if (gameMode == GameMode.Customs) {
+                if (gameMode == Playlists.Custom) {
                     // get room properties and set custom
                     Debug.Log("Setting custom from room properties");
 
@@ -99,7 +100,7 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
             }
         }
 
-        PlayerPrefs.DeleteKey(Constants.GAME_MODE_PREF_KEY);
+        PlayerPrefs.DeleteKey(Constants.PLAYLIST_PREF_KEY);
     }
 
     void Start() {
@@ -136,7 +137,7 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
         // get GAME_MODE_PROP_KEY prop from room
         if (PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey(Constants.GAME_MODE_PROP_KEY)) {
-            Enum.TryParse((string)PhotonNetwork.CurrentRoom.CustomProperties[Constants.GAME_MODE_PROP_KEY], out GameMode setGameMode);
+            var setGameMode = (string)PhotonNetwork.CurrentRoom.CustomProperties[Constants.GAME_MODE_PROP_KEY];
             if (gameMode == setGameMode) {
                 Debug.Log("Game mode confirmed to be " + gameMode);
             }
@@ -160,7 +161,7 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
 
         connectionType = !PhotonNetwork.InRoom ? ConnectionType.Offline : (privateMultiplayer ? ConnectionType.PrivateMultiplayer : ConnectionType.PublicMultiplayer);
 
-        pregameManager.SetInfo(connectionType, CustomUIManager.PrettyEnum(gameMode.ToString()), GameModeInfo.instance.IsAdvancedCombat, (int)GameModeInfo.instance.TurnTimeLimit, true);
+        pregameManager.SetInfo(connectionType, GameModeInfo.instance.GetName, GameModeInfo.instance.IsAdvancedCombat, (int)GameModeInfo.instance.TurnTimeLimit, true);
         countdown.SetTurnTime((int)GameModeInfo.instance.TurnTimeLimit);
         pregameManager.SetPlayerInfo(PhotonNetwork.LocalPlayer.NickName, null, 0, 0, GameOver.instance.enemyName, null, 0, 0);
     }
@@ -194,7 +195,7 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
             TurnManager.instance.LoadTeams(teamManager.teams);
             firstTeam = (TeamType)propertiesThatChanged["FirstTeam"];
 
-            pregameManager.SetInfo(connectionType, CustomUIManager.PrettyEnum(gameMode.ToString()), GameModeInfo.instance.IsAdvancedCombat, (int)GameModeInfo.instance.TurnTimeLimit, firstTeam == playerTeam);
+            pregameManager.SetInfo(connectionType, GameModeInfo.instance.GetName, GameModeInfo.instance.IsAdvancedCombat, (int)GameModeInfo.instance.TurnTimeLimit, firstTeam == playerTeam);
             countdown.SetTurnTime((int)GameModeInfo.instance.TurnTimeLimit);
             
             teamManager.Colorize();

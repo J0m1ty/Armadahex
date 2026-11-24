@@ -7,14 +7,7 @@
         <ui:Label text="MULTIPLAYER" class="multiplayer-title" />
 
         <ui:ScrollView mode="Horizontal" horizontal-scroller-visibility="Hidden" vertical-scroller-visibility="Hidden" class="mode-scroll">
-            <ui:VisualElement name="modes" class="mode-strip">
-                <ui:VisualElement class="mode-card mode-command locked">
-                    <ui:Label text="SOON" class="key-chip mode-card__tag" />
-                    <ui:VisualElement class="mode-card__band">
-                        <ui:Label text="COMMAND" class="mode-card__name" />
-                    </ui:VisualElement>
-                </ui:VisualElement>
-            </ui:VisualElement>
+            <ui:VisualElement name="modes" class="mode-strip" />
         </ui:ScrollView>
 
         <ui:VisualElement class="side">

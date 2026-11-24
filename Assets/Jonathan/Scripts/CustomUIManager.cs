@@ -434,7 +434,7 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
         matchmakingText = "Match found!";
         
         PhotonNetwork.CurrentRoom.IsVisible = false;
-        PlayerPrefs.SetInt(Constants.GAME_MODE_PREF_KEY, (int)GameMode.Customs); // will be reset when game networking takes over, but is used to associate with private multiplayer game
+        PlayerPrefs.SetString(Constants.PLAYLIST_PREF_KEY, Playlists.Custom); // will be reset when game networking takes over, but is used to associate with private multiplayer game
 
         Invoke("LoadLevel", 2f);
     }

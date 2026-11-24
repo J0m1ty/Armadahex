@@ -12,10 +12,11 @@ public enum GameMode {
     Customs
 }
 
+// the rules a match plays by, a runtime copy of a playlist's (see Playlist.Rules)
 [Serializable]
 public class GameModeData {
     public string name;
-    public GameMode gameMode;
+    public string id;
     public bool isSingleplayer;
     public bool isAdvancedCombat;
     public bool isSalvo;
@@ -23,10 +24,12 @@ public class GameModeData {
     public bool isUnlimitedAmmo;
     public float turnTimeLimit;
     public bool allowChat;
+    public bool captains;
 }
 
 public class GameModeInfo : MonoBehaviour {
-    public List<GameModeData> gameModes;
+    // one copy per playlist, made the first time it's asked for; custom games change only these
+    private Dictionary<string, GameModeData> rules = new Dictionary<string, GameModeData>();
 
     public static GameModeInfo instance;
 
@@ -38,8 +41,13 @@ public class GameModeInfo : MonoBehaviour {
         }
     }
 
-    public GameModeData From(GameMode gameMode) {
-        return gameModes.Find(g => g.gameMode == gameMode);
+    public GameModeData From(string playlist) {
+        if (!rules.TryGetValue(playlist, out var data)) {
+            var found = Playlists.Find(playlist) ?? Playlists.Find(Playlists.Custom);
+            data = found.Rules();
+            rules[playlist] = data;
+        }
+        return data;
     }
 
     public bool IsSingleplayer => From(GameNetworking.instance.gameMode).isSingleplayer;
@@ -55,7 +63,7 @@ public class GameModeInfo : MonoBehaviour {
     public void SetCustomWithPrefs() {
         Debug.Log("Getting custom prefs");
 
-        var custom = gameModes.Find(g => g.gameMode == GameMode.Customs);
+        var custom = From(Playlists.Custom);
         
         if (PlayerPrefs.HasKey(Constants.CUSTOMS_IS_SINGLEPLAYER_PREF_KEY)) {
             custom.isSingleplayer = PlayerPrefs.GetInt(Constants.CUSTOMS_IS_SINGLEPLAYER_PREF_KEY) == 1;
@@ -94,7 +102,7 @@ public class GameModeInfo : MonoBehaviour {
     }
 
     public void SetCustom(bool isSingleplayer, bool isAdvancedCombat, bool isSalvo, bool isBonus, bool isUnlimitedAmmo, float turnTimeLimit, bool allowChat) {
-        var custom = gameModes.Find(g => g.gameMode == GameMode.Customs);
+        var custom = From(Playlists.Custom);
 
         custom.isSingleplayer = isSingleplayer;
         custom.isAdvancedCombat = isAdvancedCombat;

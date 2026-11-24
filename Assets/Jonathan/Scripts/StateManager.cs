@@ -1,163 +1,106 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+// the multiplayer screen's playlists: a card per listed playlist in the strip, and the side panel for the picked one
 public class StateManager : MonoBehaviour
 {
-    [Serializable]
-    public struct MenuState {
-        public GameMode gameMode;
-
-        public string name;
-
-        [TextArea(3, 10)]
-        public string description;
-
-        public string buttonText;
-        
-        public bool showInput;
-        public bool hideButtonUntilValidInput;
-
-        public bool isDefault;
-    }
-
-    public MenuState currentState { get; private set; }
+    // the picked playlist, null when nothing is
+    public Playlist current { get; private set; }
 
     public bool allowLocking;
     public bool lockedIn;
 
     [SerializeField]
-    private MenuState[] states;
-
-    [SerializeField]
     private UIDocument document;
 
-    // every mode but the default gets a card in here
     private VisualElement modes;
     private Label stats;
     private Label stateName;
-    private Label stateHeader;
     private Label stateDescription;
     private Button stateButton;
     public TextField stateInput { get; private set; }
 
-    private Dictionary<string, VisualElement> modeButtons = new Dictionary<string, VisualElement>();
+    private Dictionary<Playlist, VisualElement> cards = new Dictionary<Playlist, VisualElement>();
+
+    // the play button's word for the picked playlist
+    public string buttonText => current != null && current.usesCode ? "JOIN" : "PLAY";
 
     private void Awake() {
         var root = document.rootVisualElement;
         modes = root.Q("modes");
         stats = root.Q<Label>("stats");
         stateName = root.Q<Label>("stateName");
-        stateHeader = root.Q<Label>("stateHeader");
         stateDescription = root.Q<Label>("stateDescription");
         stateButton = root.Q<Button>("join");
         stateInput = root.Q<TextField>("code");
     }
 
     private void Start() {
-        foreach (MenuState state in states) {
-            if (!state.isDefault) {
-                var name = state.name;
-                var card = Card(name);
-                UIKit.OnClick(card, () => SetState(name), ClickSound.Light);
-                modes.Add(card);
-                modeButtons[name] = card;
-            }
+        foreach (var playlist in Playlists.All) {
+            if (!playlist.listed) continue;
+
+            var picked = playlist;
+            var card = Card(playlist);
+            UIKit.OnClick(card, () => Select(picked), ClickSound.Light);
+            modes.Add(card);
+            cards[playlist] = card;
         }
 
-        foreach (MenuState state in states) {
-            if (state.isDefault) {
-                SetState(state.name);
-            }
-        }
+        Select((Playlist)null);
 
         stateInput.RegisterValueChangedCallback(e => {
             DisplayButton(e.newValue.Length == 4);
         });
     }
 
+    // a code playlist only shows its button once the code is whole
     public void DisplayButton(bool display) {
-        if (currentState.hideButtonUntilValidInput) {
-            UIKit.Show(stateButton, currentState.isDefault ? false : display);
+        if (current != null && current.usesCode) {
+            UIKit.Show(stateButton, display);
         }
     }
 
-    public void SetState(int index) {
-        if (allowLocking && lockedIn) {
-            return;
-        }
-        
-        if (index < 0 || index >= states.Length) {
-            Debug.LogError("Invalid state index!");
-            return;
-        }
-        
-        if (currentState.name == states[index].name) {
-            foreach (MenuState state in states) {
-                if (state.isDefault) {
-                    SetState(state.name);
-                    break;
-                }
-            }
-            return;
+    // picking the picked one again puts it back down
+    public void Select(Playlist playlist) {
+        if (allowLocking && lockedIn) return;
+        if (playlist != null && playlist == current) playlist = null;
+
+        current = playlist;
+        foreach (var pair in cards) {
+            UIKit.SetLit(pair.Value, pair.Key == current);
         }
 
-        currentState = states[index];
+        var picked = current != null;
+        UIKit.Show(stats, !picked);
+        UIKit.Show(stateName, picked);
+        UIKit.Show(stateDescription, picked);
+        UIKit.Show(stateButton, picked);
 
-        foreach (var pair in modeButtons) {
-            UIKit.SetLit(pair.Value, pair.Key == currentState.name);
-        }
+        stateName.text = picked ? current.title.ToUpper() : "";
+        stateDescription.text = picked ? current.description : "";
+        stateButton.text = buttonText;
 
-        UIKit.Show(stats, currentState.isDefault);
-        if (currentState.isDefault) {
-            UIKit.Show(stateName, false);
-            UIKit.Show(stateDescription, false);
-            UIKit.Show(stateButton, false);
-
-            stateHeader.text = "SELECT GAME MODE";
-        }
-        else {
-            UIKit.Show(stateName, true);
-            UIKit.Show(stateDescription, true);
-            UIKit.Show(stateButton, true);
-
-            stateHeader.text = "DETAILS";
-        }
-        
-        stateName.text = currentState.name.ToUpper();
-        
-        stateDescription.text = currentState.description;
-
-        stateButton.text = currentState.buttonText;
-        
         stateInput.value = "";
-        UIKit.Show(stateInput, currentState.showInput);
-
+        UIKit.Show(stateInput, picked && current.usesCode);
         DisplayButton(false);
     }
 
-    public void SetState(string name) {
-        int i = 0;
-        foreach (MenuState state in states) {
-            if (state.name == name) {
-                SetState(i);
-                return;
-            }
-            i++;
-        }
+    public void Select(string id) {
+        Select(Playlists.Find(id));
     }
 
-    // a playlist's card: its picture (from the mode's class in the stylesheet) with the name along the bottom
-    private static VisualElement Card(string name) {
-        var card = new VisualElement { name = name };
+    // a playlist's card: its art if it has some, in a solid frame, with the name along the bottom
+    private static VisualElement Card(Playlist playlist) {
+        var card = new VisualElement { name = playlist.id };
         card.AddToClassList("mode-card");
-        card.AddToClassList("mode-" + name.ToLower().Replace(' ', '-'));
+        if (playlist.art != null) {
+            card.style.backgroundImage = playlist.art;
+        }
 
         var band = new VisualElement();
         band.AddToClassList("mode-card__band");
-        var label = new Label(name.ToUpper());
+        var label = new Label(playlist.title.ToUpper());
         label.AddToClassList("mode-card__name");
         band.Add(label);
         card.Add(band);

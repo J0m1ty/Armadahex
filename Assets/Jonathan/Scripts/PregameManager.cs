@@ -144,7 +144,10 @@ public class PregameManager : MonoBehaviour
         UIKit.Show(uiDisplay, false);
         Fade();
 
-        AudioManager.instance?.PlayGameModeSound(GameNetworking.instance.gameMode);
+        // the announcer's lines are per old mode; a playlist without one stays quiet
+        if (System.Enum.TryParse(GameNetworking.instance.gameMode, out GameMode mode)) {
+            AudioManager.instance?.PlayGameModeSound(mode);
+        }
 
         UIKit.Show(waitingForOtherPlayerText, !GameModeInfo.instance.IsSingleplayer);
     }

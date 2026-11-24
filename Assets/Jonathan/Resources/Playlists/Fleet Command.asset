@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ec3110ce36f2b945952cc9775359209, type: 3}
+  m_Name: Fleet Command
+  m_EditorClassIdentifier: Assembly-CSharp::Playlist
+  id: FleetCommand
+  title: Fleet Command
+  description: Lead your fleet with a captain of your choice, each with their own
+    passive and special ability, on top of advanced attacks.
+  order: 0
+  listed: 1
+  usesCode: 0
+  art: {fileID: 0}
+  singleplayer: 0
+  advancedCombat: 1
+  salvo: 0
+  bonus: 0
+  unlimitedAmmo: 0
+  turnTimeLimit: 25
+  allowChat: 1
+  captains: 1
