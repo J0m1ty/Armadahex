@@ -128,7 +128,7 @@ public partial class ProgressionView : VisualElement
         UIKit.Show(this.Q("captainActive"), isActive);
         var action = this.Q<Button>("captainAction");
         UIKit.Show(action, !isActive && captainState != CaptainState.Locked);
-        action.text = captainState == CaptainState.Unlockable ? "UNLOCK" : "MAKE ACTIVE";
+        action.text = captainState == CaptainState.Unlockable ? "UNLOCK" : "SELECT CAPTAIN";
     }
 
     // tiles near the bottom edge of the library fade out, so it reads as more below

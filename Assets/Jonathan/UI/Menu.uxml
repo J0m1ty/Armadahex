@@ -168,7 +168,7 @@
                                 </ui:VisualElement>
                             </ui:VisualElement>
                             <ui:Label name="captainActive" text="ACTIVE" class="captain-active" />
-                            <ui:Button name="captainAction" text="MAKE ACTIVE" class="plate captain-action" />
+                            <ui:Button name="captainAction" text="SELECT CAPTAIN" class="plate captain-action" />
                         </ui:VisualElement>
                     </ui:VisualElement>
                     <ui:ScrollView name="captainGrid" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" class="captain-grid" />
