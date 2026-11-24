@@ -46,6 +46,34 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
+        <ui:VisualElement name="gameplayPage" class="hidden screen options">
+            <Backdrop class="backdrop" />
+            <ui:Button name="gameplayBack" class="back">
+                <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip" />
+                <ui:Label text="BACK" picking-mode="Ignore" class="back-text" />
+            </ui:Button>
+            <ui:VisualElement class="options-column">
+                <ui:Label text="OPTIONS" class="options-title" />
+                <ui:VisualElement class="options-tabs">
+                    <ui:Button name="gameplayTab" text="GAMEPLAY" focusable="false" class="tab lit" />
+                    <ui:Button name="audioTab" text="AUDIO" focusable="false" class="tab" />
+                    <ui:Button name="controlsTab" text="CONTROLS" focusable="false" class="tab" />
+                </ui:VisualElement>
+                <ui:VisualElement class="options-body panel">
+                    <ui:VisualElement class="panel-edge" picking-mode="Ignore" />
+                    <ui:VisualElement class="option-row">
+                        <ui:Label text="YOUR COLOR" class="option-name" />
+                        <ColorDropdown />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="option-row">
+                        <ui:Label text="ENEMY COLOR" class="option-name" />
+                        <ColorDropdown enemy="true" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="options-footer" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
         <ui:VisualElement name="settingsPage" class="hidden screen options">
             <Backdrop class="backdrop" />
             <ui:Button name="settingsBack" class="back">
@@ -55,6 +83,7 @@
             <ui:VisualElement class="options-column">
                 <ui:Label text="OPTIONS" class="options-title" />
                 <ui:VisualElement class="options-tabs">
+                    <ui:Button name="gameplayTab" text="GAMEPLAY" focusable="false" class="tab" />
                     <ui:Button name="audioTab" text="AUDIO" focusable="false" class="tab lit" />
                     <ui:Button name="controlsTab" text="CONTROLS" focusable="false" class="tab" />
                 </ui:VisualElement>
@@ -86,6 +115,7 @@
             <ui:VisualElement class="options-column">
                 <ui:Label text="OPTIONS" class="options-title" />
                 <ui:VisualElement class="options-tabs">
+                    <ui:Button name="gameplayTab" text="GAMEPLAY" focusable="false" class="tab" />
                     <ui:Button name="audioTab" text="AUDIO" focusable="false" class="tab" />
                     <ui:Button name="controlsTab" text="CONTROLS" focusable="false" class="tab lit" />
                 </ui:VisualElement>

@@ -45,9 +45,9 @@ public static class TeamColor {
         }
     }
 
-    // each player always sees their own side as blue and the enemy as red
-    public static Color Friendly = new Color(0.0f, 0.35f, 1.0f); // blue
-    public static Color Enemy = new Color(1.0f, 0.15f, 0.1f); // red
+    // each player sees their own side and the enemy's in the colors they picked (blue and red unless changed)
+    public static Color Friendly => SideColors.Player;
+    public static Color Enemy => SideColors.Enemy;
 
     public static Color GetSideColor(Team team) {
         return team.isPlayer ? Friendly : Enemy;
@@ -91,14 +91,19 @@ public class TeamManager : MonoBehaviour {
 
     public List<Team> teams;
 
+    // the tile edges glow in each side's color, your own side brighter
     [SerializeField]
-    [ColorUsage(false, true)]
-    private Color edgeColor = new Color(0.1f, 0.35f, 1f);
+    private float edgeGlow = 2.4f;
     [SerializeField]
-    [ColorUsage(false, true)]
-    private Color enemyEdgeColor = new Color(1f, 0.25f, 0.12f);
+    private float enemyEdgeGlow = 1f;
     
     public ShipManager shipManager { get; private set; }
+
+    private Color EdgeColor(Team team) {
+        var color = TeamColor.GetSideColor(team) * (team.isPlayer ? edgeGlow : enemyEdgeGlow);
+        color.a = 1;
+        return color;
+    }
 
     void Awake() {
         shipManager = GetComponent<ShipManager>();
@@ -147,7 +152,7 @@ public class TeamManager : MonoBehaviour {
                 hr.SetFogColorInstant(FogColor.Normal);
             }
 
-            team.teamBase.hexMap.UseGlowTiles(Resources.Load<Material>("Hex Tile Glow"), team.isPlayer ? edgeColor : enemyEdgeColor);
+            team.teamBase.hexMap.UseGlowTiles(Resources.Load<Material>("Hex Tile Glow"), EdgeColor(team));
         }
     }
 }

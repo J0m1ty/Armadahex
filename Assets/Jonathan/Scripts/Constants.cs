@@ -22,5 +22,7 @@ public static class Constants
     public const string MAIN_VOLUME_PREF_KEY = "MainVolume";
     public const string MUSIC_VOLUME_PREF_KEY = "MusicVolume";
     public const string INPUT_BINDINGS_PREF_KEY = "InputBindings";
+    public const string PLAYER_COLOR_PREF_KEY = "PlayerColor";
+    public const string ENEMY_COLOR_PREF_KEY = "EnemyColor";
     public const int ROOM_NUM_EXPECTED_PLAYERS = 2;
 }

@@ -27,6 +27,7 @@ public class ControlsPage : MonoBehaviour
     private List<Row> rows = new List<Row>();
     private ListView view;
     private Button save;
+    private bool unsaved;
     private Row waiting;
 
     void Start() {
@@ -139,7 +140,17 @@ public class ControlsPage : MonoBehaviour
 
     // the save button only shows while there's something to save, reset slides over for it
     private void Unsaved(bool unsaved) {
+        this.unsaved = unsaved;
         save?.parent.EnableInClassList("unsaved", unsaved);
+    }
+
+    // leaving the page, by its back button, esc or the other tab, throws unsaved keys away
+    void Update() {
+        if (!unsaved || view == null || UIKit.IsShown(view)) return;
+
+        GameInput.RevertBindings();
+        Unsaved(false);
+        Build();
     }
 
     private static string Path(Row row) {

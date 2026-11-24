@@ -81,6 +81,13 @@ public static class GameInput
         PlayerPrefs.SetString(Constants.INPUT_BINDINGS_PREF_KEY, actions.SaveBindingOverridesAsJson());
     }
 
+    // throws away keys changed since the last save
+    public static void RevertBindings() {
+        actions.RemoveAllBindingOverrides();
+        LoadBindings();
+        bindingsChanged?.Invoke();
+    }
+
     public static void ResetBindings() {
         actions.RemoveAllBindingOverrides();
         PlayerPrefs.DeleteKey(Constants.INPUT_BINDINGS_PREF_KEY);
