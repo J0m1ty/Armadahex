@@ -68,7 +68,7 @@ public partial class ProgressionView : VisualElement
     }
 
     // a portrait, or the captain's initials until they have one
-    private static VisualElement Portrait(Captain captain) {
+    public static VisualElement Portrait(Captain captain) {
         var portrait = new VisualElement();
         portrait.AddToClassList("captain-portrait");
         if (captain.portrait != null) {

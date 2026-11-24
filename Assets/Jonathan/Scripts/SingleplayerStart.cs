@@ -10,26 +10,17 @@ public class SingleplayerStart : MonoBehaviour
 
     [SerializeField] private UIDocument document;
 
-    private SliderInt difficultySlider;
-    private Label difficultyText;
-
     void Start() {
-        difficultySlider = document.rootVisualElement.Q<SliderInt>("difficulty");
-        difficultyText = document.rootVisualElement.Q<Label>("difficultyValue");
+        // the bot difficulty lives on the gameplay options page
+        var difficulty = document.rootVisualElement.Q<Choices>("difficulty");
+        if (difficulty == null) return;
 
-        difficultySlider.value = (int)BotAI.SavedDifficulty;
-        SetDifficultyText();
-
-        difficultySlider.RegisterValueChangedCallback(e => SetDifficulty(e.newValue));
+        difficulty.value = (int)BotAI.SavedDifficulty;
+        difficulty.changed += SetDifficulty;
     }
 
-    public void SetDifficulty(float difficulty) {
-        PlayerPrefs.SetInt(Constants.BOT_DIFFICULTY_PREF_KEY, (int)difficulty);
-        SetDifficultyText();
-    }
-
-    private void SetDifficultyText() {
-        difficultyText.text = BotAI.SavedDifficulty.ToString().ToUpper();
+    public void SetDifficulty(int difficulty) {
+        PlayerPrefs.SetInt(Constants.BOT_DIFFICULTY_PREF_KEY, difficulty);
     }
 
     public void StartGame() {

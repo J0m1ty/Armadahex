@@ -45,7 +45,11 @@ public class StateManager : MonoBehaviour
             cards[playlist] = card;
         }
 
+        // the menu can ask for a playlist to be picked already, only this once
+        var open = PlayerPrefs.GetString(Constants.OPEN_PLAYLIST_PREF_KEY, "");
+        PlayerPrefs.DeleteKey(Constants.OPEN_PLAYLIST_PREF_KEY);
         Select((Playlist)null);
+        if (open != "") Select(open);
 
         stateInput.RegisterValueChangedCallback(e => {
             DisplayButton(e.newValue.Length == 4);

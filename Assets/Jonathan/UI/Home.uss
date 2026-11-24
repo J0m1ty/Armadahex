@@ -1,0 +1,252 @@
+/* the menu's home: the 3D scene behind, the logo and every control down the left, the profile top right */
+.menu {
+    padding: 0;
+    background-color: rgb(6, 10, 18);
+}
+
+.home {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* darkens the left so the controls read over any sea */
+.home-shade {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 1100px;
+    background-image: url("project://database/Assets/Jonathan/UI/Textures/Shade.png");
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.home-logo {
+    position: absolute;
+    left: 96px;
+    top: 96px;
+    align-items: flex-start;
+}
+
+.home-logo > .logo-text {
+    font-size: 88px;
+    letter-spacing: 6px;
+}
+
+.home-logo > .streak {
+    align-self: stretch;
+    height: 6px;
+    margin-top: -12px;
+}
+
+.home-nav {
+    position: absolute;
+    left: 72px;
+    top: 288px;
+    width: 480px;
+}
+
+.nav-gap {
+    height: 24px;
+}
+
+/* a control: its name, and a number on the right for some; lit, it's frosted glass with a glowing edge */
+.nav-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    margin: 0;
+    padding: 0 24px;
+    overflow: visible;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 12px;
+    -unity-text-align: middle-left;
+}
+
+.nav-item:hover,
+.nav-item:focus {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.nav-item__name {
+    margin: 0;
+    padding: 0;
+    color: rgb(214, 226, 240);
+    font-size: 24px;
+    letter-spacing: 6px;
+    transition-duration: 0.15s;
+}
+
+.nav-item__detail {
+    margin: 0;
+    padding: 0;
+    color: rgb(150, 166, 188);
+    font-size: 15px;
+    letter-spacing: 3px;
+}
+
+.nav-item:hover > .nav-item__name,
+.nav-item:focus > .nav-item__name {
+    color: rgb(255, 255, 255);
+}
+
+.nav-item:disabled {
+    opacity: 1;
+}
+
+.nav-item:disabled > .nav-item__name {
+    color: rgb(110, 126, 148);
+}
+
+.nav-item:disabled > .nav-item__detail {
+    color: rgb(90, 106, 128);
+}
+
+/* the glass: a soft glow around, the blurred scene inside a rounded edge */
+.glass__glow {
+    position: absolute;
+    left: -20px;
+    top: -20px;
+    right: -20px;
+    bottom: -20px;
+    opacity: 0;
+    background-image: url("project://database/Assets/Jonathan/UI/Textures/Glow.png");
+    -unity-background-image-tint-color: rgba(200, 225, 255, 0.55);
+    -unity-slice-left: 48;
+    -unity-slice-right: 48;
+    -unity-slice-top: 48;
+    -unity-slice-bottom: 48;
+    transition-duration: 0.2s;
+}
+
+.glass__frost {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    border-width: 1px;
+    border-radius: 12px;
+    border-color: rgba(235, 244, 255, 0.85);
+    -unity-background-image-tint-color: rgb(100, 110, 128);
+    transition-duration: 0.2s;
+}
+
+.nav-item:hover > .glass__glow,
+.nav-item:focus > .glass__glow,
+.profile:hover > .glass__glow,
+.profile:focus > .glass__glow {
+    opacity: 1;
+}
+
+.nav-item:hover > .glass__frost,
+.nav-item:focus > .glass__frost {
+    opacity: 1;
+}
+
+/* the profile: always on glass, the active captain beside the player's name */
+.profile {
+    position: absolute;
+    right: 72px;
+    top: 96px;
+    flex-direction: row;
+    align-items: center;
+    width: 480px;
+    height: 136px;
+    margin: 0;
+    padding: 0 24px;
+    overflow: visible;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 12px;
+    -unity-text-align: middle-left;
+}
+
+.profile:hover,
+.profile:focus {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.profile > .glass__frost {
+    opacity: 1;
+    -unity-background-image-tint-color: rgb(110, 118, 132);
+    border-color: rgba(235, 244, 255, 0.25);
+}
+
+.profile:hover > .glass__frost,
+.profile:focus > .glass__frost {
+    border-color: rgba(235, 244, 255, 0.85);
+}
+
+.profile__captain {
+    width: 88px;
+    height: 88px;
+    margin-right: 24px;
+}
+
+.profile__portrait {
+    flex-grow: 1;
+    border-radius: 8px;
+}
+
+.profile__portrait > .captain-initials {
+    font-size: 32px;
+}
+
+.profile__who {
+    flex-grow: 1;
+}
+
+.profile__name {
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 26px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+}
+
+.profile__captain-name {
+    margin: 2px 0 0 0;
+    padding: 0;
+    color: rgb(150, 166, 188);
+    font-size: 15px;
+    letter-spacing: 3px;
+}
+
+.profile__stats {
+    flex-direction: row;
+    margin-top: 10px;
+}
+
+.profile__stat {
+    flex-direction: row;
+    align-items: center;
+    margin-right: 32px;
+}
+
+.profile__stat-name {
+    margin: 0 10px 0 0;
+    padding: 0;
+    color: rgb(150, 166, 188);
+    font-size: 14px;
+    letter-spacing: 3px;
+}
+
+.profile__stat-value {
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 16px;
+    -unity-font-style: bold;
+}
+
+/* the bot difficulty on the gameplay options page */
+.choices__side {
+    width: 104px;
+}

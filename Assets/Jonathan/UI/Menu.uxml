@@ -3,48 +3,68 @@
     <ui:Style src="Theme.uss" />
     <ui:Style src="Options.uss" />
     <ui:Style src="Progression.uss" />
-    <ui:VisualElement class="page">
-        <ui:VisualElement name="home">
-            <ui:Label text="ARMADAHEX" class="h1" />
-            <ui:Label text="LAST STAND" />
-            <ui:VisualElement class="row">
-                <ui:Label name="connection" text="OFFLINE" />
-                <ui:Label name="ping" text="0 ms" />
+    <ui:Style src="Home.uss" />
+    <ui:VisualElement class="page menu">
+        <ui:VisualElement name="home" class="screen home">
+            <SceneView class="backdrop" />
+            <ui:VisualElement class="home-shade" picking-mode="Ignore" />
+            <ui:VisualElement class="home-logo" picking-mode="Ignore">
+                <ui:Label name="logoText" text="ARMADAHEX" class="logo-text" />
+                <LightStreak target="logoText" peak-text="HEX" class="streak" />
             </ui:VisualElement>
-            <ui:Label name="stats" />
-            <ui:Label text="Signed in as" />
-            <ui:Label name="playerName" text="Player" class="h2" />
-
-            <ui:VisualElement class="row">
-                <ui:Button name="botTraining" text="Bot training" />
-                <ui:Label text="A quick match against the AI" />
+            <ui:VisualElement class="home-nav">
+                <ui:Button name="campaign" class="nav-item">
+                    <ui:Label text="CAMPAIGN" class="nav-item__name" />
+                    <ui:Label name="campaignProgress" text="0% COMPLETE" class="nav-item__detail" />
+                </ui:Button>
+                <ui:Button name="multiplayer" class="nav-item">
+                    <ui:Label text="MULTIPLAYER" class="nav-item__name" />
+                    <ui:Label name="playing" text="-" class="nav-item__detail" />
+                </ui:Button>
+                <ui:VisualElement class="nav-gap" />
+                <ui:Button name="joinGame" class="nav-item">
+                    <ui:Label text="JOIN GAME" class="nav-item__name" />
+                </ui:Button>
+                <ui:Button name="createGame" class="nav-item">
+                    <ui:Label text="CREATE GAME" class="nav-item__name" />
+                </ui:Button>
+                <ui:Button name="training" class="nav-item">
+                    <ui:Label text="TRAINING" class="nav-item__name" />
+                </ui:Button>
+                <ui:VisualElement class="nav-gap" />
+                <ui:Button name="options" class="nav-item">
+                    <ui:Label text="OPTIONS" class="nav-item__name" />
+                </ui:Button>
+                <ui:Button name="credits" class="nav-item">
+                    <ui:Label text="CREDITS" class="nav-item__name" />
+                </ui:Button>
+                <ui:VisualElement class="nav-gap" />
+                <ui:Button name="logout" class="nav-item">
+                    <ui:Label text="LOG OUT" class="nav-item__name" />
+                </ui:Button>
+                <ui:Button name="quit" class="nav-item">
+                    <ui:Label text="QUIT" class="nav-item__name" />
+                </ui:Button>
             </ui:VisualElement>
-            <ui:VisualElement class="row">
-                <ui:SliderInt name="difficulty" label="Bot difficulty" low-value="0" high-value="2" />
-                <ui:Label name="difficultyValue" text="EASY" />
-            </ui:VisualElement>
-            <ui:VisualElement class="row">
-                <ui:Button name="multiplayer" text="Multiplayer" />
-                <ui:Label text="Play the modes online, or join a code" />
-            </ui:VisualElement>
-            <ui:VisualElement class="row">
-                <ui:Button name="customGame" text="Custom game" />
-                <ui:Label text="Set the rules and share a code" />
-            </ui:VisualElement>
-            <ui:VisualElement class="row">
-                <ui:Button name="progression" text="Progression" />
-                <ui:Label text="Captains, achievements and stats" />
-            </ui:VisualElement>
-
-            <ui:VisualElement class="row">
-                <ui:Button name="settings" text="Settings" />
-                <ui:Button name="controls" text="Controls" />
-                <ui:Button name="credits" text="Credits" />
-            </ui:VisualElement>
-            <ui:VisualElement class="row">
-                <ui:Button name="logout" text="Log out" />
-                <ui:Button name="quit" text="Quit" />
-            </ui:VisualElement>
+            <ui:Button name="profile" class="profile">
+                <ui:VisualElement name="profileCaptain" class="profile__captain">
+                    <ui:Label name="profileInitials" class="profile__initials" />
+                </ui:VisualElement>
+                <ui:VisualElement class="profile__who">
+                    <ui:Label name="playerName" text="Player" class="profile__name" />
+                    <ui:Label name="profileCaptainName" class="profile__captain-name" />
+                    <ui:VisualElement class="profile__stats">
+                        <ui:VisualElement class="profile__stat">
+                            <ui:Label text="RANK" class="profile__stat-name" />
+                            <ui:Label name="profileRank" text="-" class="profile__stat-value" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="profile__stat">
+                            <ui:Label text="XP" class="profile__stat-name" />
+                            <ui:Label name="profileXp" text="-" class="profile__stat-value" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:Button>
         </ui:VisualElement>
 
         <ui:VisualElement name="gameplayPage" class="hidden screen options">
@@ -69,6 +89,10 @@
                     <ui:VisualElement class="option-row">
                         <ui:Label text="ENEMY COLOR" class="option-name" />
                         <ColorDropdown enemy="true" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="option-row">
+                        <ui:Label text="BOT DIFFICULTY" class="option-name" />
+                        <Choices name="difficulty" choices="EASY,MEDIUM,HARD" />
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:VisualElement class="options-footer" />
