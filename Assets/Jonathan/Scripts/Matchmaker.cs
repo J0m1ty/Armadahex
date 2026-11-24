@@ -139,7 +139,7 @@ public class Matchmaker : MonoBehaviourPunCallbacks
                 yield break;
             }
 
-            matchmakingText = "STARTING IN " + count;
+            matchmakingText = "SEARCHING IN " + count;
 
             yield return new WaitForSeconds(1);
             count--;
