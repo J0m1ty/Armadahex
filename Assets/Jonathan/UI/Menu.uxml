@@ -2,6 +2,7 @@
     <Style src="project://database/Assets/Jonathan/UI/Base.uss?fileID=7433441132597879392&amp;guid=b5a44b40eb90f1741a8fbe41765e4d07&amp;type=3#Base"/>
     <Style src="project://database/Assets/Jonathan/UI/Theme.uss?fileID=7433441132597879392&amp;guid=a20a5efdaf552f84b94acbaf1eb4b9b6&amp;type=3#Theme"/>
     <Style src="project://database/Assets/Jonathan/UI/Options.uss?fileID=7433441132597879392&amp;guid=7adb23c5994a45b47b84429723bfd499&amp;type=3#Options"/>
+    <Style src="project://database/Assets/Jonathan/UI/Training.uss?fileID=7433441132597879392&amp;guid=20c27e182d8d43a69dd8fabf6742bf4b&amp;type=3#Training"/>
     <Style src="project://database/Assets/Jonathan/UI/Progression.uss?fileID=7433441132597879392&amp;guid=b581ec6fb44f0ce4b9f36c4da51ef911&amp;type=3#Progression"/>
     <Style src="project://database/Assets/Jonathan/UI/Home.uss?fileID=7433441132597879392&amp;guid=60b2352bf4070464293de43904c0f7fe&amp;type=3#Home"/>
     <ui:VisualElement class="page menu">
@@ -153,6 +154,85 @@
                 <ui:VisualElement class="options-footer">
                     <ui:Button name="resetControls" text="RESET TO DEFAULTS" class="text-button reset"/>
                     <ui:Button name="saveControls" text="SAVE CHANGES" class="save"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="trainingPage" class="hidden screen options training">
+            <Backdrop class="backdrop"/>
+            <ui:Button name="trainingBack" class="back">
+                <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip"/>
+                <ui:Label text="BACK" picking-mode="Ignore" class="back-text"/>
+            </ui:Button>
+            <ui:VisualElement class="options-column training-column">
+                <ui:Label text="TRAINING" class="options-title"/>
+                <ui:VisualElement class="options-tabs training-tabs">
+                    <ui:Button name="trainingRulesTab" text="RULES" focusable="false" class="tab lit"/>
+                    <ui:Button name="trainingBotTab" text="BOT" focusable="false" class="tab"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="training-cards">
+                    <ui:VisualElement name="trainingRules" class="training-card panel">
+                        <ui:VisualElement picking-mode="Ignore" class="panel-edge"/>
+                        <ui:Label text="RULES" class="card-heading"/>
+                        <ui:VisualElement class="option-row">
+                            <ui:Label text="PRESET" class="option-name"/>
+                            <ListDropdown name="trainingPresets" class="preset-dropdown"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="option-row">
+                            <ui:VisualElement class="option-label">
+                                <ui:Label text="ADVANCED ATTACKS" class="option-name"/>
+                                <InfoTip text="Every ship gets its own powerful attacks."/>
+                            </ui:VisualElement>
+                            <Switch name="trainingAdvanced"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement name="trainingUnlimitedRow" class="option-row">
+                            <ui:VisualElement class="option-label">
+                                <ui:Label text="UNLIMITED AMMO" class="option-name"/>
+                                <InfoTip text="Advanced attacks never run out of ammo."/>
+                            </ui:VisualElement>
+                            <Switch name="trainingUnlimited"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="option-row">
+                            <ui:VisualElement class="option-label">
+                                <ui:Label text="SALVO SHOTS" class="option-name"/>
+                                <InfoTip text="Gain one shot for each ship you have left."/>
+                            </ui:VisualElement>
+                            <Switch name="trainingSalvo"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="option-row">
+                            <ui:VisualElement class="option-label">
+                                <ui:Label text="BONUS SHOTS" class="option-name"/>
+                                <InfoTip text="Every hit earns another shot."/>
+                            </ui:VisualElement>
+                            <Switch name="trainingBonus"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="option-row">
+                            <ui:Label text="TURN TIME" class="option-name"/>
+                            <ui:SliderInt name="trainingTurnTime" low-value="25" high-value="95" fill="true" class="option-slider"/>
+                            <ui:Label name="trainingTurnTimeText" text="" class="turn-time"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="trainingBot" class="training-card panel">
+                        <ui:VisualElement picking-mode="Ignore" class="panel-edge"/>
+                        <ui:Label text="BOT" class="card-heading"/>
+                        <ui:VisualElement class="option-row">
+                            <ui:Label text="DIFFICULTY" class="option-name"/>
+                            <ui:SliderInt name="trainingDifficulty" low-value="0" high-value="2" fill="true" class="option-slider"/>
+                            <ui:Label name="trainingDifficultyText" text="" class="turn-time"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="option-row unavailable">
+                            <ui:Label text="POWER SCALING" class="option-name"/>
+                            <ui:SliderInt name="trainingPower" low-value="0" high-value="100" fill="true" enabled="false" class="option-slider"/>
+                            <ui:Label name="trainingPowerText" text="SOON" class="turn-time"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="option-row unavailable">
+                            <ui:Label text="STORY" class="option-name"/>
+                            <ui:SliderInt name="trainingStory" low-value="0" high-value="100" fill="true" enabled="false" class="option-slider"/>
+                            <ui:Label name="trainingStoryText" text="SOON" class="turn-time"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="training-footer">
+                    <ui:Button name="trainingStart" text="START" class="action"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>

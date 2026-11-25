@@ -329,3 +329,96 @@
 .color-dropdown__item--taken:hover {
     background-color: rgba(0, 0, 0, 0);
 }
+
+/* a rule that doesn't apply with the others as they are */
+.unavailable > .option-name {
+    color: rgb(90, 108, 130);
+}
+
+.unavailable > .switch {
+    opacity: 0.35;
+}
+
+.turn-slider {
+    width: 400px;
+}
+
+/* the turn time, beside its slider */
+.turn-time {
+    width: 152px;
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 18px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-right;
+}
+
+/* a name with an (i) after it, the tip opens to its right */
+.option-label {
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: center;
+}
+
+.option-label > .option-name {
+    flex-grow: 0;
+}
+
+.info-tip {
+    width: 18px;
+    height: 18px;
+    margin-left: 12px;
+    color: rgb(90, 108, 130);
+    transition-duration: 0.15s;
+}
+
+.info-tip:hover {
+    color: var(--accent);
+}
+
+.info-tip__bubble {
+    position: absolute;
+    max-width: 420px;
+    margin: 0;
+    padding: 8px 14px;
+    translate: 14px -50%;
+    background-color: rgb(18, 28, 48);
+    border-width: 2px;
+    border-color: rgba(200, 220, 255, 0.16);
+    color: rgb(214, 226, 240);
+    font-size: 17px;
+    letter-spacing: 1px;
+    white-space: normal;
+}
+
+/* the footer's button: a flat block the same height as the code beside it, filled in the accent */
+.action {
+    width: 360px;
+    height: 72px;
+    margin: 0;
+    padding: 0 24px;
+    background-color: var(--accent);
+    border-width: 0;
+    border-radius: 0;
+    color: var(--accent-ink);
+    font-size: 22px;
+    letter-spacing: 6px;
+    -unity-font-style: bold;
+    transition-duration: 0.15s;
+}
+
+.action:hover {
+    background-color: var(--accent-hover);
+}
+
+.action:active {
+    scale: 0.98 0.98;
+}
+
+.action:disabled {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.06);
+    color: rgb(90, 108, 130);
+}

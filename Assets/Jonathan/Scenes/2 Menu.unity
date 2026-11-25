@@ -417,6 +417,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32df82c122abef84594e1c3e50ad07d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  document: {fileID: 1092674493}
+  pages: {fileID: 827379053}
+  page: trainingPage
   gameScene:
     Scene: {fileID: 102900000, guid: d25db74bd29ffb140bbb2a56be4ad620, type: 3}
     SceneName: 6 Game
@@ -465,6 +468,7 @@ MonoBehaviour:
   - settingsPage
   - controlsPage
   - progressionPage
+  - trainingPage
   optionTabs:
   - gameplayTab
   - audioTab
@@ -757,7 +761,7 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 827379050}
           m_TargetAssemblyTypeName: SingleplayerStart, Assembly-CSharp
-          m_MethodName: StartGame
+          m_MethodName: Open
           m_Mode: 0
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -1013,7 +1017,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuHome
   document: {fileID: 1092674493}
-  multiplayerScene: 3 Multiplayer
   campaignScene: 8 Campaign
   refreshInterval: 1
   changelogImage: {fileID: 2800000, guid: 3c8fa111f1bd1354ea55d43bc869133a, type: 3}
