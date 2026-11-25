@@ -15,7 +15,6 @@ public class MenuHome : MonoBehaviour
     // a placeholder picture for the newest update until the changelog comes from the server
     [SerializeField] private Texture2D changelogImage;
 
-    private const string dash = "-";
     private const string firstRank = "Ensign";
     private const string selectedClass = "selected";
 
@@ -91,7 +90,6 @@ public class MenuHome : MonoBehaviour
             portrait.pickingMode = PickingMode.Ignore;
             slot.Add(portrait);
         }
-        root.Q<Label>("profileCaptainName").text = captain != null ? captain.captainName.ToUpper() : dash;
 
         // no ranks or experience yet, everyone starts as the first rank with none
         root.Q<Label>("profileRank").text = PlayerPrefs.GetString(Constants.STAT_MULTIPLAYER_RANK, firstRank).ToUpper();

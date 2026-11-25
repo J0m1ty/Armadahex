@@ -47,7 +47,6 @@
             <ui:Button name="profile" class="profile">
                 <ui:VisualElement class="profile__avatar" picking-mode="Ignore">
                     <ui:VisualElement name="profileCaptain" class="profile__captain" />
-                    <ui:Label name="profileCaptainName" class="profile__captain-tag" />
                 </ui:VisualElement>
                 <ui:VisualElement class="profile__who">
                     <ui:Label name="playerName" text="Player" class="profile__name" />

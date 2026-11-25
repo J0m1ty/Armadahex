@@ -26,9 +26,10 @@ public static class Changelog
                 if (!first) list.Add(Gap());
                 // the newest update leads with its picture
                 if (first && image != null) {
-                    var picture = new FadeImage { texture = image };
-                    picture.AddToClassList("changelog__image");
-                    list.Add(picture);
+                    var frame = new VisualElement();
+                    frame.AddToClassList("changelog__image");
+                    frame.Add(new FadeImage { texture = image });
+                    list.Add(frame);
                 }
                 first = false;
 
@@ -62,7 +63,7 @@ public static class Changelog
         var bottomFade = Mathf.Clamp(range - list.scrollOffset.y, 0.01f, fade);
 
         foreach (var child in list.contentContainer.Children()) {
-            if (child is FadeImage picture) {
+            if (child.childCount > 0 && child[0] is FadeImage picture) {
                 picture.SetView(view.yMin, view.yMax, topFade, bottomFade);
                 continue;
             }
