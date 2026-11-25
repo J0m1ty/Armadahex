@@ -11,8 +11,6 @@ public static class Constants
     public const string GAME_MODE_PREF_KEY = "GameMode";
     // the playlist id a match is about to play, from the menus to the game scene
     public const string PLAYLIST_PREF_KEY = "Playlist";
-    // a playlist the multiplayer screen opens with picked, once (join game on the menu picks customs)
-    public const string OPEN_PLAYLIST_PREF_KEY = "OpenPlaylist";
     public const string CUSTOMS_IS_SINGLEPLAYER_PREF_KEY = "CustomsIsSingleplayer";
     public const string CUSTOMS_IS_ADVANCED_COMBAT_PREF_KEY = "CustomsIsAdvancedCombat";
     public const string CUSTOMS_IS_SALVO_PREF_KEY = "CustomsIsSalvo";

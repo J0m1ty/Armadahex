@@ -96,6 +96,9 @@ public class GameNetworking : MonoBehaviourPunCallbacks {
                     var allowChat = (bool)roomProps["AllowChat"];
 
                     GameModeInfo.instance.SetCustom(false, isAdvancedCombat, isSalvo, isBonus, isUnlimitedAmmo, turnTimeLimit, allowChat);
+                    if (roomProps.ContainsKey("Captains")) {
+                        GameModeInfo.instance.From(Playlists.Custom).captains = (bool)roomProps["Captains"];
+                    }
                 }
             }
         }

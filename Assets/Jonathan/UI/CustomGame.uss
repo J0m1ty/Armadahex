@@ -1,0 +1,227 @@
+/* custom game: the options layout with create and join tabs; both tabs share one body size, and the plate under it does what the tab says */
+.custom-body {
+    height: 640px;
+    margin-top: 32px;
+    padding: 32px 48px;
+}
+
+.custom-body .option-row {
+    border-bottom-width: 0;
+}
+
+.preset-dropdown .color-dropdown__field {
+    width: 360px;
+}
+
+/* a rule that doesn't apply with the others as they are */
+.unavailable > .option-name {
+    color: rgb(90, 108, 130);
+}
+
+.unavailable > .switch {
+    opacity: 0.35;
+}
+
+/* while there's a room the rules stay readable, the whole page a little dimmer */
+#createPage:disabled {
+    opacity: 0.6;
+}
+
+#createPage *:disabled {
+    opacity: 1;
+}
+
+#createPage .unavailable > .switch:disabled {
+    opacity: 0.35;
+}
+
+.turn-slider {
+    width: 400px;
+}
+
+/* the turn time, beside its slider */
+.turn-time {
+    width: 152px;
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 18px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-right;
+}
+
+/* a name with an (i) after it, the tip opens to its right */
+.option-label {
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: center;
+}
+
+.option-label > .option-name {
+    flex-grow: 0;
+}
+
+.info-tip {
+    width: 18px;
+    height: 18px;
+    margin-left: 12px;
+    color: rgb(90, 108, 130);
+    transition-duration: 0.15s;
+}
+
+.info-tip:hover {
+    color: var(--accent);
+}
+
+.info-tip__bubble {
+    position: absolute;
+    max-width: 420px;
+    margin: 0;
+    padding: 8px 14px;
+    translate: 14px -50%;
+    background-color: rgb(18, 28, 48);
+    border-width: 2px;
+    border-color: rgba(200, 220, 255, 0.16);
+    color: rgb(214, 226, 240);
+    font-size: 17px;
+    letter-spacing: 1px;
+    white-space: normal;
+}
+
+/* join: the code's four characters in their own slots, each underlined; the field itself is invisible on top */
+.join-page {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+.join-title {
+    margin: 0 0 32px 0;
+    padding: 0;
+    color: rgb(120, 140, 165);
+    font-size: 20px;
+    letter-spacing: 8px;
+    -unity-font-style: bold;
+}
+
+.code-slots {
+    flex-direction: row;
+}
+
+.code-slot {
+    width: 104px;
+    height: 128px;
+    margin: 0 12px;
+    padding: 0;
+    border-bottom-width: 3px;
+    border-color: rgb(58, 74, 98);
+    color: rgb(240, 246, 255);
+    font-size: 80px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    transition-duration: 0.15s;
+}
+
+.code-slots:hover > .code-slot {
+    border-color: rgb(120, 140, 165);
+}
+
+.code-slots.focused > .code-slot--current,
+.code-slots.focused > .code-slot--filled {
+    border-color: var(--accent);
+}
+
+.code-input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    opacity: 0;
+}
+
+.code-input > .unity-base-text-field__input {
+    height: 100%;
+}
+
+/* while there's a room the tabs stay put but read as off, except the picked one */
+.options-tabs > .tab:disabled {
+    opacity: 1;
+    color: rgb(58, 74, 98);
+}
+
+.options-tabs > .tab.lit:disabled {
+    color: rgb(240, 246, 255);
+}
+
+/* under the body: the room's code on the left once there is one, the plate on the right */
+.custom-footer {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 72px;
+    margin-top: 32px;
+}
+
+/* the room's code, set apart on its own plate so it reads as something to hand over */
+.room-code {
+    flex-direction: row;
+    align-items: center;
+    height: 72px;
+    padding: 0 24px 0 32px;
+    background-color: rgba(255, 255, 255, 0.06);
+    border-left-width: 3px;
+    border-color: var(--accent);
+}
+
+.room-code__value {
+    width: 200px;
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 40px;
+    letter-spacing: 16px;
+    -unity-font-style: bold;
+}
+
+.copy-icon {
+    width: 22px;
+    height: 22px;
+    margin-left: 16px;
+    color: rgb(120, 140, 165);
+    transition-duration: 0.15s;
+}
+
+.copy-icon:hover {
+    color: var(--accent);
+}
+
+.custom-footer > .play {
+    width: 360px;
+    height: 72px;
+    font-size: 24px;
+    letter-spacing: 8px;
+}
+
+/* while it makes or joins a room, the plate goes dark and shows how long; an error turns it red */
+.custom-footer > .play.search-busy {
+    -unity-background-image-tint-color: rgb(40, 50, 66);
+    color: rgb(240, 246, 255);
+}
+
+.custom-footer > .play.search-busy:hover {
+    -unity-background-image-tint-color: rgb(58, 72, 94);
+}
+
+.custom-footer > .play.search-error,
+.custom-footer > .play.search-error:disabled {
+    -unity-background-image-tint-color: rgb(150, 48, 44);
+    padding: 0 16px;
+    color: rgb(255, 235, 232);
+    font-size: 20px;
+    letter-spacing: 3px;
+    opacity: 1;
+}
+

@@ -1,383 +1,371 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
-using System;
 using Photon.Pun;
-using MyBox;
-using System.Linq;
 using Photon.Realtime;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
-using System.Text.RegularExpressions;
 
+// the custom game screen: create a room with your own rules and share its code, or join one with a code.
+// the room lives here until the match loads, the plate under the tabs shows where it's at
 public class CustomUIManager : MonoBehaviourPunCallbacks {
     [SerializeField] private UIDocument document;
 
-    // presets ui
-    private DropdownField missionsDropdown;
-
-    // match options
-    private Toggle allowMatchChat;
-    private Toggle isUnlimitedTime;
-    private Label turnTimeLimitText;
-    private SliderInt turnTimeLimitSlider;
-
-    // mission options
-    private Toggle isAdvancedAttacks;
-    private Toggle isUnlimitedAdvancedAmmo;
-    private Toggle isSalvo;
-    private Toggle isBonus;
-    
-    // code sharing
-    private TextField codeInputField;
-    // the code, its label and the copy button show together
-    private VisualElement codeContainer;
-    private string code {
-        get {
-            return codeInputField.value;
-        }
-        set {
-            codeInputField.value = value;
-        }
-    }
-    private Button startButton;
-    private string buttonText {
-        get {
-            return startButton.text;
-        }
-        set {
-            startButton.text = value;
-        }
-    }
-
-    // other
-    private VisualElement connectingOverlay;
-    private Label matchmakingPanel;
-    private string matchmakingText {
-        get {
-            return matchmakingPanel.text;
-        }
-        set {
-            matchmakingPanel.text = value;
-        }
-    }
-    private Color panelColor {
-        get {
-            return matchmakingPanel.resolvedStyle.color;
-        }
-        set {
-            matchmakingPanel.style.color = value;
-        }
-    }
-    [SerializeField] private Color matchmakingColor;
-    [SerializeField] private Color errorColor;
-
-    [Serializable]
     public enum CustomsStage {
         Error,
         Customizing,
-        Pre,
-        Matchmaking,
-        Found,
-        Loading
+        Working, // making or joining the room
+        Waiting, // in our own room for someone to join
+        Found
     }
 
-    [Serializable]
-    public enum DependUpon {
-        Stages,
-        Toggle,
-        Both
-    }
+    private CustomsStage stage = CustomsStage.Customizing;
 
-    [Serializable]
-    public class DefaultValues {
-        public GameMode gameMode;
+    // the tabs
+    private Button createTab;
+    private Button joinTab;
+    private VisualElement createPage;
+    private VisualElement joinPage;
+    private bool joining;
 
-        [Header("Match Options")]
-        public bool allowMatchChat;
-        public bool isUnlimitedTime;
-        [ConditionalField(nameof(isUnlimitedTime), true, true)]
-        [MinValue(25)] [MaxValue(90)]
-        public float turnTimeLimit;
+    // the rules
+    private ListDropdown presetsDropdown;
+    private Switch isAdvancedAttacks;
+    private Switch isUnlimitedAmmo;
+    private Switch isSalvo;
+    private Switch isBonus;
+    private Switch allowChat;
+    private Switch captains;
+    private SliderInt turnTimeSlider;
+    private Label turnTimeText;
+    private VisualElement unlimitedAmmoRow;
 
-        [Header("Mission Options")]
-        public bool isAdvancedAttacks;
-        [ConditionalField(nameof(isAdvancedAttacks), false, true)]
-        public bool isUnlimitedAdvancedAmmo;
-        public bool isSalvo;
-        public bool isBonus;
+    // every listed playlist played without a code is a preset, the last choice is custom
+    private List<Playlist> presets;
+    // null when the rules are the player's own
+    private Playlist preset;
 
-        [Header("Overrides")]
-        public bool overrideAllowMatchChat;
-        public bool overrideValues;
-    }
+    // the slider's last step is no time limit
+    private const int unlimitedTime = 95;
 
-    [Serializable]
-    public class VisabilityElement {
-        public string name;
-        // the element's name in the document
-        public string element;
-        public DependUpon dependUpon;
-        [ConditionalField(nameof(dependUpon), false, DependUpon.Stages, DependUpon.Both)]
-        public CollectionWrapper<CustomsStage> visableStages;
-        [ConditionalField(nameof(dependUpon), false, DependUpon.Toggle, DependUpon.Both)]
-        public string toggle;
-        [ConditionalField(nameof(dependUpon), false, DependUpon.Toggle, DependUpon.Both)]
-        public bool invert;
-    }
+    // the made room's code and the code to join
+    private VisualElement codeContainer;
+    private Label codeText;
+    private CopyIcon copyIcon;
+    private TextField joinCode;
+    private VisualElement codeSlots;
+    private bool typing;
+    private string code;
 
-    [SerializeField] private CustomsStage stage;
+    // the plate: create or join, then what the room is doing; hovering it while it's cancelable reads CANCEL
+    private Button button;
+    private string statusText;
+    private bool hovering;
+    private float waitStart;
+    private bool cancelAction;
 
-    [SerializeField] private GameMode gameMode;
-
-    [SerializeField] private VisabilityElement[] visabilityElements;
-
-    [SerializeField] private List<DefaultValues> defaultValues;
-
-    public void DisableButtons(bool disable) {
-        try {
-            missionsDropdown.SetEnabled(!disable);
-            allowMatchChat.SetEnabled(!disable);
-            isUnlimitedTime.SetEnabled(!disable);
-            turnTimeLimitSlider.SetEnabled(!disable);
-            isAdvancedAttacks.SetEnabled(!disable);
-            isUnlimitedAdvancedAmmo.SetEnabled(!disable);
-            isSalvo.SetEnabled(!disable);
-            isBonus.SetEnabled(!disable);
-        }
-        catch (Exception) {}
-    }
-    
-    public void UpdateVisability() {
-        foreach (VisabilityElement element in visabilityElements) {
-            bool visable = false;
-            if (element.dependUpon == DependUpon.Stages || element.dependUpon == DependUpon.Both) {
-                visable = element.visableStages.Value.Contains(stage);
-            }
-
-            if (element.dependUpon == DependUpon.Toggle || element.dependUpon == DependUpon.Both) {
-                visable = document.rootVisualElement.Q<Toggle>(element.toggle).value ^ element.invert;
-            }
-
-            UIKit.Show(document.rootVisualElement.Q(element.element), visable);
-        }
-
-        turnTimeLimitText.text = $"{turnTimeLimitSlider.value}S PER TURN";
-    }
-
-    public void SetDefaults(DefaultValues defaults) {
-        if (defaults.overrideValues) {
-            gameMode = GameMode.Customs; // set to customs so that it doesn't change back to customs after
-            missionsDropdown.index = (int) defaults.gameMode;
-            if (defaults.overrideAllowMatchChat) {
-                allowMatchChat.value = defaults.allowMatchChat;
-            }
-            isUnlimitedTime.value = defaults.isUnlimitedTime;
-            turnTimeLimitSlider.value = (int)defaults.turnTimeLimit;
-            isAdvancedAttacks.value = defaults.isAdvancedAttacks;
-            isUnlimitedAdvancedAmmo.value = defaults.isUnlimitedAdvancedAmmo;
-            isSalvo.value = defaults.isSalvo;
-            isBonus.value = defaults.isBonus;
-            // now set game mode
-            gameMode = defaults.gameMode;
-        }
-
-        UpdateVisability();
-    }
-
-    public void SetDefaults(GameMode gameMode) {
-        SetDefaults(defaultValues.Find(d => d.gameMode == gameMode));
-    }
-
-    public void SetDropdown() {
-        SetDefaults((GameMode) missionsDropdown.index);
-    }
-
-    public static string PrettyEnum(string enumString) {
-        // add a space before each capital letter not including the first
-        return Regex.Replace(enumString, "([A-Z])", " $1").TrimStart(' ');
-    }
-
-    public void LoadDropdown(GameMode defaultMode = GameMode.AdvancedCombat) {
-        missionsDropdown.choices = Enum.GetNames(typeof(GameMode)).ToList().ConvertAll(PrettyEnum);
-
-        missionsDropdown.index = (int) defaultMode;
-
-        SetDefaults(defaultMode);
-    }
-
-    public void SetStage(CustomsStage stage) {
-        this.stage = stage;
-
-        DisableButtons(this.stage != CustomsStage.Customizing || this.stage == CustomsStage.Error);
-
-        UpdateVisability();
-    }
-
-    public void UpdateValue() {
-        UpdateVisability();
-
-        // if not in customs and any value changes, set to customs
-        if (gameMode != GameMode.Customs) {
-            var defaultValues = this.defaultValues.Find(d => d.gameMode == gameMode);
-
-            if ((defaultValues.overrideAllowMatchChat && allowMatchChat.value != defaultValues.allowMatchChat) ||
-                isUnlimitedTime.value != defaultValues.isUnlimitedTime ||
-                turnTimeLimitSlider.value != defaultValues.turnTimeLimit ||
-                isAdvancedAttacks.value != defaultValues.isAdvancedAttacks ||
-                isUnlimitedAdvancedAmmo.value != defaultValues.isUnlimitedAdvancedAmmo ||
-                isSalvo.value != defaultValues.isSalvo ||
-                isBonus.value != defaultValues.isBonus) {
-                    
-                LoadDropdown(GameMode.Customs);
-
-                gameMode = GameMode.Customs;
-            }
-        }
-    }
+    private VisualElement backButton;
 
     void Awake() {
         var root = document.rootVisualElement;
-        missionsDropdown = root.Q<DropdownField>("presets");
-        allowMatchChat = root.Q<Toggle>("allowChat");
-        isUnlimitedTime = root.Q<Toggle>("unlimitedTime");
-        turnTimeLimitText = root.Q<Label>("turnTimeText");
-        turnTimeLimitSlider = root.Q<SliderInt>("turnTime");
-        isAdvancedAttacks = root.Q<Toggle>("advancedAttacks");
-        isUnlimitedAdvancedAmmo = root.Q<Toggle>("unlimitedAmmo");
-        isSalvo = root.Q<Toggle>("salvo");
-        isBonus = root.Q<Toggle>("bonus");
-        codeInputField = root.Q<TextField>("code");
+        createTab = root.Q<Button>("createTab");
+        joinTab = root.Q<Button>("joinTab");
+        createPage = root.Q("createPage");
+        joinPage = root.Q("joinPage");
+        presetsDropdown = root.Q<ListDropdown>("presets");
+        isAdvancedAttacks = root.Q<Switch>("advancedAttacks");
+        isUnlimitedAmmo = root.Q<Switch>("unlimitedAmmo");
+        isSalvo = root.Q<Switch>("salvo");
+        isBonus = root.Q<Switch>("bonus");
+        allowChat = root.Q<Switch>("allowChat");
+        captains = root.Q<Switch>("captains");
+        turnTimeSlider = root.Q<SliderInt>("turnTime");
+        turnTimeText = root.Q<Label>("turnTimeText");
+        unlimitedAmmoRow = root.Q("unlimitedAmmoRow");
         codeContainer = root.Q("codeContainer");
-        startButton = root.Q<Button>("create");
-        connectingOverlay = root.Q("connectingOverlay");
-        matchmakingPanel = root.Q<Label>("matchmaking");
+        codeText = root.Q<Label>("code");
+        copyIcon = root.Q<CopyIcon>("copy");
+        joinCode = root.Q<TextField>("joinCode");
+        codeSlots = root.Q("codeSlots");
+        button = root.Q<Button>("create");
+        backButton = root.Q("backButton");
 
-        // any rule change, and the preset
-        foreach (var toggle in new[] { allowMatchChat, isUnlimitedTime, isAdvancedAttacks, isUnlimitedAdvancedAmmo, isSalvo, isBonus }) {
-            toggle.RegisterValueChangedCallback(_ => UpdateValue());
+        UIKit.OnClick(createTab, () => SetTab(false), ClickSound.Light);
+        UIKit.OnClick(joinTab, () => SetTab(true), ClickSound.Light);
+
+        foreach (var rule in new[] { isAdvancedAttacks, isUnlimitedAmmo, isSalvo, isBonus, captains, allowChat }) {
+            rule.changed += _ => RulesChanged();
         }
-        turnTimeLimitSlider.RegisterValueChangedCallback(_ => UpdateValue());
-        missionsDropdown.RegisterValueChangedCallback(_ => SetDropdown());
+        turnTimeSlider.RegisterValueChangedCallback(e => {
+            // whole steps of 5 seconds
+            var snapped = Mathf.RoundToInt(e.newValue / 5f) * 5;
+            if (snapped != e.newValue) {
+                turnTimeSlider.SetValueWithoutNotify(snapped);
+            }
+            RulesChanged();
+        });
+        presetsDropdown.changed += PickPreset;
 
-        UIKit.Show(connectingOverlay,PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient);
+        // codes are letters and numbers, shown in capitals
+        joinCode.RegisterValueChangedCallback(e => {
+            var clean = new string(e.newValue.ToUpper().Where(char.IsLetterOrDigit).ToArray());
+            if (clean != e.newValue) {
+                joinCode.SetValueWithoutNotify(clean);
+            }
+            ShowCode();
+            UpdateButton();
+        });
+        joinCode.RegisterCallback<FocusInEvent>(_ => { typing = true; ShowCode(); });
+        joinCode.RegisterCallback<FocusOutEvent>(_ => { typing = false; ShowCode(); });
+        joinCode.RegisterCallback<KeyDownEvent>(e => {
+            if (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter) {
+                StartOrCancelMatch();
+            }
+        }, TrickleDown.TrickleDown);
+
+        button.RegisterCallback<PointerEnterEvent>(_ => hovering = true);
+        button.RegisterCallback<PointerLeaveEvent>(_ => hovering = false);
     }
 
     void Start() {
-        LoadDropdown();
+        presets = Playlists.All.Where(p => p.listed && !p.usesCode).ToList();
+        var names = presets.Select(p => p.title.ToUpper()).ToList();
+        names.Add("CUSTOM");
+        presetsDropdown.SetChoices(names);
 
-        code = "";
-        UIKit.Show(codeContainer, false);
+        PickPreset(0);
+        SetTab(false);
     }
 
-    private bool cancelAction;
+    void Update() {
+        var busy = stage == CustomsStage.Working || stage == CustomsStage.Waiting;
+        button.EnableInClassList("search-busy", busy);
+        button.EnableInClassList("search-error", stage == CustomsStage.Error);
+        if (!busy && stage != CustomsStage.Found) return;
+
+        if (busy && !cancelAction && hovering) {
+            button.text = "CANCEL";
+        }
+        else if (stage == CustomsStage.Waiting && !cancelAction) {
+            var time = Mathf.FloorToInt(Time.time - waitStart);
+            button.text = "WAITING  " + time / 60 + ":" + (time % 60).ToString("00");
+        }
+        else {
+            button.text = statusText;
+        }
+    }
+
+    public void SetTab(bool join) {
+        if (stage != CustomsStage.Customizing) return;
+
+        joining = join;
+        UIKit.SetLit(createTab, !join);
+        UIKit.SetLit(joinTab, join);
+        UIKit.Show(createPage, !join);
+        UIKit.Show(joinPage, join);
+
+        if (join) {
+            joinCode.schedule.Execute(() => joinCode.Focus());
+        }
+        else {
+            joinCode.Blur();
+        }
+
+        UpdateButton();
+    }
+
+    // the typed code, a character to a slot; the next empty slot is lit while typing
+    private void ShowCode() {
+        var value = joinCode.value;
+        codeSlots.EnableInClassList("focused", typing);
+        var i = 0;
+        foreach (var slot in codeSlots.Children().OfType<Label>()) {
+            slot.text = i < value.Length ? value[i].ToString() : "";
+            slot.EnableInClassList("code-slot--filled", i < value.Length);
+            slot.EnableInClassList("code-slot--current", i == value.Length);
+            i++;
+        }
+    }
+
+    // join only works once the code is whole; the plate stays put either way
+    private void UpdateButton() {
+        if (stage != CustomsStage.Customizing) return;
+
+        button.text = joining ? "JOIN" : "CREATE";
+        button.SetEnabled(!joining || joinCode.value.Length == 4);
+    }
+
+    private void PickPreset(int index) {
+        // the custom choice keeps the rules as they are
+        if (index >= presets.Count) {
+            preset = null;
+            presetsDropdown.index = presets.Count;
+            return;
+        }
+
+        preset = presets[index];
+        presetsDropdown.index = index;
+
+        isAdvancedAttacks.value = preset.advancedCombat;
+        isUnlimitedAmmo.value = preset.unlimitedAmmo;
+        isSalvo.value = preset.salvo;
+        isBonus.value = preset.bonus;
+        allowChat.value = preset.allowChat;
+        captains.value = preset.captains;
+        turnTimeSlider.SetValueWithoutNotify(preset.turnTimeLimit <= 0 ? unlimitedTime : (int)preset.turnTimeLimit);
+
+        RefreshRules();
+    }
+
+    // any change away from the preset makes it a custom game
+    private void RulesChanged() {
+        if (preset != null && !Matches(preset)) {
+            preset = null;
+            presetsDropdown.index = presets.Count;
+        }
+
+        RefreshRules();
+    }
+
+    private bool Matches(Playlist playlist) {
+        return isAdvancedAttacks.value == playlist.advancedCombat &&
+            isUnlimitedAmmo.value == playlist.unlimitedAmmo &&
+            isSalvo.value == playlist.salvo &&
+            isBonus.value == playlist.bonus &&
+            allowChat.value == playlist.allowChat &&
+            captains.value == playlist.captains &&
+            turnTimeLimit == playlist.turnTimeLimit;
+    }
+
+    private float turnTimeLimit => turnTimeSlider.value >= unlimitedTime ? 0f : turnTimeSlider.value;
+
+    private void RefreshRules() {
+        // unlimited ammo is only for advanced attacks
+        unlimitedAmmoRow.SetEnabled(isAdvancedAttacks.value);
+        unlimitedAmmoRow.EnableInClassList("unavailable", !isAdvancedAttacks.value);
+        turnTimeText.text = turnTimeLimit > 0 ? turnTimeLimit + " SECONDS" : "UNLIMITED";
+    }
+
+    private void SetStage(CustomsStage stage) {
+        this.stage = stage;
+
+        var customizing = stage == CustomsStage.Customizing;
+        createTab.SetEnabled(customizing);
+        joinTab.SetEnabled(customizing);
+        createPage.SetEnabled(customizing);
+        joinCode.SetEnabled(customizing);
+        UIKit.Show(backButton, customizing);
+        if (stage == CustomsStage.Waiting) waitStart = Time.time;
+
+        RefreshRules();
+    }
 
     public void StartOrCancelMatch() {
-        if (stage == CustomsStage.Error) {
-            Debug.Log("In error");
-            return;
-        }
-
-        if (cancelAction) {
-            Debug.Log("Canceling in progress");
-            return;
-        }
-
-        panelColor = matchmakingColor;
+        if (stage == CustomsStage.Error || stage == CustomsStage.Found || cancelAction) return;
 
         if (stage == CustomsStage.Customizing) {
-            SetStage(CustomsStage.Pre);
-            buttonText = "CANCEL";
-            StartCoroutine(PreCountdown());
-        } else if (stage != CustomsStage.Found) {
-            if (PhotonNetwork.InRoom) {
-                PhotonNetwork.LeaveRoom();
-            } else {
-                cancelAction = true;
-                buttonText = "CANCELING";
-                matchmakingText = "CANCELING...";
-            }
-        }
-    }
+            if (joining && joinCode.value.Length != 4) return;
 
-    IEnumerator PreCountdown(int count = 3) {
-        while (count > 0) {
-            if (cancelAction) {
-                Cancel();
-                yield break;
+            if (!PhotonNetwork.IsConnectedAndReady) {
+                Error("NOT CONNECTED");
+                return;
             }
 
-            matchmakingText = $"{count}";
+            statusText = joining ? "JOINING" : "CREATING";
+            SetStage(CustomsStage.Working);
 
-            yield return new WaitForSeconds(1);
-            count--;
-
-            if (count == 0) {
-                SetStage(CustomsStage.Matchmaking);
-                
-                buttonText = "LEAVE ROOM";
-                matchmakingText = "WAITING FOR ANOTHER PLAYER...";
-                
+            if (joining) {
+                PhotonNetwork.JoinRoom(joinCode.value);
+            }
+            else {
                 CreateCustomRoom();
             }
         }
+        else if (PhotonNetwork.InRoom) {
+            PhotonNetwork.LeaveRoom();
+        }
+        else {
+            cancelAction = true;
+            statusText = "CANCELING";
+        }
     }
 
-    public void CreateCustomRoom() {
-        if (!PhotonNetwork.IsConnected) {
-            Error("Connection error", 2.5f);
-            return;
-        }
-
-        if (cancelAction) {
-            Cancel();
-            return;
-        }
-
+    private void CreateCustomRoom() {
         RoomOptions roomOptions = new RoomOptions();
-        
+
+        // a preset plays by its own playlist's rules, anything else sends them along
         roomOptions.CustomRoomProperties = new Hashtable() {
-            { Constants.GAME_MODE_PROP_KEY, gameMode.ToString() },
-            { "AllowChat", allowMatchChat.value },
-            { "TurnTimeLimit", isUnlimitedTime.value ? 0f : (float)turnTimeLimitSlider.value },
+            { Constants.GAME_MODE_PROP_KEY, preset != null ? preset.id : Playlists.Custom },
+            { "AllowChat", allowChat.value },
+            { "TurnTimeLimit", turnTimeLimit },
             { "IsAdvancedCombat", isAdvancedAttacks.value },
-            { "IsUnlimitedAmmo", isUnlimitedAdvancedAmmo.value },
+            { "IsUnlimitedAmmo", isAdvancedAttacks.value && isUnlimitedAmmo.value },
             { "IsSalvo", isSalvo.value },
-            { "IsBonus", isBonus.value }
+            { "IsBonus", isBonus.value },
+            { "Captains", captains.value }
         };
 
         roomOptions.MaxPlayers = Constants.ROOM_NUM_EXPECTED_PLAYERS;
-        
         roomOptions.IsVisible = false;
 
-        TypedLobby typedLobby = new TypedLobby(GameMode.Customs.ToString(), LobbyType.Default);
+        TypedLobby typedLobby = new TypedLobby(Playlists.Custom, LobbyType.Default);
 
         code = CreateCode();
-
-        UIKit.Show(codeContainer, true);
-
         PhotonNetwork.CreateRoom(code, roomOptions, typedLobby);
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message) {
         Debug.Log("Failed to create room: " + message);
 
-        Error("Matchmaking error: 2", 2.5f);
+        // someone has this code already, try another
+        if (returnCode == ErrorCode.GameIdAlreadyExists && !cancelAction) {
+            CreateCustomRoom();
+            return;
+        }
+
+        Error("COULDN'T MAKE A ROOM");
     }
 
-    public override void OnJoinedRoom() {
-        Debug.Log("Joined room");
+    public override void OnJoinRoomFailed(short returnCode, string message) {
+        Debug.Log("Failed to join room: " + message);
 
-        if (PhotonNetwork.CurrentRoom.PlayerCount != Constants.ROOM_NUM_EXPECTED_PLAYERS) {
-            Debug.Log("Waiting for other player");
-
-            PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
-            return;
+        if (returnCode == ErrorCode.GameDoesNotExist) {
+            Error("CODE NOT FOUND");
+        }
+        else if (returnCode == ErrorCode.GameFull || returnCode == ErrorCode.GameClosed) {
+            Error("THAT GAME IS FULL");
+        }
+        else {
+            Error("COULDN'T JOIN");
         }
     }
 
-    public override void OnPlayerEnteredRoom(Player newPlayer)
-    {
+    public override void OnJoinedRoom() {
+        Debug.Log("Joined room " + PhotonNetwork.CurrentRoom.Name);
+
+        if (cancelAction) {
+            PhotonNetwork.LeaveRoom();
+            return;
+        }
+
+        if (joining) {
+            if (PhotonNetwork.CurrentRoom.PlayerCount == Constants.ROOM_NUM_EXPECTED_PLAYERS) {
+                StartGame();
+            }
+            else {
+                // the host left as we came in
+                Error("CODE NOT FOUND");
+                PhotonNetwork.LeaveRoom();
+            }
+            return;
+        }
+
+        codeText.text = code;
+        codeContainer.RemoveFromClassList("invisible");
+        SetStage(CustomsStage.Waiting);
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer) {
         Debug.Log("Player entered room");
 
         if (PhotonNetwork.CurrentRoom.PlayerCount == Constants.ROOM_NUM_EXPECTED_PLAYERS) {
@@ -388,55 +376,49 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
     public override void OnLeftRoom() {
         Debug.Log("Left room");
 
-        Cancel();
+        // an error clears itself after a moment
+        if (stage != CustomsStage.Error) {
+            Cancel();
+        }
     }
 
-
-    public void Cancel() {
-        if (stage == CustomsStage.Error) {
-            startButton.SetEnabled(true);
+    public override void OnDisconnected(DisconnectCause cause) {
+        if (stage != CustomsStage.Customizing) {
+            Error("LOST CONNECTION");
         }
+    }
 
+    private void Cancel() {
         cancelAction = false;
         SetStage(CustomsStage.Customizing);
 
-        buttonText = "CREATE";
-
-        panelColor = matchmakingColor;
-
-        UIKit.Show(codeContainer, false);
+        codeContainer.AddToClassList("invisible");
+        UpdateButton();
     }
 
-    public void Error(string message, float lifetime = 0) {
+    private void Error(string message) {
         Debug.Log("Error: " + message);
 
-        if (lifetime > 0) {
-            Invoke("Cancel", lifetime);
-        }
-
-        buttonText = "ERROR";
-
-        startButton.SetEnabled(false);
-        
         SetStage(CustomsStage.Error);
-        matchmakingText = message;
+        button.SetEnabled(false);
+        button.text = message;
+        UIKit.Shake(button);
 
-        panelColor = errorColor;
-
-        UIKit.Show(codeContainer, false);
+        CancelInvoke(nameof(Cancel));
+        Invoke(nameof(Cancel), 2.5f);
     }
 
-    public void StartGame() {
+    private void StartGame() {
         Debug.Log("Starting game");
 
         SetStage(CustomsStage.Found);
-            
-        matchmakingText = "Match found!";
-        
-        PhotonNetwork.CurrentRoom.IsVisible = false;
-        PlayerPrefs.SetString(Constants.PLAYLIST_PREF_KEY, Playlists.Custom); // will be reset when game networking takes over, but is used to associate with private multiplayer game
+        statusText = "MATCH FOUND";
 
-        Invoke("LoadLevel", 2f);
+        PhotonNetwork.CurrentRoom.IsVisible = false;
+        // the game reads the rules from the room
+        PlayerPrefs.SetString(Constants.PLAYLIST_PREF_KEY, Playlists.Custom);
+
+        Invoke(nameof(LoadLevel), 2f);
     }
 
     private void LoadLevel() {
@@ -446,7 +428,8 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
     }
 
     public void InputToClipboard() {
-        GUIUtility.systemCopyBuffer = codeInputField.value;
+        GUIUtility.systemCopyBuffer = code;
+        copyIcon.ShowCopied();
     }
 
     public static string CreateCode() {

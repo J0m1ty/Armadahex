@@ -1,48 +1,92 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="Base.uss" />
-    <ui:VisualElement class="page">
-        <ui:VisualElement class="row">
-            <ui:VisualElement name="back" class="row">
-                <ui:Button name="backButton" text="Back" />
-                <KeyLabel action="UI/Cancel" />
+    <ui:Style src="Theme.uss" />
+    <ui:Style src="Options.uss" />
+    <ui:Style src="CustomGame.uss" />
+    <ui:VisualElement class="screen options">
+        <Backdrop class="backdrop" />
+        <ui:Button name="backButton" class="back">
+            <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip" />
+            <ui:Label text="BACK" picking-mode="Ignore" class="back-text" />
+        </ui:Button>
+        <ui:VisualElement class="options-column">
+            <ui:Label text="CUSTOM GAME" class="options-title" />
+            <ui:VisualElement class="options-tabs">
+                <ui:Button name="createTab" text="CREATE" focusable="false" class="tab lit" />
+                <ui:Button name="joinTab" text="JOIN" focusable="false" class="tab" />
             </ui:VisualElement>
-            <ui:Label text="Custom game" class="h1" />
-        </ui:VisualElement>
-        <ui:Label name="stats" />
-
-        <ui:Label text="1. Preset" class="h2" />
-        <ui:DropdownField name="presets" label="Preset" />
-        <ui:Label text="A preset fills in the rules. Change any rule and it becomes a custom game." class="note" />
-
-        <ui:Label text="2. Rules" class="h2" />
-        <ui:Label text="Match" />
-        <ui:Toggle name="allowChat" label="Allow chat" value="true" />
-        <ui:Toggle name="unlimitedTime" label="Unlimited time" />
-        <ui:VisualElement name="timeLimit" class="row">
-            <ui:SliderInt name="turnTime" label="Turn time" low-value="25" high-value="90" />
-            <ui:Label name="turnTimeText" />
-        </ui:VisualElement>
-        <ui:Label text="Mission" />
-        <ui:Toggle name="advancedAttacks" label="Advanced attacks" value="true" />
-        <ui:Toggle name="unlimitedAmmo" label="Unlimited ammo" />
-        <ui:Toggle name="salvo" label="Salvo shots" />
-        <ui:Toggle name="bonus" label="Bonus shots" />
-
-        <ui:Label text="3. Share and start" class="h2" />
-        <ui:Button name="create" text="Create" />
-        <ui:VisualElement name="codeContainer">
-            <ui:VisualElement class="row">
-                <ui:TextField name="code" label="Join code" readonly="true" />
-                <ui:Button name="copy" text="Copy" />
+            <ui:VisualElement class="custom-body panel">
+                <ui:VisualElement picking-mode="Ignore" class="panel-edge" />
+                <ui:VisualElement name="createPage">
+                    <ui:VisualElement class="option-row">
+                        <ui:VisualElement class="option-label">
+                            <ui:Label text="CAPTAINS" class="option-name" />
+                            <InfoTip text="Each side plays with its captain&apos;s passive and special." />
+                        </ui:VisualElement>
+                        <Switch name="captains" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="option-row">
+                        <ui:Label text="PRESET" class="option-name" />
+                        <ListDropdown name="presets" class="preset-dropdown" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="option-row">
+                        <ui:VisualElement class="option-label">
+                            <ui:Label text="ADVANCED ATTACKS" class="option-name" />
+                            <InfoTip text="Pick a ship to fire its own weapons and patterns." />
+                        </ui:VisualElement>
+                        <Switch name="advancedAttacks" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="unlimitedAmmoRow" class="option-row">
+                        <ui:VisualElement class="option-label">
+                            <ui:Label text="UNLIMITED AMMO" class="option-name" />
+                            <InfoTip text="Advanced weapons never run out." />
+                        </ui:VisualElement>
+                        <Switch name="unlimitedAmmo" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="option-row">
+                        <ui:VisualElement class="option-label">
+                            <ui:Label text="SALVO SHOTS" class="option-name" />
+                            <InfoTip text="One shot for each ship you have left." />
+                        </ui:VisualElement>
+                        <Switch name="salvo" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="option-row">
+                        <ui:VisualElement class="option-label">
+                            <ui:Label text="BONUS SHOTS" class="option-name" />
+                            <InfoTip text="A hit earns another shot." />
+                        </ui:VisualElement>
+                        <Switch name="bonus" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="option-row">
+                        <ui:Label text="TURN TIME" class="option-name" />
+                        <ui:SliderInt name="turnTime" low-value="25" high-value="95" fill="true" class="option-slider turn-slider" />
+                        <ui:Label name="turnTimeText" class="turn-time" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="option-row">
+                        <ui:Label text="CHAT" class="option-name" />
+                        <Switch name="allowChat" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="joinPage" class="join-page hidden">
+                    <ui:Label text="ENTER CODE" class="join-title" />
+                    <ui:VisualElement name="codeSlots" class="code-slots">
+                        <ui:Label class="code-slot" />
+                        <ui:Label class="code-slot" />
+                        <ui:Label class="code-slot" />
+                        <ui:Label class="code-slot" />
+                        <ui:TextField name="joinCode" max-length="4" class="code-input" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
             </ui:VisualElement>
-            <ui:Label text="Send the code to a friend. They join from Multiplayer, under Join Custom." class="note" />
-        </ui:VisualElement>
-
-        <ui:Label name="matchmaking" class="h2 hidden" />
-
-        <ui:VisualElement name="connectingOverlay" class="page overlay hidden">
-            <ui:Label text="Connecting..." class="h1" />
-            <ui:Label text="Please wait for the host" />
+            <ui:VisualElement class="custom-footer">
+                <ui:VisualElement name="codeContainer" class="room-code invisible">
+                    <ui:Label name="code" class="room-code__value" />
+                    <CopyIcon name="copy" />
+                </ui:VisualElement>
+                <ui:Button name="create" text="CREATE" class="plate play">
+                    <Brackets class="brackets" />
+                </ui:Button>
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

@@ -9,7 +9,6 @@ using UnityEngine.UIElements;
 public class MenuHome : MonoBehaviour
 {
     [SerializeField] private UIDocument document;
-    [SerializeField] private string multiplayerScene = "3 Multiplayer";
     [SerializeField] private string campaignScene = "8 Campaign";
     [SerializeField] private float refreshInterval = 1f;
     // a placeholder picture for the newest update until the changelog comes from the server
@@ -103,11 +102,5 @@ public class MenuHome : MonoBehaviour
     // the campaign has its own scene, empty for now
     public void Campaign() {
         PhotonNetwork.LoadLevel(campaignScene);
-    }
-
-    // until it's a tab on the custom game screen, join game opens multiplayer with customs picked
-    public void JoinGame() {
-        PlayerPrefs.SetString(Constants.OPEN_PLAYLIST_PREF_KEY, Playlists.Custom);
-        PhotonNetwork.LoadLevel(multiplayerScene);
     }
 }

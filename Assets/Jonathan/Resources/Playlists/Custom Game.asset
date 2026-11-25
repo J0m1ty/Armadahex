@@ -16,7 +16,7 @@ MonoBehaviour:
   title: Custom Game
   description: Play with your friends! Join a custom game with a given code.
   order: 5
-  listed: 1
+  listed: 0
   usesCode: 1
   art: {fileID: 0}
   singleplayer: 1
