@@ -158,23 +158,51 @@
 }
 
 .chapter-name__number {
-    margin: 0 16px 0 0;
-    padding: 0;
-    color: rgb(120, 140, 165);
-    font-size: 16px;
-    letter-spacing: 6px;
-    -unity-font-style: bold;
-}
-
-.chapter-name__title {
     margin: 0;
     padding: 0;
     color: rgb(240, 246, 255);
-    font-size: 22px;
-    letter-spacing: 6px;
+    font-size: 20px;
+    letter-spacing: 8px;
     -unity-font-style: bold;
 }
 
-.chapter-name--locked .chapter-name__title {
+.chapter-name--locked .chapter-name__number {
     color: rgb(90, 108, 130);
+}
+
+.chapter-name__lock {
+    width: 15px;
+    height: 20px;
+    margin-left: 8px;
+    color: rgb(90, 108, 130);
+}
+
+/* the map's scrollbar: a thin track down the right edge, the thumb in the accent */
+.campaign-scroll .unity-scroller--vertical {
+    width: 6px;
+    margin: 216px 24px 56px 0;
+    border-width: 0;
+    background-color: rgba(200, 220, 255, 0.08);
+}
+
+.campaign-scroll .unity-scroller--vertical .unity-repeat-button {
+    display: none;
+}
+
+.campaign-scroll .unity-scroller--vertical .unity-base-slider__tracker {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+}
+
+.campaign-scroll .unity-scroller--vertical .unity-base-slider__dragger {
+    width: 6px;
+    left: 0;
+    margin: 0;
+    border-width: 0;
+    border-radius: 3px;
+    background-color: rgba(200, 220, 255, 0.4);
+}
+
+.campaign-scroll .unity-scroller--vertical .unity-base-slider__dragger:hover {
+    background-color: var(--accent);
 }
