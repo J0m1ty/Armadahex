@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
-// the training page: pick the rules (a playlist's or your own) and the bot, then start a match against it.
-// the bot's power scaling and story sliders are shown but do nothing yet
+// the training page: pick the bot and the rules (a playlist's or your own), then start a match against it.
+// bots play on their own schedule, so there's no turn time
 public class SingleplayerStart : MonoBehaviour
 {
     [SerializeField] private UIDocument document;
@@ -20,8 +20,6 @@ public class SingleplayerStart : MonoBehaviour
     private Switch isUnlimitedAmmo;
     private Switch isSalvo;
     private Switch isBonus;
-    private SliderInt turnTimeSlider;
-    private Label turnTimeText;
     private VisualElement unlimitedAmmoRow;
     private SliderInt difficultySlider;
     private Label difficultyText;
@@ -31,9 +29,6 @@ public class SingleplayerStart : MonoBehaviour
     // null when the rules are the player's own
     private Playlist preset;
 
-    // the slider's last step is no time limit
-    private const int unlimitedTime = 95;
-
     void Start() {
         root = document.rootVisualElement.Q(page);
         presetsDropdown = root.Q<ListDropdown>("trainingPresets");
@@ -41,8 +36,6 @@ public class SingleplayerStart : MonoBehaviour
         isUnlimitedAmmo = root.Q<Switch>("trainingUnlimited");
         isSalvo = root.Q<Switch>("trainingSalvo");
         isBonus = root.Q<Switch>("trainingBonus");
-        turnTimeSlider = root.Q<SliderInt>("trainingTurnTime");
-        turnTimeText = root.Q<Label>("trainingTurnTimeText");
         unlimitedAmmoRow = root.Q("trainingUnlimitedRow");
         difficultySlider = root.Q<SliderInt>("trainingDifficulty");
         difficultyText = root.Q<Label>("trainingDifficultyText");
@@ -50,14 +43,6 @@ public class SingleplayerStart : MonoBehaviour
         foreach (var rule in new[] { isAdvancedAttacks, isUnlimitedAmmo, isSalvo, isBonus }) {
             rule.changed += _ => RulesChanged();
         }
-        turnTimeSlider.RegisterValueChangedCallback(e => {
-            // whole steps of 5 seconds
-            var snapped = Mathf.RoundToInt(e.newValue / 5f) * 5;
-            if (snapped != e.newValue) {
-                turnTimeSlider.SetValueWithoutNotify(snapped);
-            }
-            RulesChanged();
-        });
         presetsDropdown.changed += PickPreset;
 
         difficultySlider.SetValueWithoutNotify((int)BotAI.SavedDifficulty);
@@ -69,8 +54,6 @@ public class SingleplayerStart : MonoBehaviour
 
         UIKit.OnClick(root.Q("trainingBack"), () => pages.Show(-1));
         UIKit.OnClick(root.Q("trainingStart"), StartGame);
-        UIKit.OnClick(root.Q("trainingRulesTab"), () => SetTab(false), ClickSound.Light);
-        UIKit.OnClick(root.Q("trainingBotTab"), () => SetTab(true), ClickSound.Light);
 
         presets = Playlists.All.Where(p => p.listed && !p.usesCode && !p.captains).ToList();
         var names = presets.Select(p => p.title.ToUpper()).ToList();
@@ -78,7 +61,6 @@ public class SingleplayerStart : MonoBehaviour
         presetsDropdown.SetChoices(names);
 
         PickPreset(0);
-        SetTab(false);
     }
 
     void Update() {
@@ -90,14 +72,6 @@ public class SingleplayerStart : MonoBehaviour
 
     public void Open() {
         pages.ShowPage(page);
-    }
-
-    // only the tabbed look shows the tabs, one card at a time
-    public void SetTab(bool bot) {
-        UIKit.SetLit(root.Q("trainingRulesTab"), !bot);
-        UIKit.SetLit(root.Q("trainingBotTab"), bot);
-        root.Q("trainingRules").EnableInClassList("off", bot);
-        root.Q("trainingBot").EnableInClassList("off", !bot);
     }
 
     private void ShowDifficulty() {
@@ -119,7 +93,6 @@ public class SingleplayerStart : MonoBehaviour
         isUnlimitedAmmo.value = preset.unlimitedAmmo;
         isSalvo.value = preset.salvo;
         isBonus.value = preset.bonus;
-        turnTimeSlider.SetValueWithoutNotify(preset.turnTimeLimit <= 0 ? unlimitedTime : (int)preset.turnTimeLimit);
 
         RefreshRules();
     }
@@ -138,25 +111,21 @@ public class SingleplayerStart : MonoBehaviour
         return isAdvancedAttacks.value == playlist.advancedCombat &&
             isUnlimitedAmmo.value == playlist.unlimitedAmmo &&
             isSalvo.value == playlist.salvo &&
-            isBonus.value == playlist.bonus &&
-            turnTimeLimit == playlist.turnTimeLimit;
+            isBonus.value == playlist.bonus;
     }
-
-    private float turnTimeLimit => turnTimeSlider.value >= unlimitedTime ? 0f : turnTimeSlider.value;
 
     private void RefreshRules() {
         // unlimited ammo is only for advanced attacks
         unlimitedAmmoRow.SetEnabled(isAdvancedAttacks.value);
         unlimitedAmmoRow.EnableInClassList("unavailable", !isAdvancedAttacks.value);
-        turnTimeText.text = turnTimeLimit > 0 ? turnTimeLimit + " SECONDS" : "UNLIMITED";
     }
 
     public void StartGame() {
         Debug.Log("Starting game");
         PlayerPrefs.SetString(Constants.PLAYLIST_PREF_KEY, Playlists.Custom);
 
-        // a bot match always plays the custom rules, set to the ones picked here; no chat with a bot
-        GameModeInfo.SetCustomPrefs(true, isAdvancedAttacks.value, isSalvo.value, isBonus.value, isAdvancedAttacks.value && isUnlimitedAmmo.value, turnTimeLimit, false);
+        // a bot match always plays the custom rules, set to the ones picked here; no turn time or chat with a bot
+        GameModeInfo.SetCustomPrefs(true, isAdvancedAttacks.value, isSalvo.value, isBonus.value, isAdvancedAttacks.value && isUnlimitedAmmo.value, 0f, false);
 
         SceneManager.LoadScene(gameScene.SceneName);
     }

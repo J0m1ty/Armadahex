@@ -1,62 +1,19 @@
-/* training: the rules on the left and the bot on the right, start under them; the options look, wider */
-.training-column {
-    width: 1600px;
-}
-
-.training-cards {
-    flex-direction: row;
-    justify-content: space-between;
+/* training: the bot and the rules in one card, as tall as its rows, start under it */
+.training-body {
     margin-top: 32px;
-}
-
-.training-card {
-    width: 784px;
-    height: 576px;
     padding: 32px 48px;
 }
 
-.training-card .option-row {
+.training-body .option-row {
     border-bottom-width: 0;
 }
 
-/* the card's name over its rows */
-.card-heading {
-    margin: 0 0 8px 0;
-    padding: 0 0 16px 0;
-    border-bottom-width: 2px;
-    border-color: rgba(255, 255, 255, 0.08);
-    color: rgb(120, 140, 165);
-    font-size: 16px;
-    letter-spacing: 8px;
-    -unity-font-style: bold;
+.training-body .preset-dropdown .color-dropdown__field {
+    width: 360px;
 }
 
-.training-card .preset-dropdown .color-dropdown__field {
-    width: 320px;
-}
-
-.training-card .option-slider {
-    width: 280px;
-}
-
-/* the value beside a slider; a tuning slider that does nothing yet reads SOON */
-.training-card .turn-time {
-    width: 136px;
-}
-
-.training-card .unavailable > .turn-time {
-    color: rgb(90, 108, 130);
-    font-size: 15px;
-    letter-spacing: 4px;
-}
-
-.training-card .unavailable > .option-slider {
-    opacity: 0.35;
-}
-
-/* the tabs only show in the tabbed look */
-.training-tabs {
-    display: none;
+.training-body .option-slider {
+    width: 400px;
 }
 
 .training-footer {
@@ -65,35 +22,4 @@
     align-items: center;
     height: 72px;
     margin-top: 32px;
-}
-
-/* the tabbed look: one card at a time under RULES and BOT tabs, the width of options */
-.training--tabs .training-column {
-    width: 1100px;
-}
-
-.training--tabs .training-tabs {
-    display: flex;
-}
-
-.training--tabs .training-card {
-    width: 100%;
-    height: 640px;
-}
-
-.training--tabs .card-heading,
-.training--tabs .training-card.off {
-    display: none;
-}
-
-.training--tabs .training-card .option-slider {
-    width: 400px;
-}
-
-.training--tabs .training-card .turn-time {
-    width: 152px;
-}
-
-.training--tabs .training-card .preset-dropdown .color-dropdown__field {
-    width: 360px;
 }
