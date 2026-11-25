@@ -15,6 +15,7 @@ public class CampaignScreen : MonoBehaviour
     private Button play;
     private Mission selected;
     private bool scrolled;
+    private bool loading;
 
     void Start() {
         root = document.rootVisualElement;
@@ -34,7 +35,8 @@ public class CampaignScreen : MonoBehaviour
         if (start != null) Select(start);
 
         // the map starts at the bottom once it has a size, then makes sure the picked mission is in view
-        // (a frame later, once the scroll view has caught up with the map's height)
+        // (a frame later, once the scroll view has caught up with the map's height); hidden until then so it doesn't jump
+        map.visible = false;
         map.RegisterCallback<GeometryChangedEvent>(_ => {
             if (scrolled) return;
             scrolled = true;
@@ -42,16 +44,18 @@ public class CampaignScreen : MonoBehaviour
                 scroll.scrollOffset = new Vector2(0, map.layout.height - scroll.contentViewport.layout.height);
                 var node = map.NodeOf(selected);
                 if (node != null) scroll.ScrollTo(node);
+                map.visible = true;
             });
         });
     }
 
     void Update() {
         var submit = GameInput.Get("UI/Submit");
-        if (submit != null && submit.WasPressedThisFrame() && play.enabledInHierarchy) Play();
+        if (submit != null && submit.WasPressedThisFrame() && play.enabledInHierarchy && !loading) Play();
     }
 
     private void Select(Mission mission) {
+        if (loading) return;
         selected = mission;
         map.Refresh(mission);
 
@@ -80,7 +84,12 @@ public class CampaignScreen : MonoBehaviour
     }
 
     private void Play() {
-        if (selected == null || Missions.State(selected) == MissionState.Locked) return;
-        Missions.Play(selected, gameScene);
+        if (loading || selected == null || Missions.State(selected) == MissionState.Locked) return;
+
+        // say so first, then load once that has drawn
+        loading = true;
+        play.text = "LOADING...";
+        var mission = selected;
+        play.schedule.Execute(() => Missions.Play(mission, gameScene)).ExecuteLater(50);
     }
 }

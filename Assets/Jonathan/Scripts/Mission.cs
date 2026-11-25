@@ -106,7 +106,7 @@ public static class Missions
         GameModeInfo.SetCustomPrefs(true, mission.advancedCombat, mission.salvo, mission.bonus, mission.advancedCombat && mission.unlimitedAmmo, 0f, false);
         PlayerPrefs.SetString(Constants.CUSTOMS_NAME_KEY, mission.fullTitle);
         PlayerPrefs.SetString(Constants.CAMPAIGN_MISSION_PREF_KEY, mission.id);
-        UnityEngine.SceneManagement.SceneManager.LoadScene(gameScene);
+        UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(gameScene);
     }
 
     // the game scene takes the handed over mission once, so a later training match can't clear it
