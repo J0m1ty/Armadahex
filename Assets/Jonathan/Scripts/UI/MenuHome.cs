@@ -12,6 +12,8 @@ public class MenuHome : MonoBehaviour
     [SerializeField] private string multiplayerScene = "3 Multiplayer";
     [SerializeField] private string campaignScene = "8 Campaign";
     [SerializeField] private float refreshInterval = 1f;
+    // a placeholder picture for the newest update until the changelog comes from the server
+    [SerializeField] private Texture2D changelogImage;
 
     private const string dash = "-";
     private const string firstRank = "Ensign";
@@ -47,7 +49,7 @@ public class MenuHome : MonoBehaviour
         InvokeRepeating(nameof(Refresh), 0f, refreshInterval);
 
         ShowProfile();
-        Changelog.Fill(root.Q<ScrollView>("changelogEntries"));
+        Changelog.Fill(root.Q<ScrollView>("changelogEntries"), changelogImage);
         Select(0);
     }
 
@@ -95,7 +97,6 @@ public class MenuHome : MonoBehaviour
         root.Q<Label>("profileRank").text = PlayerPrefs.GetString(Constants.STAT_MULTIPLAYER_RANK, firstRank).ToUpper();
         var xp = PlayerPrefs.GetInt(Constants.STAT_MULTIPLAYER_XP, 0);
         root.Q<Label>("profileXp").text = xp.ToString("N0") + " XP";
-        root.Q("profileXpFill").style.width = Length.Percent(0);
     }
 
     // the campaign has its own scene, empty for now

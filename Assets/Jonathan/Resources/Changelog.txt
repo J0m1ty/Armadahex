@@ -1,18 +1,4 @@
-# The Revival Update | November 2026
-## New
-- Hex pillar seas: every match is a fresh board with terrain rising out of the water
-- Cloud fog of war that parts around the hex you aim at
-- Bots come in Easy, Medium and Hard
-- New specials, each with its own shape: air strikes, barrages, torpedoes, sonar sweeps, harpoons and depth charges
-- Number keys for ships, weapons and patterns, and every key can be rebound
-- Captains to unlock and take into matches
-- Pick your color and the enemy's
-- Both boards side by side on the match report
-## Improved
-- All new menus, from the title screen to game over
-- Top and pivot views that follow every volley
-- Hit and miss markers, splashes and shockwaves
-- A glowing sun, side colored skies and endless water
-## Fixed
-- Matches that wouldn't start on a fresh install
-- Bots firing at the same miss twice
+# The Revival Update | v0.1 | November 24, 2026
+- Hex pillar seas with cloud fog of war
+- New specials, each with its own shape
+- Captains, bot difficulties and all new menus

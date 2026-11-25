@@ -1034,6 +1034,7 @@ MonoBehaviour:
   multiplayerScene: 3 Multiplayer
   campaignScene: 8 Campaign
   refreshInterval: 1
+  changelogImage: {fileID: 2800000, guid: 3c8fa111f1bd1354ea55d43bc869133a, type: 3}
 --- !u!1 &1137644092
 GameObject:
   m_ObjectHideFlags: 0

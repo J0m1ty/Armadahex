@@ -130,8 +130,7 @@
     transition-duration: 0.2s;
 }
 
-.nav-item.selected > .glass__glow,
-.profile:hover > .glass__glow {
+.nav-item.selected > .glass__glow {
     opacity: 1;
 }
 
@@ -139,8 +138,8 @@
     opacity: 1;
 }
 
-/* the profile: on glass, the active captain, the player's name, rank and experience, and a chevron into progression.
-   three looks to pick from: --dossier, --nameplate, --ledger */
+/* the profile: on glass, the active captain with their name on the portrait's foot, the player's name, rank and experience,
+   and a chevron into progression; pointing at it lights the edge */
 .profile {
     position: absolute;
     right: 72px;
@@ -150,13 +149,12 @@
     width: 560px;
     height: 152px;
     margin: 0;
-    padding: 16px 28px 16px 16px;
+    padding: 16px 32px 16px 16px;
     overflow: visible;
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
     border-radius: 14px;
     -unity-text-align: middle-left;
-    transition-duration: 0.2s;
 }
 
 .profile:hover,
@@ -164,30 +162,36 @@
     background-color: rgba(0, 0, 0, 0);
 }
 
+.profile > .glass__glow {
+    display: none;
+}
+
 .profile > .glass__frost {
     opacity: 1;
     border-radius: 14px;
+    border-width: 1px;
     background-color: rgba(150, 185, 255, 0.07);
     border-color: rgba(235, 244, 255, 0.18);
     -unity-background-image-tint-color: rgb(165, 174, 190);
-}
-
-.profile > .glass__glow {
-    -unity-background-image-tint-color: rgba(200, 225, 255, 0.18);
+    transition-duration: 0.2s;
 }
 
 .profile:hover > .glass__frost {
-    background-color: rgba(150, 185, 255, 0.12);
-    border-color: rgba(235, 244, 255, 0.5);
+    border-width: 2px;
+    border-color: rgb(255, 255, 255);
+}
+
+.profile__avatar {
+    width: 120px;
+    height: 120px;
+    margin-right: 28px;
+    overflow: visible;
 }
 
 .profile__captain {
-    width: 120px;
-    height: 120px;
-    margin-right: 24px;
+    flex-grow: 1;
     border-radius: 8px;
     overflow: hidden;
-    transition-duration: 0.2s;
 }
 
 .profile__portrait {
@@ -198,6 +202,22 @@
     font-size: 40px;
 }
 
+/* the captain's name, floating over the middle of the portrait's foot */
+.profile__captain-tag {
+    position: absolute;
+    left: -12px;
+    right: -12px;
+    bottom: -10px;
+    margin: 0;
+    padding: 0;
+    color: rgb(255, 255, 255);
+    font-size: 13px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
 .profile__who {
     flex-grow: 1;
 }
@@ -206,7 +226,7 @@
     margin: 0;
     padding: 0;
     color: rgb(255, 255, 255);
-    font-size: 30px;
+    font-size: 32px;
     -unity-font-style: bold;
 }
 
@@ -229,7 +249,7 @@
     margin: 0 16px 0 0;
     padding: 0;
     color: rgb(255, 214, 120);
-    font-size: 15px;
+    font-size: 16px;
     letter-spacing: 3px;
     -unity-font-style: bold;
 }
@@ -238,183 +258,94 @@
     margin: 0;
     padding: 0;
     color: rgb(170, 186, 206);
-    font-size: 15px;
+    font-size: 16px;
     letter-spacing: 2px;
 }
 
-.profile__line {
-    flex-direction: row;
-    align-items: center;
-    margin-top: 10px;
+/* a tall chevron drawn from two strokes; pointing at the card slides it on and a second one fades in behind: >> */
+.profile__chevrons {
+    width: 30px;
+    height: 40px;
 }
 
-.profile__line-name {
-    margin: 0 10px 0 0;
-    padding: 0;
-    color: rgb(150, 166, 188);
-    font-size: 14px;
-    letter-spacing: 3px;
-}
-
-.profile__line-value {
-    margin: 0;
-    padding: 0;
-    color: rgb(230, 238, 248);
-    font-size: 14px;
-    letter-spacing: 3px;
-    -unity-font-style: bold;
-}
-
-/* two strokes turned into a > */
-.profile__chevron {
-    width: 20px;
-    height: 20px;
-    margin-left: 16px;
-    border-top-width: 3px;
-    border-right-width: 3px;
-    border-color: rgb(170, 186, 206);
-    rotate: 45deg;
-    transition-duration: 0.2s;
-}
-
-.profile:hover > .profile__chevron {
-    translate: 6px 0;
-    border-color: rgb(255, 255, 255);
-}
-
-/* experience toward the next rank, along the card's foot */
-.profile__bar {
+.chevron {
     position: absolute;
-    left: 160px;
-    right: 28px;
-    bottom: 14px;
-    height: 3px;
-    border-radius: 2px;
-    background-color: rgba(255, 255, 255, 0.1);
+    left: 8px;
+    top: 0;
+    width: 14px;
+    height: 40px;
+    transition-duration: 0.25s;
 }
 
-.profile__bar-fill {
-    height: 100%;
-    border-radius: 2px;
-    background-color: rgb(255, 194, 61);
-}
-
-/* dossier: portrait inset in the card, the card lifts on hover */
-.profile--dossier:hover {
-    translate: 0 -3px;
-}
-
-.profile--dossier:hover > .profile__captain {
-    scale: 1.04 1.04;
-}
-
-/* nameplate: a round portrait that sits over the card's left edge */
-.profile--nameplate {
-    height: 128px;
-    padding-left: 104px;
-}
-
-.profile--nameplate > .profile__captain {
+.chevron__stroke {
     position: absolute;
-    left: -40px;
-    top: -8px;
-    width: 144px;
-    height: 144px;
-    border-radius: 72px;
-    border-width: 3px;
-    border-color: rgba(235, 244, 255, 0.35);
+    left: 5px;
+    width: 3px;
+    height: 23px;
+    border-radius: 2px;
+    background-color: rgb(200, 212, 228);
+    transition-duration: 0.25s;
 }
 
-.profile--nameplate:hover > .profile__captain {
-    border-color: rgb(255, 255, 255);
+.chevron__stroke--top {
+    top: -1px;
+    rotate: -31deg;
 }
 
-.profile--nameplate > .profile__bar {
-    left: 124px;
+.chevron__stroke--bottom {
+    top: 18px;
+    rotate: 31deg;
 }
 
-/* ledger: no card until you point at it, everything set right with the portrait on the edge */
-.profile--ledger {
-    flex-direction: row-reverse;
-    padding: 16px;
-}
-
-.profile--ledger > .glass__frost {
+.chevron--echo {
     opacity: 0;
 }
 
-.profile--ledger:hover > .glass__frost {
-    opacity: 1;
+.profile:hover .chevron {
+    translate: 8px 0;
 }
 
-.profile--ledger > .profile__captain {
-    width: 112px;
-    height: 112px;
-    margin: 0 0 0 24px;
-    border-radius: 56px;
+.profile:hover .chevron--echo {
+    opacity: 0.45;
+    translate: -4px 0;
 }
 
-.profile--ledger > .profile__who {
-    align-items: flex-end;
+.profile:hover .chevron__stroke {
+    background-color: rgb(255, 255, 255);
 }
 
-.profile--ledger .profile__name {
-    font-size: 34px;
-}
-
-.profile--ledger > .profile__chevron {
-    margin: 0 16px 0 0;
-    rotate: -135deg;
-    opacity: 0;
-}
-
-.profile--ledger:hover > .profile__chevron {
-    opacity: 1;
-    translate: -6px 0;
-}
-
-.profile--ledger > .profile__bar {
-    left: 280px;
-    right: 152px;
-}
-
-/* what's new: a glass panel under the profile with the latest updates */
+/* the changelog: a titled bar, then the updates floating under it, fading in and out at the edges as they scroll */
 .changelog {
     position: absolute;
     right: 72px;
     top: 280px;
     bottom: 96px;
     width: 560px;
-    padding: 24px 28px 0 28px;
-    overflow: hidden;
-    border-radius: 14px;
-}
-
-.changelog__glass {
-    opacity: 1;
-    border-radius: 14px;
-    border-color: rgba(235, 244, 255, 0.12);
-    background-color: rgba(150, 185, 255, 0.05);
 }
 
 .changelog__heading {
-    margin: 0 0 16px 0;
-    padding: 0;
-    color: rgb(150, 166, 188);
-    font-size: 15px;
+    margin: 0;
+    padding: 0 20px;
+    height: 48px;
+    border-width: 1px;
+    border-radius: 10px;
+    border-color: rgba(235, 244, 255, 0.18);
+    background-color: rgba(150, 185, 255, 0.08);
+    color: rgb(240, 246, 255);
+    font-size: 16px;
     letter-spacing: 6px;
     -unity-font-style: bold;
+    -unity-text-align: middle-left;
 }
 
 .changelog__scroll {
     flex-grow: 1;
+    margin-top: 12px;
 }
 
-.changelog__update {
-    margin: 0 0 12px 0;
-    padding: 0 0 14px 0;
-    border-bottom-width: 1px;
-    border-color: rgba(255, 255, 255, 0.08);
+.changelog__image {
+    height: 300px;
+    margin-bottom: 20px;
 }
 
 .changelog__title {
@@ -424,10 +355,11 @@
     font-size: 26px;
     letter-spacing: 3px;
     -unity-font-style: bold;
+    white-space: normal;
 }
 
-.changelog__date {
-    margin: 4px 0 0 0;
+.changelog__version {
+    margin: 6px 0 14px 0;
     padding: 0;
     color: rgb(120, 180, 255);
     font-size: 14px;
@@ -446,7 +378,7 @@
 .changelog__line {
     flex-direction: row;
     align-items: flex-start;
-    margin: 0 0 6px 0;
+    margin: 0 0 8px 0;
 }
 
 .changelog__dot {
@@ -465,4 +397,8 @@
     color: rgb(214, 226, 240);
     font-size: 16px;
     white-space: normal;
+}
+
+.changelog__gap {
+    height: 40px;
 }
