@@ -70,6 +70,9 @@
             <ui:VisualElement name="changelog" class="changelog">
                 <ui:Label text="CHANGELOG" class="changelog__heading" />
                 <ui:ScrollView name="changelogEntries" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" class="changelog__scroll" />
+                <ui:VisualElement class="changelog__footer">
+                    <ui:Button name="changelogMore" text="READ MORE" class="text-button changelog__more" />
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
 

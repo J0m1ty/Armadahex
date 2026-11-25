@@ -14,6 +14,8 @@ public class MenuHome : MonoBehaviour
     [SerializeField] private float refreshInterval = 1f;
     // a placeholder picture for the newest update until the changelog comes from the server
     [SerializeField] private Texture2D changelogImage;
+    // where read more goes, the site for now
+    [SerializeField] private string changelogUrl = "https://jomity.net";
 
     private const string firstRank = "Ensign";
     private const string selectedClass = "selected";
@@ -49,6 +51,7 @@ public class MenuHome : MonoBehaviour
 
         ShowProfile();
         Changelog.Fill(root.Q<ScrollView>("changelogEntries"), changelogImage);
+        UIKit.OnClick(root.Q("changelogMore"), () => Application.OpenURL(changelogUrl));
         Select(0);
     }
 

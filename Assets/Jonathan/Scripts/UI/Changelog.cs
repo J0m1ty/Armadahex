@@ -27,13 +27,14 @@ public static class Changelog
                 if (withImage) {
                     var frame = new VisualElement();
                     frame.AddToClassList("changelog__image");
-                    frame.Add(new FadeImage { texture = image });
+                    var picture = new FadeImage { texture = image };
+                    picture.AddToClassList("changelog__picture");
+                    frame.Add(picture);
                     list.Add(frame);
                 }
 
                 body = new VisualElement();
                 body.AddToClassList("changelog__body");
-                body.EnableInClassList("changelog__body--alone", !withImage);
                 list.Add(body);
 
                 var parts = line.Substring(2).Split('|');
