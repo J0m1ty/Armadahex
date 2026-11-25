@@ -70,16 +70,11 @@
     border-width: 0;
     border-radius: 12px;
     -unity-text-align: middle-left;
-    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
 }
 
 .nav-item:hover,
 .nav-item:focus {
     background-color: rgba(0, 0, 0, 0);
-}
-
-.nav-item--small {
-    height: 44px;
 }
 
 .nav-item__name {
@@ -89,11 +84,6 @@
     font-size: 24px;
     letter-spacing: 6px;
     transition-duration: 0.15s;
-}
-
-.nav-item--small > .nav-item__name {
-    font-size: 19px;
-    letter-spacing: 5px;
 }
 
 .nav-item__detail {
@@ -136,6 +126,7 @@
     border-width: 1px;
     border-radius: 12px;
     border-color: rgba(235, 244, 255, 0.85);
+    background-color: rgba(150, 185, 255, 0.1);
     -unity-background-image-tint-color: rgb(100, 110, 128);
     transition-duration: 0.2s;
 }
@@ -177,6 +168,7 @@
 
 .profile > .glass__frost {
     opacity: 1;
+    background-color: rgba(150, 185, 255, 0.08);
     -unity-background-image-tint-color: rgb(165, 174, 190);
     border-color: rgba(235, 244, 255, 0.3);
 }

@@ -6,7 +6,7 @@
     <ui:Style src="Home.uss" />
     <ui:VisualElement class="page menu">
         <ui:VisualElement name="home" class="screen home">
-            <SceneView class="backdrop" />
+            <Backdrop class="backdrop" />
             <ui:VisualElement class="home-logo" picking-mode="Ignore">
                 <ui:VisualElement class="home-logo__glow" picking-mode="Ignore" />
                 <ui:Label name="logoText" text="ARMADAHEX" class="logo-text" />
@@ -31,16 +31,16 @@
                 <ui:Button name="training" class="nav-item">
                     <ui:Label text="TRAINING" class="nav-item__name" />
                 </ui:Button>
-                <ui:Button name="options" class="nav-item nav-item--small">
+                <ui:Button name="options" class="nav-item">
                     <ui:Label text="OPTIONS" class="nav-item__name" />
                 </ui:Button>
-                <ui:Button name="credits" class="nav-item nav-item--small">
+                <ui:Button name="credits" class="nav-item">
                     <ui:Label text="CREDITS" class="nav-item__name" />
                 </ui:Button>
-                <ui:Button name="logout" class="nav-item nav-item--small">
+                <ui:Button name="logout" class="nav-item">
                     <ui:Label text="LOG OUT" class="nav-item__name" />
                 </ui:Button>
-                <ui:Button name="quit" class="nav-item nav-item--small">
+                <ui:Button name="quit" class="nav-item">
                     <ui:Label text="QUIT" class="nav-item__name" />
                 </ui:Button>
             </ui:VisualElement>
