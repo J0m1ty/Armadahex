@@ -7,7 +7,7 @@ using Photon.Realtime;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 // the custom game screen: create a room with your own rules and share its code, or join one with a code.
-// the room lives here until the match loads, the plate under the tabs shows where it's at
+// the room lives here until the match loads, the button under the rules shows where it's at
 public class CustomUIManager : MonoBehaviourPunCallbacks {
     [SerializeField] private UIDocument document;
 
@@ -57,7 +57,7 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
     private bool typing;
     private string code;
 
-    // the plate: create or join, then what the room is doing; hovering it while it's cancelable reads CANCEL
+    // the button: create or join, then what the room is doing; hovering it while it's cancelable reads CANCEL
     private Button button;
     private string statusText;
     private bool hovering;
@@ -187,7 +187,7 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
         }
     }
 
-    // join only works once the code is whole; the plate stays put either way
+    // join only works once the code is whole; the button stays put either way
     private void UpdateButton() {
         if (stage != CustomsStage.Customizing) return;
 
@@ -267,7 +267,7 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
             if (joining && joinCode.value.Length != 4) return;
 
             if (!PhotonNetwork.IsConnectedAndReady) {
-                Error("NOT CONNECTED");
+                Error("OFFLINE");
                 return;
             }
 
@@ -323,20 +323,20 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
             return;
         }
 
-        Error("COULDN'T MAKE A ROOM");
+        Error("CAN'T CREATE");
     }
 
     public override void OnJoinRoomFailed(short returnCode, string message) {
         Debug.Log("Failed to join room: " + message);
 
         if (returnCode == ErrorCode.GameDoesNotExist) {
-            Error("CODE NOT FOUND");
+            Error("NO SUCH GAME");
         }
         else if (returnCode == ErrorCode.GameFull || returnCode == ErrorCode.GameClosed) {
-            Error("THAT GAME IS FULL");
+            Error("GAME FULL");
         }
         else {
-            Error("COULDN'T JOIN");
+            Error("CAN'T JOIN");
         }
     }
 
@@ -354,7 +354,7 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
             }
             else {
                 // the host left as we came in
-                Error("CODE NOT FOUND");
+                Error("NO SUCH GAME");
                 PhotonNetwork.LeaveRoom();
             }
             return;
@@ -384,7 +384,7 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
 
     public override void OnDisconnected(DisconnectCause cause) {
         if (stage != CustomsStage.Customizing) {
-            Error("LOST CONNECTION");
+            Error("DISCONNECTED");
         }
     }
 

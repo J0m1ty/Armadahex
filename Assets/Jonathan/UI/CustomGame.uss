@@ -1,4 +1,4 @@
-/* custom game: the options layout with create and join tabs; both tabs share one body size, and the plate under it does what the tab says */
+/* custom game: the options layout with create and join tabs; both tabs share one body size, and the button under it does what the tab says */
 .custom-body {
     height: 640px;
     margin-top: 32px;
@@ -92,12 +92,13 @@
 /* join: the code's four characters in their own slots, each underlined; the field itself is invisible on top */
 .join-page {
     flex-grow: 1;
-    align-items: center;
+    align-self: center;
     justify-content: center;
 }
 
 .join-title {
-    margin: 0 0 32px 0;
+    align-self: flex-start;
+    margin: 0 0 16px 0;
     padding: 0;
     color: rgb(120, 140, 165);
     font-size: 20px;
@@ -107,6 +108,19 @@
 
 .code-slots {
     flex-direction: row;
+    padding: 16px 32px 32px 32px;
+    border-width: 2px;
+    border-color: rgb(58, 74, 98);
+    border-radius: 3px;
+    transition-duration: 0.15s;
+}
+
+.code-slots:hover {
+    border-color: rgb(120, 140, 165);
+}
+
+.code-slots.focused {
+    border-color: var(--accent);
 }
 
 .code-slot {
@@ -156,7 +170,7 @@
     color: rgb(240, 246, 255);
 }
 
-/* under the body: the room's code on the left once there is one, the plate on the right */
+/* under the body: the room's code on the left once there is one, the button on the right */
 .custom-footer {
     flex-direction: row;
     justify-content: space-between;
@@ -165,7 +179,7 @@
     margin-top: 32px;
 }
 
-/* the room's code, set apart on its own plate so it reads as something to hand over */
+/* the room's code, set apart on its own block so it reads as something to hand over */
 .room-code {
     flex-direction: row;
     align-items: center;
@@ -198,30 +212,49 @@
     color: var(--accent);
 }
 
-.custom-footer > .play {
+/* the footer's button: a flat block the same height as the code beside it, filled in the accent */
+.action {
     width: 360px;
     height: 72px;
-    font-size: 24px;
-    letter-spacing: 8px;
+    margin: 0;
+    padding: 0 24px;
+    background-color: var(--accent);
+    border-width: 0;
+    border-radius: 0;
+    color: var(--accent-ink);
+    font-size: 22px;
+    letter-spacing: 6px;
+    -unity-font-style: bold;
+    transition-duration: 0.15s;
 }
 
-/* while it makes or joins a room, the plate goes dark and shows how long; an error turns it red */
-.custom-footer > .play.search-busy {
-    -unity-background-image-tint-color: rgb(40, 50, 66);
+.action:hover {
+    background-color: var(--accent-hover);
+}
+
+.action:active {
+    scale: 0.98 0.98;
+}
+
+.action:disabled {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.06);
+    color: rgb(90, 108, 130);
+}
+
+/* while it makes or joins a room it goes dark like the code box and shows how long; an error turns it red */
+.action.search-busy {
+    background-color: rgba(255, 255, 255, 0.06);
     color: rgb(240, 246, 255);
 }
 
-.custom-footer > .play.search-busy:hover {
-    -unity-background-image-tint-color: rgb(58, 72, 94);
+.action.search-busy:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
-.custom-footer > .play.search-error,
-.custom-footer > .play.search-error:disabled {
-    -unity-background-image-tint-color: rgb(150, 48, 44);
-    padding: 0 16px;
+.action.search-error,
+.action.search-error:disabled {
+    background-color: rgb(150, 48, 44);
     color: rgb(255, 235, 232);
-    font-size: 20px;
-    letter-spacing: 3px;
-    opacity: 1;
 }
 

@@ -68,7 +68,7 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:VisualElement name="joinPage" class="join-page hidden">
-                    <ui:Label text="ENTER CODE" class="join-title" />
+                    <ui:Label text="CODE" class="join-title" />
                     <ui:VisualElement name="codeSlots" class="code-slots">
                         <ui:Label class="code-slot" />
                         <ui:Label class="code-slot" />
@@ -83,9 +83,7 @@
                     <ui:Label name="code" class="room-code__value" />
                     <CopyIcon name="copy" />
                 </ui:VisualElement>
-                <ui:Button name="create" text="CREATE" class="plate play">
-                    <Brackets class="brackets" />
-                </ui:Button>
+                <ui:Button name="create" text="CREATE" class="action" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
