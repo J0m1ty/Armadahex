@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 // what's new on the menu, from Resources/Changelog.txt for now (it'll come from the auth server later).
 // "# title | version | date" starts an update, "## heading" a group inside it, "- text" a line.
-// everything fades in and out near the top and bottom of the list as it scrolls
+// the header, picture and text read as one card; everything fades in and out near the top and bottom of the list as it scrolls
 public static class Changelog
 {
     // how far from the list's edges things fade out
@@ -16,30 +16,39 @@ public static class Changelog
         if (file == null) return;
 
         list.Clear();
-        var first = true;
+        // each update's text sits in a body under its picture
+        VisualElement body = null;
         foreach (var raw in file.text.Split('\n')) {
             var line = raw.Trim();
-            if (line.StartsWith("## ")) {
-                list.Add(Label(line.Substring(3).ToUpper(), "changelog__group"));
-            }
-            else if (line.StartsWith("# ")) {
-                if (!first) list.Add(Gap());
+            if (line.StartsWith("# ")) {
+                if (body != null) list.Add(Gap());
                 // the newest update leads with its picture
-                if (first && image != null) {
+                var withImage = body == null && image != null;
+                if (withImage) {
                     var frame = new VisualElement();
                     frame.AddToClassList("changelog__image");
                     frame.Add(new FadeImage { texture = image });
                     list.Add(frame);
                 }
-                first = false;
+
+                body = new VisualElement();
+                body.AddToClassList("changelog__body");
+                body.EnableInClassList("changelog__body--alone", !withImage);
+                list.Add(body);
 
                 var parts = line.Substring(2).Split('|');
-                list.Add(Label(parts[0].Trim().ToUpper(), "changelog__title"));
+                body.Add(Label(parts[0].Trim().ToUpper(), "changelog__title"));
                 if (parts.Length > 1) {
                     var version = parts[1].Trim();
                     if (parts.Length > 2) version += "  ·  " + parts[2].Trim().ToUpper();
-                    list.Add(Label(version, "changelog__version"));
+                    body.Add(Label(version, "changelog__version"));
                 }
+            }
+            else if (body == null) {
+                continue;
+            }
+            else if (line.StartsWith("## ")) {
+                body.Add(Label(line.Substring(3).ToUpper(), "changelog__group"));
             }
             else if (line.StartsWith("- ")) {
                 var row = new VisualElement();
@@ -48,7 +57,7 @@ public static class Changelog
                 dot.AddToClassList("changelog__dot");
                 row.Add(dot);
                 row.Add(Label(line.Substring(2), "changelog__text"));
-                list.Add(row);
+                body.Add(row);
             }
         }
 
@@ -67,9 +76,18 @@ public static class Changelog
                 picture.SetView(view.yMin, view.yMax, topFade, bottomFade);
                 continue;
             }
-            var center = child.worldBound.center.y;
-            child.style.opacity = Mathf.Clamp01(Mathf.Min((center - view.yMin) / topFade, (view.yMax - center) / bottomFade));
+            // a body's lines fade one by one, its background stays
+            if (child.ClassListContains("changelog__body")) {
+                foreach (var line in child.Children()) Fade(line, view, topFade, bottomFade);
+                continue;
+            }
+            Fade(child, view, topFade, bottomFade);
         }
+    }
+
+    private static void Fade(VisualElement element, Rect view, float topFade, float bottomFade) {
+        var center = element.worldBound.center.y;
+        element.style.opacity = Mathf.Clamp01(Mathf.Min((center - view.yMin) / topFade, (view.yMax - center) / bottomFade));
     }
 
     private static Label Label(string text, string className) {

@@ -315,8 +315,7 @@
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     border-color: rgba(235, 244, 255, 0.18);
-    background-image: url("project://database/Assets/Jonathan/UI/Textures/Edge Shade.png");
-    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(4, 7, 14, 0.7);
     color: rgb(240, 246, 255);
     font-size: 16px;
     letter-spacing: 6px;
@@ -328,13 +327,24 @@
     flex-grow: 1;
 }
 
-/* the picture hangs under the bar, its foot rounded like the bar's head */
+/* the picture hangs under the bar, the text under the picture, so the three read as one card */
 .changelog__image {
     height: 300px;
-    margin-bottom: 20px;
+}
+
+/* the text's body: dark at the sides, fading clear toward the middle, its foot rounded like the bar's head */
+.changelog__body {
+    padding: 20px 24px 16px 24px;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
-    overflow: hidden;
+    background-color: rgba(4, 7, 14, 0.35);
+    background-image: url("project://database/Assets/Jonathan/UI/Textures/Edge Shade.png");
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.changelog__body--alone {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
 }
 
 .changelog__image > FadeImage {
