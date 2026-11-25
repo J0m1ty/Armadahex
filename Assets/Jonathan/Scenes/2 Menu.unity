@@ -422,7 +422,6 @@ MonoBehaviour:
     SceneName: 6 Game
     sceneIndex: 6
     sceneEnabled: 1
-  document: {fileID: 1092674493}
 --- !u!114 &827379051
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -732,6 +731,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtons
   buttons:
+  - element: campaign
+    sound: 0
+    key: 
+    onClick:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1092674495}
+          m_TargetAssemblyTypeName: MenuHome, Assembly-CSharp
+          m_MethodName: Campaign
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: 
+            m_IntArgument: 1
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
   - element: training
     sound: 2
     key: 
@@ -823,7 +840,7 @@ MonoBehaviour:
             m_BoolArgument: 0
           m_CallState: 2
   - element: joinGame
-    sound: 0
+    sound: 2
     key: 
     onClick:
       m_PersistentCalls:
@@ -835,7 +852,7 @@ MonoBehaviour:
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: 
-            m_IntArgument: 1
+            m_IntArgument: 0
             m_FloatArgument: 0
             m_StringArgument: 
             m_BoolArgument: 0
@@ -1015,6 +1032,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MenuHome
   document: {fileID: 1092674493}
   multiplayerScene: 3 Multiplayer
+  campaignScene: 8 Campaign
   refreshInterval: 1
 --- !u!1 &1137644092
 GameObject:
@@ -1057,7 +1075,7 @@ MonoBehaviour:
     sunColor: {r: 1, g: 0.58431375, b: 0.023529412, a: 1}
     sunIntensity: 1
     fogColor: {r: 0.42, g: 0.6, b: 0.86, a: 1}
-    heading: 335
+    heading: 140
     ship: {fileID: 3610626180894237609, guid: 84497865bad277547b2f353db4cf062f, type: 3}
     speed: 10
     stacks:
@@ -1066,8 +1084,8 @@ MonoBehaviour:
     bow: {x: 0, y: 1.2, z: 58}
     stern: {x: 0, y: 1.2, z: -100}
     beam: 12
-    cameraOffset: {x: -230, y: 24, z: 90}
-    lookOffset: {x: 10, y: 2, z: 40}
+    cameraOffset: {x: -27, y: 12, z: 165}
+    lookOffset: {x: 42, y: 4, z: 20}
     fieldOfView: 35
   - name: Afternoon
     skybox: {fileID: 2100000, guid: c9e43a3197ba4d646a004eb789f3c8e0, type: 2}
@@ -1152,7 +1170,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe49a1a60934c134cb7ef3657c63626d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuShip
-  smokeMaterial: {fileID: 2100000, guid: 698a8134f4ebbbd4e848648685f68067, type: 2}
+  smokeMaterial: {fileID: 2100000, guid: 318fcdfdd43c4204f9161400ca2f1728, type: 2}
   foamMaterial: {fileID: 2100000, guid: b284819c10966894fbc66b7c98d9c7e0, type: 2}
   bobHeight: 0.25
   bobSpeed: 0.12

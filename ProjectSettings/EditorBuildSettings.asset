@@ -29,5 +29,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Jonathan/Scenes/7 Game Over.unity
     guid: 82e3f429c8b22b04bbe0819a92d47408
+  - enabled: 1
+    path: Assets/Jonathan/Scenes/8 Campaign.unity
+    guid: 3a6f5dbb51de5594684d6b7f6a077d69
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

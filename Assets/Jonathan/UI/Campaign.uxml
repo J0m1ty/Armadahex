@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="Base.uss" />
+    <ui:Style src="Theme.uss" />
+    <ui:VisualElement class="screen">
+        <Backdrop class="backdrop" />
+        <ui:Button name="done" class="back">
+            <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip" />
+            <ui:Label text="BACK" picking-mode="Ignore" class="back-text" />
+        </ui:Button>
+        <ui:Label text="CAMPAIGN" class="page-title" />
+    </ui:VisualElement>
+</ui:UXML>

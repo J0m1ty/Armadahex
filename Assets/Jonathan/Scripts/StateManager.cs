@@ -49,7 +49,15 @@ public class StateManager : MonoBehaviour
         var open = PlayerPrefs.GetString(Constants.OPEN_PLAYLIST_PREF_KEY, "");
         PlayerPrefs.DeleteKey(Constants.OPEN_PLAYLIST_PREF_KEY);
         Select((Playlist)null);
-        if (open != "") Select(open);
+        if (open != "") {
+            Select(open);
+            // once the strip is laid out, bring the picked card into view
+            var scroll = modes.GetFirstAncestorOfType<ScrollView>();
+            if (current != null && scroll != null) {
+                var card = cards[current];
+                card.RegisterCallback<GeometryChangedEvent>(_ => scroll.ScrollTo(card));
+            }
+        }
 
         stateInput.RegisterValueChangedCallback(e => {
             DisplayButton(e.newValue.Length == 4);

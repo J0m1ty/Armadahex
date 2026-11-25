@@ -93,20 +93,21 @@ public class MenuShip : MonoBehaviour
 
         var main = system.main;
         main.prewarm = true;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(12f, 16f);
-        main.startSpeed = new ParticleSystem.MinMaxCurve(size * 0.5f, size * 0.8f);
-        main.startSize = new ParticleSystem.MinMaxCurve(size * 1f, size * 1.6f);
+        main.startLifetime = new ParticleSystem.MinMaxCurve(10f, 18f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(size * 0.4f, size * 0.9f);
+        // big soft puffs of very different sizes and shades, so it reads as one billowing plume
+        main.startSize = new ParticleSystem.MinMaxCurve(size * 1.5f, size * 3.5f);
         main.startRotation = new ParticleSystem.MinMaxCurve(0f, Mathf.PI * 2);
-        main.startColor = new Color(0.5f, 0.5f, 0.53f);
-        main.maxParticles = 600;
+        main.startColor = new ParticleSystem.MinMaxGradient(new Color(0.34f, 0.35f, 0.38f), new Color(0.62f, 0.62f, 0.65f));
+        main.maxParticles = 500;
 
         var emission = system.emission;
-        emission.rateOverTime = 26f;
+        emission.rateOverTime = new ParticleSystem.MinMaxCurve(10f, 18f);
 
         var shape = system.shape;
         shape.shapeType = ParticleSystemShapeType.Cone;
-        shape.angle = 6f;
-        shape.radius = size * 0.2f;
+        shape.angle = 10f;
+        shape.radius = size * 0.25f;
 
         // it slows as it rises and drifts off with the wind
         var limit = system.limitVelocityOverLifetime;
@@ -121,17 +122,25 @@ public class MenuShip : MonoBehaviour
         force.y = size * 0.05f;
         force.z = 0f;
 
+        // turbulence, so no two plumes look the same
+        var noise = system.noise;
+        noise.enabled = true;
+        noise.strength = size * 0.25f;
+        noise.frequency = 0.15f;
+        noise.scrollSpeed = 0.2f;
+        noise.octaveCount = 2;
+
         var sizeOver = system.sizeOverLifetime;
         sizeOver.enabled = true;
-        sizeOver.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.EaseInOut(0f, 0.5f, 1f, 5f));
+        sizeOver.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.EaseInOut(0f, 0.6f, 1f, 4f));
 
         var rotation = system.rotationOverLifetime;
         rotation.enabled = true;
-        rotation.z = new ParticleSystem.MinMaxCurve(-0.3f, 0.3f);
+        rotation.z = new ParticleSystem.MinMaxCurve(-0.4f, 0.4f);
 
         var color = system.colorOverLifetime;
         color.enabled = true;
-        color.color = Fade(0.5f, 0.4f);
+        color.color = Fade(0.7f, 0.35f);
 
         system.Play();
     }

@@ -7,10 +7,11 @@
     <ui:VisualElement class="page menu">
         <ui:VisualElement name="home" class="screen home">
             <SceneView class="backdrop" />
-            <ui:VisualElement class="home-shade" picking-mode="Ignore" />
             <ui:VisualElement class="home-logo" picking-mode="Ignore">
+                <ui:VisualElement class="home-logo__glow" picking-mode="Ignore" />
                 <ui:Label name="logoText" text="ARMADAHEX" class="logo-text" />
                 <LightStreak target="logoText" peak-text="HEX" class="streak" />
+                <ui:Label text="LAST STAND" class="home-logo__subtitle" />
             </ui:VisualElement>
             <ui:VisualElement class="home-nav">
                 <ui:Button name="campaign" class="nav-item">
@@ -19,9 +20,8 @@
                 </ui:Button>
                 <ui:Button name="multiplayer" class="nav-item">
                     <ui:Label text="MULTIPLAYER" class="nav-item__name" />
-                    <ui:Label name="playing" text="-" class="nav-item__detail" />
+                    <ui:Label name="playing" text="OFFLINE" class="nav-item__detail" />
                 </ui:Button>
-                <ui:VisualElement class="nav-gap" />
                 <ui:Button name="joinGame" class="nav-item">
                     <ui:Label text="JOIN GAME" class="nav-item__name" />
                 </ui:Button>
@@ -31,39 +31,32 @@
                 <ui:Button name="training" class="nav-item">
                     <ui:Label text="TRAINING" class="nav-item__name" />
                 </ui:Button>
-                <ui:VisualElement class="nav-gap" />
-                <ui:Button name="options" class="nav-item">
+                <ui:Button name="options" class="nav-item nav-item--small">
                     <ui:Label text="OPTIONS" class="nav-item__name" />
                 </ui:Button>
-                <ui:Button name="credits" class="nav-item">
+                <ui:Button name="credits" class="nav-item nav-item--small">
                     <ui:Label text="CREDITS" class="nav-item__name" />
                 </ui:Button>
-                <ui:VisualElement class="nav-gap" />
-                <ui:Button name="logout" class="nav-item">
+                <ui:Button name="logout" class="nav-item nav-item--small">
                     <ui:Label text="LOG OUT" class="nav-item__name" />
                 </ui:Button>
-                <ui:Button name="quit" class="nav-item">
+                <ui:Button name="quit" class="nav-item nav-item--small">
                     <ui:Label text="QUIT" class="nav-item__name" />
                 </ui:Button>
             </ui:VisualElement>
             <ui:Button name="profile" class="profile">
-                <ui:VisualElement name="profileCaptain" class="profile__captain">
-                    <ui:Label name="profileInitials" class="profile__initials" />
-                </ui:VisualElement>
+                <ui:VisualElement name="profileCaptain" class="profile__captain" />
                 <ui:VisualElement class="profile__who">
-                    <ui:Label name="playerName" text="Player" class="profile__name" />
-                    <ui:Label name="profileCaptainName" class="profile__captain-name" />
-                    <ui:VisualElement class="profile__stats">
-                        <ui:VisualElement class="profile__stat">
-                            <ui:Label text="RANK" class="profile__stat-name" />
-                            <ui:Label name="profileRank" text="-" class="profile__stat-value" />
-                        </ui:VisualElement>
-                        <ui:VisualElement class="profile__stat">
-                            <ui:Label text="XP" class="profile__stat-name" />
-                            <ui:Label name="profileXp" text="-" class="profile__stat-value" />
-                        </ui:VisualElement>
+                    <ui:VisualElement class="profile__title">
+                        <ui:Label name="profileRank" text="ENSIGN" class="profile__rank" />
+                        <ui:Label name="playerName" text="Player" class="profile__name" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="profile__line">
+                        <ui:Label text="CAPTAIN" class="profile__line-name" />
+                        <ui:Label name="profileCaptainName" class="profile__line-value" />
                     </ui:VisualElement>
                 </ui:VisualElement>
+                <ui:VisualElement class="profile__chevron" picking-mode="Ignore" />
             </ui:Button>
         </ui:VisualElement>
 
@@ -89,10 +82,6 @@
                     <ui:VisualElement class="option-row">
                         <ui:Label text="ENEMY COLOR" class="option-name" />
                         <ColorDropdown enemy="true" />
-                    </ui:VisualElement>
-                    <ui:VisualElement class="option-row">
-                        <ui:Label text="BOT DIFFICULTY" class="option-name" />
-                        <Choices name="difficulty" choices="EASY,MEDIUM,HARD" />
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:VisualElement class="options-footer" />

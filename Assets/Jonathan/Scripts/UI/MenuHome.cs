@@ -7,9 +7,11 @@ public class MenuHome : MonoBehaviour
 {
     [SerializeField] private UIDocument document;
     [SerializeField] private string multiplayerScene = "3 Multiplayer";
+    [SerializeField] private string campaignScene = "8 Campaign";
     [SerializeField] private float refreshInterval = 1f;
 
     private const string dash = "-";
+    private const string firstRank = "Ensign";
 
     private Label playing;
 
@@ -20,8 +22,6 @@ public class MenuHome : MonoBehaviour
         home.Query(className: "nav-item").ForEach(Glass.Add);
         Glass.Add(home.Q("profile"));
 
-        // no campaign yet, it shows where it will be
-        root.Q("campaign").SetEnabled(false);
         var progress = root.Q<Label>("campaignProgress");
         progress.text = Mathf.RoundToInt(PlayerPrefs.GetFloat(Constants.STAT_CAMPAIGN_PROGRESS, 0f) * 100) + "% COMPLETE";
 
@@ -33,7 +33,7 @@ public class MenuHome : MonoBehaviour
 
     // the photon lobby counts everyone online, in a match or not
     private void Refresh() {
-        playing.text = PhotonNetwork.IsConnectedAndReady ? PhotonNetwork.CountOfPlayers + " PLAYING" : dash;
+        playing.text = PhotonNetwork.IsConnectedAndReady ? PhotonNetwork.CountOfPlayers + " PLAYING" : "OFFLINE";
     }
 
     private void ShowProfile() {
@@ -50,10 +50,13 @@ public class MenuHome : MonoBehaviour
         }
         root.Q<Label>("profileCaptainName").text = captain != null ? captain.captainName.ToUpper() : dash;
 
-        // no ranks or experience yet
-        var rank = PlayerPrefs.GetString(Constants.STAT_MULTIPLAYER_RANK, "");
-        root.Q<Label>("profileRank").text = rank == "" ? dash : rank;
-        root.Q<Label>("profileXp").text = PlayerPrefs.HasKey(Constants.STAT_MULTIPLAYER_XP) ? PlayerPrefs.GetInt(Constants.STAT_MULTIPLAYER_XP).ToString("N0") : dash;
+        // no ranks yet, everyone starts as the first one
+        root.Q<Label>("profileRank").text = PlayerPrefs.GetString(Constants.STAT_MULTIPLAYER_RANK, firstRank).ToUpper();
+    }
+
+    // the campaign has its own scene, empty for now
+    public void Campaign() {
+        PhotonNetwork.LoadLevel(campaignScene);
     }
 
     // until it's a tab on the custom game screen, join game opens multiplayer with customs picked

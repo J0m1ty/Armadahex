@@ -12,22 +12,23 @@
     bottom: 0;
 }
 
-/* darkens the left so the controls read over any sea */
-.home-shade {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 1100px;
-    background-image: url("project://database/Assets/Jonathan/UI/Textures/Shade.png");
-    -unity-background-scale-mode: stretch-to-fill;
-}
-
 .home-logo {
     position: absolute;
     left: 96px;
     top: 96px;
     align-items: flex-start;
+}
+
+/* a soft blue light under the logo */
+.home-logo__glow {
+    position: absolute;
+    left: -160px;
+    top: -120px;
+    right: -160px;
+    bottom: -120px;
+    background-image: url("project://database/Assets/Jonathan/UI/Textures/Underglow.png");
+    -unity-background-image-tint-color: rgba(40, 110, 255, 0.55);
+    -unity-background-scale-mode: stretch-to-fill;
 }
 
 .home-logo > .logo-text {
@@ -41,15 +42,19 @@
     margin-top: -12px;
 }
 
+.home-logo__subtitle {
+    margin: 10px 0 0 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 32px;
+    letter-spacing: 12px;
+}
+
 .home-nav {
     position: absolute;
     left: 72px;
-    top: 288px;
+    top: 336px;
     width: 480px;
-}
-
-.nav-gap {
-    height: 24px;
 }
 
 /* a control: its name, and a number on the right for some; lit, it's frosted glass with a glowing edge */
@@ -58,13 +63,14 @@
     align-items: center;
     justify-content: space-between;
     height: 56px;
-    margin: 0;
+    margin: 0 0 8px 0;
     padding: 0 24px;
     overflow: visible;
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
     border-radius: 12px;
     -unity-text-align: middle-left;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
 }
 
 .nav-item:hover,
@@ -72,38 +78,35 @@
     background-color: rgba(0, 0, 0, 0);
 }
 
+.nav-item--small {
+    height: 44px;
+}
+
 .nav-item__name {
     margin: 0;
     padding: 0;
-    color: rgb(214, 226, 240);
+    color: rgb(230, 238, 248);
     font-size: 24px;
     letter-spacing: 6px;
     transition-duration: 0.15s;
 }
 
+.nav-item--small > .nav-item__name {
+    font-size: 19px;
+    letter-spacing: 5px;
+}
+
 .nav-item__detail {
     margin: 0;
     padding: 0;
-    color: rgb(150, 166, 188);
-    font-size: 15px;
+    color: rgb(190, 204, 222);
+    font-size: 17px;
     letter-spacing: 3px;
 }
 
 .nav-item:hover > .nav-item__name,
 .nav-item:focus > .nav-item__name {
     color: rgb(255, 255, 255);
-}
-
-.nav-item:disabled {
-    opacity: 1;
-}
-
-.nav-item:disabled > .nav-item__name {
-    color: rgb(110, 126, 148);
-}
-
-.nav-item:disabled > .nav-item__detail {
-    color: rgb(90, 106, 128);
 }
 
 /* the glass: a soft glow around, the blurred scene inside a rounded edge */
@@ -149,17 +152,17 @@
     opacity: 1;
 }
 
-/* the profile: always on glass, the active captain beside the player's name */
+/* the profile: always on glass, the captain's portrait, the player's rank and name, the captain, and a chevron to progression */
 .profile {
     position: absolute;
     right: 72px;
     top: 96px;
     flex-direction: row;
     align-items: center;
-    width: 480px;
-    height: 136px;
+    width: 520px;
+    height: 128px;
     margin: 0;
-    padding: 0 24px;
+    padding: 0 28px 0 0;
     overflow: visible;
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
@@ -174,79 +177,101 @@
 
 .profile > .glass__frost {
     opacity: 1;
-    -unity-background-image-tint-color: rgb(110, 118, 132);
-    border-color: rgba(235, 244, 255, 0.25);
+    -unity-background-image-tint-color: rgb(165, 174, 190);
+    border-color: rgba(235, 244, 255, 0.3);
+}
+
+.profile > .glass__glow {
+    -unity-background-image-tint-color: rgba(220, 235, 255, 0.95);
 }
 
 .profile:hover > .glass__frost,
 .profile:focus > .glass__frost {
-    border-color: rgba(235, 244, 255, 0.85);
+    border-color: rgba(255, 255, 255, 1);
 }
 
+/* the portrait fills the card's left end, so the card and captain are one surface */
 .profile__captain {
-    width: 88px;
-    height: 88px;
+    width: 128px;
+    height: 128px;
     margin-right: 24px;
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+    overflow: hidden;
 }
 
 .profile__portrait {
     flex-grow: 1;
-    border-radius: 8px;
 }
 
 .profile__portrait > .captain-initials {
-    font-size: 32px;
+    font-size: 40px;
 }
 
 .profile__who {
     flex-grow: 1;
 }
 
-.profile__name {
-    margin: 0;
+.profile__title {
+    flex-direction: row;
+    align-items: center;
+}
+
+.profile__rank {
+    margin: 0 12px 0 0;
     padding: 0;
-    color: rgb(240, 246, 255);
+    color: rgb(120, 180, 255);
     font-size: 26px;
     letter-spacing: 2px;
     -unity-font-style: bold;
 }
 
-.profile__captain-name {
-    margin: 2px 0 0 0;
-    padding: 0;
-    color: rgb(150, 166, 188);
-    font-size: 15px;
-    letter-spacing: 3px;
-}
-
-.profile__stats {
-    flex-direction: row;
-    margin-top: 10px;
-}
-
-.profile__stat {
-    flex-direction: row;
-    align-items: center;
-    margin-right: 32px;
-}
-
-.profile__stat-name {
-    margin: 0 10px 0 0;
-    padding: 0;
-    color: rgb(150, 166, 188);
-    font-size: 14px;
-    letter-spacing: 3px;
-}
-
-.profile__stat-value {
+.profile__name {
     margin: 0;
     padding: 0;
-    color: rgb(240, 246, 255);
-    font-size: 16px;
+    color: rgb(255, 255, 255);
+    font-size: 26px;
+    letter-spacing: 2px;
     -unity-font-style: bold;
 }
 
-/* the bot difficulty on the gameplay options page */
-.choices__side {
-    width: 104px;
+.profile__line {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.profile__line-name {
+    margin: 0 10px 0 0;
+    padding: 0;
+    color: rgb(200, 212, 228);
+    font-size: 16px;
+    letter-spacing: 3px;
+}
+
+.profile__line-value {
+    margin: 0;
+    padding: 0;
+    color: rgb(255, 255, 255);
+    font-size: 16px;
+    letter-spacing: 3px;
+    -unity-font-style: bold;
+}
+
+/* two strokes turned into a > */
+.profile__chevron {
+    width: 14px;
+    height: 14px;
+    margin-left: 16px;
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-color: rgb(230, 238, 248);
+    rotate: 45deg;
+    transition-duration: 0.15s;
+}
+
+.profile:hover > .profile__chevron,
+.profile:focus > .profile__chevron {
+    translate: 4px 0;
+    border-color: rgb(255, 255, 255);
 }
