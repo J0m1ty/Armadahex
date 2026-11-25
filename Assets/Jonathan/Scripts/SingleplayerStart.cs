@@ -28,6 +28,7 @@ public class SingleplayerStart : MonoBehaviour
     private List<Playlist> presets;
     // null when the rules are the player's own
     private Playlist preset;
+    private bool loading;
 
     void Start() {
         root = document.rootVisualElement.Q(page);
@@ -65,7 +66,7 @@ public class SingleplayerStart : MonoBehaviour
 
     void Update() {
         var cancel = GameInput.Get("UI/Cancel");
-        if (cancel != null && cancel.WasPressedThisFrame() && UIKit.IsShown(root)) {
+        if (cancel != null && cancel.WasPressedThisFrame() && UIKit.IsShown(root) && !loading) {
             pages.Show(-1);
         }
     }
@@ -120,7 +121,16 @@ public class SingleplayerStart : MonoBehaviour
         unlimitedAmmoRow.EnableInClassList("unavailable", !isAdvancedAttacks.value);
     }
 
+    // says so first, then loads once that has drawn
     public void StartGame() {
+        if (loading) return;
+        loading = true;
+        var start = root.Q<Button>("trainingStart");
+        start.text = "LOADING...";
+        start.schedule.Execute(Load).ExecuteLater(50);
+    }
+
+    private void Load() {
         Debug.Log("Starting game");
         PlayerPrefs.SetString(Constants.PLAYLIST_PREF_KEY, Playlists.Custom);
 
@@ -133,6 +143,6 @@ public class SingleplayerStart : MonoBehaviour
             PlayerPrefs.DeleteKey(Constants.CUSTOMS_NAME_KEY);
         }
 
-        SceneManager.LoadScene(gameScene.SceneName);
+        SceneManager.LoadSceneAsync(gameScene.SceneName);
     }
 }
