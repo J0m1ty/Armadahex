@@ -68,7 +68,11 @@
                 </ui:VisualElement>
             </ui:Button>
             <ui:VisualElement name="changelog" class="changelog">
-                <ui:Label text="CHANGELOG" class="changelog__heading" />
+                <ui:VisualElement class="changelog__heading">
+                    <ui:Label name="changelogVersion" class="changelog__number" />
+                    <ui:Label text="CHANGELOG" class="changelog__kind" />
+                    <ui:Label name="changelogDate" class="changelog__date" />
+                </ui:VisualElement>
                 <ui:ScrollView name="changelogEntries" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" class="changelog__scroll" />
                 <ui:VisualElement class="changelog__footer">
                     <ui:Button name="changelogMore" text="READ MORE" class="text-button changelog__more" />

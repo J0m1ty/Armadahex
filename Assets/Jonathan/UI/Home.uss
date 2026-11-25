@@ -298,32 +298,52 @@
     background-color: rgb(255, 255, 255);
 }
 
-/* the changelog: one card with a hard edge over a see-through dark fill, a titled bar, the newest update's picture and its notes,
-   which fade in and out at the edges as they scroll, and read more at the foot */
+/* the changelog: one glass card like the profile; the bar names the newest version and its date,
+   then its picture and notes, which fade in and out at the edges as they scroll, and read more at the foot */
 .changelog {
     position: absolute;
     right: 72px;
     top: 280px;
+    bottom: 96px;
     width: 560px;
-    height: 640px;
     overflow: hidden;
     border-width: 1px;
-    border-radius: 10px;
+    border-radius: 14px;
     border-color: rgba(235, 244, 255, 0.18);
-    background-color: rgba(4, 7, 14, 0.45);
+    background-color: rgba(150, 185, 255, 0.07);
 }
 
 .changelog__heading {
     flex-shrink: 0;
-    margin: 0;
+    flex-direction: row;
+    align-items: center;
+    height: 56px;
     padding: 0 20px;
-    height: 48px;
-    background-color: rgba(4, 7, 14, 0.7);
-    color: rgb(240, 246, 255);
-    font-size: 16px;
-    letter-spacing: 6px;
+}
+
+.changelog__number {
+    margin: 0 14px 0 0;
+    padding: 0;
+    color: rgb(255, 255, 255);
+    font-size: 22px;
     -unity-font-style: bold;
-    -unity-text-align: middle-left;
+}
+
+.changelog__kind {
+    flex-grow: 1;
+    margin: 0;
+    padding: 0;
+    color: rgb(170, 186, 206);
+    font-size: 14px;
+    letter-spacing: 5px;
+}
+
+.changelog__date {
+    margin: 0;
+    padding: 0;
+    color: rgb(120, 180, 255);
+    font-size: 14px;
+    letter-spacing: 3px;
 }
 
 .changelog__scroll {

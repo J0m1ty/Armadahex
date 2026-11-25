@@ -1,4 +1,4 @@
-# The Revival Update | v0.1 | November 24, 2026
+# v0.1 | November 24, 2026
 - Hex pillar seas with cloud fog of war
 - New specials, each with its own shape
 - Captains, bot difficulties and all new menus

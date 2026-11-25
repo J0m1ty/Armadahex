@@ -2,47 +2,48 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 // what's new on the menu, from Resources/Changelog.txt for now (it'll come from the auth server later).
-// "# title | version | date" starts an update, "## heading" a group inside it, "- text" a line.
-// the header, picture and text read as one card; everything fades in and out near the top and bottom of the list as it scrolls
+// "# version | date" starts an update, "## heading" a group inside it, "- text" a line.
+// the newest update's version and date sit in the card's bar, its picture leads the list,
+// and everything fades in and out near the top and bottom of the list as it scrolls
 public static class Changelog
 {
     // how far from the list's edges things fade out
     private const float fade = 72f;
 
-    public static void Fill(ScrollView list, Texture2D image) {
+    public static void Fill(ScrollView list, Label version, Label date, Texture2D image) {
         if (list == null) return;
 
         var file = Resources.Load<TextAsset>("Changelog");
         if (file == null) return;
 
         list.Clear();
-        // each update's text sits in a body under its picture
+        // each update's notes sit in a body
         VisualElement body = null;
         foreach (var raw in file.text.Split('\n')) {
             var line = raw.Trim();
             if (line.StartsWith("# ")) {
-                if (body != null) list.Add(Gap());
-                // the newest update leads with its picture
-                var withImage = body == null && image != null;
-                if (withImage) {
-                    var frame = new VisualElement();
-                    frame.AddToClassList("changelog__image");
-                    var picture = new FadeImage { texture = image };
-                    picture.AddToClassList("changelog__picture");
-                    frame.Add(picture);
-                    list.Add(frame);
-                }
-
-                body = new VisualElement();
-                body.AddToClassList("changelog__body");
-                list.Add(body);
-
                 var parts = line.Substring(2).Split('|');
-                body.Add(Label(parts[0].Trim().ToUpper(), "changelog__title"));
-                if (parts.Length > 1) {
-                    var version = parts[1].Trim();
-                    if (parts.Length > 2) version += "  ·  " + parts[2].Trim().ToUpper();
-                    body.Add(Label(version, "changelog__version"));
+                var number = parts[0].Trim();
+                var when = parts.Length > 1 ? parts[1].Trim().ToUpper() : "";
+
+                if (body == null) {
+                    // the newest goes in the bar, with its picture first in the list
+                    if (version != null) version.text = number;
+                    if (date != null) date.text = when;
+                    if (image != null) {
+                        var frame = new VisualElement();
+                        frame.AddToClassList("changelog__image");
+                        var picture = new FadeImage { texture = image };
+                        picture.AddToClassList("changelog__picture");
+                        frame.Add(picture);
+                        list.Add(frame);
+                    }
+                    body = Body(list);
+                }
+                else {
+                    list.Add(Gap());
+                    body = Body(list);
+                    body.Add(Label(when == "" ? number : number + "  ·  " + when, "changelog__version"));
                 }
             }
             else if (body == null) {
@@ -65,30 +66,39 @@ public static class Changelog
         list.schedule.Execute(() => Fade(list)).Every(0);
     }
 
-    // each line fades by how close it is to an edge; at the very top or bottom of the list nothing fades on that side
+    // a side only fades once there's more to scroll that way, so nothing fades at rest
     private static void Fade(ScrollView list) {
         var view = list.contentViewport.worldBound;
         var range = list.contentContainer.layout.height - list.contentViewport.layout.height;
-        var topFade = Mathf.Clamp(list.scrollOffset.y, 0.01f, fade);
-        var bottomFade = Mathf.Clamp(range - list.scrollOffset.y, 0.01f, fade);
+        var topFade = Mathf.Min(list.scrollOffset.y, fade);
+        var bottomFade = Mathf.Min(range - list.scrollOffset.y, fade);
 
         foreach (var child in list.contentContainer.Children()) {
             if (child.childCount > 0 && child[0] is FadeImage picture) {
                 picture.SetView(view.yMin, view.yMax, topFade, bottomFade);
                 continue;
             }
-            // a body's lines fade one by one, its background stays
+            // a body's lines fade one by one
             if (child.ClassListContains("changelog__body")) {
-                foreach (var line in child.Children()) Fade(line, view, topFade, bottomFade);
+                foreach (var line in child.Children()) line.style.opacity = Visible(line.worldBound.center.y, view.yMin, view.yMax, topFade, bottomFade);
                 continue;
             }
-            Fade(child, view, topFade, bottomFade);
+            child.style.opacity = Visible(child.worldBound.center.y, view.yMin, view.yMax, topFade, bottomFade);
         }
     }
 
-    private static void Fade(VisualElement element, Rect view, float topFade, float bottomFade) {
-        var center = element.worldBound.center.y;
-        element.style.opacity = Mathf.Clamp01(Mathf.Min((center - view.yMin) / topFade, (view.yMax - center) / bottomFade));
+    // how visible something at y is, 0 at an edge that fades, 1 a fade's width inside it
+    public static float Visible(float y, float top, float bottom, float topFade, float bottomFade) {
+        var fromTop = topFade < 1f ? 1f : (y - top) / topFade;
+        var fromBottom = bottomFade < 1f ? 1f : (bottom - y) / bottomFade;
+        return Mathf.Clamp01(Mathf.Min(fromTop, fromBottom));
+    }
+
+    private static VisualElement Body(ScrollView list) {
+        var body = new VisualElement();
+        body.AddToClassList("changelog__body");
+        list.Add(body);
+        return body;
     }
 
     private static Label Label(string text, string className) {
@@ -113,8 +123,8 @@ public class FadeImage : VisualElement
 
     private float viewTop = float.MinValue;
     private float viewBottom = float.MaxValue;
-    private float topFade = 1f;
-    private float bottomFade = 1f;
+    private float topFade;
+    private float bottomFade;
 
     public FadeImage() {
         pickingMode = PickingMode.Ignore;
@@ -153,7 +163,7 @@ public class FadeImage : VisualElement
             var t = (float)i / rows;
             var y = box.yMin + t * box.height;
             var worldY = top + t * worldBound.height;
-            var alpha = Mathf.Clamp01(Mathf.Min((worldY - viewTop) / topFade, (viewBottom - worldY) / bottomFade));
+            var alpha = Changelog.Visible(worldY, viewTop, viewBottom, topFade, bottomFade);
             var tint = new Color32(255, 255, 255, (byte)(alpha * alpha * (3 - 2 * alpha) * 255));
             var uvY = Mathf.Lerp(v.y, v.x, t);
             mesh.SetNextVertex(new Vertex { position = new Vector3(box.xMin, y, Vertex.nearZ), tint = tint, uv = new Vector2(u.x, uvY) });
