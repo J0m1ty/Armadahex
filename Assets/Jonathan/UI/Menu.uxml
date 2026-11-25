@@ -44,12 +44,14 @@
                     <ui:Label text="QUIT" class="nav-item__name" />
                 </ui:Button>
             </ui:VisualElement>
-            <ui:Button name="profile" class="profile">
+            <ui:Button name="profile" class="profile profile--dossier">
                 <ui:VisualElement name="profileCaptain" class="profile__captain" />
                 <ui:VisualElement class="profile__who">
-                    <ui:VisualElement class="profile__title">
+                    <ui:Label name="playerName" text="Player" class="profile__name" />
+                    <ui:VisualElement class="profile__meta">
+                        <ui:VisualElement class="profile__pip" />
                         <ui:Label name="profileRank" text="ENSIGN" class="profile__rank" />
-                        <ui:Label name="playerName" text="Player" class="profile__name" />
+                        <ui:Label name="profileXp" text="0 XP" class="profile__xp" />
                     </ui:VisualElement>
                     <ui:VisualElement class="profile__line">
                         <ui:Label text="CAPTAIN" class="profile__line-name" />
@@ -57,7 +59,15 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:VisualElement class="profile__chevron" picking-mode="Ignore" />
+                <ui:VisualElement class="profile__bar" picking-mode="Ignore">
+                    <ui:VisualElement name="profileXpFill" class="profile__bar-fill" />
+                </ui:VisualElement>
             </ui:Button>
+            <ui:VisualElement name="changelog" class="changelog">
+                <ui:VisualElement class="glass__frost changelog__glass" picking-mode="Ignore" />
+                <ui:Label text="WHAT'S NEW" class="changelog__heading" />
+                <ui:ScrollView name="changelogEntries" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" class="changelog__scroll" />
+            </ui:VisualElement>
         </ui:VisualElement>
 
         <ui:VisualElement name="gameplayPage" class="hidden screen options">

@@ -22,12 +22,12 @@
 /* a soft blue light under the logo */
 .home-logo__glow {
     position: absolute;
-    left: -160px;
-    top: -120px;
-    right: -160px;
-    bottom: -120px;
+    left: -220px;
+    top: -110px;
+    right: -260px;
+    bottom: -130px;
     background-image: url("project://database/Assets/Jonathan/UI/Textures/Underglow.png");
-    -unity-background-image-tint-color: rgba(40, 110, 255, 0.55);
+    -unity-background-image-tint-color: rgba(50, 120, 255, 0.4);
     -unity-background-scale-mode: stretch-to-fill;
 }
 
@@ -94,8 +94,7 @@
     letter-spacing: 3px;
 }
 
-.nav-item:hover > .nav-item__name,
-.nav-item:focus > .nav-item__name {
+.nav-item.selected > .nav-item__name {
     color: rgb(255, 255, 255);
 }
 
@@ -108,7 +107,7 @@
     bottom: -20px;
     opacity: 0;
     background-image: url("project://database/Assets/Jonathan/UI/Textures/Glow.png");
-    -unity-background-image-tint-color: rgba(200, 225, 255, 0.55);
+    -unity-background-image-tint-color: rgba(200, 225, 255, 0.22);
     -unity-slice-left: 48;
     -unity-slice-right: 48;
     -unity-slice-top: 48;
@@ -125,40 +124,39 @@
     opacity: 0;
     border-width: 1px;
     border-radius: 12px;
-    border-color: rgba(235, 244, 255, 0.85);
-    background-color: rgba(150, 185, 255, 0.1);
+    border-color: rgba(235, 244, 255, 0.6);
+    background-color: rgba(150, 185, 255, 0.08);
     -unity-background-image-tint-color: rgb(100, 110, 128);
     transition-duration: 0.2s;
 }
 
-.nav-item:hover > .glass__glow,
-.nav-item:focus > .glass__glow,
-.profile:hover > .glass__glow,
-.profile:focus > .glass__glow {
+.nav-item.selected > .glass__glow,
+.profile:hover > .glass__glow {
     opacity: 1;
 }
 
-.nav-item:hover > .glass__frost,
-.nav-item:focus > .glass__frost {
+.nav-item.selected > .glass__frost {
     opacity: 1;
 }
 
-/* the profile: always on glass, the captain's portrait, the player's rank and name, the captain, and a chevron to progression */
+/* the profile: on glass, the active captain, the player's name, rank and experience, and a chevron into progression.
+   three looks to pick from: --dossier, --nameplate, --ledger */
 .profile {
     position: absolute;
     right: 72px;
     top: 96px;
     flex-direction: row;
     align-items: center;
-    width: 520px;
-    height: 128px;
+    width: 560px;
+    height: 152px;
     margin: 0;
-    padding: 0 28px 0 0;
+    padding: 16px 28px 16px 16px;
     overflow: visible;
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
-    border-radius: 12px;
+    border-radius: 14px;
     -unity-text-align: middle-left;
+    transition-duration: 0.2s;
 }
 
 .profile:hover,
@@ -168,28 +166,28 @@
 
 .profile > .glass__frost {
     opacity: 1;
-    background-color: rgba(150, 185, 255, 0.08);
+    border-radius: 14px;
+    background-color: rgba(150, 185, 255, 0.07);
+    border-color: rgba(235, 244, 255, 0.18);
     -unity-background-image-tint-color: rgb(165, 174, 190);
-    border-color: rgba(235, 244, 255, 0.3);
 }
 
 .profile > .glass__glow {
-    -unity-background-image-tint-color: rgba(220, 235, 255, 0.95);
+    -unity-background-image-tint-color: rgba(200, 225, 255, 0.18);
 }
 
-.profile:hover > .glass__frost,
-.profile:focus > .glass__frost {
-    border-color: rgba(255, 255, 255, 1);
+.profile:hover > .glass__frost {
+    background-color: rgba(150, 185, 255, 0.12);
+    border-color: rgba(235, 244, 255, 0.5);
 }
 
-/* the portrait fills the card's left end, so the card and captain are one surface */
 .profile__captain {
-    width: 128px;
-    height: 128px;
+    width: 120px;
+    height: 120px;
     margin-right: 24px;
-    border-top-left-radius: 12px;
-    border-bottom-left-radius: 12px;
+    border-radius: 8px;
     overflow: hidden;
+    transition-duration: 0.2s;
 }
 
 .profile__portrait {
@@ -204,66 +202,267 @@
     flex-grow: 1;
 }
 
-.profile__title {
-    flex-direction: row;
-    align-items: center;
-}
-
-.profile__rank {
-    margin: 0 12px 0 0;
-    padding: 0;
-    color: rgb(120, 180, 255);
-    font-size: 26px;
-    letter-spacing: 2px;
-    -unity-font-style: bold;
-}
-
 .profile__name {
     margin: 0;
     padding: 0;
     color: rgb(255, 255, 255);
-    font-size: 26px;
-    letter-spacing: 2px;
+    font-size: 30px;
     -unity-font-style: bold;
+}
+
+.profile__meta {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 6px;
+}
+
+/* the rank's insignia, one gold bar for the first rank */
+.profile__pip {
+    width: 18px;
+    height: 5px;
+    margin-right: 10px;
+    border-radius: 1px;
+    background-color: rgb(255, 194, 61);
+}
+
+.profile__rank {
+    margin: 0 16px 0 0;
+    padding: 0;
+    color: rgb(255, 214, 120);
+    font-size: 15px;
+    letter-spacing: 3px;
+    -unity-font-style: bold;
+}
+
+.profile__xp {
+    margin: 0;
+    padding: 0;
+    color: rgb(170, 186, 206);
+    font-size: 15px;
+    letter-spacing: 2px;
 }
 
 .profile__line {
     flex-direction: row;
     align-items: center;
-    margin-top: 8px;
+    margin-top: 10px;
 }
 
 .profile__line-name {
     margin: 0 10px 0 0;
     padding: 0;
-    color: rgb(200, 212, 228);
-    font-size: 16px;
+    color: rgb(150, 166, 188);
+    font-size: 14px;
     letter-spacing: 3px;
 }
 
 .profile__line-value {
     margin: 0;
     padding: 0;
-    color: rgb(255, 255, 255);
-    font-size: 16px;
+    color: rgb(230, 238, 248);
+    font-size: 14px;
     letter-spacing: 3px;
     -unity-font-style: bold;
 }
 
 /* two strokes turned into a > */
 .profile__chevron {
-    width: 14px;
-    height: 14px;
+    width: 20px;
+    height: 20px;
     margin-left: 16px;
     border-top-width: 3px;
     border-right-width: 3px;
-    border-color: rgb(230, 238, 248);
+    border-color: rgb(170, 186, 206);
     rotate: 45deg;
-    transition-duration: 0.15s;
+    transition-duration: 0.2s;
 }
 
-.profile:hover > .profile__chevron,
-.profile:focus > .profile__chevron {
-    translate: 4px 0;
+.profile:hover > .profile__chevron {
+    translate: 6px 0;
     border-color: rgb(255, 255, 255);
+}
+
+/* experience toward the next rank, along the card's foot */
+.profile__bar {
+    position: absolute;
+    left: 160px;
+    right: 28px;
+    bottom: 14px;
+    height: 3px;
+    border-radius: 2px;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.profile__bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background-color: rgb(255, 194, 61);
+}
+
+/* dossier: portrait inset in the card, the card lifts on hover */
+.profile--dossier:hover {
+    translate: 0 -3px;
+}
+
+.profile--dossier:hover > .profile__captain {
+    scale: 1.04 1.04;
+}
+
+/* nameplate: a round portrait that sits over the card's left edge */
+.profile--nameplate {
+    height: 128px;
+    padding-left: 104px;
+}
+
+.profile--nameplate > .profile__captain {
+    position: absolute;
+    left: -40px;
+    top: -8px;
+    width: 144px;
+    height: 144px;
+    border-radius: 72px;
+    border-width: 3px;
+    border-color: rgba(235, 244, 255, 0.35);
+}
+
+.profile--nameplate:hover > .profile__captain {
+    border-color: rgb(255, 255, 255);
+}
+
+.profile--nameplate > .profile__bar {
+    left: 124px;
+}
+
+/* ledger: no card until you point at it, everything set right with the portrait on the edge */
+.profile--ledger {
+    flex-direction: row-reverse;
+    padding: 16px;
+}
+
+.profile--ledger > .glass__frost {
+    opacity: 0;
+}
+
+.profile--ledger:hover > .glass__frost {
+    opacity: 1;
+}
+
+.profile--ledger > .profile__captain {
+    width: 112px;
+    height: 112px;
+    margin: 0 0 0 24px;
+    border-radius: 56px;
+}
+
+.profile--ledger > .profile__who {
+    align-items: flex-end;
+}
+
+.profile--ledger .profile__name {
+    font-size: 34px;
+}
+
+.profile--ledger > .profile__chevron {
+    margin: 0 16px 0 0;
+    rotate: -135deg;
+    opacity: 0;
+}
+
+.profile--ledger:hover > .profile__chevron {
+    opacity: 1;
+    translate: -6px 0;
+}
+
+.profile--ledger > .profile__bar {
+    left: 280px;
+    right: 152px;
+}
+
+/* what's new: a glass panel under the profile with the latest updates */
+.changelog {
+    position: absolute;
+    right: 72px;
+    top: 280px;
+    bottom: 96px;
+    width: 560px;
+    padding: 24px 28px 0 28px;
+    overflow: hidden;
+    border-radius: 14px;
+}
+
+.changelog__glass {
+    opacity: 1;
+    border-radius: 14px;
+    border-color: rgba(235, 244, 255, 0.12);
+    background-color: rgba(150, 185, 255, 0.05);
+}
+
+.changelog__heading {
+    margin: 0 0 16px 0;
+    padding: 0;
+    color: rgb(150, 166, 188);
+    font-size: 15px;
+    letter-spacing: 6px;
+    -unity-font-style: bold;
+}
+
+.changelog__scroll {
+    flex-grow: 1;
+}
+
+.changelog__update {
+    margin: 0 0 12px 0;
+    padding: 0 0 14px 0;
+    border-bottom-width: 1px;
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.changelog__title {
+    margin: 0;
+    padding: 0;
+    color: rgb(255, 255, 255);
+    font-size: 26px;
+    letter-spacing: 3px;
+    -unity-font-style: bold;
+}
+
+.changelog__date {
+    margin: 4px 0 0 0;
+    padding: 0;
+    color: rgb(120, 180, 255);
+    font-size: 14px;
+    letter-spacing: 3px;
+}
+
+.changelog__group {
+    margin: 14px 0 6px 0;
+    padding: 0;
+    color: rgb(150, 166, 188);
+    font-size: 13px;
+    letter-spacing: 4px;
+    -unity-font-style: bold;
+}
+
+.changelog__line {
+    flex-direction: row;
+    align-items: flex-start;
+    margin: 0 0 6px 0;
+}
+
+.changelog__dot {
+    width: 5px;
+    height: 5px;
+    margin: 9px 12px 0 2px;
+    border-radius: 3px;
+    background-color: rgb(120, 180, 255);
+    flex-shrink: 0;
+}
+
+.changelog__text {
+    flex-shrink: 1;
+    margin: 0;
+    padding: 0;
+    color: rgb(214, 226, 240);
+    font-size: 16px;
+    white-space: normal;
 }

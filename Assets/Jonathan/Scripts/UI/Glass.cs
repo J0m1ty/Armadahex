@@ -14,11 +14,6 @@ public static class Glass
         var frost = new Frost();
         frost.AddToClassList("glass__frost");
         element.Insert(1, frost);
-
-        // pointing at a control selects it, so only one is ever lit
-        element.RegisterCallback<PointerEnterEvent>(_ => {
-            if (element.enabledInHierarchy) element.Focus();
-        });
     }
 }
 
