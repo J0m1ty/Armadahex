@@ -785,7 +785,7 @@ MonoBehaviour:
             m_StringArgument: 3 Multiplayer
             m_BoolArgument: 0
           m_CallState: 2
-  - element: createGame
+  - element: customGame
     sound: 2
     key: 
     onClick:
@@ -837,24 +837,6 @@ MonoBehaviour:
             m_IntArgument: 0
             m_FloatArgument: 0
             m_StringArgument: gameplayPage
-            m_BoolArgument: 0
-          m_CallState: 2
-  - element: joinGame
-    sound: 2
-    key: 
-    onClick:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1092674495}
-          m_TargetAssemblyTypeName: MenuHome, Assembly-CSharp
-          m_MethodName: JoinGame
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: 
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
   - element: credits
@@ -1035,6 +1017,7 @@ MonoBehaviour:
   campaignScene: 8 Campaign
   refreshInterval: 1
   changelogImage: {fileID: 2800000, guid: 3c8fa111f1bd1354ea55d43bc869133a, type: 3}
+  changelogUrl: https://jomity.net
 --- !u!1 &1137644092
 GameObject:
   m_ObjectHideFlags: 0

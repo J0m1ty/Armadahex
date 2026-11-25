@@ -1,263 +1,255 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <ui:Style src="Base.uss" />
-    <ui:Style src="Theme.uss" />
-    <ui:Style src="Options.uss" />
-    <ui:Style src="Progression.uss" />
-    <ui:Style src="Home.uss" />
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Jonathan/UI/Base.uss?fileID=7433441132597879392&amp;guid=b5a44b40eb90f1741a8fbe41765e4d07&amp;type=3#Base"/>
+    <Style src="project://database/Assets/Jonathan/UI/Theme.uss?fileID=7433441132597879392&amp;guid=a20a5efdaf552f84b94acbaf1eb4b9b6&amp;type=3#Theme"/>
+    <Style src="project://database/Assets/Jonathan/UI/Options.uss?fileID=7433441132597879392&amp;guid=7adb23c5994a45b47b84429723bfd499&amp;type=3#Options"/>
+    <Style src="project://database/Assets/Jonathan/UI/Progression.uss?fileID=7433441132597879392&amp;guid=b581ec6fb44f0ce4b9f36c4da51ef911&amp;type=3#Progression"/>
+    <Style src="project://database/Assets/Jonathan/UI/Home.uss?fileID=7433441132597879392&amp;guid=60b2352bf4070464293de43904c0f7fe&amp;type=3#Home"/>
     <ui:VisualElement class="page menu">
         <ui:VisualElement name="home" class="screen home">
-            <Backdrop class="backdrop" />
-            <ui:VisualElement class="home-logo" picking-mode="Ignore">
-                <ui:VisualElement class="home-logo__glow" picking-mode="Ignore" />
-                <ui:Label name="logoText" text="ARMADAHEX" class="logo-text" />
-                <LightStreak target="logoText" peak-text="HEX" class="streak" />
-                <ui:Label text="LAST STAND" class="home-logo__subtitle" />
+            <Backdrop class="backdrop" style="color: rgb(139, 152, 172);"/>
+            <ui:VisualElement picking-mode="Ignore" class="home-logo">
+                <ui:VisualElement picking-mode="Ignore" class="home-logo__glow"/>
+                <ui:Label name="logoText" text="ARMADAHEX" class="logo-text"/>
+                <LightStreak target="logoText" peak-text="HEX" class="streak"/>
+                <ui:Label text="LAST STAND" class="home-logo__subtitle"/>
             </ui:VisualElement>
             <ui:VisualElement class="home-nav">
                 <ui:Button name="campaign" class="nav-item">
-                    <ui:Label text="CAMPAIGN" class="nav-item__name" />
-                    <ui:Label name="campaignProgress" text="0% COMPLETE" class="nav-item__detail" />
+                    <ui:Label text="CAMPAIGN" class="nav-item__name"/>
+                    <ui:Label name="campaignProgress" text="0% COMPLETE" class="nav-item__detail"/>
                 </ui:Button>
                 <ui:Button name="multiplayer" class="nav-item">
-                    <ui:Label text="MULTIPLAYER" class="nav-item__name" />
-                    <ui:Label name="playing" text="OFFLINE" class="nav-item__detail" />
+                    <ui:Label text="MULTIPLAYER" class="nav-item__name"/>
+                    <ui:Label name="playing" text="OFFLINE" class="nav-item__detail"/>
                 </ui:Button>
-                <ui:Button name="joinGame" class="nav-item">
-                    <ui:Label text="JOIN GAME" class="nav-item__name" />
-                </ui:Button>
-                <ui:Button name="createGame" class="nav-item">
-                    <ui:Label text="CREATE GAME" class="nav-item__name" />
+                <ui:Button name="customGame" class="nav-item">
+                    <ui:Label text="CUSTOM GAME" class="nav-item__name"/>
                 </ui:Button>
                 <ui:Button name="training" class="nav-item">
-                    <ui:Label text="TRAINING" class="nav-item__name" />
+                    <ui:Label text="TRAINING" class="nav-item__name"/>
                 </ui:Button>
                 <ui:Button name="options" class="nav-item">
-                    <ui:Label text="OPTIONS" class="nav-item__name" />
+                    <ui:Label text="OPTIONS" class="nav-item__name"/>
                 </ui:Button>
                 <ui:Button name="credits" class="nav-item">
-                    <ui:Label text="CREDITS" class="nav-item__name" />
+                    <ui:Label text="CREDITS" class="nav-item__name"/>
                 </ui:Button>
                 <ui:Button name="logout" class="nav-item">
-                    <ui:Label text="LOG OUT" class="nav-item__name" />
+                    <ui:Label text="LOG OUT" class="nav-item__name"/>
                 </ui:Button>
                 <ui:Button name="quit" class="nav-item">
-                    <ui:Label text="QUIT" class="nav-item__name" />
+                    <ui:Label text="QUIT" class="nav-item__name"/>
                 </ui:Button>
             </ui:VisualElement>
             <ui:Button name="profile" class="profile">
-                <ui:VisualElement class="profile__avatar" picking-mode="Ignore">
-                    <ui:VisualElement name="profileCaptain" class="profile__captain" />
+                <ui:VisualElement picking-mode="Ignore" class="profile__avatar">
+                    <ui:VisualElement name="profileCaptain" class="profile__captain"/>
                 </ui:VisualElement>
                 <ui:VisualElement class="profile__who">
-                    <ui:Label name="playerName" text="Player" class="profile__name" />
+                    <ui:Label name="playerName" text="Player" class="profile__name"/>
                     <ui:VisualElement class="profile__meta">
-                        <ui:VisualElement class="profile__pip" />
-                        <ui:Label name="profileRank" text="ENSIGN" class="profile__rank" />
-                        <ui:Label name="profileXp" text="0 XP" class="profile__xp" />
+                        <ui:VisualElement class="profile__pip"/>
+                        <ui:Label name="profileRank" text="ENSIGN" class="profile__rank"/>
+                        <ui:Label name="profileXp" text="0 XP" class="profile__xp"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement class="profile__chevrons" picking-mode="Ignore">
+                <ui:VisualElement picking-mode="Ignore" class="profile__chevrons">
                     <ui:VisualElement class="chevron chevron--echo">
-                        <ui:VisualElement class="chevron__stroke chevron__stroke--top" />
-                        <ui:VisualElement class="chevron__stroke chevron__stroke--bottom" />
+                        <ui:VisualElement class="chevron__stroke chevron__stroke--top"/>
+                        <ui:VisualElement class="chevron__stroke chevron__stroke--bottom"/>
                     </ui:VisualElement>
                     <ui:VisualElement class="chevron">
-                        <ui:VisualElement class="chevron__stroke chevron__stroke--top" />
-                        <ui:VisualElement class="chevron__stroke chevron__stroke--bottom" />
+                        <ui:VisualElement class="chevron__stroke chevron__stroke--top"/>
+                        <ui:VisualElement class="chevron__stroke chevron__stroke--bottom"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:Button>
             <ui:VisualElement name="changelog" class="changelog">
                 <ui:VisualElement class="changelog__heading">
-                    <ui:Label name="changelogVersion" class="changelog__number" />
-                    <ui:Label text="CHANGELOG" class="changelog__kind" />
-                    <ui:Label name="changelogDate" class="changelog__date" />
+                    <ui:Label name="changelogVersion" text="PATCH NOTES v1.0" class="changelog__number" style="flex-grow: 1;"/>
+                    <ui:Label name="changelogDate" text="November 24th, 2026" class="changelog__date" style="color: rgb(139, 152, 172);"/>
                 </ui:VisualElement>
-                <ui:ScrollView name="changelogEntries" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" class="changelog__scroll" />
+                <ui:ScrollView name="changelogEntries" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" class="changelog__scroll"/>
                 <ui:VisualElement class="changelog__footer">
-                    <ui:Button name="changelogMore" text="READ MORE" class="text-button changelog__more" />
+                    <ui:Button name="changelogMore" text="READ MORE" class="text-button changelog__more"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
-
         <ui:VisualElement name="gameplayPage" class="hidden screen options">
-            <Backdrop class="backdrop" />
+            <Backdrop class="backdrop"/>
             <ui:Button name="gameplayBack" class="back">
-                <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip" />
-                <ui:Label text="BACK" picking-mode="Ignore" class="back-text" />
+                <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip"/>
+                <ui:Label text="BACK" picking-mode="Ignore" class="back-text"/>
             </ui:Button>
             <ui:VisualElement class="options-column">
-                <ui:Label text="OPTIONS" class="options-title" />
+                <ui:Label text="OPTIONS" class="options-title"/>
                 <ui:VisualElement class="options-tabs">
-                    <ui:Button name="gameplayTab" text="GAMEPLAY" focusable="false" class="tab lit" />
-                    <ui:Button name="audioTab" text="AUDIO" focusable="false" class="tab" />
-                    <ui:Button name="controlsTab" text="CONTROLS" focusable="false" class="tab" />
+                    <ui:Button name="gameplayTab" text="GAMEPLAY" focusable="false" class="tab lit"/>
+                    <ui:Button name="audioTab" text="AUDIO" focusable="false" class="tab"/>
+                    <ui:Button name="controlsTab" text="CONTROLS" focusable="false" class="tab"/>
                 </ui:VisualElement>
                 <ui:VisualElement class="options-body panel">
-                    <ui:VisualElement class="panel-edge" picking-mode="Ignore" />
+                    <ui:VisualElement picking-mode="Ignore" class="panel-edge"/>
                     <ui:VisualElement class="option-row">
-                        <ui:Label text="YOUR COLOR" class="option-name" />
-                        <ColorDropdown />
+                        <ui:Label text="YOUR COLOR" class="option-name"/>
+                        <ColorDropdown/>
                     </ui:VisualElement>
                     <ui:VisualElement class="option-row">
-                        <ui:Label text="ENEMY COLOR" class="option-name" />
-                        <ColorDropdown enemy="true" />
+                        <ui:Label text="ENEMY COLOR" class="option-name"/>
+                        <ColorDropdown enemy="true"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement class="options-footer" />
+                <ui:VisualElement class="options-footer"/>
             </ui:VisualElement>
         </ui:VisualElement>
-
         <ui:VisualElement name="settingsPage" class="hidden screen options">
-            <Backdrop class="backdrop" />
+            <Backdrop class="backdrop"/>
             <ui:Button name="settingsBack" class="back">
-                <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip" />
-                <ui:Label text="BACK" picking-mode="Ignore" class="back-text" />
+                <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip"/>
+                <ui:Label text="BACK" picking-mode="Ignore" class="back-text"/>
             </ui:Button>
             <ui:VisualElement class="options-column">
-                <ui:Label text="OPTIONS" class="options-title" />
+                <ui:Label text="OPTIONS" class="options-title"/>
                 <ui:VisualElement class="options-tabs">
-                    <ui:Button name="gameplayTab" text="GAMEPLAY" focusable="false" class="tab" />
-                    <ui:Button name="audioTab" text="AUDIO" focusable="false" class="tab lit" />
-                    <ui:Button name="controlsTab" text="CONTROLS" focusable="false" class="tab" />
+                    <ui:Button name="gameplayTab" text="GAMEPLAY" focusable="false" class="tab"/>
+                    <ui:Button name="audioTab" text="AUDIO" focusable="false" class="tab lit"/>
+                    <ui:Button name="controlsTab" text="CONTROLS" focusable="false" class="tab"/>
                 </ui:VisualElement>
                 <ui:VisualElement class="options-body panel">
-                    <ui:VisualElement class="panel-edge" picking-mode="Ignore" />
+                    <ui:VisualElement picking-mode="Ignore" class="panel-edge"/>
                     <ui:VisualElement class="option-row">
-                        <ui:Label text="SOUND" class="option-name" />
-                        <Switch name="soundToggle" value="true" />
+                        <ui:Label text="SOUND" class="option-name"/>
+                        <Switch name="soundToggle" value="true"/>
                     </ui:VisualElement>
                     <ui:VisualElement class="option-row">
-                        <ui:Label text="MAIN VOLUME" class="option-name" />
-                        <ui:Slider name="mainVolume" low-value="0" high-value="1" fill="true" class="option-slider" />
+                        <ui:Label text="MAIN VOLUME" class="option-name"/>
+                        <ui:Slider name="mainVolume" low-value="0" high-value="1" fill="true" class="option-slider"/>
                     </ui:VisualElement>
                     <ui:VisualElement class="option-row">
-                        <ui:Label text="MUSIC VOLUME" class="option-name" />
-                        <ui:Slider name="musicVolume" low-value="0" high-value="1" fill="true" class="option-slider" />
+                        <ui:Label text="MUSIC VOLUME" class="option-name"/>
+                        <ui:Slider name="musicVolume" low-value="0" high-value="1" fill="true" class="option-slider"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement class="options-footer" />
+                <ui:VisualElement class="options-footer"/>
             </ui:VisualElement>
         </ui:VisualElement>
-
         <ui:VisualElement name="controlsPage" class="hidden screen options">
-            <Backdrop class="backdrop" />
+            <Backdrop class="backdrop"/>
             <ui:Button name="controlsBack" class="back">
-                <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip" />
-                <ui:Label text="BACK" picking-mode="Ignore" class="back-text" />
+                <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip"/>
+                <ui:Label text="BACK" picking-mode="Ignore" class="back-text"/>
             </ui:Button>
             <ui:VisualElement class="options-column">
-                <ui:Label text="OPTIONS" class="options-title" />
+                <ui:Label text="OPTIONS" class="options-title"/>
                 <ui:VisualElement class="options-tabs">
-                    <ui:Button name="gameplayTab" text="GAMEPLAY" focusable="false" class="tab" />
-                    <ui:Button name="audioTab" text="AUDIO" focusable="false" class="tab" />
-                    <ui:Button name="controlsTab" text="CONTROLS" focusable="false" class="tab lit" />
+                    <ui:Button name="gameplayTab" text="GAMEPLAY" focusable="false" class="tab"/>
+                    <ui:Button name="audioTab" text="AUDIO" focusable="false" class="tab"/>
+                    <ui:Button name="controlsTab" text="CONTROLS" focusable="false" class="tab lit"/>
                 </ui:VisualElement>
                 <ui:VisualElement class="options-body panel">
-                    <ui:VisualElement class="panel-edge" picking-mode="Ignore" />
-                    <ui:ListView name="controlsList" fixed-item-height="56" class="controls-list" />
+                    <ui:VisualElement picking-mode="Ignore" class="panel-edge"/>
+                    <ui:ListView name="controlsList" fixed-item-height="56" class="controls-list"/>
                 </ui:VisualElement>
                 <ui:VisualElement class="options-footer">
-                    <ui:Button name="resetControls" text="RESET TO DEFAULTS" class="text-button reset" />
-                    <ui:Button name="saveControls" text="SAVE CHANGES" class="save" />
+                    <ui:Button name="resetControls" text="RESET TO DEFAULTS" class="text-button reset"/>
+                    <ui:Button name="saveControls" text="SAVE CHANGES" class="save"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
-
         <ui:VisualElement name="progressionPage" class="hidden screen progression">
-            <Backdrop class="backdrop" />
+            <Backdrop class="backdrop"/>
             <ui:Button name="progressionBack" class="back">
-                <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip" />
-                <ui:Label text="BACK" picking-mode="Ignore" class="back-text" />
+                <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip"/>
+                <ui:Label text="BACK" picking-mode="Ignore" class="back-text"/>
             </ui:Button>
-            <ui:Label text="PROGRESSION" class="page-title" />
+            <ui:Label text="PROGRESSION" class="page-title"/>
             <ProgressionView class="progression-body">
                 <ui:VisualElement class="progression-top">
                     <ui:VisualElement name="captainCard" class="captain-card panel">
-                        <ui:VisualElement class="panel-edge" picking-mode="Ignore" />
+                        <ui:VisualElement picking-mode="Ignore" class="panel-edge"/>
                         <ui:VisualElement class="captain-card__head">
-                            <ui:VisualElement name="captainPortrait" />
+                            <ui:VisualElement name="captainPortrait"/>
                             <ui:VisualElement class="captain-card__who">
-                                <ui:Label name="captainName" class="captain-name" />
-                                <ui:Label name="captainEpithet" class="captain-epithet" />
+                                <ui:Label name="captainName" class="captain-name"/>
+                                <ui:Label name="captainEpithet" class="captain-epithet"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
                         <ui:VisualElement class="captain-ability">
-                            <ui:Label text="PASSIVE" class="captain-ability__kind" />
-                            <ui:Label name="passiveName" class="captain-ability__name" />
-                            <ui:Label name="passive" class="captain-ability__text" />
+                            <ui:Label text="PASSIVE" class="captain-ability__kind"/>
+                            <ui:Label name="passiveName" class="captain-ability__name"/>
+                            <ui:Label name="passive" class="captain-ability__text"/>
                         </ui:VisualElement>
                         <ui:VisualElement class="captain-ability">
-                            <ui:Label text="SPECIAL" class="captain-ability__kind" />
-                            <ui:Label name="specialName" class="captain-ability__name" />
-                            <ui:Label name="special" class="captain-ability__text" />
+                            <ui:Label text="SPECIAL" class="captain-ability__kind"/>
+                            <ui:Label name="specialName" class="captain-ability__name"/>
+                            <ui:Label name="special" class="captain-ability__text"/>
                         </ui:VisualElement>
                         <ui:VisualElement class="captain-card__foot">
                             <ui:VisualElement name="captainSource" class="captain-source">
-                                <LockIcon name="captainSourceLock" class="captain-source__lock" />
+                                <LockIcon name="captainSourceLock" class="captain-source__lock"/>
                                 <ui:VisualElement>
-                                    <ui:Label name="captainSourceKind" class="captain-source__kind" />
-                                    <ui:Label name="captainRequirement" class="captain-source__requirement" />
+                                    <ui:Label name="captainSourceKind" class="captain-source__kind"/>
+                                    <ui:Label name="captainRequirement" class="captain-source__requirement"/>
                                 </ui:VisualElement>
                             </ui:VisualElement>
-                            <ui:Label name="captainActive" text="ACTIVE" class="captain-active" />
-                            <ui:Button name="captainAction" text="SELECT CAPTAIN" class="plate captain-action" />
+                            <ui:Label name="captainActive" text="ACTIVE" class="captain-active"/>
+                            <ui:Button name="captainAction" text="SELECT CAPTAIN" class="plate captain-action"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
-                    <ui:ScrollView name="captainGrid" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" class="captain-grid" />
+                    <ui:ScrollView name="captainGrid" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" class="captain-grid"/>
                 </ui:VisualElement>
                 <ui:VisualElement class="progression-stats">
                     <ui:VisualElement class="stat-group">
-                        <ui:Label text="SINGLEPLAYER" class="stat-heading" />
+                        <ui:Label text="SINGLEPLAYER" class="stat-heading"/>
                         <ui:VisualElement class="stat-row">
-                            <ui:Label text="CAMPAIGN" class="stat-name" />
-                            <ui:Label name="statCampaign" class="stat-value" />
+                            <ui:Label text="CAMPAIGN" class="stat-name"/>
+                            <ui:Label name="statCampaign" class="stat-value"/>
                         </ui:VisualElement>
                         <ui:VisualElement class="stat-row">
-                            <ui:Label text="GAMES PLAYED" class="stat-name" />
-                            <ui:Label name="statSingleplayerGames" class="stat-value" />
+                            <ui:Label text="GAMES PLAYED" class="stat-name"/>
+                            <ui:Label name="statSingleplayerGames" class="stat-value"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
                     <ui:VisualElement class="stat-group stat-group--middle">
-                        <ui:Label text="MULTIPLAYER" class="stat-heading" />
+                        <ui:Label text="MULTIPLAYER" class="stat-heading"/>
                         <ui:VisualElement class="stat-row">
-                            <ui:Label text="EXPERIENCE" class="stat-name" />
-                            <ui:Label name="statMultiplayerXp" class="stat-value" />
+                            <ui:Label text="EXPERIENCE" class="stat-name"/>
+                            <ui:Label name="statMultiplayerXp" class="stat-value"/>
                         </ui:VisualElement>
                         <ui:VisualElement class="stat-row">
-                            <ui:Label text="RANK" class="stat-name" />
-                            <ui:Label name="statMultiplayerRank" class="stat-value" />
+                            <ui:Label text="RANK" class="stat-name"/>
+                            <ui:Label name="statMultiplayerRank" class="stat-value"/>
                         </ui:VisualElement>
                         <ui:VisualElement class="stat-row">
-                            <ui:Label text="WON" class="stat-name" />
-                            <ui:Label name="statWins" class="stat-value" />
+                            <ui:Label text="WON" class="stat-name"/>
+                            <ui:Label name="statWins" class="stat-value"/>
                         </ui:VisualElement>
                         <ui:VisualElement class="stat-row">
-                            <ui:Label text="LOST" class="stat-name" />
-                            <ui:Label name="statLosses" class="stat-value" />
+                            <ui:Label text="LOST" class="stat-name"/>
+                            <ui:Label name="statLosses" class="stat-value"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
                     <ui:VisualElement class="stat-group">
-                        <ui:Label text="PERSONAL" class="stat-heading" />
+                        <ui:Label text="PERSONAL" class="stat-heading"/>
                         <ui:VisualElement class="stat-row">
-                            <ui:Label text="FAVORITE CAPTAIN" class="stat-name" />
-                            <ui:Label name="statFavoriteCaptain" class="stat-value" />
+                            <ui:Label text="FAVORITE CAPTAIN" class="stat-name"/>
+                            <ui:Label name="statFavoriteCaptain" class="stat-value"/>
                         </ui:VisualElement>
                         <ui:VisualElement class="stat-row">
-                            <ui:Label text="FAVORITE SQUARE" class="stat-name" />
-                            <ui:Label name="statFavoriteSquare" class="stat-value" />
+                            <ui:Label text="FAVORITE SQUARE" class="stat-name"/>
+                            <ui:Label name="statFavoriteSquare" class="stat-value"/>
                         </ui:VisualElement>
                         <ui:VisualElement class="stat-row">
-                            <ui:Label text="FAVORITE WEAPON" class="stat-name" />
-                            <ui:Label name="statFavoriteWeapon" class="stat-value" />
+                            <ui:Label text="FAVORITE WEAPON" class="stat-name"/>
+                            <ui:Label name="statFavoriteWeapon" class="stat-value"/>
                         </ui:VisualElement>
                         <ui:VisualElement class="stat-row">
-                            <ui:Label text="TIME PLAYED" class="stat-name" />
-                            <ui:Label name="statTimePlayed" class="stat-value" />
+                            <ui:Label text="TIME PLAYED" class="stat-name"/>
+                            <ui:Label name="statTimePlayed" class="stat-value"/>
                         </ui:VisualElement>
                         <ui:VisualElement class="stat-row">
-                            <ui:Label text="CAPTAINS" class="stat-name" />
-                            <ui:Label name="statCaptains" class="stat-value" />
+                            <ui:Label text="CAPTAINS" class="stat-name"/>
+                            <ui:Label name="statCaptains" class="stat-value"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>

@@ -28,7 +28,7 @@ public static class Changelog
 
                 if (body == null) {
                     // the newest goes in the bar, with its picture first in the list
-                    if (version != null) version.text = number;
+                    if (version != null) version.text = "PATCH NOTES " + number;
                     if (date != null) date.text = when;
                     if (image != null) {
                         var frame = new VisualElement();
