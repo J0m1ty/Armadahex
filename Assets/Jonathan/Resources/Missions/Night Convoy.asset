@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81f8d8decd83e1640ab8d4836656b87e, type: 3}
+  m_Name: Night Convoy
+  m_EditorClassIdentifier: Assembly-CSharp::Mission
+  id: night-convoy
+  number: 7
+  title: Night Convoy
+  description: Strike their supply line before sunrise.
+  row: 4
+  column: 0
+  unlocks:
+  - {fileID: 11400000, guid: 27e4101e1e4fbbe4e8b164eaa19bf308, type: 2}
+  - {fileID: 11400000, guid: 71108784c1221444587db74db397f433, type: 2}
+  difficulty: 1
+  advancedCombat: 0
+  salvo: 1
+  bonus: 0
+  unlimitedAmmo: 0
+  reward: {fileID: 0}

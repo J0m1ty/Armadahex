@@ -1,0 +1,149 @@
+/* campaign: the map climbs from the bottom on the left, the picked mission sits in a panel fixed to the right */
+.campaign-scroll {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 560px;
+    bottom: 0;
+}
+
+.campaign-scroll .unity-scroll-view__content-container {
+    align-items: stretch;
+}
+
+/* nudged right so the far left branch stays clear of the title */
+.campaign-map {
+    flex-shrink: 0;
+    margin-left: 80px;
+}
+
+.campaign-progress {
+    position: absolute;
+    left: 56px;
+    top: 184px;
+    margin: 0;
+    padding: 0;
+    color: rgb(120, 140, 165);
+    font-size: 16px;
+    letter-spacing: 4px;
+}
+
+/* a mission: its hex with the number inside, its name beside it */
+.mission-node {
+    flex-direction: row;
+    align-items: center;
+}
+
+.mission-hex {
+    align-items: center;
+    justify-content: center;
+}
+
+.mission-number {
+    margin: 0;
+    padding: 0;
+    color: var(--accent);
+    font-size: 24px;
+    letter-spacing: 1px;
+    -unity-font-style: bold;
+}
+
+.mission-node--cleared .mission-number {
+    color: var(--accent-ink);
+}
+
+.mission-lock {
+    width: 18px;
+    height: 24px;
+    color: rgb(90, 108, 130);
+}
+
+.mission-name {
+    margin: 0 0 0 20px;
+    padding: 0;
+    color: rgb(214, 226, 240);
+    font-size: 16px;
+    letter-spacing: 4px;
+    -unity-font-style: bold;
+    transition-duration: 0.15s;
+}
+
+.mission-node--locked .mission-name {
+    color: rgb(90, 108, 130);
+}
+
+.mission-node:hover .mission-name,
+.mission-node.lit .mission-name {
+    color: rgb(240, 246, 255);
+}
+
+/* the side panel: the mission up top, its battle and play at the bottom */
+.mission-side {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 560px;
+    padding: 128px 56px 72px 56px;
+    justify-content: space-between;
+    background-color: rgba(10, 16, 30, 0.94);
+    border-left-width: 2px;
+    border-color: rgba(200, 220, 255, 0.12);
+}
+
+.mission-side__head {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.mission-side__number {
+    margin: 0;
+    padding: 0;
+    color: rgb(120, 140, 165);
+    font-size: 16px;
+    letter-spacing: 8px;
+    -unity-font-style: bold;
+}
+
+.mission-side__state {
+    margin: 0;
+    padding: 0;
+    color: var(--accent);
+    font-size: 16px;
+    letter-spacing: 8px;
+    -unity-font-style: bold;
+}
+
+.mission-side__state.dim {
+    color: rgb(120, 140, 165);
+}
+
+.mission-side__name {
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 40px;
+    letter-spacing: 4px;
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.mission-side__description {
+    margin: 24px 0 0 0;
+    padding: 0;
+    color: rgb(170, 186, 206);
+    font-size: 21px;
+    white-space: normal;
+}
+
+.mission-side__bottom {
+    align-items: stretch;
+}
+
+.mission-play {
+    height: 72px;
+    margin-top: 32px;
+    font-size: 24px;
+    letter-spacing: 8px;
+}

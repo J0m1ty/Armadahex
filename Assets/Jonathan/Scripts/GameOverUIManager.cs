@@ -10,6 +10,9 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
     [MyBox.Scene]
     [SerializeField]
     private string menuScene;
+    // a campaign mission goes back to the map
+    [SerializeField]
+    private string campaignScene = "8 Campaign";
 
     [Header("UI References")]
     [SerializeField]
@@ -27,7 +30,7 @@ public class GameOverUIManager : MonoBehaviourPunCallbacks
     }
 
     public override void OnLeftRoom() {
-        PhotonNetwork.LoadLevel(menuScene);
+        PhotonNetwork.LoadLevel(Missions.returning != null ? campaignScene : menuScene);
     }
 
     public void Start() {

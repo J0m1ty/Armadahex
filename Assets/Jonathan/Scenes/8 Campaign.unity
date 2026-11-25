@@ -379,6 +379,7 @@ GameObject:
   - component: {fileID: 1017873364}
   - component: {fileID: 1017873363}
   - component: {fileID: 1017873361}
+  - component: {fileID: 1017873365}
   m_Layer: 0
   m_Name: UI
   m_TagString: Untagged
@@ -455,6 +456,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1017873365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1017873360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf8434f055e41ee4eb7963fd8aa6eb7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CampaignScreen
+  document: {fileID: 1017873363}
+  gameScene: 6 Game
 --- !u!114 &1026728002
 MonoBehaviour:
   m_ObjectHideFlags: 0

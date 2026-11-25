@@ -1,12 +1,44 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="Base.uss" />
     <ui:Style src="Theme.uss" />
+    <ui:Style src="Campaign.uss" />
     <ui:VisualElement class="screen">
         <Backdrop class="backdrop" />
+        <ui:ScrollView name="campaignScroll" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" class="campaign-scroll">
+            <CampaignMap name="campaignMap" class="campaign-map" />
+        </ui:ScrollView>
         <ui:Button name="done" class="back">
             <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip" />
             <ui:Label text="BACK" picking-mode="Ignore" class="back-text" />
         </ui:Button>
         <ui:Label text="CAMPAIGN" class="page-title" />
+        <ui:Label name="campaignProgress" class="campaign-progress" />
+        <ui:VisualElement class="mission-side">
+            <ui:VisualElement>
+                <ui:VisualElement class="mission-side__head">
+                    <ui:Label name="missionNumber" class="mission-side__number" />
+                    <ui:Label name="missionState" class="mission-side__state" />
+                </ui:VisualElement>
+                <ui:Label name="missionName" class="mission-side__name" />
+                <ui:Label name="missionDescription" class="mission-side__description" />
+            </ui:VisualElement>
+            <ui:VisualElement class="mission-side__bottom">
+                <ui:VisualElement class="stat-row">
+                    <ui:Label text="RULES" class="stat-name" />
+                    <ui:Label name="missionRules" class="stat-value" />
+                </ui:VisualElement>
+                <ui:VisualElement class="stat-row">
+                    <ui:Label text="OPPONENT" class="stat-name" />
+                    <ui:Label name="missionOpponent" class="stat-value" />
+                </ui:VisualElement>
+                <ui:VisualElement class="stat-row">
+                    <ui:Label text="REWARD" class="stat-name" />
+                    <ui:Label name="missionReward" class="stat-value" />
+                </ui:VisualElement>
+                <ui:Button name="missionPlay" text="PLAY" class="plate mission-play">
+                    <Brackets class="brackets" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

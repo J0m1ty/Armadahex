@@ -946,7 +946,7 @@ public class AttackUIManager : MonoBehaviour
     
     public void RandomBotAttack() {
         if (bot == null) {
-            bot = new BotAI(BotAI.SavedDifficulty, TurnManager.instance.playerTeam.teamBase.hexMap);
+            bot = new BotAI(BotAI.MatchDifficulty, TurnManager.instance.playerTeam.teamBase.hexMap);
         }
 
         Debug.Log("Bot attack (" + bot.difficulty + ")");

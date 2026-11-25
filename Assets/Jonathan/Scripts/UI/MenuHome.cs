@@ -43,7 +43,7 @@ public class MenuHome : MonoBehaviour
         }, TrickleDown.TrickleDown);
 
         var progress = root.Q<Label>("campaignProgress");
-        progress.text = Mathf.RoundToInt(PlayerPrefs.GetFloat(Constants.STAT_CAMPAIGN_PROGRESS, 0f) * 100) + "% COMPLETE";
+        progress.text = Mathf.RoundToInt(Missions.progress * 100) + "% COMPLETE";
 
         playing = root.Q<Label>("playing");
         InvokeRepeating(nameof(Refresh), 0f, refreshInterval);
@@ -99,7 +99,7 @@ public class MenuHome : MonoBehaviour
         root.Q<Label>("profileXp").text = xp.ToString("N0") + " XP";
     }
 
-    // the campaign has its own scene, empty for now
+    // the campaign map has its own scene
     public void Campaign() {
         PhotonNetwork.LoadLevel(campaignScene);
     }

@@ -22,6 +22,9 @@ public class BotAI {
 
     public static BotDifficulty SavedDifficulty => (BotDifficulty)PlayerPrefs.GetInt(Constants.BOT_DIFFICULTY_PREF_KEY, (int)BotDifficulty.Easy);
 
+    // a campaign mission brings its own bot, training uses the saved one
+    public static BotDifficulty MatchDifficulty => Missions.playing != null ? Missions.playing.difficulty : SavedDifficulty;
+
     public BotAI(BotDifficulty difficulty, HexGrid grid) {
         this.difficulty = difficulty;
         this.grid = grid;

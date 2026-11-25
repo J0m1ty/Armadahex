@@ -175,6 +175,8 @@ public class GameOver : MonoBehaviour
     public void OnWin(TeamType win, WinType winType) {
         TurnManager.instance.gameActive = false;
 
+        Missions.Finish(win == TurnManager.instance.playerTeam.teamType);
+
         Debug.Log("Game over");
 
         float accuracy;

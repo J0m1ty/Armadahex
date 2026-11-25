@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81f8d8decd83e1640ab8d4836656b87e, type: 3}
+  m_Name: First Light
+  m_EditorClassIdentifier: Assembly-CSharp::Mission
+  id: first-light
+  number: 1
+  title: First Light
+  description: A patrol fleet strays into your waters at dawn.
+  row: 0
+  column: 0
+  unlocks:
+  - {fileID: 11400000, guid: b7b33ef983e3ff04eaa9bd792f31f597, type: 2}
+  difficulty: 0
+  advancedCombat: 0
+  salvo: 0
+  bonus: 0
+  unlimitedAmmo: 0
+  reward: {fileID: 0}

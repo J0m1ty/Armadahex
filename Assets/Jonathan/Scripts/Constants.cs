@@ -29,6 +29,9 @@ public static class Constants
     public const string ENEMY_COLOR_PREF_KEY = "EnemyColor";
     public const string CAPTAIN_PREF_KEY = "Captain";
     public const string CAPTAIN_STATE_PREF_PREFIX = "CaptainState_";
+    public const string MISSION_STATE_PREF_PREFIX = "MissionState_";
+    // the mission a bot match is about to play, from the campaign to the game scene
+    public const string CAMPAIGN_MISSION_PREF_KEY = "CampaignMission";
     // stats, nothing records these yet; the progression page shows a dash for any that are missing
     public const string STAT_CAMPAIGN_PROGRESS = "StatCampaignProgress";
     public const string STAT_SINGLEPLAYER_GAMES = "StatSingleplayerGames";
