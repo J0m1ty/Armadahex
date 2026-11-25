@@ -204,11 +204,12 @@
     width: 22px;
     height: 22px;
     margin-left: 16px;
+    translate: 0 -2px;
     color: rgb(120, 140, 165);
     transition-duration: 0.15s;
 }
 
-.copy-icon:hover {
+.room-code:hover > .copy-icon {
     color: var(--accent);
 }
 

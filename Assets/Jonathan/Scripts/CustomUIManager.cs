@@ -82,9 +82,10 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
         turnTimeSlider = root.Q<SliderInt>("turnTime");
         turnTimeText = root.Q<Label>("turnTimeText");
         unlimitedAmmoRow = root.Q("unlimitedAmmoRow");
-        codeContainer = root.Q("codeContainer");
+        // the whole code is the copy button
+        codeContainer = root.Q("copy");
         codeText = root.Q<Label>("code");
-        copyIcon = root.Q<CopyIcon>("copy");
+        copyIcon = codeContainer.Q<CopyIcon>();
         joinCode = root.Q<TextField>("joinCode");
         codeSlots = root.Q("codeSlots");
         button = root.Q<Button>("create");
@@ -128,6 +129,10 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
     }
 
     void Start() {
+        // on the join tab any letter, number or backspace goes straight into the code, no click needed.
+        // with nothing focused keys go to the panel's own root, above the document
+        document.rootVisualElement.panel.visualTree.RegisterCallback<KeyDownEvent>(TypeIntoCode, TrickleDown.TrickleDown);
+
         presets = Playlists.All.Where(p => p.listed && !p.usesCode).ToList();
         var names = presets.Select(p => p.title.ToUpper()).ToList();
         names.Add("CUSTOM");
@@ -172,6 +177,27 @@ public class CustomUIManager : MonoBehaviourPunCallbacks {
         }
 
         UpdateButton();
+    }
+
+    private void TypeIntoCode(KeyDownEvent e) {
+        if (!joining || typing || stage != CustomsStage.Customizing) return;
+
+        var value = joinCode.value;
+        if (e.keyCode == KeyCode.Backspace) {
+            if (value.Length > 0) value = value.Substring(0, value.Length - 1);
+        }
+        else if (char.IsLetterOrDigit(e.character)) {
+            if (value.Length < 4) value += e.character;
+        }
+        else {
+            return;
+        }
+
+        joinCode.value = value;
+        joinCode.Focus();
+        // the caret after the code, not the code selected, so the next key adds to it
+        joinCode.schedule.Execute(() => joinCode.SelectRange(joinCode.value.Length, joinCode.value.Length));
+        e.StopPropagation();
     }
 
     // the typed code, a character to a slot; the next empty slot is lit while typing

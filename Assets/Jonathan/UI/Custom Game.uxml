@@ -19,41 +19,41 @@
                 <ui:VisualElement picking-mode="Ignore" class="panel-edge" />
                 <ui:VisualElement name="createPage">
                     <ui:VisualElement class="option-row">
-                        <ui:VisualElement class="option-label">
-                            <ui:Label text="CAPTAINS" class="option-name" />
-                            <InfoTip text="Each side plays with its captain&apos;s passive and special." />
-                        </ui:VisualElement>
-                        <Switch name="captains" />
-                    </ui:VisualElement>
-                    <ui:VisualElement class="option-row">
                         <ui:Label text="PRESET" class="option-name" />
                         <ListDropdown name="presets" class="preset-dropdown" />
                     </ui:VisualElement>
                     <ui:VisualElement class="option-row">
                         <ui:VisualElement class="option-label">
+                            <ui:Label text="CAPTAIN ABILITIES" class="option-name" />
+                            <InfoTip text="Each side plays with its captain&apos;s passive and special." />
+                        </ui:VisualElement>
+                        <Switch name="captains" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="option-row">
+                        <ui:VisualElement class="option-label">
                             <ui:Label text="ADVANCED ATTACKS" class="option-name" />
-                            <InfoTip text="Pick a ship to fire its own weapons and patterns." />
+                            <InfoTip text="Every ship gets its own powerful attacks." />
                         </ui:VisualElement>
                         <Switch name="advancedAttacks" />
                     </ui:VisualElement>
                     <ui:VisualElement name="unlimitedAmmoRow" class="option-row">
                         <ui:VisualElement class="option-label">
                             <ui:Label text="UNLIMITED AMMO" class="option-name" />
-                            <InfoTip text="Advanced weapons never run out." />
+                            <InfoTip text="Advanced attacks never run out of ammo." />
                         </ui:VisualElement>
                         <Switch name="unlimitedAmmo" />
                     </ui:VisualElement>
                     <ui:VisualElement class="option-row">
                         <ui:VisualElement class="option-label">
                             <ui:Label text="SALVO SHOTS" class="option-name" />
-                            <InfoTip text="One shot for each ship you have left." />
+                            <InfoTip text="Gain one shot for each ship you have left." />
                         </ui:VisualElement>
                         <Switch name="salvo" />
                     </ui:VisualElement>
                     <ui:VisualElement class="option-row">
                         <ui:VisualElement class="option-label">
                             <ui:Label text="BONUS SHOTS" class="option-name" />
-                            <InfoTip text="A hit earns another shot." />
+                            <InfoTip text="Every hit earns another shot." />
                         </ui:VisualElement>
                         <Switch name="bonus" />
                     </ui:VisualElement>
@@ -79,9 +79,9 @@
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement class="custom-footer">
-                <ui:VisualElement name="codeContainer" class="room-code invisible">
-                    <ui:Label name="code" class="room-code__value" />
-                    <CopyIcon name="copy" />
+                <ui:VisualElement name="copy" class="room-code invisible">
+                    <ui:Label name="code" picking-mode="Ignore" class="room-code__value" />
+                    <CopyIcon picking-mode="Ignore" />
                 </ui:VisualElement>
                 <ui:Button name="create" text="CREATE" class="action" />
             </ui:VisualElement>
