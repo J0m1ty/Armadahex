@@ -1,19 +1,45 @@
-/* training: the bot and the rules in one card, as tall as its rows, start under it */
-.training-body {
+/* training: the rules on the left and the bot on the right, the same height, start under them; the options look, wider */
+.training-column {
+    width: 1600px;
+}
+
+.training-cards {
+    flex-direction: row;
+    justify-content: space-between;
     margin-top: 32px;
+}
+
+.training-card {
+    width: 784px;
     padding: 32px 48px;
 }
 
-.training-body .option-row {
+.training-card .option-row {
     border-bottom-width: 0;
 }
 
-.training-body .preset-dropdown .color-dropdown__field {
-    width: 360px;
+/* the card's name over its rows */
+.card-heading {
+    margin: 0 0 8px 0;
+    padding: 0 0 16px 0;
+    border-bottom-width: 2px;
+    border-color: rgba(255, 255, 255, 0.08);
+    color: rgb(120, 140, 165);
+    font-size: 16px;
+    letter-spacing: 8px;
+    -unity-font-style: bold;
 }
 
-.training-body .option-slider {
-    width: 400px;
+.training-card .preset-dropdown .color-dropdown__field {
+    width: 320px;
+}
+
+.training-card .option-slider {
+    width: 320px;
+}
+
+.training-card .turn-time {
+    width: 136px;
 }
 
 .training-footer {

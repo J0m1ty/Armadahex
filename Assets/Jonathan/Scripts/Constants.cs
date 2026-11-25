@@ -18,6 +18,7 @@ public static class Constants
     public const string CUSTOMS_IS_UNLIMITED_PREF_KEY = "CustomsIsUnlimited";
     public const string CUSTOMS_TURN_TIME_LIMIT_KEY = "CustomsTurnTimeLimit";
     public const string CUSTOMS_ALLOW_CHAT_KEY = "CustomsAllowChat";
+    public const string CUSTOMS_NAME_KEY = "CustomsName";
     public const string DO_TUTORIAL_PREF_KEY = "DoTutorial";
     public const string BOT_DIFFICULTY_PREF_KEY = "BotDifficulty";
     public const string GAMES_PLAYED_PREF_KEY = "GamesPlayed";

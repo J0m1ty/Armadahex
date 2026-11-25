@@ -163,46 +163,53 @@
                 <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip"/>
                 <ui:Label text="BACK" picking-mode="Ignore" class="back-text"/>
             </ui:Button>
-            <ui:VisualElement class="options-column">
+            <ui:VisualElement class="options-column training-column">
                 <ui:Label text="TRAINING" class="options-title"/>
-                <ui:VisualElement class="training-body panel">
-                    <ui:VisualElement picking-mode="Ignore" class="panel-edge"/>
-                    <ui:VisualElement class="option-row">
-                        <ui:Label text="DIFFICULTY" class="option-name"/>
-                        <ui:SliderInt name="trainingDifficulty" low-value="0" high-value="2" fill="true" class="option-slider"/>
-                        <ui:Label name="trainingDifficultyText" text="" class="turn-time"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="option-row">
-                        <ui:Label text="PRESET" class="option-name"/>
-                        <ListDropdown name="trainingPresets" class="preset-dropdown"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="option-row">
-                        <ui:VisualElement class="option-label">
-                            <ui:Label text="ADVANCED ATTACKS" class="option-name"/>
-                            <InfoTip text="Every ship gets its own powerful attacks."/>
+                <ui:VisualElement class="training-cards">
+                    <ui:VisualElement class="training-card panel">
+                        <ui:VisualElement picking-mode="Ignore" class="panel-edge"/>
+                        <ui:Label text="RULES" class="card-heading"/>
+                        <ui:VisualElement class="option-row">
+                            <ui:Label text="PRESET" class="option-name"/>
+                            <ListDropdown name="trainingPresets" class="preset-dropdown"/>
                         </ui:VisualElement>
-                        <Switch name="trainingAdvanced"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement name="trainingUnlimitedRow" class="option-row">
-                        <ui:VisualElement class="option-label">
-                            <ui:Label text="UNLIMITED AMMO" class="option-name"/>
-                            <InfoTip text="Advanced attacks never run out of ammo."/>
+                        <ui:VisualElement class="option-row">
+                            <ui:VisualElement class="option-label">
+                                <ui:Label text="ADVANCED ATTACKS" class="option-name"/>
+                                <InfoTip text="Every ship gets its own powerful attacks."/>
+                            </ui:VisualElement>
+                            <Switch name="trainingAdvanced"/>
                         </ui:VisualElement>
-                        <Switch name="trainingUnlimited"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="option-row">
-                        <ui:VisualElement class="option-label">
-                            <ui:Label text="SALVO SHOTS" class="option-name"/>
-                            <InfoTip text="Gain one shot for each ship you have left."/>
+                        <ui:VisualElement name="trainingUnlimitedRow" class="option-row">
+                            <ui:VisualElement class="option-label">
+                                <ui:Label text="UNLIMITED AMMO" class="option-name"/>
+                                <InfoTip text="Advanced attacks never run out of ammo."/>
+                            </ui:VisualElement>
+                            <Switch name="trainingUnlimited"/>
                         </ui:VisualElement>
-                        <Switch name="trainingSalvo"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="option-row">
-                        <ui:VisualElement class="option-label">
-                            <ui:Label text="BONUS SHOTS" class="option-name"/>
-                            <InfoTip text="Every hit earns another shot."/>
+                        <ui:VisualElement class="option-row">
+                            <ui:VisualElement class="option-label">
+                                <ui:Label text="SALVO SHOTS" class="option-name"/>
+                                <InfoTip text="Gain one shot for each ship you have left."/>
+                            </ui:VisualElement>
+                            <Switch name="trainingSalvo"/>
                         </ui:VisualElement>
-                        <Switch name="trainingBonus"/>
+                        <ui:VisualElement class="option-row">
+                            <ui:VisualElement class="option-label">
+                                <ui:Label text="BONUS SHOTS" class="option-name"/>
+                                <InfoTip text="Every hit earns another shot."/>
+                            </ui:VisualElement>
+                            <Switch name="trainingBonus"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="training-card panel">
+                        <ui:VisualElement picking-mode="Ignore" class="panel-edge"/>
+                        <ui:Label text="BOT" class="card-heading"/>
+                        <ui:VisualElement class="option-row">
+                            <ui:Label text="DIFFICULTY" class="option-name"/>
+                            <ui:SliderInt name="trainingDifficulty" low-value="0" high-value="2" fill="true" class="option-slider"/>
+                            <ui:Label name="trainingDifficultyText" text="" class="turn-time"/>
+                        </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:VisualElement class="training-footer">

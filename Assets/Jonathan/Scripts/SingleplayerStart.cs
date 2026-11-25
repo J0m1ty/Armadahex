@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
-// the training page: pick the bot and the rules (a playlist's or your own), then start a match against it.
+// the training page: pick the rules (a playlist's or your own) and the bot, then start a match against it.
 // bots play on their own schedule, so there's no turn time
 public class SingleplayerStart : MonoBehaviour
 {
@@ -126,6 +126,12 @@ public class SingleplayerStart : MonoBehaviour
 
         // a bot match always plays the custom rules, set to the ones picked here; no turn time or chat with a bot
         GameModeInfo.SetCustomPrefs(true, isAdvancedAttacks.value, isSalvo.value, isBonus.value, isAdvancedAttacks.value && isUnlimitedAmmo.value, 0f, false);
+        if (preset != null) {
+            PlayerPrefs.SetString(Constants.CUSTOMS_NAME_KEY, preset.title);
+        }
+        else {
+            PlayerPrefs.DeleteKey(Constants.CUSTOMS_NAME_KEY);
+        }
 
         SceneManager.LoadScene(gameScene.SceneName);
     }

@@ -92,6 +92,9 @@ public class GameModeInfo : MonoBehaviour {
             custom.allowChat = PlayerPrefs.GetInt(Constants.CUSTOMS_ALLOW_CHAT_KEY) == 1;
         }
 
+        // a bot match played by a playlist's rules goes by that playlist's name
+        custom.name = PlayerPrefs.GetString(Constants.CUSTOMS_NAME_KEY, Playlists.Find(Playlists.Custom).title);
+
         PlayerPrefs.DeleteKey(Constants.CUSTOMS_IS_SINGLEPLAYER_PREF_KEY);
         PlayerPrefs.DeleteKey(Constants.CUSTOMS_IS_ADVANCED_COMBAT_PREF_KEY);
         PlayerPrefs.DeleteKey(Constants.CUSTOMS_IS_SALVO_PREF_KEY);
@@ -99,6 +102,7 @@ public class GameModeInfo : MonoBehaviour {
         PlayerPrefs.DeleteKey(Constants.CUSTOMS_IS_UNLIMITED_PREF_KEY);
         PlayerPrefs.DeleteKey(Constants.CUSTOMS_TURN_TIME_LIMIT_KEY);
         PlayerPrefs.DeleteKey(Constants.CUSTOMS_ALLOW_CHAT_KEY);
+        PlayerPrefs.DeleteKey(Constants.CUSTOMS_NAME_KEY);
     }
 
     public void SetCustom(bool isSingleplayer, bool isAdvancedCombat, bool isSalvo, bool isBonus, bool isUnlimitedAmmo, float turnTimeLimit, bool allowChat) {
