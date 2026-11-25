@@ -80,6 +80,11 @@ public class LODMeshGenerator : MonoBehaviour
 
     [Header("Saved Mesh")]
     public Mesh savedMesh;
+
+    // the mesh baked ahead of time (Bake Mesh in the component's menu), so a match doesn't spend seconds building it;
+    // one for the desktop detail and one for webgl's. a bake from other settings is ignored and the mesh is built
+    public TextAsset baked;
+    public TextAsset bakedWebGL;
     
     [Header("Mesh Settings")]
     public Material material;
@@ -95,7 +100,10 @@ public class LODMeshGenerator : MonoBehaviour
     // webgl builds and draws the mesh slower, so pull the fine detail in closer there
     public float webglDetailRange = 0.75f;
 
-    public float detailRange => Application.platform == RuntimePlatform.WebGLPlayer ? webglDetailRange : 1f;
+    public float detailRange => bakingRange ?? (Application.platform == RuntimePlatform.WebGLPlayer ? webglDetailRange : 1f);
+
+    // set while baking the other platform's mesh
+    private float? bakingRange;
 
     [Header("Follow Settings")]
     public bool followCamera = true;
@@ -105,7 +113,19 @@ public class LODMeshGenerator : MonoBehaviour
     public int snapSize = 64;
     public float maxFocusDistance = 600f;
 
-    private Dictionary<Vector3, int> vertexIndices;
+    // vertices by their position, as whole half units packed into one number (hashing a Vector3 was most of the build time)
+    private Dictionary<long, int> vertexIndices;
+
+    // the mesh only depends on the settings, so it's built once and kept for every match after
+    private static Mesh built;
+    private static string builtFor;
+    private string settings {
+        get {
+            var keys = "";
+            foreach (var key in step.alphaKeys) keys += " " + key.time + ":" + key.alpha;
+            return exp + " " + max + " " + min + " " + scale + " " + uvType + " " + worldPerTile + " " + detailRange + keys;
+        }
+    }
 
     private void Awake() {
         meshFilter = GetComponent<MeshFilter>();
@@ -118,18 +138,25 @@ public class LODMeshGenerator : MonoBehaviour
             return;
         }
 
-        mesh = new Mesh();
-        mesh.name = "LOD Mesh";
-
-        meshFilter.mesh = mesh;
-        
         meshRenderer.material = material;
     }
 
     private void OnEnable() {
         if (savedMesh) return;
-        
-        GenerateCells();
+
+        if (built == null || builtFor != settings) {
+            mesh = new Mesh();
+            mesh.name = "LOD Mesh";
+            mesh.hideFlags = HideFlags.DontUnloadUnusedAsset;
+            if (!Load(Application.platform == RuntimePlatform.WebGLPlayer ? bakedWebGL : baked)) {
+                GenerateCells();
+            }
+            built = mesh;
+            builtFor = settings;
+        }
+
+        mesh = built;
+        meshFilter.sharedMesh = mesh;
     }
 
     private void LateUpdate() {
@@ -153,8 +180,12 @@ public class LODMeshGenerator : MonoBehaviour
         transform.position = new Vector3(x - gridSize / 2, transform.position.y, z - gridSize / 2);
     }
 
+    private static long Key(Vector3 vertex) {
+        return ((long)Mathf.RoundToInt(vertex.x * 2) << 32) | (uint)Mathf.RoundToInt(vertex.z * 2);
+    }
+
     private int FindVertex(Vector3 vertex) {
-        return vertexIndices.TryGetValue(vertex, out var index) ? index : -1;
+        return vertexIndices.TryGetValue(Key(vertex), out var index) ? index : -1;
     }
 
     private void GenerateCells() {
@@ -162,21 +193,22 @@ public class LODMeshGenerator : MonoBehaviour
         
         var rootCell = new Cell(Vector2Int.zero, 1, 1 << exp, null, null);
 
-        List<Vector3> vertices = new List<Vector3>();
-        List<int> triangles = new List<int>();
-        List<Vector2> uvs = new List<Vector2>();
+        var cells = rootCell.Collect().ToArray();
 
-        vertexIndices = new Dictionary<Vector3, int>();
+        List<Vector3> vertices = new List<Vector3>(cells.Length * 3);
+        List<int> triangles = new List<int>(cells.Length * 15);
+        List<Vector2> uvs = new List<Vector2>(cells.Length * 3);
+
+        vertexIndices = new Dictionary<long, int>(cells.Length * 3);
 
         void AddVertex(Vector3 vertex, Vector2 uv) {
-            if (vertexIndices.ContainsKey(vertex)) return;
+            var key = Key(vertex);
+            if (vertexIndices.ContainsKey(key)) return;
 
-            vertexIndices[vertex] = vertices.Count;
+            vertexIndices[key] = vertices.Count;
             vertices.Add(vertex);
             uvs.Add(uv);
         }
-
-        var cells = rootCell.Collect().ToArray();
 
         // Generate vertices
         for (var i = 0; i < cells.Length; i++) {
@@ -338,14 +370,94 @@ public class LODMeshGenerator : MonoBehaviour
         mesh.Clear();
         mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
 
-        Debug.Log(vertices.Count + " " + uvs.Count);
-
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
         mesh.uv = uvs.ToArray();
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
+        vertexIndices = null;
     }
+
+    // a bake: the settings it was made with, then each vertex as two whole half units, then the triangles
+    private byte[] Save() {
+        using (var stream = new System.IO.MemoryStream())
+        using (var writer = new System.IO.BinaryWriter(stream)) {
+            var vertices = mesh.vertices;
+            var triangles = mesh.triangles;
+            writer.Write(settings);
+            writer.Write(vertices.Length);
+            writer.Write(triangles.Length);
+            foreach (var vertex in vertices) {
+                writer.Write((ushort)Mathf.RoundToInt(vertex.x * 2));
+                writer.Write((ushort)Mathf.RoundToInt(vertex.z * 2));
+            }
+            foreach (var index in triangles) writer.Write(index);
+            return stream.ToArray();
+        }
+    }
+
+    private bool Load(TextAsset bake) {
+        if (bake == null) return false;
+
+        using (var reader = new System.IO.BinaryReader(new System.IO.MemoryStream(bake.bytes))) {
+            if (reader.ReadString() != settings) {
+                Debug.LogWarning("The baked water mesh is from other settings, building it instead. Bake it again from the Water's menu.");
+                return false;
+            }
+
+            var vertexCount = reader.ReadInt32();
+            var indexCount = reader.ReadInt32();
+            var gridSize = 1 << exp;
+            var toSize = uvType == 0 ? gridSize / worldPerTile : 1;
+            var uvScale = toSize / gridSize;
+
+            var vertices = new Vector3[vertexCount];
+            var uvs = new Vector2[vertexCount];
+            var normals = new Vector3[vertexCount];
+            for (var i = 0; i < vertexCount; i++) {
+                var x = reader.ReadUInt16() / 2f;
+                var z = reader.ReadUInt16() / 2f;
+                vertices[i] = new Vector3(x, 0, z);
+                uvs[i] = new Vector2(x * uvScale, z * uvScale);
+                // the triangles wind clockwise from below, so built normals point down; the water shader expects that
+                normals[i] = Vector3.down;
+            }
+
+            var triangles = new int[indexCount];
+            for (var i = 0; i < indexCount; i++) triangles[i] = reader.ReadInt32();
+
+            mesh.Clear();
+            mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+            mesh.vertices = vertices;
+            mesh.triangles = triangles;
+            mesh.uv = uvs;
+            mesh.normals = normals;
+            mesh.RecalculateBounds();
+        }
+        return true;
+    }
+
+#if UNITY_EDITOR
+    [ContextMenu("Bake Mesh")]
+    private void BakeMesh() {
+        var keep = mesh;
+        baked = Bake(1f, "Water Mesh");
+        bakedWebGL = Bake(webglDetailRange, "Water Mesh WebGL");
+        mesh = keep;
+        UnityEditor.EditorUtility.SetDirty(this);
+    }
+
+    private TextAsset Bake(float range, string name) {
+        bakingRange = range;
+        mesh = new Mesh();
+        GenerateCells();
+        var path = "Assets/Jonathan/Models/" + name + ".bytes";
+        System.IO.File.WriteAllBytes(path, Save());
+        bakingRange = null;
+        UnityEditor.AssetDatabase.ImportAsset(path);
+        return UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(path);
+    }
+#endif
 
     public static float Map(float value, float from1, float to1, float from2, float to2) {
         return (value - from1) / (to1 - from1) * (to2 - from2) + from2;

@@ -197,11 +197,16 @@ public class CloudFog : MonoBehaviour
         return new Vector2Int(rq, rr);
     }
 
-    // tiling 3d noise, built once and shared by every board
-    // r = perlin-worley billows, g = worley detail, b = value noise for warping edges
+    // tiling 3d noise, baked into Resources/Cloud Noise (it takes seconds to build) and shared by every board
     private static Texture3D GetNoise() {
         if (noise != null) return noise;
+        noise = Resources.Load<Texture3D>("Cloud Noise");
+        if (noise == null) noise = BuildNoise(false);
+        return noise;
+    }
 
+    // r = perlin-worley billows, g = worley detail, b = value noise for warping edges
+    public static Texture3D BuildNoise(bool readable) {
         const int n = 48;
         var colors = new Color32[n * n * n];
         for (int z = 0; z < n; z++) {
@@ -222,13 +227,13 @@ public class CloudFog : MonoBehaviour
             }
         }
 
-        noise = new Texture3D(n, n, n, TextureFormat.RGBA32, false);
-        noise.name = "Cloud Noise";
-        noise.wrapMode = TextureWrapMode.Repeat;
-        noise.filterMode = FilterMode.Bilinear;
-        noise.SetPixels32(colors);
-        noise.Apply(false, true);
-        return noise;
+        var texture = new Texture3D(n, n, n, TextureFormat.RGBA32, false);
+        texture.name = "Cloud Noise";
+        texture.wrapMode = TextureWrapMode.Repeat;
+        texture.filterMode = FilterMode.Bilinear;
+        texture.SetPixels32(colors);
+        texture.Apply(false, !readable);
+        return texture;
     }
 
     private static float Hash(int x, int y, int z, int seed) {

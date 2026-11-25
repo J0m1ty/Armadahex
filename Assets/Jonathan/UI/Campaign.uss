@@ -170,13 +170,6 @@
     color: rgb(90, 108, 130);
 }
 
-.chapter-name__lock {
-    width: 15px;
-    height: 20px;
-    margin-left: 8px;
-    color: rgb(90, 108, 130);
-}
-
 /* the map's scrollbar: a thin track down the right edge, the thumb in the accent */
 .campaign-scroll .unity-scroller--vertical {
     width: 6px;

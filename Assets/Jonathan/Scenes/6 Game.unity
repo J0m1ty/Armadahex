@@ -224,6 +224,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   savedMesh: {fileID: 0}
+  baked: {fileID: 4900000, guid: 2b394414533ed53499c09bdcf264483b, type: 3}
+  bakedWebGL: {fileID: 4900000, guid: b713d79b5ce4e924b8795b474b0a4586, type: 3}
   material: {fileID: 2100000, guid: cd54040c814b37147bede3b90b8fdcd2, type: 2}
   step:
     serializedVersion: 2

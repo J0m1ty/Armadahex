@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-// the campaign as a graph that climbs from the bottom: each chapter's number on a line across the map (locked ones with a lock), its missions
+// the campaign as a graph that climbs from the bottom: each chapter's number on a line across the map, its missions
 // above it, a hex per mission and a line to each mission it opens up in the same chapter.
 // lines between cleared missions are solid, a line to the next available one is dashed, the rest are faint
 [UxmlElement]
@@ -98,9 +98,6 @@ public partial class CampaignMap : VisualElement
             var number = new Label("CHAPTER " + chapter.number);
             number.AddToClassList("chapter-name__number");
             name.Add(number);
-            var lockIcon = new LockIcon();
-            lockIcon.AddToClassList("chapter-name__lock");
-            name.Add(lockIcon);
             name.style.top = height - lineHeights[chapter];
             name.RegisterCallback<GeometryChangedEvent>(_ => MarkDirtyRepaint());
             chapterNames[chapter] = name;
@@ -114,9 +111,7 @@ public partial class CampaignMap : VisualElement
             pair.Value.Show(Missions.State(pair.Key), pair.Key == selected);
         }
         foreach (var pair in chapterNames) {
-            var open = Missions.IsOpen(pair.Key);
-            pair.Value.EnableInClassList("chapter-name--locked", !open);
-            UIKit.Show(pair.Value.Q<LockIcon>(), !open);
+            pair.Value.EnableInClassList("chapter-name--locked", !Missions.IsOpen(pair.Key));
         }
         MarkDirtyRepaint();
     }
