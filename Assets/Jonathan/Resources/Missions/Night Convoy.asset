@@ -16,6 +16,7 @@ MonoBehaviour:
   number: 7
   title: Night Convoy
   description: Strike their supply line before sunrise.
+  chapter: {fileID: 11400000, guid: 1771c639c811d37478fc3de01bdb9d20, type: 2}
   row: 4
   column: 0
   unlocks:

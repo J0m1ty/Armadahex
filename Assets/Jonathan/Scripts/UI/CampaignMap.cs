@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-// the campaign as a graph that climbs from the bottom: a hex per mission and a line to each mission it opens up.
+// the campaign as a graph that climbs from the bottom: each chapter's name on a line across the map, its missions
+// above it, a hex per mission and a line to each mission it opens up in the same chapter.
 // lines between cleared missions are solid, a line to the next available one is dashed, the rest are faint
 [UxmlElement]
 public partial class CampaignMap : VisualElement
@@ -17,22 +19,31 @@ public partial class CampaignMap : VisualElement
     [UxmlAttribute]
     public float columnWidth { get; set; } = 300;
 
-    // space above the top row and under the bottom one
+    // space above the top row and under the first chapter's line
     [UxmlAttribute]
     public float padding { get; set; } = 120;
+
+    // from a chapter's line to its first row, and from its top row to the next chapter's line
+    [UxmlAttribute]
+    public float chapterGap { get; set; } = 120;
 
     [UxmlAttribute]
     public float hexSize { get; set; } = 96;
 
     // lines go up, across and up again; off, they run straight from hex to hex
     [UxmlAttribute]
-    public bool stepped { get; set; } = true;
+    public bool stepped { get; set; }
 
     public event Action<Mission> picked;
 
     private readonly Dictionary<Mission, MissionNode> nodes = new Dictionary<Mission, MissionNode>();
     private Color accent = Color.white;
-    private int rows;
+    // distances up from the bottom: each chapter's line and first row
+    private readonly Dictionary<Chapter, float> lineHeights = new Dictionary<Chapter, float>();
+    private readonly Dictionary<Chapter, float> rowHeights = new Dictionary<Chapter, float>();
+    private readonly Dictionary<Chapter, VisualElement> chapterNames = new Dictionary<Chapter, VisualElement>();
+    private readonly List<Chapter> chapters = new List<Chapter>();
+    private float height;
 
     public CampaignMap() {
         generateVisualContent += Draw;
@@ -45,9 +56,7 @@ public partial class CampaignMap : VisualElement
         Clear();
         nodes.Clear();
 
-        rows = 0;
-        foreach (var mission in missions) rows = Mathf.Max(rows, mission.row + 1);
-        style.height = padding * 2 + Mathf.Max(0, rows - 1) * rowHeight;
+        Layout(missions);
 
         foreach (var mission in missions) {
             var node = new MissionNode(mission, hexSize);
@@ -62,10 +71,50 @@ public partial class CampaignMap : VisualElement
         Refresh();
     }
 
+    // stacks the chapters from the bottom, each as tall as its rows, and names each one on its line
+    private void Layout(IReadOnlyList<Mission> missions) {
+        lineHeights.Clear();
+        rowHeights.Clear();
+        chapterNames.Clear();
+        chapters.Clear();
+
+        var up = padding;
+        foreach (var group in missions.GroupBy(m => m.chapter).OrderBy(g => g.Key != null ? g.Key.number : 0)) {
+            var chapter = group.Key;
+            if (chapter == null) continue;
+            chapters.Add(chapter);
+            lineHeights[chapter] = up;
+            up += chapterGap;
+            rowHeights[chapter] = up;
+            up += group.Max(m => m.row) * rowHeight + chapterGap;
+        }
+        height = up - chapterGap + padding;
+        style.height = height;
+
+        foreach (var chapter in chapters) {
+            var name = new VisualElement();
+            name.AddToClassList("chapter-name");
+            name.pickingMode = PickingMode.Ignore;
+            var number = new Label("CHAPTER " + chapter.number);
+            number.AddToClassList("chapter-name__number");
+            name.Add(number);
+            var title = new Label(chapter.title.ToUpper());
+            title.AddToClassList("chapter-name__title");
+            name.Add(title);
+            name.style.top = height - lineHeights[chapter];
+            name.RegisterCallback<GeometryChangedEvent>(_ => MarkDirtyRepaint());
+            chapterNames[chapter] = name;
+            Add(name);
+        }
+    }
+
     // states change after a win, and the picked one is outlined
     public void Refresh(Mission selected = null) {
         foreach (var pair in nodes) {
             pair.Value.Show(Missions.State(pair.Key), pair.Key == selected);
+        }
+        foreach (var pair in chapterNames) {
+            pair.Value.EnableInClassList("chapter-name--locked", !Missions.IsOpen(pair.Key));
         }
         MarkDirtyRepaint();
     }
@@ -76,19 +125,29 @@ public partial class CampaignMap : VisualElement
 
     // x from the middle of the map, y from the top
     private Vector2 Center(Mission mission) {
-        var height = padding * 2 + Mathf.Max(0, rows - 1) * rowHeight;
-        return new Vector2(mission.column * columnWidth, height - padding - mission.row * rowHeight);
+        var first = mission.chapter != null && rowHeights.TryGetValue(mission.chapter, out var up) ? up : padding;
+        return new Vector2(mission.column * columnWidth, height - first - mission.row * rowHeight);
     }
 
     private void Draw(MeshGenerationContext context) {
         var painter = context.painter2D;
         var middle = contentRect.width / 2;
 
+        // each chapter's line, broken around its name
+        foreach (var pair in chapterNames) {
+            var y = height - lineHeights[pair.Key];
+            var half = pair.Value.resolvedStyle.width / 2 + 24;
+            var color = Missions.IsOpen(pair.Key) ? new Color(accent.r, accent.g, accent.b, 0.35f) : faint;
+            Stroke(painter, new List<Vector2> { new Vector2(0, y), new Vector2(middle - half, y) }, color, 2, 0);
+            Stroke(painter, new List<Vector2> { new Vector2(middle + half, y), new Vector2(contentRect.width, y) }, color, 2, 0);
+        }
+
         foreach (var pair in nodes) {
             var from = pair.Key;
             var fromState = Missions.State(from);
             foreach (var to in from.unlocks) {
-                if (to == null || !nodes.ContainsKey(to)) continue;
+                // a chapter's line is what leads into it, so lines stay inside their chapter
+                if (to == null || !nodes.ContainsKey(to) || to.chapter != from.chapter) continue;
                 var toState = Missions.State(to);
 
                 var a = Center(from) + new Vector2(middle, 0);

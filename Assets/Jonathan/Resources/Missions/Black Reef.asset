@@ -16,6 +16,7 @@ MonoBehaviour:
   number: 11
   title: Black Reef
   description: A wreck field off the charts.
+  chapter: {fileID: 11400000, guid: 1771c639c811d37478fc3de01bdb9d20, type: 2}
   row: 4
   column: -1.2
   unlocks: []

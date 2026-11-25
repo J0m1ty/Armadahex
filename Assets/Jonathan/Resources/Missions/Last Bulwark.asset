@@ -16,6 +16,7 @@ MonoBehaviour:
   number: 9
   title: Last Bulwark
   description: Break the wall that guards their home port.
+  chapter: {fileID: 11400000, guid: 1771c639c811d37478fc3de01bdb9d20, type: 2}
   row: 5
   column: 0.8
   unlocks:

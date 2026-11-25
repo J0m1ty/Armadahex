@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-// locked until a mission before it is cleared, then available until the player wins it
+// locked until a mission before it is cleared (and every mission in the chapters before), then available until the player wins it
 public enum MissionState {
     Locked,
     Available,
@@ -21,7 +21,8 @@ public class Mission : ScriptableObject
     public string description;
 
     [Header("Map")]
-    // 0 is the bottom row, the map climbs from there
+    public Chapter chapter;
+    // 0 is the chapter's bottom row, the chapter climbs from there
     public int row;
     // in columns from the middle, -1 one to the left, 1 one to the right
     public float column;
@@ -68,9 +69,17 @@ public static class Missions
     public static MissionState State(Mission mission) {
         if (IsCleared(mission)) return MissionState.Cleared;
 
+        if (!IsOpen(mission.chapter)) return MissionState.Locked;
+
         var before = All.Where(m => m.unlocks.Contains(mission)).ToList();
         if (before.Count == 0 || before.Any(IsCleared)) return MissionState.Available;
         return MissionState.Locked;
+    }
+
+    // a chapter opens once every mission in the chapters before it is cleared
+    public static bool IsOpen(Chapter chapter) {
+        if (chapter == null) return true;
+        return All.Where(m => m.chapter != null && m.chapter.number < chapter.number).All(IsCleared);
     }
 
     private static bool IsCleared(Mission mission) {

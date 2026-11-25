@@ -16,6 +16,7 @@ MonoBehaviour:
   number: 4
   title: Harbor Watch
   description: Your first fleet with its full arsenal.
+  chapter: {fileID: 11400000, guid: 1771c639c811d37478fc3de01bdb9d20, type: 2}
   row: 2
   column: 0.8
   unlocks:

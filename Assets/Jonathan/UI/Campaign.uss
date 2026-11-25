@@ -147,3 +147,34 @@
     font-size: 24px;
     letter-spacing: 8px;
 }
+
+/* a chapter's name, centred on its line across the map */
+.chapter-name {
+    position: absolute;
+    left: 50%;
+    translate: -50% -50%;
+    flex-direction: row;
+    align-items: center;
+}
+
+.chapter-name__number {
+    margin: 0 16px 0 0;
+    padding: 0;
+    color: rgb(120, 140, 165);
+    font-size: 16px;
+    letter-spacing: 6px;
+    -unity-font-style: bold;
+}
+
+.chapter-name__title {
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 22px;
+    letter-spacing: 6px;
+    -unity-font-style: bold;
+}
+
+.chapter-name--locked .chapter-name__title {
+    color: rgb(90, 108, 130);
+}

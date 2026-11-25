@@ -16,6 +16,7 @@ MonoBehaviour:
   number: 10
   title: Red Tide
   description: Their admiral sails out to meet you.
+  chapter: {fileID: 11400000, guid: 1771c639c811d37478fc3de01bdb9d20, type: 2}
   row: 6
   column: 0
   unlocks: []

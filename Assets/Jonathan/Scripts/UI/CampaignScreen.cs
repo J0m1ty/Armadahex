@@ -34,12 +34,15 @@ public class CampaignScreen : MonoBehaviour
         if (start != null) Select(start);
 
         // the map starts at the bottom once it has a size, then makes sure the picked mission is in view
+        // (a frame later, once the scroll view has caught up with the map's height)
         map.RegisterCallback<GeometryChangedEvent>(_ => {
-            if (scrolled || scroll.verticalScroller.highValue <= 0) return;
+            if (scrolled) return;
             scrolled = true;
-            scroll.scrollOffset = new Vector2(0, scroll.verticalScroller.highValue);
-            var node = map.NodeOf(selected);
-            if (node != null) scroll.schedule.Execute(() => scroll.ScrollTo(node));
+            scroll.schedule.Execute(() => {
+                scroll.scrollOffset = new Vector2(0, map.layout.height - scroll.contentViewport.layout.height);
+                var node = map.NodeOf(selected);
+                if (node != null) scroll.ScrollTo(node);
+            });
         });
     }
 
@@ -62,7 +65,7 @@ public class CampaignScreen : MonoBehaviour
         root.Q<Label>("missionDescription").text = mission.description;
         root.Q<Label>("missionRules").text = Rules(mission);
         root.Q<Label>("missionOpponent").text = mission.difficulty.ToString().ToUpper() + " BOT";
-        root.Q<Label>("missionReward").text = mission.reward != null ? mission.reward.captainName.ToUpper() : "-";
+        root.Q<Label>("missionReward").text = mission.reward != null ? "UNLOCKS " + mission.reward.captainName.ToUpper() : "-";
 
         play.SetEnabled(state != MissionState.Locked);
         play.text = state == MissionState.Cleared ? "PLAY AGAIN" : "PLAY";

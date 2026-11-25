@@ -16,6 +16,7 @@ MonoBehaviour:
   number: 5
   title: Cold Front
   description: A storm hides a second fleet.
+  chapter: {fileID: 11400000, guid: 1771c639c811d37478fc3de01bdb9d20, type: 2}
   row: 3
   column: -1
   unlocks:

@@ -16,6 +16,7 @@ MonoBehaviour:
   number: 2
   title: Breakwater
   description: Hold the harbor mouth against a probing raid.
+  chapter: {fileID: 11400000, guid: 1771c639c811d37478fc3de01bdb9d20, type: 2}
   row: 1
   column: 0
   unlocks:
