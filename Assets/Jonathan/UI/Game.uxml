@@ -1,127 +1,80 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <ui:Style src="Base.uss" />
+    <ui:Style src="Theme.uss" />
     <ui:Style src="Game.uss" />
-    <ui:VisualElement name="screen" class="fill" picking-mode="Ignore">
-
-        <ui:VisualElement name="pregame" class="fill pregame">
-            <ui:VisualElement class="row">
-                <ui:VisualElement class="box">
-                    <ui:Label text="Your fleet" />
-                    <ui:Label name="friendlyName" text="PLAYER" class="h2" />
-                    <ui:Label name="friendlyGames" text="0 GAMES PLAYED" />
-                </ui:VisualElement>
-                <ui:Label text="VS" class="h2 box" />
-                <ui:VisualElement class="box">
-                    <ui:Label text="Opponent" />
-                    <ui:Label name="enemyName" text="PLAYER" class="h2" />
-                    <ui:Label name="enemyGames" text="0 GAMES PLAYED" />
-                </ui:VisualElement>
-            </ui:VisualElement>
-            <ui:VisualElement class="row box">
-                <ui:Label name="connectionType" text="SINGLEPLAYER" />
-                <ui:Label name="gameType" text="CUSTOMS" />
-                <ui:Label name="advancedAttacks" text="ADVANCED ATTACKS" />
-                <ui:Label name="timePerTurn" text="NO TURN LIMIT" />
-                <ui:Label name="firstPlayer" text="YOU GO FIRST" />
-            </ui:VisualElement>
-            <ui:VisualElement class="box">
-                <ui:Label text="How to play" class="h2" />
-                <ui:Label text="[CLICK] Aim, then lock a hex" />
-                <KeyLabel action="Gameplay/Choice 1" format="[{0}] Pick a ship (1-5)" />
-                <KeyLabel action="Gameplay/Fire" format="[{0}] Fire" />
-                <KeyLabel action="Gameplay/Cancel" format="[{0}] Step back" />
-                <ui:Label text="[WASD] Pan the camera" />
-                <KeyLabel action="Gameplay/Switch View" format="[{0}] Pivot or top view" />
-                <KeyLabel action="Gameplay/Scoreboard" format="[{0}] Hold for the scoreboard" />
-                <KeyLabel action="Gameplay/Switch Ship" format="[{0}] A random ship" />
-            </ui:VisualElement>
-            <ui:VisualElement class="box">
-                <ui:Label text="Battle stations in" />
-                <ui:Label name="countdownText" text="5" class="countdown" />
-                <ui:Label name="waiting" text="Waiting for the other player..." />
-            </ui:VisualElement>
-        </ui:VisualElement>
+    <ui:VisualElement name="screen" class="screen game" picking-mode="Ignore">
 
         <ui:VisualElement name="hud" class="fill" picking-mode="Ignore">
-            <ui:VisualElement name="turnBanner" class="row box banner">
-                <ui:Label name="turnTimer" text="∞" class="h2" />
-                <ui:Label name="turnText" text="YOUR TURN" class="h2" />
+            <ui:VisualElement name="youFade" class="side-fade side-fade--left" picking-mode="Ignore" />
+            <ui:VisualElement name="enemyFade" class="side-fade side-fade--right" picking-mode="Ignore" />
+            <ui:VisualElement name="youClock" class="clock clock--left" picking-mode="Ignore">
+                <ui:VisualElement name="youClockFill" class="clock__fill" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:VisualElement name="enemyClock" class="clock clock--right" picking-mode="Ignore">
+                <ui:VisualElement name="enemyClockFill" class="clock__fill" picking-mode="Ignore" />
             </ui:VisualElement>
 
-            <ui:VisualElement class="corner" picking-mode="Ignore">
-                <ui:VisualElement class="row box">
-                    <ui:Button name="pivot" text="Pivot" focusable="false" />
-                    <ui:Button name="top" text="Top" focusable="false" />
-                    <KeyLabel action="Gameplay/Switch View" />
-                    <ui:Button name="zoomOut" text="-" focusable="false" />
-                    <ui:Button name="zoomIn" text="+" focusable="false" />
-                    <ui:Button name="menu" text="Menu" focusable="false" />
+            <!-- you: your name and, on your turn, the ship picker and fire -->
+            <ui:VisualElement name="you" class="side side--left" picking-mode="Ignore">
+                <ui:VisualElement class="side__head" picking-mode="Ignore">
+                    <ui:Label text="YOU" class="side__who" picking-mode="Ignore" />
+                    <ui:Label name="youName" text="PLAYER" class="side__name" picking-mode="Ignore" />
+                    <ui:Label name="youTurn" text="YOUR TURN" class="side__turn side__turn--you" picking-mode="Ignore" />
                 </ui:VisualElement>
-                <ui:VisualElement name="options" class="box hidden">
-                    <ui:Button name="skip" text="Skip turn" focusable="false" />
-                    <ui:Button name="mute" text="Mute enemy" focusable="false" />
-                    <ui:Button name="surrender" text="Surrender" focusable="false" />
-                    <ui:Label text="Surrendering counts as a loss." />
-                </ui:VisualElement>
-            </ui:VisualElement>
-
-            <ui:VisualElement name="turnInfo" class="box turn-info">
-                <ui:Label text="Incoming transmission" />
-                <ui:Label name="connected" text="Your turn." class="note" />
-            </ui:VisualElement>
-
-            <ui:VisualElement name="attackInfo" class="box attack-info">
-                <ui:Label text="Damage report" />
-                <ui:Label name="connected" text="HIT" class="h1" />
-                <ui:Label name="shipStatus" />
-                <ui:Label name="attkIdent" />
-                <ui:Label name="ammoRemain" />
-                <ui:Label name="fleetStatus" />
-            </ui:VisualElement>
-
-            <ui:VisualElement name="scoreboard" class="box scoreboard">
-                <ui:Label name="boardType" text="SINGLEPLAYER" />
-                <ui:Label name="boardMode" text="CUSTOMS" class="h2" />
-                <ui:Label name="boardPlayers" text="YOU VS BOT" />
-                <ui:VisualElement class="row">
-                    <ui:Label name="score" text="5/5" class="h1" />
-                    <ui:Label text="ships afloat" />
+                <ui:VisualElement name="controls" class="side__controls" picking-mode="Ignore">
+                    <ui:VisualElement name="fleet" class="fleet" picking-mode="Ignore" />
+                    <ui:VisualElement class="side__spacer" picking-mode="Ignore" />
+                    <ui:Button name="fire" class="plate fire" focusable="false">
+                        <ui:Label text="FIRE" class="fire__text" picking-mode="Ignore" />
+                        <KeyLabel action="Gameplay/Fire" format="{0}" class="key-chip fire__key" picking-mode="Ignore" />
+                    </ui:Button>
                 </ui:VisualElement>
             </ui:VisualElement>
 
-            <!-- room for match chat later -->
-            <ui:VisualElement name="chat" class="chat" picking-mode="Ignore" />
+            <!-- the enemy: their name and every shot so far -->
+            <ui:VisualElement name="enemy" class="side side--right" picking-mode="Ignore">
+                <ui:VisualElement class="side__head" picking-mode="Ignore">
+                    <ui:Label text="ENEMY" class="side__who" picking-mode="Ignore" />
+                    <ui:Label name="enemyName" text="ENEMY" class="side__name" picking-mode="Ignore" />
+                    <ui:Label name="enemyTurn" text="ENEMY TURN" class="side__turn side__turn--enemy" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:VisualElement name="feed" class="feed" picking-mode="Ignore" />
+            </ui:VisualElement>
+        </ui:VisualElement>
 
-            <ui:VisualElement name="bottom" class="bottom" picking-mode="Ignore">
-                <ui:Label name="errorText" class="error box" />
-                <ui:VisualElement name="selection" class="row box">
-                    <ui:VisualElement>
-                        <ui:Image name="shipImage" class="ship-image" />
-                        <ui:Label name="shipName" />
-                        <ui:Label name="optionName" />
-                    </ui:VisualElement>
-                    <ui:VisualElement name="weapons" class="row" />
-                    <ui:VisualElement name="angles" class="row" />
-                </ui:VisualElement>
-                <ui:VisualElement name="directive" class="row box">
-                    <ui:Label name="directiveText" class="h2" />
-                    <ui:Label name="hintText" />
-                </ui:VisualElement>
-                <ui:VisualElement class="row box">
-                    <ui:VisualElement name="fleet" class="row" />
-                    <ui:VisualElement>
-                        <ui:VisualElement class="row">
-                            <ui:Button name="fire" text="Fire" focusable="false" />
-                            <KeyLabel action="Gameplay/Fire" />
-                        </ui:VisualElement>
-                        <ui:Label name="fireInfo" />
-                        <ui:VisualElement name="backContainer" class="row">
-                            <ui:Button name="back" text="Back" focusable="false" />
-                            <KeyLabel action="Gameplay/Cancel" />
-                        </ui:VisualElement>
-                    </ui:VisualElement>
+        <!-- held space: both fleets and how the match is going -->
+        <ui:VisualElement name="scoreboard" class="fill shade" picking-mode="Ignore">
+            <ui:VisualElement class="board" picking-mode="Ignore">
+                <ui:Label name="boardMode" text="PLAYLIST" class="board__mode" picking-mode="Ignore" />
+                <ui:VisualElement class="board__cols" picking-mode="Ignore">
+                    <ui:VisualElement name="boardYou" class="board__col" picking-mode="Ignore" />
+                    <ui:Label text="VS" class="board__vs" picking-mode="Ignore" />
+                    <ui:VisualElement name="boardEnemy" class="board__col board__col--right" picking-mode="Ignore" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
+
+        <!-- esc -->
+        <ui:VisualElement name="matchMenu" class="fill shade match-menu">
+            <ui:VisualElement class="match-menu__items">
+                <ui:Button name="resume" text="RESUME" class="menu-item" />
+                <ui:Button name="skip" text="SKIP TURN" class="menu-item" />
+                <ui:Button name="mute" text="MUTE CHAT" class="menu-item" />
+                <HoldButton name="surrender" text="SURRENDER" class="menu-item menu-item--danger" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- the intro's cards over its camera moves, and the count into the first turn -->
+        <ui:VisualElement name="intro" class="fill intro" picking-mode="Ignore">
+            <ui:VisualElement name="introVignette" class="fill intro__vignette" picking-mode="Ignore" />
+            <ui:VisualElement name="introCard" class="intro__card" picking-mode="Ignore">
+                <ui:Label name="introKicker" class="intro__kicker" picking-mode="Ignore" />
+                <ui:Label name="introTitle" class="intro__title" picking-mode="Ignore" />
+                <ui:VisualElement class="intro__rule" picking-mode="Ignore" />
+                <ui:Label name="introLine" class="intro__line" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:Label name="introCount" class="intro__count" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="flash" class="fill flash" picking-mode="Ignore" />
     </ui:VisualElement>
 </ui:UXML>

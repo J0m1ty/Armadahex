@@ -40,51 +40,30 @@ public class AttackUIManager : MonoBehaviour
     private ShipManager shipManager;
     [SerializeField]
     private Countdown countdown;
-    [SerializeField]
-    private PanelSlider attackPanel;
-
     [Header("UI")]
     [SerializeField]
     private UIDocument document;
-
-    // multi use
-    private Label directiveText;
-    // the keys that work right now, under the directive
-    private Label hintText;
-    private Image selectionDisplay;
-    private VisualElement selectionUI;
-    private VisualElement backButtonParent;
-    public Button backButton { get; private set; }
-    private VisualElement bottomUI;
-
-    private Label errorText;
 
     private Ship selectedShip;
 
     private GridUnit selectedTarget;
 
-    // the ship keys along the bottom, always in fleet order
+    // a row per ship down the left, always in fleet order; the picked one opens into weapons and angles
     private VisualElement fleetParent;
     private List<FleetKey> fleetKeys = new List<FleetKey>();
 
-    // attack options
-    private Label selectedShipText;
-    private VisualElement optionsParent;
     private Attack selectedOption;
-
-    // attack patterns
-    private Label selectedOptionText;
-    private VisualElement patternsParent;
     private AttackPattern selectedPattern;
     [SerializeField]
     private ArrowGroup arrowGroup;
 
-    // confirmation
-    private Label infoText;
-    // the fire key stays in the tray and only lights up once a hex is locked
+    // the picked ship's numbered weapon rows
+    private List<Button> weaponButtons = new List<Button>();
+
+    // fire stays at the bottom of your side and only lights up once a hex is locked
     public Button confirmButton { get; private set; }
 
-    // what the back and fire buttons do in the current state
+    // what esc and fire do in the current state
     private System.Action backAction;
     private System.Action confirmAction;
 
@@ -95,11 +74,16 @@ public class AttackUIManager : MonoBehaviour
 
     private BotAI bot;
 
-    // ships always sit on their cards in this order, so a number key always means the same ship
+    // ships always sit in this order, so a number key always means the same ship
     private static readonly ShipType[] fleetOrder = { ShipType.Carrier, ShipType.Battleship, ShipType.Submarine, ShipType.Cruiser, ShipType.Destroyer };
 
     // the hex the mouse is over while aiming, previewed until a click locks it in
     private GridUnit aimedTarget;
+
+    // the enemy's shots in one volley add up to one line in the feed
+    private bool volleyHit;
+    private string volleyHitShip;
+    private string volleySunk;
 
     // the plain shot when no ship is picked, the fleet's rather than any one ship's
     private Attack fleetShot = new Attack {
@@ -108,7 +92,6 @@ public class AttackUIManager : MonoBehaviour
     };
     [Header("Other")]
     public audioScript gameAudio;
-    private VisualElement skipButton;
 
     void Awake() {
         selector = GetComponent<Selector>();
@@ -118,25 +101,22 @@ public class AttackUIManager : MonoBehaviour
         advancedShotsFired = 0;
 
         var root = document.rootVisualElement;
-        directiveText = root.Q<Label>("directiveText");
-        hintText = root.Q<Label>("hintText");
-        selectionDisplay = root.Q<Image>("shipImage");
-        selectionUI = root.Q("selection");
-        backButtonParent = root.Q("backContainer");
-        backButton = root.Q<Button>("back");
-        bottomUI = root.Q("bottom");
-        errorText = root.Q<Label>("errorText");
         fleetParent = root.Q("fleet");
-        selectedShipText = root.Q<Label>("shipName");
-        optionsParent = root.Q("weapons");
-        selectedOptionText = root.Q<Label>("optionName");
-        patternsParent = root.Q("angles");
-        infoText = root.Q<Label>("fireInfo");
         confirmButton = root.Q<Button>("fire");
-        skipButton = root.Q("skip");
 
-        UIKit.OnClick(backButton, () => backAction?.Invoke(), ClickSound.Light);
-        UIKit.OnClick(confirmButton, () => confirmAction?.Invoke(), ClickSound.Heavy);
+        UIKit.OnClick(confirmButton, Fire, ClickSound.Heavy);
+    }
+
+    // enter
+    public void Fire() {
+        confirmAction?.Invoke();
+    }
+
+    // esc steps back if there's anything to step back from
+    public bool StepBack() {
+        if (backAction == null) return false;
+        backAction();
+        return true;
     }
 
     public void SetState(AttackState state) {
@@ -146,22 +126,10 @@ public class AttackUIManager : MonoBehaviour
         UIKit.Blur(document);
 
         backAction = null;
-        backButton.text = "BACK";
-
-        if (state != AttackState.Error) {
-            UIKit.Show(directiveText.parent, false);
-            UIKit.Show(errorText, false);
-            UIKit.Show(selectionUI, false);
-            UIKit.Show(selectedOptionText, false);
-            confirmButton.SetEnabled(false);
-            UIKit.Show(optionsParent, state == AttackState.SelectAttackOption);
-            if (state != AttackState.SelectAttackPattern && state != AttackState.Confirm) ClearChoices(patternsParent);
+        confirmAction = null;
+        confirmButton.SetEnabled(false);
+        if (state != AttackState.SelectAttackPattern && state != AttackState.Confirm) {
             arrowGroup.gameObject.SetActive(false);
-            UIKit.Show(backButtonParent, false);
-            UIKit.Show(skipButton, false);
-
-            confirmAction = null;
-            backAction = null;
         }
 
         var aiming = state == AttackState.SelectShip || state == AttackState.SelectAttackPattern || state == AttackState.Confirm;
@@ -172,113 +140,69 @@ public class AttackUIManager : MonoBehaviour
         if (state != AttackState.None) {
             selector.allowSelectingGrids = false;
             selector.allowSelectingShips = false;
-
-            UIKit.Show(skipButton, state != AttackState.AttackOver);
-
-            UIKit.Show(infoText, state == AttackState.Confirm);
-
-            UIKit.Show(bottomUI, true);
-        }
-        else {
-            UIKit.Show(bottomUI, false);
         }
 
         switch (state) {
             case AttackState.SelectShip:
-                // nothing picked: the fleet's plain shot follows the mouse, or pick a ship from the cards
-                UIKit.Show(directiveText.parent, true);
-                directiveText.text = GameModeInfo.instance.IsAdvancedCombat ? "CLICK A HEX TO AIM, OR PICK A SHIP" : "CLICK A HEX TO AIM";
-                hintText.text = GameModeInfo.instance.IsAdvancedCombat ? Range(FleetInOrder().Count) + " SHIP" : "";
-                AimingUI();
+                // nothing picked: the fleet's plain shot follows the mouse, or pick a ship
+                selector.allowSelectingGrids = true;
                 if (GameModeInfo.instance.IsAdvancedCombat) {
                     GenerateShipCards();
                 }
                 break;
-            case AttackState.Error:
-                UIKit.Show(errorText, true);
-                break;
             case AttackState.SelectAttackOption:
                 // a ship with more than one special picks which first
-                UIKit.Show(directiveText.parent, true);
-                directiveText.text = "PICK A WEAPON";
-                hintText.text = Range(Specials(selectedShip).Count) + " WEAPON   " + KeyHint.Key("Gameplay/Cancel") + " BACK";
-                AimingUI();
+                selector.allowSelectingGrids = true;
                 backAction = Back;
-                UIKit.Show(backButtonParent, true);
                 break;
             case AttackState.SelectAttackPattern:
-                UIKit.Show(directiveText.parent, true);
-                directiveText.text = "CLICK A HEX TO LOCK";
-                hintText.text = AngleHint() + KeyHint.Key("Gameplay/Cancel") + " BACK";
-                AimingUI();
+                selector.allowSelectingGrids = true;
                 backAction = Back;
-                UIKit.Show(backButtonParent, true);
                 break;
             case AttackState.Confirm:
-                UIKit.Show(directiveText.parent, true);
-                directiveText.text = "TARGET LOCKED";
-                hintText.text = KeyHint.Key("Gameplay/Fire") + " FIRE   " + AngleHint() + KeyHint.Key("Gameplay/Cancel") + " UNLOCK";
-                AimingUI();
+                selector.allowSelectingGrids = true;
                 confirmButton.SetEnabled(true);
                 confirmAction = ConfirmAttack;
                 backAction = Back;
-                backButton.text = "UNLOCK";
-                UIKit.Show(backButtonParent, true);
-                break;
-            case AttackState.AttackOver:
-                UIKit.Show(bottomUI, false);
-                break;
-            default:
                 break;
         }
 
+        UIKit.Show(fleetParent, GameModeInfo.instance.IsAdvancedCombat);
         MarkFleet();
     }
 
-    // "[1]-[5]", the keys for the numbers on screen
-    private static string Range(int count) {
-        if (count <= 1) return KeyHint.Key("Gameplay/Choice 1");
-        return KeyHint.Key("Gameplay/Choice 1") + "-" + KeyHint.Key("Gameplay/Choice " + Mathf.Min(count, 5));
-    }
-
-    private string AngleHint() {
-        var count = selectedOption != null ? selectedOption.info.options.Length : 0;
-        return count > 1 ? Range(count) + " ANGLE   " : "";
-    }
-
-    // every aiming state keeps the enemy board clickable, and the weapon strip shows once a ship is picked
-    // (the selector's team is set once a turn, setting it again would drop a locked target)
-    private void AimingUI() {
-        selector.allowSelectingGrids = true;
-
-        if (GameModeInfo.instance.IsAdvancedCombat) {
-            UIKit.Show(selectionUI, selectedShip != null);
-            UIKit.Show(selectedOptionText, selectedShip != null && selectedOption != null);
+    public static string ShortName(ShipType type) {
+        switch (type) {
+            case ShipType.Carrier: return "CARRIER";
+            case ShipType.Submarine: return "SUB";
+            default: return type.ToString().ToUpper();
         }
     }
 
-    // the picked ship's key stays lit, and the numbers only show while they pick ships
+    // the picked ship's row stays lit with its weapons open, and the numbers only show while they pick ships
     private void MarkFleet() {
-        var aiming = attackState == AttackState.SelectShip || attackState == AttackState.SelectAttackOption
-            || attackState == AttackState.SelectAttackPattern || attackState == AttackState.Confirm;
-        UIKit.Show(fleetParent, aiming && GameModeInfo.instance.IsAdvancedCombat);
-
         var fleet = FleetInOrder();
         for (var i = 0; i < fleetKeys.Count && i < fleet.Count; i++) {
             if (fleetKeys[i] == null) continue;
-            fleetKeys[i].SetSelected(fleet[i] == selectedShip);
             fleetKeys[i].ShowNumber(attackState == AttackState.SelectShip);
+            if (fleet[i] == selectedShip) FillSub(fleetKeys[i].sub);
+            else fleetKeys[i].sub.Clear();
+            fleetKeys[i].SetSelected(fleet[i] == selectedShip);
         }
     }
 
     private List<Ship> FleetInOrder() {
+        return InFleetOrder(shipManager.playerShips);
+    }
+
+    public static List<Ship> InFleetOrder(List<Ship> ships) {
         var fleet = new List<Ship>();
         foreach (var type in fleetOrder) {
-            var ship = shipManager.playerShips.Find(s => s.shipModel.type == type);
+            var ship = ships.Find(s => s.shipModel.type == type);
             if (ship != null) fleet.Add(ship);
         }
         // anything without a slot goes on the end
-        foreach (var ship in shipManager.playerShips) {
+        foreach (var ship in ships) {
             if (!fleet.Contains(ship)) fleet.Add(ship);
         }
         return fleet;
@@ -312,12 +236,7 @@ public class AttackUIManager : MonoBehaviour
     // one special goes straight to aiming it, several get a list first, none just fires plain shots
     private void PickShip(Ship ship) {
         if (attackState != AttackState.SelectShip || !GameModeInfo.instance.IsAdvancedCombat) return;
-
-        if (!ship.isAlive) {
-            UIKit.Show(errorText, true);
-            errorText.text = "This ship is sunk";
-            return;
-        }
+        if (!ship.isAlive) return;
 
         selectedShip = ship;
         var specials = Specials(ship);
@@ -331,7 +250,6 @@ public class AttackUIManager : MonoBehaviour
         }
         else {
             SetState(AttackState.SelectAttackOption);
-            GenerateAttackOptions();
         }
     }
 
@@ -346,8 +264,7 @@ public class AttackUIManager : MonoBehaviour
                 if (index < fleet.Count) PickShip(fleet[index]);
                 break;
             case AttackState.SelectAttackOption:
-                var buttons = ChoiceButtons(optionsParent);
-                if (index < buttons.Count && buttons[index].enabledSelf) UIKit.Click(buttons[index]);
+                if (index < weaponButtons.Count && weaponButtons[index].enabledSelf) UIKit.Click(weaponButtons[index]);
                 break;
             case AttackState.SelectAttackPattern:
             case AttackState.Confirm:
@@ -369,7 +286,6 @@ public class AttackUIManager : MonoBehaviour
                     selectedOption = null;
                     selectedPattern = null;
                     SetState(AttackState.SelectAttackOption);
-                    GenerateAttackOptions();
                 }
                 else {
                     BackToFleet();
@@ -392,17 +308,14 @@ public class AttackUIManager : MonoBehaviour
 
     // only a sunk ship is greyed out, an empty one still fires plain shots
     public void GenerateShipCards() {
-        ClearChoices(fleetParent);
+        fleetParent.Clear();
         fleetKeys.Clear();
 
         var fleet = FleetInOrder();
         for (var i = 0; i < fleet.Count; i++) {
             var ship = fleet[i];
             var key = new FleetKey(fleetParent);
-
-            // the specials it has left
-            var left = Specials(ship).Where(Ready).Sum(a => a.ammoLeft);
-            key.Set(i + 1, ship.shipModel.display, ShortName(ship.shipModel.type), ship.isAlive, left);
+            key.Set(i + 1, ship.shipModel.silhouette, ShortName(ship.shipModel.type), ship.isAlive);
 
             // clicking another ship swaps to it, clicking the picked one puts it back
             UIKit.OnClick(key.button, () => {
@@ -413,36 +326,62 @@ public class AttackUIManager : MonoBehaviour
             });
             fleetKeys.Add(key);
         }
-        MarkFleet();
     }
 
-    private static string ShortName(ShipType type) {
-        switch (type) {
-            case ShipType.Carrier: return "CARRIER";
-            case ShipType.Submarine: return "SUB";
-            default: return type.ToString().ToUpper();
-        }
-    }
+    // under the picked ship: its weapons with the ammo beside each, and the picked weapon's angles under it
+    private void FillSub(VisualElement sub) {
+        sub.Clear();
+        weaponButtons.Clear();
+        if (selectedShip == null) return;
 
-    // the weapon list for a ship with more than one special, used ones say spent
-    public void GenerateAttackOptions() {
-        ShowShip();
-        UIKit.Show(selectedOptionText, false);
-
-        ClearChoices(optionsParent);
         var number = 1;
         foreach (var attack in Specials(selectedShip)) {
-            var ready = Ready(attack);
-            var label = attack.info.name.ToUpper();
             var chosen = attack;
-            AddChoice(optionsParent, number++, label, ready ? attack.ammoLeft + " LEFT" : "SPENT", ready, () => ChooseAttack(chosen));
-        }
-    }
+            var ready = Ready(attack);
+            var lit = attack == selectedOption;
 
-    private void ShowShip() {
-        UIKit.Show(selectionDisplay.parent, true);
-        selectionDisplay.sprite = selectedShip.shipModel.display;
-        selectedShipText.text = selectedShip.shipModel.name;
+            var row = new Button { focusable = false };
+            row.AddToClassList("weapon-row");
+            UIKit.SetLit(row, lit);
+            var key = new KeyLabel { format = "{0}", action = "Gameplay/Choice " + number++ };
+            key.AddToClassList("key-chip");
+            var name = new Label(attack.info.name.ToUpper()) { pickingMode = PickingMode.Ignore };
+            name.AddToClassList("weapon-row__name");
+            var ammo = new Label(ready ? "×" + attack.ammoLeft : "") { pickingMode = PickingMode.Ignore };
+            ammo.AddToClassList("weapon-row__ammo");
+            row.Add(key);
+            row.Add(name);
+            row.Add(ammo);
+            row.SetEnabled(ready);
+            if (ready) UIKit.OnClick(row, () => {
+                if (attackState == AttackState.Confirm) Unlock();
+                ChooseAttack(chosen);
+            }, ClickSound.Light);
+            sub.Add(row);
+            weaponButtons.Add(row);
+
+            if (lit && attack.info.options.Length > 1) {
+                var angles = new VisualElement { pickingMode = PickingMode.Ignore };
+                angles.AddToClassList("angles");
+                for (var i = 0; i < attack.info.options.Length; i++) {
+                    var index = i;
+                    var pattern = attack.info.options[i];
+                    var on = pattern == selectedPattern;
+                    var angle = new Button { focusable = false };
+                    angle.AddToClassList("angle");
+                    var shape = new PatternShape();
+                    shape.Set(pattern, on ? new Color(0.93f, 0.95f, 0.98f) : new Color(0.59f, 0.67f, 0.77f));
+                    var chip = new KeyLabel { format = "{0}", action = "Gameplay/Choice " + (i + 1) };
+                    chip.AddToClassList("key-chip");
+                    angle.Add(shape);
+                    angle.Add(chip);
+                    UIKit.SetLit(angle, on);
+                    UIKit.OnClick(angle, () => SetPattern(index), ClickSound.Light);
+                    angles.Add(angle);
+                }
+                sub.Add(angles);
+            }
+        }
     }
 
     // a weapon goes to its angles, or straight to aiming when it only has the one shape
@@ -451,27 +390,7 @@ public class AttackUIManager : MonoBehaviour
         selectedPattern = null;
         aimedTarget = null;
         SetState(AttackState.SelectAttackPattern);
-        GenerateAttackPatterns();
         SetPattern(0);
-    }
-
-    public void GenerateAttackPatterns() {
-        ClearChoices(patternsParent);
-
-        if (selectedShip == null) return;
-
-        ShowShip();
-        selectedOptionText.text = selectedOption.info.name.ToUpper() + (selectedOption.info.unlimited ? "" : "  ·  " + selectedOption.ammoLeft + " LEFT");
-        UIKit.Show(selectedOptionText, true);
-
-        // one shape needs no buttons
-        var patterns = selectedOption.info.options;
-        if (patterns.Length < 2) return;
-
-        for (var i = 0; i < patterns.Length; i++) {
-            var index = i;
-            AddChoice(patternsParent, i + 1, patterns[i].name.ToUpper(), "", true, () => SetPattern(index));
-        }
     }
 
     // an angle only changes the aim, nothing fires until a hex is locked in and confirmed
@@ -481,13 +400,8 @@ public class AttackUIManager : MonoBehaviour
         var patterns = selectedOption.info.options;
         selectedPattern = index >= 0 && index < patterns.Length ? patterns[index] : null;
 
-        var buttons = ChoiceButtons(patternsParent);
-        for (var i = 0; i < buttons.Count; i++) {
-            MarkChosen(buttons[i], i == index);
-        }
-
+        MarkFleet();
         Preview(selectedTarget ?? aimedTarget);
-        GenerateConfirmationInfo();
     }
 
     // the selector calls this as the mouse moves over the enemy board
@@ -539,11 +453,8 @@ public class AttackUIManager : MonoBehaviour
         var aimingState = attackState == AttackState.SelectShip || attackState == AttackState.SelectAttackPattern || attackState == AttackState.Confirm;
         if (!aimingState) return;
 
-        if (target.hexRenderer.hexMap.teamBase.team.isPlayer) {
-            UIKit.Show(errorText, true);
-            errorText.text = "You can't select a friendly target";
-            return;
-        }
+        // your own board isn't a target
+        if (target.hexRenderer.hexMap.teamBase.team.isPlayer) return;
 
         // nothing picked fires the fleet's plain shot
         if (selectedOption == null) {
@@ -553,9 +464,7 @@ public class AttackUIManager : MonoBehaviour
 
         selectedTarget = target;
         SetState(AttackState.Confirm);
-        RemarkPattern();
         Preview(target);
-        GenerateConfirmationInfo();
     }
 
     // back to aiming with the mouse, the ship and angle stay
@@ -574,30 +483,8 @@ public class AttackUIManager : MonoBehaviour
         }
         else {
             SetState(AttackState.SelectAttackPattern);
-            GenerateAttackPatterns();
-            RemarkPattern();
         }
         Preview(null);
-    }
-
-    private void RemarkPattern() {
-        if (selectedOption == null) return;
-
-        var index = selectedPattern != null ? System.Array.IndexOf(selectedOption.info.options, selectedPattern) : 0;
-        var buttons = ChoiceButtons(patternsParent);
-        for (var i = 0; i < buttons.Count; i++) {
-            MarkChosen(buttons[i], i == index);
-        }
-    }
-
-    public void GenerateConfirmationInfo() {
-        if (attackState == AttackState.Confirm) {
-            // dont show shots left if unlimited
-            if (infoText == null) return;
-
-            UIKit.Show(infoText, !selectedOption.info.unlimited);
-            infoText.text = selectedOption.ammoLeft + " left";
-        }
     }
 
     // every hex a pattern hits from a target, in order. peek stops at the first ship for patterns that do,
@@ -704,31 +591,6 @@ public class AttackUIManager : MonoBehaviour
         return false;
     }
 
-    private void ClearChoices(VisualElement parent) {
-        parent.Clear();
-    }
-
-    // a numbered choice (a weapon or an angle): its key, a label and a small note
-    private Button AddChoice(VisualElement parent, int number, string label, string detail, bool ready, System.Action onClick) {
-        var text = KeyHint.Key("Gameplay/Choice " + number) + " " + (ready ? label : "<s>" + label + "</s>");
-        if (!string.IsNullOrEmpty(detail)) text += "  " + detail;
-
-        var button = new Button { text = text, focusable = false };
-        button.SetEnabled(ready);
-        if (ready) UIKit.OnClick(button, onClick, ClickSound.Light);
-        parent.Add(button);
-        return button;
-    }
-
-    // the chosen angle stays lit
-    private void MarkChosen(Button button, bool chosen) {
-        UIKit.SetLit(button, chosen);
-    }
-
-    private List<Button> ChoiceButtons(VisualElement parent) {
-        return parent.Children().OfType<Button>().ToList();
-    }
-
     public void SkipTurn() {
         if (TurnManager.instance.currentTeam.isPlayer && !countdown.isPaused) {
             RandomAttack();
@@ -791,6 +653,7 @@ public class AttackUIManager : MonoBehaviour
 
             var hit = false;
             bool? destroyed = null;
+            string sunk = null;
             
             var sweep = selectedOption.info.isScan;
             var contact = sweep && Sweep(targets);
@@ -810,7 +673,9 @@ public class AttackUIManager : MonoBehaviour
                     target.SetFogColorInstant(FogColor.Hit, false);
                     target.EnableFlames();
                     ShotEffects.Shot(target, true);
+                    var struck = target.gridRef.shipSegment.parent;
                     destroyed = target.gridRef.shipSegment.Destroy();
+                    if (destroyed == true) sunk = ShortName(struck.shipModel.type);
                     OnAttack?.Invoke(TurnManager.instance.enemyTeam, true, target.coords.index, i == targets.Count - 1);
 
                     hit = true;
@@ -842,13 +707,12 @@ public class AttackUIManager : MonoBehaviour
             Selector.instance.ClearSelection();
 
             if (!GameOver.instance.CheckIfGameOver()) {
-                attackPanel.ResetData();
-                var name = selectedShip != null ? selectedShip.shipModel.attackName : "FLEET";
+                var weapon = selectedOption.info.unlimited ? "SHOT" : selectedOption.info.name;
                 if (sweep) {
-                    attackPanel.SetScanInfo(contact, name, selectedOption.ammoLeft);
+                    MatchHud.instance.AddShot(true, contact ? MatchHud.ShotKind.Contact : MatchHud.ShotKind.Clear, weapon);
                 }
                 else {
-                    attackPanel.SetAttackInfo(hit, destroyed, name, selectedOption.info.unlimited ? 1000 : selectedOption.ammoLeft );
+                    MatchHud.instance.AddShot(true, sunk != null ? MatchHud.ShotKind.Sunk : (hit ? MatchHud.ShotKind.Hit : MatchHud.ShotKind.Miss), sunk ?? weapon);
                 }
                 // only a hit shakes the camera
                 if (hit) {
@@ -856,7 +720,6 @@ public class AttackUIManager : MonoBehaviour
                 }
                 AudioManager.instance?.PlayActionSound(ActionType.Explosion);
                 AudioManager.instance?.PlayHitSound(hit, 3f);
-                attackPanel.QuickActivate();
 
                 gameAudio.RemainingShips(shipManager.enemyShips.FindAll(s => s.isAlive && s.hasAmmoLeft).Count);
             }
@@ -895,14 +758,18 @@ public class AttackUIManager : MonoBehaviour
             ShotEffects.Shot(hex, false);
         }
         else if (hex.gridRef.shipSegment.isAlive) {
+            var struck = hex.gridRef.shipSegment.parent;
             destroyed = hex.gridRef.shipSegment.Destroy();
             ShotEffects.Shot(hex, true);
             hit = true;
+            volleyHit = true;
+            volleyHitShip = ShortName(struck.shipModel.type);
+            if (destroyed == true) volleySunk = volleyHitShip;
         }
 
         if (GameModeInfo.instance.IsSingleplayer && finalAttack) {
             if (GameModeInfo.instance.IsBonus) {
-                if (hit || attackPanel.persistingHit) {
+                if (volleyHit) {
                     TurnManager.instance.ContinueTurnDelay(true);
                 }
                 else {
@@ -926,21 +793,24 @@ public class AttackUIManager : MonoBehaviour
 
         GameOver.instance.CheckIfGameOver(TurnManager.instance.playerTeam, hit, hex.coords.index, finalAttack);
 
-        attackPanel.SetAttackInfo_Save(hit, destroyed, null, null);
-        
         if (finalAttack && !GameOver.instance.CheckIfGameOver()) {
-            if (attackPanel.persistingHit) {
+            if (volleyHit) {
                 CameraManager.instance.Shake(true);
             }
             AudioManager.instance?.PlayActionSound(ActionType.Explosion);
-            AudioManager.instance?.PlayHitSound(attackPanel.persistingHit, 3f);
-            attackPanel.QuickActivate(true, GameModeInfo.instance.IsSingleplayer ? (attackPanel.persistingHit ? 4f : null) : null);
+            AudioManager.instance?.PlayHitSound(volleyHit, 3f);
+            var kind = volleySunk != null ? MatchHud.ShotKind.Sunk : (volleyHit ? MatchHud.ShotKind.Hit : MatchHud.ShotKind.Miss);
+            MatchHud.instance.AddShot(false, kind, volleySunk ?? volleyHitShip ?? "SHOT");
             
             // wait until next turn or continue turn to restart or resume the countdown
             countdown.isPaused = true;
+        }
 
-            // reset hit data
-            attackPanel.ResetData();
+        // the volley is over
+        if (finalAttack) {
+            volleyHit = false;
+            volleyHitShip = null;
+            volleySunk = null;
         }
     }
     

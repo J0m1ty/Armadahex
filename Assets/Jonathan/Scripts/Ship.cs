@@ -72,6 +72,8 @@ public class ShipModel {
     public ShipType type;
     public GameObject shipPrefab;
     public Sprite display;
+    // the display in white, for the hud to tint
+    public Texture2D silhouette;
     public int length;
     public AttackInfo[] attacks;
     

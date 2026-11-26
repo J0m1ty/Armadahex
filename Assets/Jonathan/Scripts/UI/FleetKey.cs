@@ -1,59 +1,51 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-// one ship's key in the fleet tray: number, silhouette, name, specials left, sunk
+// one ship's row in the picker: its key, silhouette and name; the picked one opens a box under it
 public class FleetKey
 {
     public Button button { get; private set; }
+    // the picked ship's weapons and angles go in here
+    public VisualElement sub { get; private set; }
 
     private KeyLabel number;
-    private Image icon;
+    private VisualElement icon;
     private Label shipName;
-    private Label info;
-    private Label sunkTag;
 
     public FleetKey(VisualElement parent) {
         button = new Button { focusable = false };
-        button.AddToClassList("fleet-key");
+        button.AddToClassList("fleet-row");
 
-        number = new KeyLabel();
-        icon = new Image { scaleMode = ScaleMode.ScaleToFit };
-        icon.AddToClassList("fleet-icon");
-        shipName = new Label();
-        info = new Label();
-        sunkTag = new Label("SUNK");
+        number = new KeyLabel { format = "{0}" };
+        number.AddToClassList("key-chip");
+        icon = new VisualElement { pickingMode = PickingMode.Ignore };
+        icon.AddToClassList("fleet-row__ship");
+        shipName = new Label { pickingMode = PickingMode.Ignore };
+        shipName.AddToClassList("fleet-row__name");
 
         button.Add(number);
         button.Add(icon);
         button.Add(shipName);
-        button.Add(info);
-        button.Add(sunkTag);
         parent.Add(button);
+
+        sub = new VisualElement { pickingMode = PickingMode.Ignore };
+        sub.AddToClassList("fleet-sub");
+        parent.Add(sub);
+        UIKit.Show(sub, false);
     }
 
-    public void Set(int slot, Sprite sprite, string name, bool alive, int specials) {
+    public void Set(int slot, Texture2D image, string name, bool alive) {
         number.action = "Gameplay/Choice " + slot;
-        icon.sprite = sprite;
-        UIKit.Show(icon, sprite != null);
+        icon.style.backgroundImage = image != null ? new StyleBackground(image) : StyleKeyword.None;
 
         shipName.text = alive ? name : "<s>" + name + "</s>";
-
-        if (!alive) {
-            info.text = "";
-        }
-        else if (specials > 0) {
-            info.text = specials + " SPECIAL" + (specials > 1 ? "S" : "");
-        }
-        else {
-            info.text = "PLAIN SHOT";
-        }
-
-        UIKit.Show(sunkTag, !alive);
+        shipName.EnableInClassList("sunk", !alive);
         button.SetEnabled(alive);
     }
 
     public void SetSelected(bool selected) {
         UIKit.SetLit(button, selected);
+        UIKit.Show(sub, selected && sub.childCount > 0);
     }
 
     // the number only means this ship while the fleet is what's numbered

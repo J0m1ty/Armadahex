@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using UnityEngine.UIElements;
 
 public class TurnManager : MonoBehaviour
 {
@@ -14,9 +13,6 @@ public class TurnManager : MonoBehaviour
     public Selector selector;
 
     [SerializeField]
-    private PanelSlider panelSlider;
-
-    [SerializeField]
     private Countdown countdown;
 
     [SerializeField]
@@ -25,19 +21,6 @@ public class TurnManager : MonoBehaviour
     [SerializeField]
     private TeamManager teamManager;
 
-    [Header("UI")]
-    [SerializeField]
-    private UIDocument document;
-
-    private Label turnText => document.rootVisualElement.Q<Label>("turnText");
-
-    [SerializeField]
-    private Color playerTurnColor;
-
-    [SerializeField]
-    private Color enemyTurnColor;
-
-    
     public Team currentTeam;
     public Team otherTeam {
         get {
@@ -152,21 +135,12 @@ public class TurnManager : MonoBehaviour
 
         currentTeam = team;
         
-        panelSlider.QuickActivate();
-
         countdown.isPaused = false;
         if (currentTeam.isPlayer) {
             OnPlayerTurn();
             countdown.StartCountdown();
-            if (GameModeInfo.instance.IsAdvancedCombat) {
-                panelSlider.connectedText.text = "Your turn. Aim with the fleet's shot, or pick a ship for its special.";
-            }
-            else {
-                panelSlider.connectedText.text = "Your turn. Click a hex on the enemy board to aim.";
-            }
         } else {
             OnEnemyTurn();
-            panelSlider.connectedText.text = "Enemy turn. Brace for incoming fire.";
             if (GameModeInfo.instance.IsSingleplayer) {
                 Debug.Log("Starting countdown for bot");
                 countdown.StartCountdownForBot();
@@ -180,8 +154,7 @@ public class TurnManager : MonoBehaviour
     private void OnPlayerTurn() {
         consecutiveTurns++;
 
-        turnText.text = "YOUR TURN";
-        turnText.style.color = playerTurnColor;
+        MatchHud.instance.SetTurn(true);
 
         selector.SetTeam(TurnManager.instance.playerTeam, TurnManager.instance.otherTeam.teamBase);
         attackManager.SetState(AttackUIManager.AttackState.SelectShip);
@@ -192,8 +165,7 @@ public class TurnManager : MonoBehaviour
     private void OnEnemyTurn() {
         consecutiveTurns++;
 
-        turnText.text = "ENEMY TURN";
-        turnText.style.color = enemyTurnColor;
+        MatchHud.instance.SetTurn(false);
 
         selector.allowSelectingGrids = false;
         selector.allowSelectingShips = false;

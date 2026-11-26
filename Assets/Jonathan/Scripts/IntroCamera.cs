@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// a wide shot of both boards from an angle, shown until the countdown ends
+// the intro's own camera: a wide shot of both boards, then a spiral out over each board in turn
 [RequireComponent(typeof(Camera))]
 public class IntroCamera : MonoBehaviour
 {
@@ -22,15 +22,35 @@ public class IntroCamera : MonoBehaviour
     [SerializeField]
     private float focus = 0.55f;
 
+    [Header("Spiral")]
+    // low over the middle of a board, then out and up until the whole board shows
+    [SerializeField]
+    private float startPitch = 8f;
+    [SerializeField]
+    private float endPitch = 64f;
+    // the start distance is a share of the board's radius
+    [SerializeField]
+    private float startDistance = 0.3f;
+    // the end distance fits the board, with this much room
+    [SerializeField]
+    private float fitPadding = 1.05f;
+    [SerializeField]
+    private float turn = 200f;
+    [SerializeField]
+    private float minHeight = 14f;
+    [SerializeField]
+    private float endYaw = 0f;
+
     private Camera cam;
     private List<Camera> hidden = new List<Camera>();
+    private Dictionary<TeamBase, float> radii = new Dictionary<TeamBase, float>();
 
     void Awake() {
         cam = GetComponent<Camera>();
     }
 
     void Start() {
-        Frame();
+        Overview();
 
         foreach (var other in Camera.allCameras) {
             if (other == cam || other.targetTexture != null) continue;
@@ -40,7 +60,7 @@ public class IntroCamera : MonoBehaviour
         }
     }
 
-    private void Frame() {
+    public void Overview() {
         Vector3? friendly = null;
         Vector3? enemy = null;
 
@@ -61,6 +81,42 @@ public class IntroCamera : MonoBehaviour
 
         transform.position = a - forward * span * back + side * span * across + Vector3.up * height;
         transform.LookAt(Vector3.Lerp(a, b, focus));
+    }
+
+    // t from 0 to 1 over the spiral; it turns and climbs the whole way, slowing as it opens out
+    public void Spiral(Team team, float t) {
+        var center = team.teamBase.transform.position;
+        var radius = Radius(team.teamBase);
+
+        var ease = 1 - Mathf.Pow(1 - Mathf.Clamp01(t), 3);
+        var pitch = Mathf.Lerp(startPitch, endPitch, ease);
+        var fit = radius * fitPadding / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad);
+        var distance = Mathf.Lerp(radius * startDistance, fit, ease);
+
+        // it ends looking the way the top view does
+        var yaw = endYaw + turn * (ease - 1);
+
+        var position = center + Quaternion.Euler(pitch, yaw, 0) * Vector3.back * distance;
+        position.y = Mathf.Max(position.y, center.y + minHeight);
+        transform.position = position;
+        transform.LookAt(center);
+    }
+
+    // the farthest active hex from the board's centre
+    private float Radius(TeamBase teamBase) {
+        if (radii.TryGetValue(teamBase, out var known)) return known;
+
+        var grid = teamBase.hexMap;
+        var center = teamBase.transform.position;
+        var radius = 0f;
+        foreach (var unit in grid.hexes) {
+            if (unit.hexRenderer == null || !unit.hexRenderer.gameObject.activeInHierarchy) continue;
+            var offset = unit.hexRenderer.transform.position - center;
+            offset.y = 0;
+            radius = Mathf.Max(radius, offset.magnitude + grid.size);
+        }
+        radii[teamBase] = radius;
+        return radius;
     }
 
     public void End() {

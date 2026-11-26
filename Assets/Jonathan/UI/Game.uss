@@ -1,92 +1,597 @@
-/* only where things sit over the game */
+/* the match: everything sits on the left and right edges, nothing on the top or bottom */
+.game {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
 .fill {
     position: absolute;
     left: 0;
     top: 0;
     right: 0;
     bottom: 0;
-    font-size: 18px;
 }
 
-.pregame {
+/* a soft dark fade in from each side, under its text */
+.side-fade {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 560px;
+    transition: opacity 0.45s ease-in-out;
+}
+
+.side-fade--left {
+    left: 0;
+    background-image: url("project://database/Assets/Jonathan/UI/Textures/Side Fade.png");
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.side-fade--right {
+    right: 0;
+    background-image: url("project://database/Assets/Jonathan/UI/Textures/Side Fade.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    scale: -1 1;
+}
+
+.side-fade.away {
+    opacity: 0;
+}
+
+/* the turn clock: a thin bar down a side's outer edge that drains, never a number */
+.clock {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.clock--left {
+    left: 0;
+}
+
+.clock--right {
+    right: 0;
+}
+
+.clock__fill {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    transition: height 1s linear, background-color 0.4s;
+}
+
+.side {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 480px;
+    padding: 56px 48px;
+}
+
+.side--left {
+    left: 0;
+}
+
+.side--right {
+    right: 0;
+    align-items: flex-end;
+}
+
+.side__head {
+    transition: translate 0.45s ease-in-out, scale 0.45s ease-in-out, opacity 0.45s ease-in-out;
+    transform-origin: left top;
+}
+
+.side--right .side__head {
+    align-items: flex-end;
+    transform-origin: right top;
+}
+
+.side__who {
+    margin: 0;
+    padding: 0;
+    color: rgb(170, 186, 206);
+    font-size: 15px;
+    letter-spacing: 6px;
+    -unity-font-style: bold;
+}
+
+.side__name {
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 48px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+}
+
+.side__turn {
+    height: 30px;
+    margin: 8px 0 0 0;
+    padding: 0;
+    font-size: 20px;
+    letter-spacing: 6px;
+    -unity-font-style: bold;
+    transition: opacity 0.3s;
+}
+
+/* the turn line keeps its height when hidden, so nothing under it moves */
+.side__turn.off {
+    visibility: hidden;
+}
+
+/* your side pulls in to its edge while it's their turn */
+.side.away .side__head {
+    translate: -16px 0;
+    scale: 0.72 0.72;
+    opacity: 0.45;
+}
+
+.side__controls {
+    flex-grow: 1;
+    margin-top: 44px;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.side.away .side__controls {
+    opacity: 0;
+}
+
+.side__spacer {
+    flex-grow: 1;
+}
+
+/* the ship picker: a row per ship, the picked one opens into its weapons and then their angles */
+.fleet-row {
+    flex-direction: row;
+    align-items: center;
+    height: 58px;
+    margin: 0 0 2px 0;
+    padding: 0 0 0 10px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 0;
+    transition: background-color 0.15s;
+}
+
+.fleet-row:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.fleet-row.lit {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-left-width: 3px;
+    border-color: rgb(236, 242, 250);
+    padding-left: 7px;
+}
+
+.fleet-row:disabled {
+    opacity: 0.35;
+}
+
+.fleet-row .key-chip {
+    min-width: 36px;
+    margin-right: 16px;
+}
+
+.fleet-row.lit .key-chip {
+    background-color: rgb(236, 242, 250);
+    border-color: rgb(236, 242, 250);
+    color: rgb(10, 14, 24);
+}
+
+.fleet-row__ship {
+    background-position-x: left 0;
+    -unity-background-scale-mode: scale-to-fit;
+    width: 150px;
+    height: 26px;
+    margin-right: 16px;
+    -unity-background-image-tint-color: rgb(225, 234, 245);
+}
+
+.fleet-row__name {
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 16px;
+    letter-spacing: 4px;
+    -unity-font-style: bold;
+}
+
+.fleet-row__name.sunk {
+    color: rgb(120, 140, 165);
+}
+
+.fleet-sub {
+    padding: 6px 0 12px 20px;
+    margin-bottom: 2px;
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.weapon-row {
+    flex-direction: row;
+    align-items: center;
+    height: 44px;
+    margin: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 0;
+    color: rgb(190, 204, 222);
+    font-size: 15px;
+    letter-spacing: 3px;
+    -unity-font-style: bold;
+}
+
+.weapon-row:hover {
+    background-color: rgba(0, 0, 0, 0);
+    color: rgb(240, 246, 255);
+}
+
+.weapon-row:disabled {
+    opacity: 0.4;
+}
+
+.weapon-row .key-chip {
+    margin-right: 14px;
+}
+
+.weapon-row.lit .key-chip {
+    background-color: rgb(236, 242, 250);
+    border-color: rgb(236, 242, 250);
+    color: rgb(10, 14, 24);
+}
+
+.weapon-row__name {
+    margin: 0;
+    padding: 0;
+}
+
+.weapon-row__ammo {
+    margin: 0 0 0 12px;
+    padding: 0;
+    color: rgb(120, 140, 165);
+    letter-spacing: 1px;
+}
+
+.angles {
+    flex-direction: row;
+    padding: 4px 0 6px 0;
+}
+
+.angle {
+    width: 64px;
+    margin: 0 8px 0 0;
+    padding: 8px 0;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 2px;
+    border-color: rgba(0, 0, 0, 0);
+    border-radius: 0;
+}
+
+.angle:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.angle.lit {
+    border-color: rgb(236, 242, 250);
+}
+
+.angle__shape {
+    width: 54px;
+    height: 40px;
+    margin-bottom: 6px;
+}
+
+.angle.lit .key-chip {
+    background-color: rgb(236, 242, 250);
+    border-color: rgb(236, 242, 250);
+    color: rgb(10, 14, 24);
+}
+
+.fire {
+    width: 300px;
+    height: 64px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.fire__text {
+    margin: 0 16px 0 0;
+    padding: 0;
+    font-size: 22px;
+    letter-spacing: 8px;
+    -unity-font-style: bold;
+}
+
+.fire .fire__key {
+    min-width: 0;
+    border-color: rgba(10, 14, 24, 0.35);
+    color: rgb(10, 14, 24);
+}
+
+.fire:disabled .fire__key {
+    border-color: rgb(70, 86, 110);
+    color: rgb(120, 140, 165);
+}
+
+/* every shot, newest first */
+.feed {
+    margin-top: 44px;
+    align-items: flex-end;
+}
+
+.feed-row {
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    height: 40px;
+    transition: opacity 0.4s;
+}
+
+.feed-row--old {
+    opacity: 0.45;
+}
+
+.feed-row--older {
+    opacity: 0.22;
+}
+
+.feed-row__what {
+    margin: 0 16px 0 0;
+    padding: 0;
+    color: rgb(190, 204, 222);
+    font-size: 16px;
+    letter-spacing: 3px;
+}
+
+.feed-row__word {
+    width: 120px;
+    margin: 0 16px 0 0;
+    padding: 0;
+    font-size: 20px;
+    letter-spacing: 5px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-right;
+}
+
+.feed-row__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+}
+
+.shade {
+    background-color: rgba(4, 7, 14, 0.7);
     align-items: center;
     justify-content: center;
 }
 
-.pregame > * {
-    margin-bottom: 12px;
+/* space */
+.board {
+    align-items: center;
 }
 
-.countdown {
-    font-size: 120px;
+.board__mode {
+    margin: 0 0 40px 0;
+    padding: 0;
+    color: rgb(120, 140, 165);
+    font-size: 22px;
+    letter-spacing: 10px;
+}
+
+.board__cols {
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.board__col {
+    width: 440px;
+}
+
+.board__col--right {
+    align-items: flex-end;
+}
+
+.board__vs {
+    width: 160px;
+    margin: 0;
+    padding: 24px 0 0 0;
+    color: rgb(120, 140, 165);
+    font-size: 20px;
+    letter-spacing: 6px;
+    -unity-text-align: upper-center;
+}
+
+.board__name {
+    margin: 0;
+    padding: 0;
+    font-size: 64px;
+    letter-spacing: 3px;
+    -unity-font-style: bold;
+}
+
+.board__rank {
+    margin: 0 0 28px 0;
+    padding: 0;
+    color: rgb(120, 140, 165);
+    font-size: 16px;
+    letter-spacing: 6px;
+}
+
+.board__ship {
+    flex-direction: row;
+    align-items: center;
+    height: 40px;
+}
+
+.board__col--right .board__ship {
+    flex-direction: row-reverse;
+}
+
+.board__ship-image {
+    background-position-x: left 0;
+    -unity-background-scale-mode: scale-to-fit;
+    width: 150px;
+    height: 26px;
+    -unity-background-image-tint-color: rgb(225, 234, 245);
+}
+
+.board__col--right .board__ship-image {
+    scale: -1 1;
+}
+
+.board__ship-image.sunk {
+    opacity: 0.25;
+}
+
+.board__pips {
+    flex-direction: row;
+    margin-left: 20px;
+}
+
+.hull-pip {
+    width: 18px;
+    height: 9px;
+    margin-right: 4px;
+    border-radius: 2px;
+    background-color: rgba(200, 220, 255, 0.6);
+}
+
+.board__stats {
+    width: 100%;
+    margin-top: 28px;
+}
+
+/* esc: arrows and enter move through it like the main menu */
+.match-menu__items {
+    align-items: center;
+}
+
+.menu-item {
+    width: 440px;
+    height: 64px;
+    margin: 0 0 8px 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 2px;
+    border-color: rgba(0, 0, 0, 0);
+    border-radius: 0;
+    color: rgb(190, 204, 222);
+    font-size: 24px;
+    letter-spacing: 6px;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.menu-item:hover {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.menu-item.selected {
+    border-color: rgba(236, 242, 250, 0.35);
+    color: rgb(240, 246, 255);
+}
+
+.menu-item:disabled {
+    opacity: 0.35;
+}
+
+.menu-item--danger {
+    color: rgb(255, 110, 100);
+}
+
+.menu-item--danger.selected {
+    border-color: rgba(255, 110, 100, 0.4);
+    color: rgb(255, 110, 100);
+}
+
+/* intro */
+.intro__vignette {
+    background-image: url("project://database/Assets/Jonathan/UI/Textures/Vignette.png");
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.intro__card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.4s;
+}
+
+.intro__card.faded {
+    opacity: 0;
+}
+
+.intro__kicker {
+    height: 28px;
+    margin: 0 0 12px 0;
+    padding: 0;
+    font-size: 20px;
+    letter-spacing: 10px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
 }
 
-.banner {
-    position: absolute;
-    top: 16px;
-    align-self: center;
+.intro__title {
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 96px;
+    letter-spacing: 16px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
 }
 
-.corner {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    align-items: flex-end;
+.intro__rule {
+    width: 560px;
+    height: 3px;
+    margin: 18px 0 20px 0;
+    background-image: url("project://database/Assets/Jonathan/UI/Textures/Rule.png");
+    -unity-background-scale-mode: stretch-to-fill;
 }
 
-.turn-info {
-    position: absolute;
-    top: 110px;
-    left: 0;
-    width: 420px;
+.intro__line {
+    margin: 0;
+    padding: 0;
+    color: rgb(225, 234, 245);
+    font-size: 28px;
+    letter-spacing: 8px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
 }
 
-.attack-info {
-    position: absolute;
-    top: 110px;
-    right: 0;
-    width: 360px;
-}
-
-.scoreboard {
-    position: absolute;
-    top: 280px;
-    align-self: center;
-    align-items: center;
-}
-
-.chat {
-    position: absolute;
-    left: 16px;
-    bottom: 16px;
-    width: 420px;
-    height: 220px;
-}
-
-.bottom {
+.intro__count {
     position: absolute;
     left: 0;
+    top: 0;
     right: 0;
-    bottom: 16px;
-    align-items: center;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 220px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
 }
 
-.bottom > * {
-    margin-top: 8px;
+.flash {
+    background-color: rgb(0, 0, 0);
+    opacity: 0;
 }
 
-.ship-image {
-    width: 200px;
-    height: 40px;
-}
-
-.fleet-key {
-    width: 150px;
-}
-
-.fleet-icon {
-    width: 128px;
-    height: 36px;
+.hidden {
+    display: none;
 }

@@ -405,6 +405,7 @@ MonoBehaviour:
     type: 4
     shipPrefab: {fileID: 1761160555207580740, guid: f9749d8bb078d674e96f88c5932b3dd7, type: 3}
     display: {fileID: 21300000, guid: 4ccb0b29b6d25814fb2479ffa7504153, type: 3}
+    silhouette: {fileID: 2800000, guid: 45afbc6ca7645f742bcb3b08559a34ee, type: 3}
     length: 2
     attacks:
     - name: Single Shot
@@ -454,6 +455,7 @@ MonoBehaviour:
     type: 3
     shipPrefab: {fileID: 5294468166837700255, guid: 147078955236af742b26f3d8f1e66964, type: 3}
     display: {fileID: 21300000, guid: 9e1967fdaf490f944b2f56040da0d680, type: 3}
+    silhouette: {fileID: 2800000, guid: b93d4b88a96e651498db13c0ab58f544, type: 3}
     length: 3
     attacks:
     - name: Single Shot
@@ -532,6 +534,7 @@ MonoBehaviour:
     type: 2
     shipPrefab: {fileID: 5212696150859389630, guid: 30097521681777c439f9fbe342cdbd79, type: 3}
     display: {fileID: 21300000, guid: 72ebd983c27cb764c9740ecf7ac245cc, type: 3}
+    silhouette: {fileID: 2800000, guid: 92f99d01d0789cb4e9a16c521e567a89, type: 3}
     length: 3
     attacks:
     - name: Single Shot
@@ -608,6 +611,7 @@ MonoBehaviour:
     type: 1
     shipPrefab: {fileID: 3610626180894237609, guid: 84497865bad277547b2f353db4cf062f, type: 3}
     display: {fileID: 21300000, guid: 8b1ff3184fc91524c8e53ac0fe3dfa9c, type: 3}
+    silhouette: {fileID: 2800000, guid: 6b5a1e43e38e1be408f48e09101847a6, type: 3}
     length: 4
     attacks:
     - name: Single Shot
@@ -661,6 +665,7 @@ MonoBehaviour:
     type: 0
     shipPrefab: {fileID: 3393808774734322253, guid: 6c6546001c2a60d418f006ef84541e4f, type: 3}
     display: {fileID: 21300000, guid: 2d82b0b6e81efb84fa141009e8791167, type: 3}
+    silhouette: {fileID: 2800000, guid: 8d64bc11a76683d4cb1f7b5426cbd7ad, type: 3}
     length: 5
     attacks:
     - name: Single Shot
@@ -821,8 +826,8 @@ MonoBehaviour:
   - teamType: 1
     teamBase: {fileID: 2142142763}
     isPlayer: 0
-  edgeColor: {r: 0.25, g: 0.8, b: 2.4, a: 1}
-  enemyEdgeColor: {r: 1, g: 0.25, b: 0.12, a: 1}
+  edgeGlow: 2.4
+  enemyEdgeGlow: 1
 --- !u!114 &224746699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -837,13 +842,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackManager: {fileID: 1007787192}
   selector: {fileID: 1007787193}
-  panelSlider: {fileID: 2068320509}
   countdown: {fileID: 2068320510}
   shipManager: {fileID: 224746695}
   teamManager: {fileID: 224746698}
-  document: {fileID: 2068320511}
-  playerTurnColor: {r: 0.1, g: 0.35, b: 0.85, a: 1}
-  enemyTurnColor: {r: 0.8, g: 0.1, b: 0.1, a: 1}
   currentTeam:
     teamType: 0
     teamBase: {fileID: 0}
@@ -863,52 +864,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2879c1c8a55123f49a4ba8deb077db7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameModes:
-  - name: Advanced Combat
-    gameMode: 0
-    isSingleplayer: 0
-    isAdvancedCombat: 1
-    isSalvo: 0
-    isBonus: 0
-    isUnlimitedAmmo: 0
-    turnTimeLimit: 25
-    allowChat: 1
-  - name: Classic Battleship
-    gameMode: 1
-    isSingleplayer: 0
-    isAdvancedCombat: 0
-    isSalvo: 0
-    isBonus: 0
-    isUnlimitedAmmo: 0
-    turnTimeLimit: 25
-    allowChat: 1
-  - name: Tactical Salvo
-    gameMode: 2
-    isSingleplayer: 0
-    isAdvancedCombat: 0
-    isSalvo: 1
-    isBonus: 0
-    isUnlimitedAmmo: 0
-    turnTimeLimit: 25
-    allowChat: 1
-  - name: Bonus Barrage
-    gameMode: 3
-    isSingleplayer: 0
-    isAdvancedCombat: 0
-    isSalvo: 0
-    isBonus: 1
-    isUnlimitedAmmo: 0
-    turnTimeLimit: 25
-    allowChat: 1
-  - name: Custom
-    gameMode: 4
-    isSingleplayer: 1
-    isAdvancedCombat: 1
-    isSalvo: 0
-    isBonus: 0
-    isUnlimitedAmmo: 0
-    turnTimeLimit: 25
-    allowChat: 1
 --- !u!114 &224746701
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -978,6 +933,13 @@ MonoBehaviour:
   across: 0.55
   height: 420
   focus: 0.55
+  startPitch: 8
+  endPitch: 64
+  startDistance: 0.3
+  fitPadding: 1.05
+  turn: 200
+  minHeight: 14
+  endYaw: 0
 --- !u!114 &270042339
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1335,246 +1297,307 @@ MonoBehaviour:
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   teamBase: {fileID: 0}
   useFog: 0
   fogMaterial: {fileID: 2100000, guid: 985ebadcc9cb47f9ab44fd791a6800f6, type: 2}
@@ -1909,246 +1932,307 @@ MonoBehaviour:
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   - hexRenderer: {fileID: 0}
     shipSegment: {fileID: 0}
     isEdge: 0
     preventShips: 0
+    attacked: 0
   teamBase: {fileID: 0}
   useFog: 1
   fogMaterial: {fileID: 2100000, guid: 985ebadcc9cb47f9ab44fd791a6800f6, type: 2}
@@ -2393,7 +2477,6 @@ GameObject:
   - component: {fileID: 1007787193}
   - component: {fileID: 1007787192}
   - component: {fileID: 1007787194}
-  - component: {fileID: 1007787195}
   - component: {fileID: 1007787197}
   m_Layer: 0
   m_Name: InterfaceManager
@@ -2434,7 +2517,6 @@ MonoBehaviour:
   teamManager: {fileID: 224746698}
   shipManager: {fileID: 224746695}
   countdown: {fileID: 2068320510}
-  attackPanel: {fileID: 2068320508}
   document: {fileID: 2068320511}
   arrowGroup: {fileID: 1284743392}
   shotsFired: 0
@@ -2491,18 +2573,6 @@ MonoBehaviour:
   missShakeFadeInTime: 0
   missShakeFadeOutTime: 4
   hit: 0
---- !u!114 &1007787195
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1007787190}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f4c87c60ab622e4da17737053dd2fb9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1007787196
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2516,15 +2586,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   document: {fileID: 2068320511}
-  fadeInFrom: {r: 0.101960786, g: 0.13725491, b: 0.16470589, a: 1}
-  fadeInTo: {r: 0.101960786, g: 0.13725491, b: 0.16470589, a: 0.14901961}
-  fadeInDuration: 1
-  fadedIn: 0
   introCamera: {fileID: 270042338}
-  countdownDuration: 10
-  countdownStarted: 0
-  countdownPunch: 1.4
-  countdownSettle: 0.35
+  fadeInDuration: 1
+  overviewTime: 2.5
+  spiralTime: 3.4
+  flashIn: 0.2
+  flashHold: 0.12
+  flashOut: 0.4
+  countFrom: 3
+  countStep: 0.8
+  countPunch: 1.4
+  countSettle: 0.35
 --- !u!114 &1007787197
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3465,9 +3537,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7958eb4f6525144ab579bb10c535cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hideScoreboardOnStart: 1
   scoreboardMode: 1
-  document: {fileID: 2068320511}
   attackManager: {fileID: 1007787192}
 --- !u!1 &1708113312
 GameObject:
@@ -3597,9 +3667,8 @@ GameObject:
   - component: {fileID: 2068320512}
   - component: {fileID: 2068320511}
   - component: {fileID: 2068320510}
-  - component: {fileID: 2068320509}
-  - component: {fileID: 2068320508}
-  - component: {fileID: 2068320507}
+  - component: {fileID: 2068320514}
+  - component: {fileID: 2068320513}
   m_Layer: 0
   m_Name: UI
   m_TagString: Untagged
@@ -3607,215 +3676,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2068320507
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2068320506}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba3601881c261e943ba7ce6123235038, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIButtons
-  buttons:
-  - element: pivot
-    sound: 1
-    key: 
-    onClick:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1007787194}
-          m_TargetAssemblyTypeName: CameraManager, Assembly-CSharp
-          m_MethodName: SetCameraState
-          m_Mode: 3
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: 
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - element: top
-    sound: 1
-    key: 
-    onClick:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1007787194}
-          m_TargetAssemblyTypeName: CameraManager, Assembly-CSharp
-          m_MethodName: SetCameraState
-          m_Mode: 3
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: 
-            m_IntArgument: 1
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - element: zoomOut
-    sound: 1
-    key: 
-    onClick:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1007787194}
-          m_TargetAssemblyTypeName: CameraManager, Assembly-CSharp
-          m_MethodName: ZoomOut
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: 
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - element: zoomIn
-    sound: 1
-    key: 
-    onClick:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1007787194}
-          m_TargetAssemblyTypeName: CameraManager, Assembly-CSharp
-          m_MethodName: ZoomIn
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: 
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - element: menu
-    sound: 1
-    key: 
-    onClick:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 2068320507}
-          m_TargetAssemblyTypeName: UIButtons, Assembly-CSharp
-          m_MethodName: Toggle
-          m_Mode: 5
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: 
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: options
-            m_BoolArgument: 0
-          m_CallState: 2
-  - element: skip
-    sound: 0
-    key: 
-    onClick:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1007787192}
-          m_TargetAssemblyTypeName: AttackUIManager, Assembly-CSharp
-          m_MethodName: SkipTurn
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: 
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - element: mute
-    sound: 0
-    key: 
-    onClick:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 997793328}
-          m_TargetAssemblyTypeName: MatchChat, Assembly-CSharp
-          m_MethodName: DisableChat
-          m_Mode: 6
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: 
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 1
-          m_CallState: 2
-  - element: surrender
-    sound: 0
-    key: 
-    onClick:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1007787195}
-          m_TargetAssemblyTypeName: SurrenderButton, Assembly-CSharp
-          m_MethodName: Surrender
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: 
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
---- !u!114 &2068320508
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2068320506}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0225404d1b4200643ab0231db3449a9a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  document: {fileID: 2068320511}
-  element: attackInfo
-  direction: right
-  exp: 1
-  hasAttackIntent: 1
-  hitColor: {r: 0.8, g: 0.1, b: 0.1, a: 1}
-  missColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
-  sunkColor: {r: 0.85, g: 0.45, b: 0, a: 1}
-  contactColor: {r: 0.1, g: 0.4, b: 0.9, a: 1}
-  state: 0
-  speedOut: 0.1
-  speedIn: 0.15
-  infinite: 0
-  duration: 10
---- !u!114 &2068320509
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2068320506}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0225404d1b4200643ab0231db3449a9a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  document: {fileID: 2068320511}
-  element: turnInfo
-  direction: left
-  exp: 1
-  hasAttackIntent: 0
-  hitColor: {r: 0.8, g: 0.1, b: 0.1, a: 1}
-  missColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
-  sunkColor: {r: 0.85, g: 0.45, b: 0, a: 1}
-  contactColor: {r: 0.1, g: 0.4, b: 0.9, a: 1}
-  state: 0
-  speedOut: 0.1
-  speedIn: 0.15
-  infinite: 0
-  duration: 4
 --- !u!114 &2068320510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3828,8 +3688,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17ea71bf42c474e4cbbd56228aa8b4e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  document: {fileID: 2068320511}
-  element: turnTimer
   doCountdown: 1
   isPaused: 0
   isUnlimited: 0
@@ -3838,7 +3696,6 @@ MonoBehaviour:
   continueAddTime: 10
   continueAddTimeSalvo: 5
   attackManager: {fileID: 1007787192}
-  lowColor: {r: 0.8, g: 0.1, b: 0.1, a: 1}
 --- !u!114 &2068320511
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3877,6 +3734,42 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2068320513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2068320506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf556b8f102e5a84c9f8857bb158d62f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MatchMenu
+  document: {fileID: 2068320511}
+  attackManager: {fileID: 1007787192}
+  matchChat: {fileID: 997793328}
+--- !u!114 &2068320514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2068320506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f94a3725ded8b2540bf84b10b1eab79d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MatchHud
+  document: {fileID: 2068320511}
+  shipManager: {fileID: 224746695}
+  attackManager: {fileID: 1007787192}
+  feedLength: 8
+  missColor: {r: 0.47, g: 0.55, b: 0.65, a: 1}
+  sunkColor: {r: 1, g: 0.77, b: 0.31, a: 1}
+  contactColor: {r: 0.31, g: 0.78, b: 1, a: 1}
+  lowTime: 3
+  pulseSpeed: 5
 --- !u!1 &2097605039
 GameObject:
   m_ObjectHideFlags: 0

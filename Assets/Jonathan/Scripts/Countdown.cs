@@ -1,17 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
+// the turn clock: counts the current side's seconds and drains its bar on the hud
 public class Countdown : MonoBehaviour
 {
-    [SerializeField]
-    private UIDocument document;
-    [SerializeField]
-    private string element = "turnTimer";
-    private Label countdownText;
-
-    public int currentTime => int.Parse(countdownText.text.Replace("s", ""));
+    // the seconds left this turn
+    public int currentTime { get; private set; }
 
     [SerializeField]
     private bool doCountdown = true;
@@ -32,17 +27,11 @@ public class Countdown : MonoBehaviour
     [SerializeField]
     private AttackUIManager attackManager;
 
-    [SerializeField]
-    private Color lowColor;
-
     void Awake() {
-        countdownText = document.rootVisualElement.Q<Label>(element);
-
         resetTime = normalResetTime;
 
         isPaused = false;
         botTurn = false;
-
     }
 
     void Start() {
@@ -57,11 +46,6 @@ public class Countdown : MonoBehaviour
 
         isUnlimited = normalResetTime <= 0 || GameModeInfo.instance.IsSingleplayer;
     }
-    
-    // we need to have method which starts countdown
-    // method that stops countdown
-    // method that restarts countdown
-    // and ienumerator that counts down every second
 
     /// <summary> Adds time and restarts the countdown. </summary>
     public void AddTime(int? setTimeBeforeAdd = null) {
@@ -83,15 +67,6 @@ public class Countdown : MonoBehaviour
         if (!doCountdown) return;
 
         StopAllCoroutines();
-        
-        if (isUnlimited) {
-            countdownText.text = "∞";
-        }
-        else {
-            countdownText.text = resetTime.ToString() + "s";
-            countdownText.style.color = StyleKeyword.Null;
-        }
-
         StartCoroutine(CountdownCoroutine(overrideTime));
 
         resetTime = normalResetTime;
@@ -107,48 +82,39 @@ public class Countdown : MonoBehaviour
 
         StopAllCoroutines();
     }
+
+    private void Show(int time) {
+        currentTime = time;
+        var full = Mathf.Max(1, normalResetTime);
+        MatchHud.instance?.SetClock((float)time / full, time, isUnlimited);
+    }
     
-    private IEnumerator CountdownCoroutine(float? overrideTime = null, bool doColor = true) {
-        var time = overrideTime ?? resetTime;
-        
-        if (isUnlimited) {
-            time = 99999;
+    private IEnumerator CountdownCoroutine(float? overrideTime = null) {
+        var time = (int)(overrideTime ?? resetTime);
+
+        // the bot plays after a moment, its clock just stays full
+        var bot = botTurn;
+        if (bot) {
+            time = singlePlayerAITime;
         }
 
-        // just for display... will only go down by singlePlayerAITime if it's the bot's turn
-        if (botTurn) {
-            time = 10;
-        }
-
-        var initialTime = time;
-
-        while (time > 0) {
-            var timeElapsed = initialTime - time;
-
-            if (botTurn && timeElapsed >= singlePlayerAITime) {
-                botTurn = false;
-                attackManager.RandomBotAttack();
-                yield break;
-            }
-
-            if (isUnlimited && !botTurn) {
-                countdownText.text = "∞";
-            }
-            else {
-                countdownText.text = time.ToString() + "s";
-                if (doColor) {
-                    countdownText.style.color = time < 5 ? lowColor : new StyleColor(StyleKeyword.Null);
-                }
-            }
+        while (time > 0 || isUnlimited && !bot) {
+            Show(time);
 
             yield return new WaitForSeconds(1);
             
-            if (TurnManager.instance.gameActive && !isPaused && (!isUnlimited || botTurn)) {
+            if (TurnManager.instance.gameActive && !isPaused && (!isUnlimited || bot)) {
                 time--;
             }
         }
-        
-        countdownText.text = "0s";
+
+        if (bot) {
+            botTurn = false;
+            attackManager.RandomBotAttack();
+            yield break;
+        }
+
+        Show(0);
         
         if (TurnManager.instance.currentTeam.isPlayer) {
             attackManager.RandomAttack();

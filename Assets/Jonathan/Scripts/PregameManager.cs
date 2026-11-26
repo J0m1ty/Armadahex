@@ -24,148 +24,144 @@ public enum ConnectionType {
     Offline
 }
 
+// the intro: the map with the playlist over it, then the player going second and the one going first,
+// each a spiral out over their board, a flash between each, and a count into the first turn from the top view
 public class PregameManager : MonoBehaviour
 {
-    [Header("Panel Info")]
     [SerializeField]
     private UIDocument document;
-    private VisualElement pregameDisplay;
-    private VisualElement uiDisplay;
-    [SerializeField]
-    private Color fadeInFrom;
-    [SerializeField]
-    private Color fadeInTo;
-    [SerializeField]
-    private float fadeInDuration = 1f;
-    [SerializeField]
-    private bool fadedIn;
     [SerializeField]
     private IntroCamera introCamera;
 
-    private Label friendlyPlayerName;
-    private Label friendlyGamesPlayed;
-    private Label enemyPlayerName;
-    private Label enemyGamesPlayed;
-
-    private Label connectionType;
-    private Label gameType;
-    private Label advancedAttacks;
-    private Label timePerTurn;
-    private Label firstPlayer;
-
-    private Label waitingForOtherPlayerText;
-    private Label countdownText;
-
-    [Header("Countdown Info")]
+    [Header("Timing")]
+    // the screen comes up from black
     [SerializeField]
-    private float countdownDuration = 5f;
+    private float fadeInDuration = 1f;
+    // the map shows at least this long, or until the other player is ready
     [SerializeField]
-    private bool countdownStarted;
+    private float overviewTime = 2.5f;
+    [SerializeField]
+    private float spiralTime = 3.4f;
+    [SerializeField]
+    private float flashIn = 0.2f;
+    [SerializeField]
+    private float flashHold = 0.12f;
+    [SerializeField]
+    private float flashOut = 0.4f;
+
+    [Header("Count")]
+    [SerializeField]
+    private int countFrom = 3;
+    [SerializeField]
+    private float countStep = 0.8f;
     // each new number lands big and settles
     [SerializeField]
-    private float countdownPunch = 1.4f;
+    private float countPunch = 1.4f;
     [SerializeField]
-    private float countdownSettle = 0.35f;
+    private float countSettle = 0.35f;
 
-    // the scoreboard
-    private Label uiConnectionType;
-    private Label uiGameType;
-    private Label uiPlayers;
+    private const string separator = "   ·   ";
+    private const string defaultRank = "Ensign";
+
+    private VisualElement intro;
+    private VisualElement vignette;
+    private VisualElement card;
+    private Label kicker;
+    private Label title;
+    private Label line;
+    private Label count;
+    private VisualElement flash;
+
+    private bool fadedIn;
+    private bool started;
+    private float shownAt;
+
+    private ConnectionType connection;
+    private string playlist = "";
+    private string rules = "";
+    private bool youFirst = true;
+    private string youName = "Player";
+    private string enemyName = "Enemy";
 
     // other scripts can set the info before this one starts
     void Awake() {
         var root = document.rootVisualElement;
-        pregameDisplay = root.Q("pregame");
-        uiDisplay = root.Q("hud");
-        friendlyPlayerName = root.Q<Label>("friendlyName");
-        friendlyGamesPlayed = root.Q<Label>("friendlyGames");
-        enemyPlayerName = root.Q<Label>("enemyName");
-        enemyGamesPlayed = root.Q<Label>("enemyGames");
-        connectionType = root.Q<Label>("connectionType");
-        gameType = root.Q<Label>("gameType");
-        advancedAttacks = root.Q<Label>("advancedAttacks");
-        timePerTurn = root.Q<Label>("timePerTurn");
-        firstPlayer = root.Q<Label>("firstPlayer");
-        waitingForOtherPlayerText = root.Q<Label>("waiting");
-        countdownText = root.Q<Label>("countdownText");
-        uiConnectionType = root.Q<Label>("boardType");
-        uiGameType = root.Q<Label>("boardMode");
-        uiPlayers = root.Q<Label>("boardPlayers");
-    }
-
-    public static string ConnectionTypeToString(ConnectionType ct) {
-        switch (ct) {
-            case ConnectionType.PublicMultiplayer:
-                return "Public Multiplayer";
-            case ConnectionType.PrivateMultiplayer:
-                return "Private Multiplayer";
-            case ConnectionType.Offline:
-                return "Singleplayer";
-        }
-        return "";
+        intro = root.Q("intro");
+        vignette = root.Q("introVignette");
+        card = root.Q("introCard");
+        kicker = root.Q<Label>("introKicker");
+        title = root.Q<Label>("introTitle");
+        line = root.Q<Label>("introLine");
+        count = root.Q<Label>("introCount");
+        flash = root.Q("flash");
     }
 
     public void SetInfo(ConnectionType ct, string gameMode, bool advancedAttacks, int timePerTurn, bool firstPlayer) {
-        this.connectionType.text = ConnectionTypeToString(ct).ToUpper();
-        this.gameType.text = gameMode.ToUpper();
-        this.advancedAttacks.text = advancedAttacks ? "ADVANCED ATTACKS" : "CLASSIC ATTACKS";
-        this.timePerTurn.text = timePerTurn > 0 ? timePerTurn + "S PER TURN" : "NO TURN LIMIT";
-        this.firstPlayer.text = firstPlayer ? "YOU GO FIRST" : "THEY GO FIRST";
+        connection = ct;
+        playlist = gameMode.ToUpper();
+        youFirst = firstPlayer;
 
-        SetLeaderboardInfo(ct, gameMode);
+        // one or two rules that change how it plays
+        var parts = new List<string> { advancedAttacks ? "ADVANCED COMBAT" : "CLASSIC RULES" };
+        var info = GameModeInfo.instance;
+        if (info.IsSalvo) parts.Add("SALVO");
+        else if (info.IsBonus) parts.Add("BONUS SHOTS");
+        else if (timePerTurn > 0 && ct != ConnectionType.Offline) parts.Add(timePerTurn + "S TURNS");
+        rules = string.Join(separator, parts);
+
+        if (!started) ShowOverview();
     }
 
-    public void SetLeaderboardInfo(ConnectionType ct, string gameMode) {
-        this.uiConnectionType.text = ConnectionTypeToString(ct).ToUpper();
-        this.uiGameType.text = gameMode.ToUpper();
-    }
-    
-    // ranks and xp aren't tracked yet, so the cards only show names and games played
+    // ranks and xp aren't tracked yet: a bot is a bot, everyone else starts as the first rank, unranked
     public void SetPlayerInfo(string friendlyName, RankInfo rank, int friendlyGamesPlayed, int friendlyXP, string enemyName, RankInfo enemyRank, int enemyGamesPlayed, int enemyXP) {
-        this.friendlyPlayerName.text = friendlyName.Length > 0 ? friendlyName : "Player";
-        this.friendlyGamesPlayed.text = friendlyGamesPlayed + " GAMES PLAYED";
-
-        this.enemyPlayerName.text = enemyName;
-        this.enemyGamesPlayed.text = enemyGamesPlayed + " GAMES PLAYED";
-
-        SetLeaderboardPlayerInfo(this.friendlyPlayerName.text, enemyName);
+        youName = friendlyName.Length > 0 ? friendlyName : "Player";
+        this.enemyName = enemyName;
+        MatchHud.instance.SetNames(youName, YourRank(), this.enemyName, EnemyRank());
     }
 
-    public void SetLeaderboardPlayerInfo(string friendlyName, string enemyName) {
-        this.uiPlayers.text = friendlyName.ToUpper() + "  VS  " + enemyName.ToUpper();
+    private bool offline => connection == ConnectionType.Offline;
+
+    private string YourRank() {
+        return PlayerPrefs.GetString(Constants.STAT_MULTIPLAYER_RANK, defaultRank);
+    }
+
+    private string EnemyRank() {
+        return offline ? "Bot" : defaultRank;
     }
 
     void Start() {
-        countdownStarted = false;
-
-        countdownText.text = countdownDuration + "";
-
-        UIKit.Show(pregameDisplay, true);
-        UIKit.Show(uiDisplay, false);
-        Fade();
-
-        // the announcer's lines are per old mode; a playlist without one stays quiet
-        if (System.Enum.TryParse(GameNetworking.instance.gameMode, out GameMode mode)) {
-            AudioManager.instance?.PlayGameModeSound(mode);
-        }
-
-        UIKit.Show(waitingForOtherPlayerText, !GameModeInfo.instance.IsSingleplayer);
+        MatchHud.instance.Show(false);
+        UIKit.Show(intro, true);
+        UIKit.Show(count, false);
+        ShowOverview();
+        StartCoroutine(FadeIn());
     }
 
-    public void Fade() {
-        StartCoroutine(FadeCoroutine());
+    private void ShowOverview() {
+        kicker.text = "";
+        title.text = playlist;
+        line.text = rules;
     }
 
-    private IEnumerator FadeCoroutine() {
-        float time = 0;
-        while (time < fadeInDuration) {
-            pregameDisplay.style.backgroundColor = Color.Lerp(fadeInFrom, fadeInTo, time / fadeInDuration);
-            time += Time.deltaTime;
+    private void ShowPlayer(bool you) {
+        kicker.text = you ? "YOU" : "ENEMY";
+        kicker.style.color = you ? SideColors.Player : SideColors.Enemy;
+        title.text = (you ? youName : enemyName).ToUpper();
+
+        var rank = (you ? YourRank() : EnemyRank()).ToUpper();
+        line.text = offline ? (you ? rank : "TRAINING") : rank + separator + "UNRANKED";
+    }
+
+    private IEnumerator FadeIn() {
+        flash.style.opacity = 1;
+        for (var time = 0f; time < fadeInDuration; time += Time.deltaTime) {
+            flash.style.opacity = 1 - time / fadeInDuration;
             yield return null;
         }
-        pregameDisplay.style.backgroundColor = fadeInTo;
+        flash.style.opacity = 0;
 
         fadedIn = true;
+        shownAt = Time.time;
 
         GameNetworking.instance.DisplayLoaded();
 
@@ -174,44 +170,86 @@ public class PregameManager : MonoBehaviour
         }
     }
 
+    // both players start this together, and every step after it takes a fixed time, so the first turn lines up
     public void TryStartCountdown() {
-        if (TurnManager.instance.loading || countdownStarted || !fadedIn) return;
+        if (TurnManager.instance.loading || started || !fadedIn) return;
 
-        Debug.Log("Starting countdown...");
-        UIKit.Show(waitingForOtherPlayerText, false);
+        Debug.Log("Starting intro...");
+        started = true;
+        StartCoroutine(Sequence());
+    }
 
-        StartCountdown(() => {
-            UIKit.Show(pregameDisplay, false);
-            UIKit.Show(uiDisplay, true);
-            if (introCamera != null) introCamera.End();
-            TurnManager.instance.StartGame();
+    private IEnumerator Sequence() {
+        while (Time.time - shownAt < overviewTime) yield return null;
+
+        var tm = TurnManager.instance;
+        var you = tm.playerTeam;
+        var enemy = tm.enemyTeam;
+        var second = youFirst ? enemy : you;
+        var first = youFirst ? you : enemy;
+
+        yield return Flash(() => ShowPlayer(!youFirst));
+        yield return Spiral(second);
+
+        yield return Flash(() => ShowPlayer(youFirst));
+        yield return Spiral(first);
+
+        // back from the last flash in the top view, over the board the first turn plays on
+        yield return Flash(() => {
+            introCamera.End();
+            var board = youFirst ? enemy : you;
+            CameraManager.instance.SetCameraState(CameraState.Top, false);
+            CameraManager.instance.MoveToInstant(board.teamBase.transform.position);
+            UIKit.Show(card, false);
+            UIKit.Show(vignette, false);
+            MatchHud.instance.Show(true);
         });
+
+        yield return Count();
+
+        UIKit.Show(intro, false);
+        tm.StartGame();
     }
 
-    private void StartCountdown(Action callback) {
-        StartCoroutine(Countdown(callback));
-    }
-
-    private IEnumerator Countdown(Action callback) {
-        countdownStarted = true;
-        float time = countdownDuration;
-        var shown = -1;
-        var scale = 1f;
-        while (time > 0) {
-            var number = Mathf.CeilToInt(time);
-            if (number != shown) {
-                shown = number;
-                countdownText.text = number + "";
-                scale = countdownPunch;
-            }
-
-            var settle = 1 - Mathf.Exp(-Time.deltaTime / Mathf.Max(0.01f, countdownSettle) * 4);
-            scale = Mathf.Lerp(scale, 1, settle);
-            countdownText.style.scale = new Scale(Vector3.one * scale);
-
-            time -= Time.deltaTime;
+    private IEnumerator Spiral(Team team) {
+        for (var time = 0f; time < spiralTime; time += Time.deltaTime) {
+            introCamera.Spiral(team, time / spiralTime);
             yield return null;
         }
-        callback();
+        introCamera.Spiral(team, 1);
+    }
+
+    // the screen dips to black, swaps while it's dark and comes back
+    private IEnumerator Flash(Action swap) {
+        for (var time = 0f; time < flashIn; time += Time.deltaTime) {
+            flash.style.opacity = time / flashIn;
+            yield return null;
+        }
+        flash.style.opacity = 1;
+
+        swap();
+        yield return new WaitForSeconds(flashHold);
+
+        for (var time = 0f; time < flashOut; time += Time.deltaTime) {
+            flash.style.opacity = 1 - time / flashOut;
+            yield return null;
+        }
+        flash.style.opacity = 0;
+    }
+
+    private IEnumerator Count() {
+        UIKit.Show(count, true);
+        for (var number = countFrom; number > 0; number--) {
+            count.text = number.ToString();
+            var scale = countPunch;
+            for (var time = 0f; time < countStep; time += Time.deltaTime) {
+                var settle = 1 - Mathf.Exp(-Time.deltaTime / Mathf.Max(0.01f, countSettle) * 4);
+                scale = Mathf.Lerp(scale, 1, settle);
+                count.style.scale = new Scale(Vector3.one * scale);
+                count.style.opacity = 1 - Mathf.Clamp01((time - countStep * 0.6f) / (countStep * 0.4f));
+                yield return null;
+            }
+        }
+        UIKit.Show(count, false);
     }
 }

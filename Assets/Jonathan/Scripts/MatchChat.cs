@@ -21,8 +21,12 @@ public class MatchChat : MonoBehaviourPunCallbacks
 
     public void DisableChat(bool share) {
         allowChat = false;
-        disableMatchChatButton.text = "CHAT DISABLED";
-        disableMatchChatButton.SetEnabled(false);
+        // a bot match has no mute button
+        var button = disableMatchChatButton;
+        if (button != null) {
+            button.text = "CHAT MUTED";
+            button.SetEnabled(false);
+        }
 
         if (share) {
             photonView.RPC("DisableChatRPC", RpcTarget.Others);

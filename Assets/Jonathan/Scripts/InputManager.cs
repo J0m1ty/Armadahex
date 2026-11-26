@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 using UnityEngine.InputSystem;
 
 public enum KeyMode {
@@ -12,30 +11,20 @@ public enum KeyMode {
 public class InputManager : MonoBehaviour
 {   
     [Header("Scoreboard")]
-    [SerializeField] private bool hideScoreboardOnStart = true;
     [SerializeField] private KeyMode scoreboardMode = KeyMode.Hold;
-    [SerializeField] private UIDocument document;
-    private VisualElement scoreboard;
 
     [Header("Interactions")]
     [SerializeField] private AttackUIManager attackManager;
-    private Button fireButton;
-    private Button cancelButton;
 
     // bindings live in Resources/Controls, under Gameplay
     private InputAction scoreboardAction;
     private InputAction switchShipAction;
     private InputAction fireAction;
     private InputAction cancelAction;
-    // the numbered buttons on screen: ships, then weapons, then patterns
+    // the numbered rows on screen: ships, then weapons, then angles
     private InputAction[] choiceActions = new InputAction[5];
 
     void Start() {
-        var root = document.rootVisualElement;
-        scoreboard = root.Q("scoreboard");
-        fireButton = root.Q<Button>("fire");
-        cancelButton = root.Q<Button>("back");
-
         for (var i = 0; i < choiceActions.Length; i++) {
             choiceActions[i] = GameInput.Get("Gameplay/Choice " + (i + 1));
         }
@@ -44,25 +33,34 @@ public class InputManager : MonoBehaviour
         switchShipAction = GameInput.Get("Gameplay/Switch Ship");
         fireAction = GameInput.Get("Gameplay/Fire");
         cancelAction = GameInput.Get("Gameplay/Cancel");
-
-        if (hideScoreboardOnStart) {
-            UIKit.Show(scoreboard, false);
-        }
     }
     
     void Update() {
         if (GameInput.typing) return;
 
-        if (scoreboardAction.WasPressedThisFrame()) {
-            if (scoreboardMode == KeyMode.Toggle) {
-                UIKit.Show(scoreboard, !UIKit.IsShown(scoreboard));
-            } else {
-                UIKit.Show(scoreboard, true);
+        // nothing works before the first turn, the intro is still playing
+        var tm = TurnManager.instance;
+        if (tm == null || !tm.gameActive) return;
+
+        var menu = MatchMenu.instance;
+
+        // esc steps back while there's something to step back from, otherwise it opens or closes the menu
+        if (cancelAction.WasPressedThisFrame()) {
+            if (menu.isOpen || !attackManager.StepBack()) {
+                MatchHud.instance.ShowScoreboard(false);
+                menu.Toggle();
             }
         }
 
+        if (menu.isOpen) return;
+
+        var hud = MatchHud.instance;
+        if (scoreboardAction.WasPressedThisFrame()) {
+            hud.ShowScoreboard(scoreboardMode == KeyMode.Hold || !hud.scoreboardShown);
+        }
+
         if (scoreboardAction.WasReleasedThisFrame() && scoreboardMode == KeyMode.Hold) {
-            UIKit.Show(scoreboard, false);
+            hud.ShowScoreboard(false);
         }
 
         if (switchShipAction.WasPressedThisFrame()) {
@@ -76,15 +74,7 @@ public class InputManager : MonoBehaviour
         }
 
         if (fireAction.WasPressedThisFrame()) {
-            if (UIKit.IsShown(fireButton) && fireButton.enabledSelf) {
-                UIKit.Click(fireButton);
-            }
-        }
-
-        if (cancelAction.WasPressedThisFrame()) {
-            if (UIKit.IsShown(cancelButton)) {
-                UIKit.Click(cancelButton);
-            }
+            attackManager.Fire();
         }
     }
 }
