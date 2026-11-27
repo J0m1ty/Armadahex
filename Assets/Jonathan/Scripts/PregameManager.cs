@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.UIElements;
+using System.Linq;
 
 public enum Rank {
     Ensign,
@@ -66,6 +67,7 @@ public class PregameManager : MonoBehaviour
     private VisualElement intro;
     private VisualElement vignette;
     private VisualElement card;
+    private VisualElement rule;
     private Label kicker;
     private Label title;
     private Label line;
@@ -89,6 +91,7 @@ public class PregameManager : MonoBehaviour
         intro = root.Q("intro");
         vignette = root.Q("introVignette");
         card = root.Q("introCard");
+        rule = card.Q(className: "intro__rule");
         kicker = root.Q<Label>("introKicker");
         title = root.Q<Label>("introTitle");
         line = root.Q<Label>("introLine");
@@ -101,13 +104,14 @@ public class PregameManager : MonoBehaviour
         playlist = gameMode.ToUpper();
         youFirst = firstPlayer;
 
-        // one or two rules that change how it plays
+        // one or two rules that change how it plays, leaving out what the playlist's name already says
         var parts = new List<string> { advancedAttacks ? "ADVANCED COMBAT" : "CLASSIC RULES" };
         var info = GameModeInfo.instance;
         if (info.IsSalvo) parts.Add("SALVO");
         else if (info.IsBonus) parts.Add("BONUS SHOTS");
-        else if (timePerTurn > 0 && ct != ConnectionType.Offline) parts.Add(timePerTurn + "S TURNS");
-        rules = string.Join(separator, parts);
+        if (timePerTurn > 0 && ct != ConnectionType.Offline) parts.Add(timePerTurn + "S TURNS");
+        parts.RemoveAll(part => playlist.Contains(part));
+        rules = string.Join(separator, parts.Take(2));
 
         if (!started) ShowOverview();
     }
@@ -137,19 +141,37 @@ public class PregameManager : MonoBehaviour
         StartCoroutine(FadeIn());
     }
 
+    // every card: the kicker says what it is, the title names it, and the line under the rule adds to it
     private void ShowOverview() {
-        kicker.text = "";
+        kicker.text = MatchType();
+        kicker.style.color = StyleKeyword.Null;
         title.text = playlist;
-        line.text = rules;
+        SetLine(rules);
     }
 
+    // a person's line is their rank and rating; a bot has neither
     private void ShowPlayer(bool you) {
         kicker.text = you ? "YOU" : "ENEMY";
         kicker.style.color = you ? SideColors.Player : SideColors.Enemy;
         title.text = (you ? youName : enemyName).ToUpper();
 
+        var bot = offline && !you;
         var rank = (you ? YourRank() : EnemyRank()).ToUpper();
-        line.text = offline ? (you ? rank : "TRAINING") : rank + separator + "UNRANKED";
+        SetLine(bot ? "" : offline ? rank : rank + separator + "UNRANKED");
+    }
+
+    private void SetLine(string text) {
+        line.text = text;
+        rule.style.visibility = string.IsNullOrEmpty(text) ? Visibility.Hidden : Visibility.Visible;
+    }
+
+    private string MatchType() {
+        if (Missions.playing != null) return "CAMPAIGN";
+        switch (connection) {
+            case ConnectionType.Offline: return "TRAINING";
+            case ConnectionType.PrivateMultiplayer: return "CUSTOM GAME";
+            default: return "MULTIPLAYER";
+        }
     }
 
     private IEnumerator FadeIn() {
@@ -188,14 +210,21 @@ public class PregameManager : MonoBehaviour
         var second = youFirst ? enemy : you;
         var first = youFirst ? you : enemy;
 
-        yield return Flash(() => ShowPlayer(!youFirst));
-        yield return Spiral(second);
+        yield return Flash(() => {
+            ShowPlayer(!youFirst);
+            Spiral(second);
+        });
+        yield return SpiralEnd();
 
-        yield return Flash(() => ShowPlayer(youFirst));
-        yield return Spiral(first);
+        yield return Flash(() => {
+            ShowPlayer(youFirst);
+            Spiral(first);
+        });
+        yield return SpiralEnd();
 
         // back from the last flash in the top view, over the board the first turn plays on
         yield return Flash(() => {
+            StopSpiral();
             introCamera.End();
             var board = youFirst ? enemy : you;
             CameraManager.instance.SetCameraState(CameraState.Top, false);
@@ -211,12 +240,31 @@ public class PregameManager : MonoBehaviour
         tm.StartGame();
     }
 
-    private IEnumerator Spiral(Team team) {
-        for (var time = 0f; time < spiralTime; time += Time.deltaTime) {
-            introCamera.Spiral(team, time / spiralTime);
+    private Coroutine spiral;
+    private float spiralStart;
+
+    private void Spiral(Team team) {
+        StopSpiral();
+        spiralStart = Time.time;
+        spiral = StartCoroutine(SpiralRoutine(team));
+    }
+
+    private void StopSpiral() {
+        if (spiral != null) StopCoroutine(spiral);
+        spiral = null;
+    }
+
+    // keeps moving until it's stopped, so the next flash starts while it's still turning
+    private IEnumerator SpiralRoutine(Team team) {
+        while (true) {
+            introCamera.Spiral(team, (Time.time - spiralStart) / spiralTime);
             yield return null;
         }
-        introCamera.Spiral(team, 1);
+    }
+
+    // the next flash starts just before the spiral is done
+    private IEnumerator SpiralEnd() {
+        while (Time.time - spiralStart < spiralTime - flashIn) yield return null;
     }
 
     // the screen dips to black, swaps while it's dark and comes back

@@ -22,15 +22,19 @@ public class IntroCamera : MonoBehaviour
     [SerializeField]
     private float focus = 0.55f;
 
+    // the wide shot drifts round the boards so it's never still
+    [SerializeField]
+    private float overviewDrift = 1.5f;
+
     [Header("Spiral")]
     // low over the middle of a board, then out and up until the whole board shows
     [SerializeField]
-    private float startPitch = 8f;
+    private float startPitch = 18f;
     [SerializeField]
     private float endPitch = 64f;
     // the start distance is a share of the board's radius
     [SerializeField]
-    private float startDistance = 0.3f;
+    private float startDistance = 0.6f;
     // the end distance fits the board, with this much room
     [SerializeField]
     private float fitPadding = 1.05f;
@@ -42,6 +46,8 @@ public class IntroCamera : MonoBehaviour
     private float endYaw = 0f;
 
     private Camera cam;
+    private bool overview;
+    private Vector3 overviewTarget;
     private List<Camera> hidden = new List<Camera>();
     private Dictionary<TeamBase, float> radii = new Dictionary<TeamBase, float>();
 
@@ -80,15 +86,25 @@ public class IntroCamera : MonoBehaviour
         var side = Vector3.Cross(Vector3.up, forward);
 
         transform.position = a - forward * span * back + side * span * across + Vector3.up * height;
-        transform.LookAt(Vector3.Lerp(a, b, focus));
+        overviewTarget = Vector3.Lerp(a, b, focus);
+        transform.LookAt(overviewTarget);
+        overview = true;
+    }
+
+    void Update() {
+        if (!overview) return;
+
+        transform.RotateAround(overviewTarget, Vector3.up, overviewDrift * Time.deltaTime);
+        transform.LookAt(overviewTarget);
     }
 
     // t from 0 to 1 over the spiral; it turns and climbs the whole way, slowing as it opens out
     public void Spiral(Team team, float t) {
+        overview = false;
         var center = team.teamBase.transform.position;
         var radius = Radius(team.teamBase);
 
-        var ease = 1 - Mathf.Pow(1 - Mathf.Clamp01(t), 3);
+        var ease = t < 1 ? 1 - Mathf.Pow(1 - t, 3) : 1 + (t - 1) * 0.02f;
         var pitch = Mathf.Lerp(startPitch, endPitch, ease);
         var fit = radius * fitPadding / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad);
         var distance = Mathf.Lerp(radius * startDistance, fit, ease);

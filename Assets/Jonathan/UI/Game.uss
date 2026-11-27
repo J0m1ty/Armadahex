@@ -95,6 +95,7 @@
 }
 
 .side__who {
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
     margin: 0;
     padding: 0;
     color: rgb(170, 186, 206);
@@ -104,6 +105,7 @@
 }
 
 .side__name {
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
     margin: 0;
     padding: 0;
     color: rgb(240, 246, 255);
@@ -128,6 +130,12 @@
 }
 
 /* your side pulls in to its edge while it's their turn */
+.side--right.away .side__head {
+    translate: 16px 0;
+    scale: 0.72 0.72;
+    opacity: 0.45;
+}
+
 .side.away .side__head {
     translate: -16px 0;
     scale: 0.72 0.72;
@@ -188,11 +196,9 @@
 }
 
 .fleet-row__ship {
-    background-position-x: left 0;
-    -unity-background-scale-mode: scale-to-fit;
-    width: 150px;
+    -unity-background-scale-mode: stretch-to-fill;
     height: 26px;
-    margin-right: 16px;
+    margin-right: 20px;
     -unity-background-image-tint-color: rgb(225, 234, 245);
 }
 
@@ -324,9 +330,11 @@
     color: rgb(120, 140, 165);
 }
 
-/* every shot, newest first */
+/* every shot, in the bottom right corner, newest at the bottom */
 .feed {
-    margin-top: 44px;
+    position: absolute;
+    right: 48px;
+    bottom: 48px;
     align-items: flex-end;
 }
 
@@ -347,6 +355,7 @@
 }
 
 .feed-row__what {
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
     margin: 0 16px 0 0;
     padding: 0;
     color: rgb(190, 204, 222);
@@ -355,6 +364,7 @@
 }
 
 .feed-row__word {
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
     width: 120px;
     margin: 0 16px 0 0;
     padding: 0;
@@ -376,100 +386,90 @@
     justify-content: center;
 }
 
-/* space */
+/* space: a card per player, stacked, with the column names over them */
 .board {
-    align-items: center;
+    width: 1240px;
+    align-items: stretch;
 }
 
 .board__mode {
-    margin: 0 0 40px 0;
+    margin: 0 0 24px 0;
     padding: 0;
     color: rgb(120, 140, 165);
     font-size: 22px;
     letter-spacing: 10px;
+    -unity-text-align: middle-center;
 }
 
-.board__cols {
+.board__header {
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
+    height: 36px;
 }
 
-.board__col {
-    width: 440px;
+.board__header-spacer {
+    flex-grow: 1;
 }
 
-.board__col--right {
-    align-items: flex-end;
+.board__card {
+    flex-direction: row;
+    align-items: center;
+    height: 112px;
+    background-color: rgba(14, 22, 40, 0.92);
 }
 
-.board__vs {
-    width: 160px;
-    margin: 0;
-    padding: 24px 0 0 0;
-    color: rgb(120, 140, 165);
-    font-size: 20px;
-    letter-spacing: 6px;
-    -unity-text-align: upper-center;
+.board__block {
+    width: 112px;
+    height: 112px;
+    align-items: center;
+    justify-content: center;
 }
 
-.board__name {
+.board__afloat {
     margin: 0;
     padding: 0;
     font-size: 64px;
-    letter-spacing: 3px;
     -unity-font-style: bold;
 }
 
-.board__rank {
-    margin: 0 0 28px 0;
+.board__name {
+    flex-grow: 1;
+    margin: 0 0 0 32px;
+    padding: 0;
+    color: rgb(240, 246, 255);
+    font-size: 44px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+}
+
+.board__cell {
+    width: 160px;
+    margin: 0;
+    padding: 0;
+    -unity-text-align: middle-center;
+}
+
+.board__head {
+    color: rgb(120, 140, 165);
+    font-size: 14px;
+    letter-spacing: 5px;
+    -unity-font-style: bold;
+}
+
+.board__value {
+    color: rgb(240, 246, 255);
+    font-size: 26px;
+    -unity-font-style: bold;
+}
+
+.board__vs {
+    height: 56px;
+    margin: 0;
     padding: 0;
     color: rgb(120, 140, 165);
-    font-size: 16px;
+    font-size: 20px;
     letter-spacing: 6px;
-}
-
-.board__ship {
-    flex-direction: row;
-    align-items: center;
-    height: 40px;
-}
-
-.board__col--right .board__ship {
-    flex-direction: row-reverse;
-}
-
-.board__ship-image {
-    background-position-x: left 0;
-    -unity-background-scale-mode: scale-to-fit;
-    width: 150px;
-    height: 26px;
-    -unity-background-image-tint-color: rgb(225, 234, 245);
-}
-
-.board__col--right .board__ship-image {
-    scale: -1 1;
-}
-
-.board__ship-image.sunk {
-    opacity: 0.25;
-}
-
-.board__pips {
-    flex-direction: row;
-    margin-left: 20px;
-}
-
-.hull-pip {
-    width: 18px;
-    height: 9px;
-    margin-right: 4px;
-    border-radius: 2px;
-    background-color: rgba(200, 220, 255, 0.6);
-}
-
-.board__stats {
-    width: 100%;
-    margin-top: 28px;
+    -unity-text-align: middle-center;
 }
 
 /* esc: arrows and enter move through it like the main menu */

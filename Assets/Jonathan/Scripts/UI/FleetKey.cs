@@ -4,6 +4,10 @@ using UnityEngine.UIElements;
 // one ship's row in the picker: its key, silhouette and name; the picked one opens a box under it
 public class FleetKey
 {
+    private const float iconHeight = 26f;
+    private const float stretch = 1.35f;
+    private const float maxWidth = 150f;
+
     public Button button { get; private set; }
     // the picked ship's weapons and angles go in here
     public VisualElement sub { get; private set; }
@@ -37,6 +41,8 @@ public class FleetKey
     public void Set(int slot, Texture2D image, string name, bool alive) {
         number.action = "Gameplay/Choice " + slot;
         icon.style.backgroundImage = image != null ? new StyleBackground(image) : StyleKeyword.None;
+        // every ship the same height, a little longer than drawn so the short ones don't read stout
+        if (image != null) icon.style.width = Mathf.Min(maxWidth, iconHeight * image.width / image.height * stretch);
 
         shipName.text = alive ? name : "<s>" + name + "</s>";
         shipName.EnableInClassList("sunk", !alive);
@@ -49,7 +55,8 @@ public class FleetKey
     }
 
     // the number only means this ship while the fleet is what's numbered
+    // once it isn't, the row slides over to the left
     public void ShowNumber(bool show) {
-        number.style.visibility = show ? Visibility.Visible : Visibility.Hidden;
+        number.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
     }
 }

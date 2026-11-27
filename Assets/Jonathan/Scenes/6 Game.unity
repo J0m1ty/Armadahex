@@ -933,9 +933,10 @@ MonoBehaviour:
   across: 0.55
   height: 420
   focus: 0.55
-  startPitch: 8
+  overviewDrift: 1.5
+  startPitch: 18
   endPitch: 64
-  startDistance: 0.3
+  startDistance: 0.6
   fitPadding: 1.05
   turn: 200
   minHeight: 14
@@ -2780,7 +2781,7 @@ Transform:
   m_GameObject: {fileID: 1095367283}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 3000, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3183,6 +3184,9 @@ MonoBehaviour:
   attackManager: {fileID: 1007787192}
   playerImage: {fileID: 0}
   enemyImage: {fileID: 0}
+  conquestDelay: 3
+  surrenderDelay: 0.6
+  fadeTime: 0.6
 --- !u!1 &1476473179
 GameObject:
   m_ObjectHideFlags: 0
@@ -3925,7 +3929,7 @@ Transform:
   m_GameObject: {fileID: 2142142761}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3000, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

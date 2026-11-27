@@ -46,10 +46,14 @@ public class MatchMenu : MonoBehaviour
         // there's no one to mute in a bot match
         if (GameModeInfo.instance.IsSingleplayer) mute.RemoveFromHierarchy();
 
+        // the menu stays up and says so while the match ends behind it
         surrender.held += () => {
             if (surrendered) return;
             surrendered = true;
-            Open(false);
+            surrender.text = "SURRENDERING...";
+            foreach (var item in items) {
+                if (item != surrender) item.SetEnabled(false);
+            }
             GameOver.instance.Surrender();
         };
 
@@ -76,6 +80,8 @@ public class MatchMenu : MonoBehaviour
     }
 
     void Update() {
+        if (surrendered) return;
+
         if (!isOpen) {
             surrender.progress = 0;
             return;
@@ -120,6 +126,8 @@ public class MatchMenu : MonoBehaviour
     }
 
     public void Open(bool open) {
+        if (surrendered) return;
+
         UIKit.Show(menu, open);
         surrender.progress = 0;
         if (open) {

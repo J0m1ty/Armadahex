@@ -64,6 +64,16 @@ public class GameOver : MonoBehaviour
     public Texture2D playerImage;
     public Texture2D enemyImage;
 
+    [Header("Transition")]
+    // the last shot plays out before the screen goes, a surrender goes sooner
+    [SerializeField]
+    private float conquestDelay = 3f;
+    [SerializeField]
+    private float surrenderDelay = 0.6f;
+    [SerializeField]
+    private float fadeTime = 0.6f;
+    private bool ending;
+
     private void Awake() {
         if (instance != null) {
             Destroy(gameObject);
@@ -173,6 +183,8 @@ public class GameOver : MonoBehaviour
     }
 
     public void OnWin(TeamType win, WinType winType) {
+        if (ending) return;
+        ending = true;
         TurnManager.instance.gameActive = false;
 
         Missions.Finish(win == TurnManager.instance.playerTeam.teamType);
@@ -203,18 +215,35 @@ public class GameOver : MonoBehaviour
             enemyBoard = BoardSnapshot.Take(TurnManager.instance.enemyTeam.teamBase.hexMap, false),
         };
 
-        // the boards are copied as data, so there's nothing to wait for
-        ScreenshotsTaken();
-    }
-
-    public void ScreenshotsTaken() {
-        Debug.Log("Screenshots taken, loading game over scene");
-        
         winInfo.playerImage = playerImage;
         winInfo.enemyImage = enemyImage;
 
-        if (!PhotonNetwork.IsConnected || GameModeInfo.instance.IsSingleplayer) {
-            SceneManager.LoadScene(gameOverScene.SceneName);
+        // the boards are copied as data now; the game keeps running while the last shot plays out
+        StartCoroutine(Leave(winType == WinType.Conquest ? conquestDelay : surrenderDelay));
+    }
+
+    // the old screenshot path, unused
+    public void ScreenshotsTaken() {
+        StartCoroutine(Leave(0));
+    }
+
+    // loads the game over scene in the background, fades to black and only then switches
+    private IEnumerator Leave(float delay) {
+        Debug.Log("Game over, loading game over scene");
+
+        var offline = !PhotonNetwork.IsConnected || GameModeInfo.instance.IsSingleplayer;
+        AsyncOperation load = null;
+        if (offline) {
+            load = SceneManager.LoadSceneAsync(gameOverScene.SceneName);
+            load.allowSceneActivation = false;
+        }
+
+        yield return new WaitForSecondsRealtime(delay);
+        MatchHud.instance?.FadeOut(fadeTime);
+        yield return new WaitForSecondsRealtime(fadeTime);
+
+        if (offline) {
+            load.allowSceneActivation = true;
         }
         else if (PhotonNetwork.IsMasterClient) {
             PhotonNetwork.DestroyAll();

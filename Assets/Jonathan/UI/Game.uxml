@@ -37,19 +37,20 @@
                     <ui:Label name="enemyName" text="ENEMY" class="side__name" picking-mode="Ignore" />
                     <ui:Label name="enemyTurn" text="ENEMY TURN" class="side__turn side__turn--enemy" picking-mode="Ignore" />
                 </ui:VisualElement>
-                <ui:VisualElement name="feed" class="feed" picking-mode="Ignore" />
             </ui:VisualElement>
+
+            <!-- every shot, in the bottom corner whoever's turn it is -->
+            <ui:VisualElement name="feed" class="feed" picking-mode="Ignore" />
         </ui:VisualElement>
 
-        <!-- held space: both fleets and how the match is going -->
+        <!-- held space: a card per player, stacked -->
         <ui:VisualElement name="scoreboard" class="fill shade" picking-mode="Ignore">
             <ui:VisualElement class="board" picking-mode="Ignore">
                 <ui:Label name="boardMode" text="PLAYLIST" class="board__mode" picking-mode="Ignore" />
-                <ui:VisualElement class="board__cols" picking-mode="Ignore">
-                    <ui:VisualElement name="boardYou" class="board__col" picking-mode="Ignore" />
-                    <ui:Label text="VS" class="board__vs" picking-mode="Ignore" />
-                    <ui:VisualElement name="boardEnemy" class="board__col board__col--right" picking-mode="Ignore" />
-                </ui:VisualElement>
+                <ui:VisualElement name="boardHeader" class="board__header" picking-mode="Ignore" />
+                <ui:VisualElement name="boardYou" class="board__card" picking-mode="Ignore" />
+                <ui:Label text="VS" class="board__vs" picking-mode="Ignore" />
+                <ui:VisualElement name="boardEnemy" class="board__card" picking-mode="Ignore" />
             </ui:VisualElement>
         </ui:VisualElement>
 

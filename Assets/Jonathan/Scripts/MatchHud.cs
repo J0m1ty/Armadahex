@@ -1,10 +1,12 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 // the match's two sides: you on the left, the enemy on the right, each with a clock down its edge;
-// the enemy's side keeps every shot, and held space shows both fleets
+// only the side whose turn it is stays lit. every shot lands in the feed in the bottom corner,
+// and held space shows both players as cards
 public class MatchHud : MonoBehaviour
 {
     public static MatchHud instance { get; private set; }
@@ -14,7 +16,7 @@ public class MatchHud : MonoBehaviour
     [SerializeField] private AttackUIManager attackManager;
 
     [Header("Feed")]
-    [SerializeField] private int feedLength = 8;
+    [SerializeField] private int feedLength = 6;
     [SerializeField] private Color missColor = new Color(0.47f, 0.55f, 0.65f);
     [SerializeField] private Color sunkColor = new Color(1f, 0.77f, 0.31f);
     [SerializeField] private Color contactColor = new Color(0.31f, 0.78f, 1f);
@@ -27,6 +29,8 @@ public class MatchHud : MonoBehaviour
     private VisualElement hud;
     private VisualElement you;
     private VisualElement youFade;
+    private VisualElement enemy;
+    private VisualElement enemyFade;
     private Label youName;
     private Label youTurn;
     private Label enemyName;
@@ -35,6 +39,7 @@ public class MatchHud : MonoBehaviour
     private VisualElement enemyClockFill;
     private VisualElement feed;
     private VisualElement scoreboard;
+    private VisualElement flash;
 
     private bool yourTurn;
     private bool low;
@@ -54,6 +59,8 @@ public class MatchHud : MonoBehaviour
         hud = root.Q("hud");
         you = root.Q("you");
         youFade = root.Q("youFade");
+        enemy = root.Q("enemy");
+        enemyFade = root.Q("enemyFade");
         youName = root.Q<Label>("youName");
         youTurn = root.Q<Label>("youTurn");
         enemyName = root.Q<Label>("enemyName");
@@ -62,6 +69,7 @@ public class MatchHud : MonoBehaviour
         enemyClockFill = root.Q("enemyClockFill");
         feed = root.Q("feed");
         scoreboard = root.Q("scoreboard");
+        flash = root.Q("flash");
 
         youTurn.style.color = SideColors.Player;
         enemyTurn.style.color = SideColors.Enemy;
@@ -97,27 +105,29 @@ public class MatchHud : MonoBehaviour
 
     // before the first turn both sides are quiet
     public void SetWaiting() {
-        you.AddToClassList("away");
-        youFade.AddToClassList("away");
-        youTurn.EnableInClassList("off", true);
-        enemyTurn.EnableInClassList("off", true);
+        SetSide(you, youFade, youTurn, false);
+        SetSide(enemy, enemyFade, enemyTurn, false);
         SetClockColors(false, false);
     }
 
-    // your side pulls back to your name on their turn
+    // only the side whose turn it is stays lit, the other pulls back to its edge
     public void SetTurn(bool yours) {
         yourTurn = yours;
         low = false;
 
-        you.EnableInClassList("away", !yours);
-        youFade.EnableInClassList("away", !yours);
-        youTurn.EnableInClassList("off", !yours);
-        enemyTurn.EnableInClassList("off", yours);
+        SetSide(you, youFade, youTurn, yours);
+        SetSide(enemy, enemyFade, enemyTurn, !yours);
         SetClockColors(yours, !yours);
 
         // a fresh turn starts full, without draining up from empty
         youClockFill.style.height = Length.Percent(100);
         enemyClockFill.style.height = Length.Percent(100);
+    }
+
+    private static void SetSide(VisualElement side, VisualElement fade, Label turn, bool lit) {
+        side.EnableInClassList("away", !lit);
+        fade.EnableInClassList("away", !lit);
+        turn.EnableInClassList("off", !lit);
     }
 
     private void SetClockColors(bool youActive, bool enemyActive) {
@@ -137,9 +147,22 @@ public class MatchHud : MonoBehaviour
         return color;
     }
 
+    // the screen goes to black, for leaving the match
+    public void FadeOut(float time) {
+        StartCoroutine(FadeOutRoutine(time));
+    }
+
+    private IEnumerator FadeOutRoutine(float time) {
+        for (var t = 0f; t < time; t += Time.unscaledDeltaTime) {
+            flash.style.opacity = t / time;
+            yield return null;
+        }
+        flash.style.opacity = 1;
+    }
+
     public enum ShotKind { Hit, Miss, Sunk, Contact, Clear }
 
-    // newest on top; the old ones fade
+    // newest at the bottom; the old ones fade as they climb
     public void AddShot(bool byYou, ShotKind kind, string what) {
         var row = new VisualElement { pickingMode = PickingMode.Ignore };
         row.AddToClassList("feed-row");
@@ -161,12 +184,13 @@ public class MatchHud : MonoBehaviour
         row.Add(label);
         row.Add(word);
         row.Add(dot);
-        feed.Insert(0, row);
+        feed.Add(row);
 
-        while (feed.childCount > feedLength) feed.RemoveAt(feed.childCount - 1);
+        while (feed.childCount > feedLength) feed.RemoveAt(0);
         for (var i = 0; i < feed.childCount; i++) {
-            feed[i].EnableInClassList("feed-row--old", i >= 2 && i < 5);
-            feed[i].EnableInClassList("feed-row--older", i >= 5);
+            var age = feed.childCount - 1 - i;
+            feed[i].EnableInClassList("feed-row--old", age >= 2 && age < 4);
+            feed[i].EnableInClassList("feed-row--older", age >= 4);
         }
 
         if (!byYou) {
@@ -183,25 +207,32 @@ public class MatchHud : MonoBehaviour
 
     public bool scoreboardShown => UIKit.IsShown(scoreboard);
 
+    private static readonly string[] columns = { "RANK", "RATING", "HITS", "ACCURACY", "SPECIALS" };
+
+    // a card per player, stacked: a block in their color with the ships they have left, their name and their numbers
     private void FillScoreboard() {
         var root = document.rootVisualElement;
         root.Q<Label>("boardMode").text = GameModeInfo.instance.GetName.ToUpper();
 
         var mine = shipManager.playerShips;
         var theirs = shipManager.enemyShips;
+        var advanced = GameModeInfo.instance.IsAdvancedCombat;
         var specials = mine.Where(s => s.isAlive).SelectMany(s => s.attacks).Where(a => !a.info.unlimited && a.info.isAllowed).Sum(a => Mathf.Max(0, a.ammoLeft));
 
-        FillSide(root.Q("boardYou"), playerName, playerRank, SideColors.Player, mine, true, new[] {
-            ("ACCURACY", Percent(attackManager.shotsHit, attackManager.shotsFired)),
-            ("HITS", attackManager.shotsHit.ToString()),
-            ("SHIPS AFLOAT", mine.Count(s => s.isAlive) + " / " + mine.Count),
-            ("SPECIALS LEFT", GameModeInfo.instance.IsAdvancedCombat ? specials.ToString() : "-"),
+        var header = root.Q("boardHeader");
+        header.Clear();
+        var spacer = new VisualElement();
+        spacer.AddToClassList("board__header-spacer");
+        header.Add(spacer);
+        foreach (var column in columns) {
+            header.Add(Cell(column, "board__head"));
+        }
+
+        Card(root.Q("boardYou"), playerName, SideColors.Player, mine.Count(s => s.isAlive), new[] {
+            playerRank, "-", attackManager.shotsHit.ToString(), Percent(attackManager.shotsHit, attackManager.shotsFired), advanced ? specials.ToString() : "-"
         });
-        FillSide(root.Q("boardEnemy"), otherName, otherRank, SideColors.Enemy, theirs, false, new[] {
-            ("ACCURACY", Percent(enemyHits, enemyShots)),
-            ("HITS", enemyHits.ToString()),
-            ("SHIPS AFLOAT", theirs.Count(s => s.isAlive) + " / " + theirs.Count),
-            ("SPECIALS LEFT", "-"),
+        Card(root.Q("boardEnemy"), otherName, SideColors.Enemy, theirs.Count(s => s.isAlive), new[] {
+            otherRank, "-", enemyHits.ToString(), Percent(enemyHits, enemyShots), "-"
         });
     }
 
@@ -209,56 +240,33 @@ public class MatchHud : MonoBehaviour
         return shots == 0 ? "-" : Mathf.RoundToInt(100f * hits / shots) + "%";
     }
 
-    // your own ships show their damage; theirs only show whether they're afloat
-    private void FillSide(VisualElement column, string name, string rank, Color color, List<Ship> ships, bool showHull, (string, string)[] stats) {
-        column.Clear();
-        var right = column.ClassListContains("board__col--right");
+    private static Label Cell(string text, string className) {
+        var cell = new Label(text);
+        cell.AddToClassList("board__cell");
+        cell.AddToClassList(className);
+        return cell;
+    }
+
+    private static void Card(VisualElement card, string name, Color color, int afloat, string[] values) {
+        card.Clear();
+
+        var block = new VisualElement();
+        block.AddToClassList("board__block");
+        block.style.backgroundColor = color;
+        var count = new Label(afloat.ToString());
+        count.AddToClassList("board__afloat");
+        // dark on a light color, white on a dark one
+        var light = 0.2126f * color.r + 0.7152f * color.g + 0.0722f * color.b > 0.55f;
+        count.style.color = light ? new Color(0.04f, 0.05f, 0.09f) : Color.white;
+        block.Add(count);
+        card.Add(block);
 
         var title = new Label(name);
         title.AddToClassList("board__name");
-        title.style.color = color;
-        column.Add(title);
-        var rankLabel = new Label(rank);
-        rankLabel.AddToClassList("board__rank");
-        column.Add(rankLabel);
+        card.Add(title);
 
-        foreach (var ship in AttackUIManager.InFleetOrder(ships)) {
-            var row = new VisualElement();
-            row.AddToClassList("board__ship");
-            var image = new VisualElement();
-            image.AddToClassList("board__ship-image");
-            image.EnableInClassList("sunk", !ship.isAlive);
-            if (ship.shipModel.silhouette != null) image.style.backgroundImage = new StyleBackground(ship.shipModel.silhouette);
-            row.Add(image);
-
-            if (showHull && ship.segments != null) {
-                var pips = new VisualElement();
-                pips.AddToClassList("board__pips");
-                foreach (var segment in ship.segments) {
-                    var pip = new VisualElement();
-                    pip.AddToClassList("hull-pip");
-                    if (!segment.isAlive) pip.style.backgroundColor = ship.isAlive ? SideColors.Enemy : new Color(0.78f, 0.86f, 1f, 0.12f);
-                    pips.Add(pip);
-                }
-                row.Add(pips);
-            }
-            column.Add(row);
+        foreach (var value in values) {
+            card.Add(Cell(value, "board__value"));
         }
-
-        var block = new VisualElement();
-        block.AddToClassList("board__stats");
-        foreach (var (key, value) in stats) {
-            var row = new VisualElement();
-            row.AddToClassList("stat-row");
-            if (right) row.style.flexDirection = FlexDirection.RowReverse;
-            var k = new Label(key);
-            k.AddToClassList("stat-name");
-            var v = new Label(value);
-            v.AddToClassList("stat-value");
-            row.Add(k);
-            row.Add(v);
-            block.Add(row);
-        }
-        column.Add(block);
     }
 }

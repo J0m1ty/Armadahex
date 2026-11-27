@@ -175,6 +175,9 @@ public class TurnManager : MonoBehaviour
     }
 
     public void NextTurn() {
+        // the game ended while the last shot played out
+        if (!gameActive) return;
+
         var index = teams.IndexOf(currentTeam);
         index++;
 
