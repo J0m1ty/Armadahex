@@ -446,16 +446,22 @@ public class AttackUIManager : MonoBehaviour
         }
     }
 
-    // a click on the enemy board locks the shot in there
-    public void SelectTarget(GridUnit target) {
+    // whether a click there would lock the shot in, so the selector only moves its lock when it does
+    public bool CanTarget(GridUnit target) {
         var aimingState = attackState == AttackState.SelectShip || attackState == AttackState.SelectAttackPattern || attackState == AttackState.Confirm;
-        if (!aimingState) return;
+        if (!aimingState) return false;
 
         // your own board isn't a target
-        if (target.hexRenderer.hexMap.teamBase.team.isPlayer) return;
+        if (target.hexRenderer.hexMap.teamBase.team.isPlayer) return false;
 
         // nothing picked fires the fleet's plain shot
-        if (Wasted(target, selectedOption ?? fleetShot, selectedOption != null ? selectedPattern : null)) return;
+        return !Wasted(target, selectedOption ?? fleetShot, selectedOption != null ? selectedPattern : null);
+    }
+
+    // a click on the enemy board locks the shot in there
+    public void SelectTarget(GridUnit target) {
+        if (!CanTarget(target)) return;
+
         if (selectedOption == null) {
             selectedOption = fleetShot;
             selectedPattern = null;

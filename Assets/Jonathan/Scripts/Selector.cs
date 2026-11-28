@@ -181,6 +181,9 @@ public class Selector : MonoBehaviour
                 return;
             }
 
+            // a hex that can't be fired at (a single shot at one already shot) leaves the lock where it is
+            if (!attackUIManager.CanTarget(hex.gridRef)) return;
+
             // a lock parts the clouds over the hex and puts up the tall beam
             if (selectedHex != null) selectedHex.RemoveFogOverrideColor();
             selectedHex = hex;
