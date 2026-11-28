@@ -626,14 +626,9 @@ public class AttackUIManager : MonoBehaviour
         }
 
         if (selectedTarget == null) {
-            var targets = TurnManager.instance.enemyTeam.teamBase.hexMap.hexes;
-            var target = targets[Random.Range(0, targets.Count)];
-            var valid = (target.shipSegment?.isAlive ?? true) && target.hexRenderer.gameObject.activeSelf;
-            while (!valid) {
-                target = targets[Random.Range(0, targets.Count)];
-                valid = (target.shipSegment?.isAlive ?? true) && target.hexRenderer.gameObject.activeSelf;
-            }
-            selectedTarget = target;
+            // only hexes that haven't been shot yet, misses included
+            var targets = TurnManager.instance.enemyTeam.teamBase.hexMap.hexes.FindAll(x => !x.attacked && x.hexRenderer.gameObject.activeSelf);
+            selectedTarget = targets[Random.Range(0, targets.Count)];
         }
 
         attackState = AttackState.Confirm;
