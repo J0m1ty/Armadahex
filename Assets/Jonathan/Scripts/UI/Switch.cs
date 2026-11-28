@@ -1,7 +1,7 @@
 using System;
 using UnityEngine.UIElements;
 
-// an ON / OFF pill: the side that's picked is filled in, a click flips it
+// an ON / OFF pill: the side that's picked is filled in, a click flips it; the two words can be changed
 [UxmlElement]
 public partial class Switch : VisualElement
 {
@@ -10,6 +10,18 @@ public partial class Switch : VisualElement
     private bool _value;
 
     public event Action<bool> changed;
+
+    [UxmlAttribute]
+    public string onText {
+        get => on.text;
+        set => on.text = value;
+    }
+
+    [UxmlAttribute]
+    public string offText {
+        get => off.text;
+        set => off.text = value;
+    }
 
     [UxmlAttribute]
     public bool value {

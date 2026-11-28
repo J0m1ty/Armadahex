@@ -99,6 +99,20 @@
                         <ui:Label text="ENEMY COLOR" class="option-name"/>
                         <ColorDropdown enemy="true"/>
                     </ui:VisualElement>
+                    <ui:VisualElement class="option-row">
+                        <ui:VisualElement class="option-label">
+                            <ui:Label text="REDUCED MOTION" class="option-name"/>
+                            <InfoTip text="Cuts and fades instead of camera moves, no shake and a still intro."/>
+                        </ui:VisualElement>
+                        <SettingSwitch setting="ReducedMotion"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="option-row">
+                        <ui:VisualElement class="option-label">
+                            <ui:Label text="GRAPHICS" class="option-name"/>
+                            <InfoTip text="Reduced draws at a lower resolution with lighter clouds, water and shadows, for a smoother frame rate."/>
+                        </ui:VisualElement>
+                        <SettingSwitch setting="Graphics" on-text="FULL" off-text="REDUCED" class="switch--wide"/>
+                    </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:VisualElement class="options-footer"/>
             </ui:VisualElement>
