@@ -35,6 +35,11 @@ public class CloudFog : MonoBehaviour
     [Range(0, 1)]
     public float hoverCarve = 0.15f;
 
+    [Header("Quality")]
+    // march steps on reduced graphics, full uses the material's own
+    public float reducedSteps = 20f;
+    private float fullSteps;
+
     private HexGrid grid;
     private Material material;
     private Transform box;
@@ -75,6 +80,18 @@ public class CloudFog : MonoBehaviour
 
         material.SetTexture("_CloudNoise", GetNoise());
         material.SetTexture("_CloudMap", map);
+
+        fullSteps = fogMaterial.GetFloat("_Steps");
+        GameSettings.changed += ApplyQuality;
+        ApplyQuality();
+    }
+
+    void OnDestroy() {
+        GameSettings.changed -= ApplyQuality;
+    }
+
+    private void ApplyQuality() {
+        material.SetFloat("_Steps", GameSettings.reducedGraphics ? reducedSteps : fullSteps);
     }
 
     public Fog Add(HexRenderer hex) {

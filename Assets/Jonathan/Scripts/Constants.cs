@@ -27,6 +27,8 @@ public static class Constants
     public const string INPUT_BINDINGS_PREF_KEY = "InputBindings";
     public const string PLAYER_COLOR_PREF_KEY = "PlayerColor";
     public const string ENEMY_COLOR_PREF_KEY = "EnemyColor";
+    public const string REDUCED_MOTION_PREF_KEY = "ReducedMotion";
+    public const string GRAPHICS_QUALITY_PREF_KEY = "GraphicsQuality";
     public const string CAPTAIN_PREF_KEY = "Captain";
     public const string CAPTAIN_STATE_PREF_PREFIX = "CaptainState_";
     public const string MISSION_STATE_PREF_PREFIX = "MissionState_";

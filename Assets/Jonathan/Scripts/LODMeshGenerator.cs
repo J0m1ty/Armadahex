@@ -97,10 +97,12 @@ public class LODMeshGenerator : MonoBehaviour
     [MyBox.DefinedValues(0, 1)]
     public int uvType = 0;
 
-    // webgl builds and draws the mesh slower, so pull the fine detail in closer there
+    // webgl builds and draws the mesh slower, so pull the fine detail in closer there, and on reduced graphics
     public float webglDetailRange = 0.75f;
 
-    public float detailRange => bakingRange ?? (Application.platform == RuntimePlatform.WebGLPlayer ? webglDetailRange : 1f);
+    private bool lighter => Application.platform == RuntimePlatform.WebGLPlayer || GameSettings.reducedGraphics;
+
+    public float detailRange => bakingRange ?? (lighter ? webglDetailRange : 1f);
 
     // set while baking the other platform's mesh
     private float? bakingRange;
@@ -145,10 +147,12 @@ public class LODMeshGenerator : MonoBehaviour
         if (savedMesh) return;
 
         if (built == null || builtFor != settings) {
+            // the graphics setting changed since the last match, the old mesh is kept from unloading so let it go
+            if (built != null) Destroy(built);
             mesh = new Mesh();
             mesh.name = "LOD Mesh";
             mesh.hideFlags = HideFlags.DontUnloadUnusedAsset;
-            if (!Load(Application.platform == RuntimePlatform.WebGLPlayer ? bakedWebGL : baked)) {
+            if (!Load(lighter ? bakedWebGL : baked)) {
                 GenerateCells();
             }
             built = mesh;
