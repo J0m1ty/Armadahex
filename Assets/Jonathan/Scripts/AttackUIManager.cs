@@ -399,6 +399,7 @@ public class AttackUIManager : MonoBehaviour
 
         var patterns = selectedOption.info.options;
         selectedPattern = index >= 0 && index < patterns.Length ? patterns[index] : null;
+        if (attackState == AttackState.Confirm && Wasted(selectedTarget, selectedOption, selectedPattern)) Unlock();
 
         MarkFleet();
         Preview(selectedTarget ?? aimedTarget);
@@ -457,6 +458,7 @@ public class AttackUIManager : MonoBehaviour
         if (target.hexRenderer.hexMap.teamBase.team.isPlayer) return;
 
         // nothing picked fires the fleet's plain shot
+        if (Wasted(target, selectedOption ?? fleetShot, selectedOption != null ? selectedPattern : null)) return;
         if (selectedOption == null) {
             selectedOption = fleetShot;
             selectedPattern = null;
@@ -465,6 +467,11 @@ public class AttackUIManager : MonoBehaviour
         selectedTarget = target;
         SetState(AttackState.Confirm);
         Preview(target);
+    }
+
+    // a shot that would only land on hexes already shot is wasted, so it can't be locked in; patterns can still overlap old shots
+    private static bool Wasted(GridUnit target, Attack option, AttackPattern pattern) {
+        return !option.info.isScan && PatternTargets(target, pattern, false, out _).All(h => h.gridRef.attacked);
     }
 
     // back to aiming with the mouse, the ship and angle stay
@@ -575,7 +582,8 @@ public class AttackUIManager : MonoBehaviour
     private bool Sweep(List<HexRenderer> area) {
         var contact = area.Any(h => h.gridRef.shipSegment != null && h.gridRef.shipSegment.isAlive);
         if (contact) {
-            selectedTarget.hexRenderer.SetFogColorInstant(FogColor.Scan, false);
+            // a hex already shot keeps its hit or miss color
+            if (!selectedTarget.attacked) selectedTarget.hexRenderer.SetFogColorInstant(FogColor.Scan, false);
             ShotEffects.Contact(selectedTarget.hexRenderer);
             return true;
         }

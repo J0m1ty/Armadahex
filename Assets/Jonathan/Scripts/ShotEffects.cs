@@ -19,7 +19,11 @@ public class ShotEffects : MonoBehaviour
     private const float VOLLEY_TIME = 0.3f;
     private static float lastWave = -1;
 
+    // a hex keeps one peg, the most telling one: a hit beats a miss, and a miss beats a sonar contact (the sweep only said "somewhere near here")
+    private enum PegKind { Contact, Miss, Hit }
+
     private readonly Dictionary<HexRenderer, GameObject> pegs = new Dictionary<HexRenderer, GameObject>();
+    private readonly Dictionary<HexRenderer, PegKind> pegKinds = new Dictionary<HexRenderer, PegKind>();
     private readonly Dictionary<Ship, Material> glows = new Dictionary<Ship, Material>();
     private readonly Dictionary<Ship, List<Vector4>> glowPoints = new Dictionary<Ship, List<Vector4>>();
 
@@ -44,7 +48,7 @@ public class ShotEffects : MonoBehaviour
 
         if (hit) {
             if (fogged) {
-                effects.pegs[hex] = effects.Spawn(hex, hitColor, size * 0.24f, size * 0.24f, 0f, 62f, 0.45f, false);
+                effects.Peg(hex, PegKind.Hit, hitColor, size * 0.24f, 62f, 0.45f);
             }
             else if (hex.gridRef.shipSegment != null) {
                 effects.GlowHex(hex.gridRef.shipSegment.parent, hex.transform.position);
@@ -65,7 +69,7 @@ public class ShotEffects : MonoBehaviour
             }
         }
         else {
-            effects.pegs[hex] = effects.Spawn(hex, missColor, size * 0.16f, size * 0.16f, 0f, 24f, 0.35f, false);
+            effects.Peg(hex, PegKind.Miss, missColor, size * 0.16f, 24f, 0.35f);
 
             effects.Spawn(hex, missColor, size * 0.25f, size * 0.45f, 40f, 6f, 0.6f, true);
             if (wave) {
@@ -87,7 +91,7 @@ public class ShotEffects : MonoBehaviour
         var effects = Get();
         var size = hex.size;
 
-        effects.pegs[hex] = effects.Spawn(hex, contactColor, size * 0.2f, size * 0.2f, 0f, 40f, 0.4f, false);
+        effects.Peg(hex, PegKind.Contact, contactColor, size * 0.2f, 40f, 0.4f);
         effects.Spawn(hex, contactColor, size * 0.5f, size * 3f, 10f, 2f, 0.9f, true);
     }
 
@@ -99,9 +103,19 @@ public class ShotEffects : MonoBehaviour
             if (hex != null && effects.pegs.TryGetValue(hex, out var peg)) {
                 if (peg != null) Destroy(peg);
                 effects.pegs.Remove(hex);
+                effects.pegKinds.Remove(hex);
             }
         }
         effects.GetGlow(ship).SetFloat("_GlowAll", 1);
+    }
+
+    // only puts the peg down if the hex has nothing as telling yet, and takes away the one it replaces
+    private void Peg(HexRenderer hex, PegKind kind, Color color, float size, float height, float duration) {
+        if (pegKinds.TryGetValue(hex, out var current) && current >= kind) return;
+
+        if (pegs.TryGetValue(hex, out var old) && old != null) Destroy(old);
+        pegs[hex] = Spawn(hex, color, size, size, 0f, height, duration, false);
+        pegKinds[hex] = kind;
     }
 
     private void GlowHex(Ship ship, Vector3 position) {
