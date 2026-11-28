@@ -54,6 +54,11 @@ TextField, Slider, SliderInt, DropdownField {
     width: 520px;
 }
 
+/* the text cursor is white on the dark fields, not the default black */
+.unity-base-text-field__input {
+    --unity-cursor-color: rgb(240, 246, 255);
+}
+
 .grow {
     flex-grow: 1;
     align-self: stretch;
