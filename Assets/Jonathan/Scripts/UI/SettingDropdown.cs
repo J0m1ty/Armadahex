@@ -27,11 +27,7 @@ public partial class SettingDropdown : ListDropdown
     }
 
     private void Set(int picked) {
-        if (setting == Setting.Quality) {
-            GameSettings.quality = (GraphicsQuality)picked;
-            // custom changes nothing, so show what the rows add up to again
-            Refresh();
-        }
+        if (setting == Setting.Quality) GameSettings.quality = (GraphicsQuality)picked;
         else if (setting == Setting.AntiAliasing) GameSettings.antiAliasing = GameSettings.antiAliasingSamples[picked];
     }
 }

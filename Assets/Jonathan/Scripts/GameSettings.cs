@@ -3,12 +3,12 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-// a preset over resolution scale and detail; custom is any other mix of the two
+// a preset over resolution scale, detail and anti-aliasing; custom is whatever was set by hand
 public enum GraphicsQuality {
     High = 0,
-    // full resolution, lighter clouds and water
+    // full resolution, lighter clouds and water, 2x anti-aliasing
     Medium = 1,
-    // medium at a lower resolution
+    // medium at a lower resolution, without anti-aliasing
     Low = 2,
     Custom = 3
 }
@@ -34,28 +34,40 @@ public static class GameSettings
         set => Set(Constants.REDUCED_MOTION_PREF_KEY, value);
     }
 
-    // off draws at a lower resolution and scales it up; webgl starts with it off
-    public static bool fullResolution {
-        get => GetBool(Constants.FULL_RESOLUTION_PREF_KEY, !webgl);
-        set => Set(Constants.FULL_RESOLUTION_PREF_KEY, value);
-    }
-
-    // off has lighter clouds, water and shadows; webgl starts with it off
-    public static bool highDetail {
-        get => GetBool(Constants.HIGH_DETAIL_PREF_KEY, !webgl);
-        set => Set(Constants.HIGH_DETAIL_PREF_KEY, value);
-    }
-
-    // msaa samples, 1 is off; webgl starts with it off
-    public static int antiAliasing {
-        get {
-            var samples = PlayerPrefs.GetInt(Constants.ANTI_ALIASING_PREF_KEY, webgl ? 1 : 4);
-            return Array.IndexOf(antiAliasingSamples, samples) >= 0 ? samples : 4;
-        }
+    // a preset sets resolution scale, detail and anti-aliasing; changing any of them makes it custom
+    // until a preset is picked again. webgl starts on low
+    public static GraphicsQuality quality {
+        get => (GraphicsQuality)Mathf.Clamp(PlayerPrefs.GetInt(Constants.GRAPHICS_QUALITY_PREF_KEY, (int)defaultQuality), 0, 3);
         set {
-            PlayerPrefs.SetInt(Constants.ANTI_ALIASING_PREF_KEY, value);
+            PlayerPrefs.SetInt(Constants.GRAPHICS_QUALITY_PREF_KEY, (int)value);
+            if (value != GraphicsQuality.Custom) {
+                PlayerPrefs.SetInt(Constants.FULL_RESOLUTION_PREF_KEY, value != GraphicsQuality.Low ? 1 : 0);
+                PlayerPrefs.SetInt(Constants.HIGH_DETAIL_PREF_KEY, value == GraphicsQuality.High ? 1 : 0);
+                PlayerPrefs.SetInt(Constants.ANTI_ALIASING_PREF_KEY, PresetAntiAliasing(value));
+            }
             Changed();
         }
+    }
+
+    // off draws at a lower resolution and scales it up
+    public static bool fullResolution {
+        get => GetBool(Constants.FULL_RESOLUTION_PREF_KEY, defaultQuality != GraphicsQuality.Low);
+        set => SetCustom(Constants.FULL_RESOLUTION_PREF_KEY, value ? 1 : 0);
+    }
+
+    // off has lighter clouds, water and shadows
+    public static bool highDetail {
+        get => GetBool(Constants.HIGH_DETAIL_PREF_KEY, defaultQuality == GraphicsQuality.High);
+        set => SetCustom(Constants.HIGH_DETAIL_PREF_KEY, value ? 1 : 0);
+    }
+
+    // msaa samples, 1 is off
+    public static int antiAliasing {
+        get {
+            var samples = PlayerPrefs.GetInt(Constants.ANTI_ALIASING_PREF_KEY, PresetAntiAliasing(defaultQuality));
+            return Array.IndexOf(antiAliasingSamples, samples) >= 0 ? samples : 4;
+        }
+        set => SetCustom(Constants.ANTI_ALIASING_PREF_KEY, value);
     }
 
     // starts as the quality level has it; the browser always syncs on webgl
@@ -64,26 +76,16 @@ public static class GameSettings
         set => Set(Constants.VSYNC_PREF_KEY, value);
     }
 
-    public static GraphicsQuality quality {
-        get {
-            if (fullResolution && highDetail) return GraphicsQuality.High;
-            if (fullResolution) return GraphicsQuality.Medium;
-            if (!highDetail) return GraphicsQuality.Low;
-            return GraphicsQuality.Custom;
-        }
-        // picking custom keeps whatever is set
-        set {
-            if (value == GraphicsQuality.Custom) return;
-            PlayerPrefs.SetInt(Constants.FULL_RESOLUTION_PREF_KEY, value != GraphicsQuality.Low ? 1 : 0);
-            PlayerPrefs.SetInt(Constants.HIGH_DETAIL_PREF_KEY, value == GraphicsQuality.High ? 1 : 0);
-            Changed();
-        }
-    }
-
     // the clouds and water read this
     public static bool lighterEffects => !highDetail;
 
     private static bool webgl => Application.platform == RuntimePlatform.WebGLPlayer;
+
+    private static GraphicsQuality defaultQuality => webgl ? GraphicsQuality.Low : GraphicsQuality.High;
+
+    private static int PresetAntiAliasing(GraphicsQuality preset) {
+        return preset == GraphicsQuality.High ? 4 : preset == GraphicsQuality.Medium ? 2 : 1;
+    }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Boot() {
@@ -106,6 +108,13 @@ public static class GameSettings
 
     private static void Set(string key, bool value) {
         PlayerPrefs.SetInt(key, value ? 1 : 0);
+        Changed();
+    }
+
+    // one of the preset's own settings, set by hand
+    private static void SetCustom(string key, int value) {
+        PlayerPrefs.SetInt(key, value);
+        PlayerPrefs.SetInt(Constants.GRAPHICS_QUALITY_PREF_KEY, (int)GraphicsQuality.Custom);
         Changed();
     }
 

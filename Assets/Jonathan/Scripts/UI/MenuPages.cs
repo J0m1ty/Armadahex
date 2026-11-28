@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 // the menu's home and its pages (settings, controls, progression), the progression page has tabs,
-// and the options pages (gameplay, display, audio, controls) share a row of tabs that switches between them
+// and the options pages (gameplay, graphics, audio, controls) share a row of tabs that switches between them
 public class MenuPages : MonoBehaviour
 {
     [SerializeField] private UIDocument document;
@@ -11,11 +11,11 @@ public class MenuPages : MonoBehaviour
     [SerializeField] private string[] pages = { "settingsPage", "controlsPage", "progressionPage" };
 
     [Header("Options tabs")]
-    [SerializeField] private string[] optionTabs = { "gameplayTab", "displayTab", "audioTab", "controlsTab" };
-    [SerializeField] private string[] optionPages = { "gameplayPage", "displayPage", "settingsPage", "controlsPage" };
-    // the gameplay and display pages are new, so their back buttons are wired here rather than in UIButtons
+    [SerializeField] private string[] optionTabs = { "gameplayTab", "graphicsTab", "audioTab", "controlsTab" };
+    [SerializeField] private string[] optionPages = { "gameplayPage", "graphicsPage", "settingsPage", "controlsPage" };
+    // the gameplay and graphics pages are new, so their back buttons are wired here rather than in UIButtons
     [SerializeField] private string gameplayBack = "gameplayBack";
-    [SerializeField] private string displayBack = "displayBack";
+    [SerializeField] private string graphicsBack = "graphicsBack";
     // the browser always syncs to the screen
     [SerializeField] private string vSyncRow = "vSyncRow";
 
@@ -32,7 +32,7 @@ public class MenuPages : MonoBehaviour
             root.Query<Button>(optionTabs[i]).ForEach(tab => UIKit.OnClick(tab, () => ShowPage(page), ClickSound.Light));
         }
         UIKit.OnClick(root.Q(gameplayBack), () => Show(-1));
-        UIKit.OnClick(root.Q(displayBack), () => Show(-1));
+        UIKit.OnClick(root.Q(graphicsBack), () => Show(-1));
         if (Application.platform == RuntimePlatform.WebGLPlayer) UIKit.Show(root.Q(vSyncRow), false);
 
         for (var i = 0; i < tabs.Length; i++) {
@@ -45,9 +45,9 @@ public class MenuPages : MonoBehaviour
     }
 
     void Update() {
-        // esc backs out of the gameplay and display pages, the others have it through UIButtons
+        // esc backs out of the gameplay and graphics pages, the others have it through UIButtons
         var cancel = GameInput.Get("UI/Cancel");
-        if (cancel != null && cancel.WasPressedThisFrame() && (UIKit.IsShown(PageOf(gameplayBack)) || UIKit.IsShown(PageOf(displayBack)))) {
+        if (cancel != null && cancel.WasPressedThisFrame() && (UIKit.IsShown(PageOf(gameplayBack)) || UIKit.IsShown(PageOf(graphicsBack)))) {
             Show(-1);
         }
     }
