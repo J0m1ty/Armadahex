@@ -50,6 +50,10 @@ public class ArrowGroup : MonoBehaviour
         disableButtons = true;
     }
 
+    private Color Highlight() {
+        return selectedOption != null ? selectedOption.info.highlight : FogState.friendlySelected;
+    }
+
     public void SetColor(Color color) {
         foreach (var arrow in arrows) {
             arrow.SetColor(color);
@@ -177,7 +181,7 @@ public class ArrowGroup : MonoBehaviour
                     var thisDistance = Vector3.Magnitude(selectedTarget.hexRenderer.transform.position - colorHex.hexRenderer.transform.position);
 
                     if (colorHex != selectedTarget) {
-                        colorHex.hexRenderer.SetCustomFogColor(Color.Lerp(FogState.friendlySelected, FogState.fogNormal, Mathf.Clamp01(LODMeshGenerator.Map(Mathf.Abs(overallLength - thisDistance), 0, overallLength, 1, 0))));
+                        colorHex.hexRenderer.SetCustomFogColor(Color.Lerp(Highlight(), FogState.fogNormal, Mathf.Clamp01(LODMeshGenerator.Map(Mathf.Abs(overallLength - thisDistance), 0, overallLength, 1, 0))));
                     }
 
                     var next = colorHex.GetNeighbor(AttackUIManager.Convert(dir.rotation, rev));
@@ -199,7 +203,7 @@ public class ArrowGroup : MonoBehaviour
                     var next = originHex.GetNeighbor(AttackUIManager.Convert(dir.rotation, rev));
                     if (next != null) {
                         originHex = next;
-                        originHex.hexRenderer.SetCustomFogColor(Color.Lerp(FogState.friendlySelected, FogState.fogNormal, 0.5f));
+                        originHex.hexRenderer.SetCustomFogColor(Color.Lerp(Highlight(), FogState.fogNormal, 0.5f));
                     }
                     else {
                         break;
@@ -211,6 +215,6 @@ public class ArrowGroup : MonoBehaviour
             arrows.Add(arrow);
         }
 
-        SetColor(FogState.friendlySelected);
+        SetColor(Highlight());
     }
 }

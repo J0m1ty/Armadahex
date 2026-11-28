@@ -50,8 +50,14 @@ public class AttackInfo {
     [MyBox.ConditionalField(nameof(unlimited), true)]
     public int maxUses;
     public bool isScan;
+    // the aiming preview in a color of its own, off keeps the usual orange
+    public bool ownColor;
+    [MyBox.ConditionalField(nameof(ownColor))]
+    public Color color;
     public AttackPattern[] options;
     public bool isAllowed = true;
+
+    public Color highlight => ownColor ? color : FogState.friendlySelected;
 }
 
 [Serializable]

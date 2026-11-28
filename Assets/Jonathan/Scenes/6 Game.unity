@@ -412,12 +412,16 @@ MonoBehaviour:
       unlimited: 1
       maxUses: 0
       isScan: 0
+      ownColor: 0
+      color: {r: 0, g: 0, b: 0, a: 0}
       options: []
       isAllowed: 0
     - name: Depth Charges
       unlimited: 0
       maxUses: 2
       isScan: 0
+      ownColor: 0
+      color: {r: 0, g: 0, b: 0, a: 0}
       options:
       - name: Angle 1
         cells:
@@ -462,12 +466,16 @@ MonoBehaviour:
       unlimited: 1
       maxUses: 0
       isScan: 0
+      ownColor: 0
+      color: {r: 0, g: 0, b: 0, a: 0}
       options: []
       isAllowed: 0
     - name: Torpedo
       unlimited: 0
       maxUses: 2
       isScan: 0
+      ownColor: 0
+      color: {r: 0, g: 0, b: 0, a: 0}
       options:
       - name: Angle 1
         cells: []
@@ -513,6 +521,8 @@ MonoBehaviour:
       unlimited: 0
       maxUses: 2
       isScan: 1
+      ownColor: 1
+      color: {r: 1, g: 0.76, b: 0.24, a: 1}
       options:
       - name: Sonar Sweep
         cells:
@@ -541,12 +551,16 @@ MonoBehaviour:
       unlimited: 1
       maxUses: 0
       isScan: 0
+      ownColor: 0
+      color: {r: 0, g: 0, b: 0, a: 0}
       options: []
       isAllowed: 0
     - name: Harpoons
       unlimited: 0
       maxUses: 2
       isScan: 0
+      ownColor: 0
+      color: {r: 0, g: 0, b: 0, a: 0}
       options:
       - name: Angle 1
         cells: []
@@ -618,12 +632,16 @@ MonoBehaviour:
       unlimited: 1
       maxUses: 0
       isScan: 0
+      ownColor: 0
+      color: {r: 0, g: 0, b: 0, a: 0}
       options: []
       isAllowed: 0
     - name: Tomahawk
       unlimited: 0
       maxUses: 1
       isScan: 0
+      ownColor: 0
+      color: {r: 0, g: 0, b: 0, a: 0}
       options:
       - name: Angle 1
         cells:
@@ -672,12 +690,16 @@ MonoBehaviour:
       unlimited: 1
       maxUses: 0
       isScan: 0
+      ownColor: 0
+      color: {r: 0, g: 0, b: 0, a: 0}
       options: []
       isAllowed: 0
     - name: Air Strike
       unlimited: 0
       maxUses: 2
       isScan: 0
+      ownColor: 0
+      color: {r: 0, g: 0, b: 0, a: 0}
       options:
       - name: Angle 1
         cells:
@@ -706,6 +728,8 @@ MonoBehaviour:
       unlimited: 0
       maxUses: 1
       isScan: 0
+      ownColor: 0
+      color: {r: 0, g: 0, b: 0, a: 0}
       options:
       - name: Angle 1
         cells: []
@@ -3616,6 +3640,8 @@ MonoBehaviour:
   hopRiseTime: 0.3
   hopSlideTime: 0.8
   hopUp: 1
+  cutFadeOut: 0.12
+  cutFadeIn: 0.25
   control: 1
   orbitSpeed: 70
   pullSpeed: 0.7
@@ -3887,6 +3913,8 @@ MonoBehaviour:
   hopRiseTime: 0.3
   hopSlideTime: 0.6
   hopUp: 1
+  cutFadeOut: 0.12
+  cutFadeIn: 0.25
   control: 2
   orbitSpeed: 70
   pullSpeed: 2.1

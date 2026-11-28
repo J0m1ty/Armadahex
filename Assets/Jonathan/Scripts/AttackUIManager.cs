@@ -425,20 +425,17 @@ public class AttackUIManager : MonoBehaviour
         arrowGroup.gameObject.SetActive(true);
         arrowGroup.SetPatternPreview(at, selectedOption, selectedPattern);
 
-        // shapes have no arrows and spaced patterns have gaps, so both light the exact hexes they'll hit;
-        // a sweep doesn't hit anything, so it shows in blue
+        // shapes have no arrows and spaced patterns have gaps, so both light the exact hexes they'll hit,
+        // in the attack's own color if it has one (the sweep's tells you it doesn't hit anything)
         var scan = selectedOption.info.isScan;
         var shape = selectedPattern.cells != null && selectedPattern.cells.Length > 0;
         if (scan || shape || selectedPattern.directions.Any(d => d.step > 1)) {
             ClearPreviewFog(at);
-            var tint = Color.Lerp(scan ? FogState.fogScan : FogState.friendlySelected, FogState.fogNormal, 0.3f);
+            var tint = Color.Lerp(selectedOption.info.highlight, FogState.fogNormal, 0.3f);
             foreach (var hex in PatternTargets(at, selectedPattern, false, out _)) {
                 if (hex.gridRef == at) continue;
                 hex.SetCustomFogColor(tint);
             }
-        }
-        if (scan) {
-            arrowGroup.SetColor(FogState.fogScan * 2f);
         }
     }
 
