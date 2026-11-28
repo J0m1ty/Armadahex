@@ -592,6 +592,8 @@ public class AttackUIManager : MonoBehaviour
             // hexes already hit keep their hit
             if (hex.gridRef.shipSegment != null || (hex.fog != null && hex.fog.cleared)) continue;
 
+            // a clear sweep shows these as misses, so they count as shot
+            hex.gridRef.attacked = true;
             hex.SetFogColorInstant(FogColor.Miss, false);
             hex.ClearFog();
             ShotEffects.Shot(hex, false);
