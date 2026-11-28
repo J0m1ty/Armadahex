@@ -9,7 +9,6 @@
             <LightStreak target="logoText" peak-text="HEX" class="streak"/>
             <ui:VisualElement class="tagline">
                 <ui:Label text="LAST STAND" class="subtitle"/>
-                <ui:Label text="[BETA]" class="tag accent"/>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement picking-mode="Ignore" class="prompt-slot">
