@@ -77,6 +77,18 @@ public class MatchHud : MonoBehaviour
         // nobody's turn until the game starts
         SetWaiting();
         UIKit.Show(scoreboard, false);
+
+        GameSettings.changed += ApplyMotion;
+        ApplyMotion();
+    }
+
+    void OnDestroy() {
+        GameSettings.changed -= ApplyMotion;
+    }
+
+    // reduced motion: the side that's waiting only dims, without pulling in to its edge
+    private void ApplyMotion() {
+        hud.EnableInClassList("reduced-motion", GameSettings.reducedMotion);
     }
 
     void Update() {
@@ -149,6 +161,8 @@ public class MatchHud : MonoBehaviour
 
     // the screen goes to black, for leaving the match
     public void FadeOut(float time) {
+        leaving = true;
+        if (dip != null) StopCoroutine(dip);
         StartCoroutine(FadeOutRoutine(time));
     }
 
@@ -158,6 +172,34 @@ public class MatchHud : MonoBehaviour
             yield return null;
         }
         flash.style.opacity = 1;
+    }
+
+    // a quick dip to black and back, covering a camera cut on reduced motion
+    private Coroutine dip;
+    private bool leaving;
+
+    public void Dip(float time) {
+        FadeFlash(1, time);
+    }
+
+    public void Undip(float time) {
+        FadeFlash(0, time);
+    }
+
+    private void FadeFlash(float to, float time) {
+        if (leaving) return;
+        if (dip != null) StopCoroutine(dip);
+        dip = StartCoroutine(FadeFlashRoutine(to, time));
+    }
+
+    private IEnumerator FadeFlashRoutine(float to, float time) {
+        var from = flash.resolvedStyle.opacity;
+        for (var t = 0f; t < time; t += Time.unscaledDeltaTime) {
+            flash.style.opacity = Mathf.Lerp(from, to, t / time);
+            yield return null;
+        }
+        flash.style.opacity = to;
+        dip = null;
     }
 
     public enum ShotKind { Hit, Miss, Sunk, Contact, Clear }

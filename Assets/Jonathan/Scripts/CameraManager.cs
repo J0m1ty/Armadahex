@@ -122,6 +122,8 @@ public class CameraManager : MonoBehaviour
     }
 
     public void Shake(bool hit) {
+        if (GameSettings.reducedMotion) return;
+
         CameraShaker cameraShaker;
 
         switch (state) {

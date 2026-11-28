@@ -209,35 +209,66 @@ public class PregameManager : MonoBehaviour
         var enemy = tm.enemyTeam;
         var second = youFirst ? enemy : you;
         var first = youFirst ? you : enemy;
+        // the board the first turn plays on
+        var board = youFirst ? enemy : you;
 
-        yield return Flash(() => {
-            ShowPlayer(!youFirst);
-            Spiral(second);
-        });
-        yield return SpiralEnd();
+        if (GameSettings.reducedMotion) {
+            yield return Still(board);
+        }
+        else {
+            yield return Flash(() => {
+                ShowPlayer(!youFirst);
+                Spiral(second);
+            });
+            yield return SpiralEnd();
 
-        yield return Flash(() => {
-            ShowPlayer(youFirst);
-            Spiral(first);
-        });
-        yield return SpiralEnd();
+            yield return Flash(() => {
+                ShowPlayer(youFirst);
+                Spiral(first);
+            });
+            yield return SpiralEnd();
 
-        // back from the last flash in the top view, over the board the first turn plays on
-        yield return Flash(() => {
-            StopSpiral();
-            introCamera.End();
-            var board = youFirst ? enemy : you;
-            CameraManager.instance.SetCameraState(CameraState.Top, false);
-            CameraManager.instance.MoveToInstant(board.teamBase.transform.position);
-            UIKit.Show(card, false);
-            UIKit.Show(vignette, false);
-            MatchHud.instance.Show(true);
-        });
+            // back from the last flash in the top view, over the board the first turn plays on
+            yield return Flash(() => {
+                ToTop(board);
+                ShowHud();
+            });
+        }
 
         yield return Count();
 
         UIKit.Show(intro, false);
         tm.StartGame();
+    }
+
+    // reduced motion: one cut to the top view, then the cards change over it without the spirals.
+    // each step takes as long as its spiral would, so a player with it off still starts the same turn together
+    private IEnumerator Still(Team board) {
+        var start = Time.time;
+        yield return Flash(() => {
+            ShowPlayer(!youFirst);
+            ToTop(board);
+        });
+        while (Time.time - start < spiralTime) yield return null;
+
+        start = Time.time;
+        yield return Fade(() => ShowPlayer(youFirst), card);
+        while (Time.time - start < spiralTime) yield return null;
+
+        yield return Fade(ShowHud, card, vignette);
+    }
+
+    private void ToTop(Team board) {
+        StopSpiral();
+        introCamera.End();
+        CameraManager.instance.SetCameraState(CameraState.Top, false);
+        CameraManager.instance.MoveToInstant(board.teamBase.transform.position);
+    }
+
+    private void ShowHud() {
+        UIKit.Show(card, false);
+        UIKit.Show(vignette, false);
+        MatchHud.instance.Show(true);
     }
 
     private Coroutine spiral;
@@ -285,11 +316,30 @@ public class PregameManager : MonoBehaviour
         flash.style.opacity = 0;
     }
 
+    // like a flash, but only the given elements dip out and back, for when nothing behind them changes
+    private IEnumerator Fade(Action swap, params VisualElement[] elements) {
+        for (var time = 0f; time < flashIn; time += Time.deltaTime) {
+            foreach (var element in elements) element.style.opacity = 1 - time / flashIn;
+            yield return null;
+        }
+        foreach (var element in elements) element.style.opacity = 0;
+
+        swap();
+        yield return new WaitForSeconds(flashHold);
+
+        for (var time = 0f; time < flashOut; time += Time.deltaTime) {
+            foreach (var element in elements) element.style.opacity = time / flashOut;
+            yield return null;
+        }
+        foreach (var element in elements) element.style.opacity = StyleKeyword.Null;
+    }
+
     private IEnumerator Count() {
         UIKit.Show(count, true);
         for (var number = countFrom; number > 0; number--) {
             count.text = number.ToString();
-            var scale = countPunch;
+            // reduced motion keeps the fade but drops the punch
+            var scale = GameSettings.reducedMotion ? 1 : countPunch;
             for (var time = 0f; time < countStep; time += Time.deltaTime) {
                 var settle = 1 - Mathf.Exp(-Time.deltaTime / Mathf.Max(0.01f, countSettle) * 4);
                 scale = Mathf.Lerp(scale, 1, settle);

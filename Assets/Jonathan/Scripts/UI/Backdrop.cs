@@ -27,7 +27,13 @@ public partial class Backdrop : VisualElement
         if (!Application.isPlaying) return;
 
         material = new Material(Resources.Load<Material>("Backdrop"));
-        tick = schedule.Execute(Draw).Every(0);
+        tick = schedule.Execute(Tick).Every(0);
+    }
+
+    // reduced motion holds it still on the last frame it drew, a resize still draws a fresh one
+    private void Tick() {
+        if (GameSettings.reducedMotion) return;
+        Draw();
     }
 
     private void Detach() {

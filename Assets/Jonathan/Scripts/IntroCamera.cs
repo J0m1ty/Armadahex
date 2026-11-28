@@ -92,7 +92,8 @@ public class IntroCamera : MonoBehaviour
     }
 
     void Update() {
-        if (!overview) return;
+        // reduced motion holds the wide shot still
+        if (!overview || GameSettings.reducedMotion) return;
 
         transform.RotateAround(overviewTarget, Vector3.up, overviewDrift * Time.deltaTime);
         transform.LookAt(overviewTarget);

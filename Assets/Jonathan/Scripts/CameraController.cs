@@ -90,6 +90,12 @@ public class CameraController : MonoBehaviour
     // off: slide straight across at the current height instead of hopping over
     [SerializeField]
     private bool hopUp = true;
+    // reduced motion cuts instead, behind a quick dip to black
+    [SerializeField]
+    private float cutFadeOut = 0.12f;
+    [SerializeField]
+    private float cutFadeIn = 0.25f;
+    private bool cutting;
     private Coroutine hop;
 
     [Header("Control")]
@@ -292,6 +298,11 @@ public class CameraController : MonoBehaviour
             hop = null;
             center = newCenter;
         }
+        // a cut stopped while the screen is dark would leave it dark
+        if (cutting) {
+            cutting = false;
+            MatchHud.instance.Undip(cutFadeIn);
+        }
 
         StopFocus(true);
     }
@@ -406,7 +417,8 @@ public class CameraController : MonoBehaviour
     }
 
     public void FocusOn(Bounds area) {
-        if (!focusOnShots || !isActiveAndEnabled || boardRadius <= 0) return;
+        // reduced motion stays where the player put it
+        if (!focusOnShots || !isActiveAndEnabled || boardRadius <= 0 || GameSettings.reducedMotion) return;
 
         // a new volley during a focus keeps the place to go back to
         if (focus != null) {
@@ -544,10 +556,11 @@ public class CameraController : MonoBehaviour
         targetPull = fitPull;
         newCenter = position;
 
-        // far moves hop up over the terrain, slide across, then drop back down
+        // far moves hop up over the terrain, slide across, then drop back down;
+        // with reduced motion the screen dips to black and it cuts there instead
         if (Vector3.Distance(center, position) > hopDistance && gameObject.activeInHierarchy) {
             if (hop != null) StopCoroutine(hop);
-            hop = StartCoroutine(Hop(center, position));
+            hop = StartCoroutine(GameSettings.reducedMotion ? Cut(position) : Hop(center, position));
         }
     }
 
@@ -555,6 +568,10 @@ public class CameraController : MonoBehaviour
         if (hop != null) {
             StopCoroutine(hop);
             hop = null;
+        }
+        if (cutting) {
+            cutting = false;
+            MatchHud.instance.Undip(cutFadeIn);
         }
 
         if (!AlreadyAt(position)) {
@@ -578,6 +595,16 @@ public class CameraController : MonoBehaviour
         yield return HopLeg(from + up, to + up, hopSlideTime);
         yield return HopLeg(to + up, to, hopRiseTime);
         hop = null;
+    }
+
+    private IEnumerator Cut(Vector3 to) {
+        cutting = true;
+        MatchHud.instance.Dip(cutFadeOut);
+        yield return new WaitForSecondsRealtime(cutFadeOut);
+        center = to;
+        hop = null;
+        cutting = false;
+        MatchHud.instance.Undip(cutFadeIn);
     }
 
     private IEnumerator HopLeg(Vector3 from, Vector3 to, float time) {
