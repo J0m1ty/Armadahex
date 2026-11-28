@@ -559,10 +559,16 @@
     opacity: 0;
 }
 
+/* a chip, so it holds up over a bright board; letter spacing trails the last letter, so the left pads more */
 .intro__kicker {
-    height: 28px;
-    margin: 0 0 12px 0;
-    padding: 0;
+    height: 40px;
+    margin: 0 0 16px 0;
+    padding: 0 14px 0 24px;
+    border-width: 2px;
+    border-radius: 3px;
+    border-color: rgb(240, 246, 255);
+    background-color: rgba(6, 10, 18, 0.78);
+    color: rgb(240, 246, 255);
     font-size: 20px;
     letter-spacing: 10px;
     -unity-font-style: bold;

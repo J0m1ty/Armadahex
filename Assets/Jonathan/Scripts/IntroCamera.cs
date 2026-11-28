@@ -27,19 +27,20 @@ public class IntroCamera : MonoBehaviour
     private float overviewDrift = 1.5f;
 
     [Header("Spiral")]
-    // low over the middle of a board, then out and up until the whole board shows
+    // most of the way up over a board, then a little further out and up until the whole board shows,
+    // turning about as slowly as the wide shot drifts
     [SerializeField]
-    private float startPitch = 18f;
+    private float startPitch = 50f;
     [SerializeField]
     private float endPitch = 64f;
     // the start distance is a share of the board's radius
     [SerializeField]
-    private float startDistance = 0.6f;
+    private float startDistance = 1.6f;
     // the end distance fits the board, with this much room
     [SerializeField]
     private float fitPadding = 1.05f;
     [SerializeField]
-    private float turn = 200f;
+    private float turn = 24f;
     [SerializeField]
     private float minHeight = 14f;
     [SerializeField]
@@ -99,13 +100,13 @@ public class IntroCamera : MonoBehaviour
         transform.LookAt(overviewTarget);
     }
 
-    // t from 0 to 1 over the spiral; it turns and climbs the whole way, slowing as it opens out
+    // t from 0 to 1 over the spiral; it turns and climbs the whole way, easing off gently as it opens out
     public void Spiral(Team team, float t) {
         overview = false;
         var center = team.teamBase.transform.position;
         var radius = Radius(team.teamBase);
 
-        var ease = t < 1 ? 1 - Mathf.Pow(1 - t, 3) : 1 + (t - 1) * 0.02f;
+        var ease = t < 1 ? 1 - Mathf.Pow(1 - t, 2) : 1 + (t - 1) * 0.02f;
         var pitch = Mathf.Lerp(startPitch, endPitch, ease);
         var fit = radius * fitPadding / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad);
         var distance = Mathf.Lerp(radius * startDistance, fit, ease);

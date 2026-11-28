@@ -934,11 +934,11 @@ MonoBehaviour:
   height: 420
   focus: 0.55
   overviewDrift: 1.5
-  startPitch: 18
+  startPitch: 50
   endPitch: 64
-  startDistance: 0.6
+  startDistance: 1.6
   fitPadding: 1.05
-  turn: 200
+  turn: 24
   minHeight: 14
   endYaw: 0
 --- !u!114 &270042339

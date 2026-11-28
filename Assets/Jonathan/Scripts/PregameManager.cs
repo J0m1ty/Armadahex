@@ -144,7 +144,7 @@ public class PregameManager : MonoBehaviour
     // every card: the kicker says what it is, the title names it, and the line under the rule adds to it
     private void ShowOverview() {
         kicker.text = MatchType();
-        kicker.style.color = StyleKeyword.Null;
+        SetKickerColor(StyleKeyword.Null);
         title.text = playlist;
         SetLine(rules);
     }
@@ -152,12 +152,21 @@ public class PregameManager : MonoBehaviour
     // a person's line is their rank and rating; a bot has neither
     private void ShowPlayer(bool you) {
         kicker.text = you ? "YOU" : "ENEMY";
-        kicker.style.color = you ? SideColors.Player : SideColors.Enemy;
+        SetKickerColor(you ? SideColors.Player : SideColors.Enemy);
         title.text = (you ? youName : enemyName).ToUpper();
 
         var bot = offline && !you;
         var rank = (you ? YourRank() : EnemyRank()).ToUpper();
         SetLine(bot ? "" : offline ? rank : rank + separator + "UNRANKED");
+    }
+
+    // the chip's text and border, null for the default white
+    private void SetKickerColor(StyleColor color) {
+        kicker.style.color = color;
+        kicker.style.borderTopColor = color;
+        kicker.style.borderRightColor = color;
+        kicker.style.borderBottomColor = color;
+        kicker.style.borderLeftColor = color;
     }
 
     private void SetLine(string text) {
