@@ -127,12 +127,14 @@ public class ControlsPage : MonoBehaviour
         view.RefreshItems();
 
         var keyboard = row.action.bindings[row.index].path.StartsWith("<Keyboard>");
+        // a cancelled rebind also ends here, it leaves nothing new to save
+        var before = GameInput.actions.SaveBindingOverridesAsJson();
         GameInput.Rebind(row.action, row.index, () => {
             listening = false;
             waiting = null;
             doneFrame = Time.frameCount;
             view.RefreshItems();
-            Unsaved(true);
+            Unsaved(unsaved || GameInput.actions.SaveBindingOverridesAsJson() != before);
             // enter or space on a still-focused button would start another rebind
             UIKit.Blur(document);
         }, keyboard, false);
