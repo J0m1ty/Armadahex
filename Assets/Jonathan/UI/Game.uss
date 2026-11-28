@@ -559,11 +559,11 @@
     opacity: 0;
 }
 
-/* a chip, so it holds up over a bright board; letter spacing trails the last letter, so the left pads more */
+/* a chip, so it holds up over a bright board */
 .intro__kicker {
     height: 40px;
     margin: 0 0 16px 0;
-    padding: 0 14px 0 24px;
+    padding: 0 19px;
     border-width: 2px;
     border-radius: 3px;
     border-color: rgb(240, 246, 255);
