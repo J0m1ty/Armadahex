@@ -208,6 +208,7 @@ public class MatchHud : MonoBehaviour
     public void AddShot(bool byYou, ShotKind kind, string what) {
         var row = new VisualElement { pickingMode = PickingMode.Ignore };
         row.AddToClassList("feed-row");
+        row.AddToClassList("feed-row--new");
 
         var label = new Label(what.ToUpper()) { pickingMode = PickingMode.Ignore };
         label.AddToClassList("feed-row__what");
@@ -227,6 +228,13 @@ public class MatchHud : MonoBehaviour
         row.Add(word);
         row.Add(dot);
         feed.Add(row);
+
+        // the new row slides in and the rows above slide up, reduced motion only fades it in
+        feed.EnableInClassList("feed--push", !GameSettings.reducedMotion);
+        feed.schedule.Execute(() => {
+            row.RemoveFromClassList("feed-row--new");
+            feed.RemoveFromClassList("feed--push");
+        }).StartingIn(30);
 
         while (feed.childCount > feedLength) feed.RemoveAt(0);
         for (var i = 0; i < feed.childCount; i++) {

@@ -342,6 +342,13 @@
     right: 48px;
     bottom: 48px;
     align-items: flex-end;
+    transition: translate 0.3s ease-out;
+}
+
+/* a new row starts a row lower, so the stack slides up to make room instead of jumping */
+.feed--push {
+    translate: 0 40px;
+    transition-duration: 0s;
 }
 
 .feed-row {
@@ -349,7 +356,18 @@
     justify-content: flex-end;
     align-items: center;
     height: 40px;
-    transition: opacity 0.4s;
+    transition: opacity 0.4s, translate 0.3s ease-out;
+}
+
+/* a new row slides in from the right */
+.feed-row--new {
+    opacity: 0;
+    translate: 48px 0;
+}
+
+/* reduced motion: it only fades in */
+.reduced-motion .feed-row--new {
+    translate: 0 0;
 }
 
 .feed-row--old {
