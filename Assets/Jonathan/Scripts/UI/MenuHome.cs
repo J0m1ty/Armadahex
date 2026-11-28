@@ -49,7 +49,7 @@ public class MenuHome : MonoBehaviour
         InvokeRepeating(nameof(Refresh), 0f, refreshInterval);
 
         ShowProfile();
-        Changelog.Fill(root.Q<ScrollView>("changelogEntries"), root.Q<Label>("changelogVersion"), root.Q<Label>("changelogDate"), changelogImage);
+        Changelog.Fill(root.Q<ScrollView>("changelogEntries"), changelogImage);
         UIKit.OnClick(root.Q("changelogMore"), () => Application.OpenURL(changelogUrl));
         Select(0);
     }

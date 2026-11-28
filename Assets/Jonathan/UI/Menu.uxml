@@ -67,8 +67,7 @@
             </ui:Button>
             <ui:VisualElement name="changelog" class="changelog">
                 <ui:VisualElement class="changelog__heading">
-                    <ui:Label name="changelogVersion" text="PATCH NOTES v1.0" class="changelog__number" style="flex-grow: 1;"/>
-                    <ui:Label name="changelogDate" text="November 24th, 2026" class="changelog__date" style="color: rgb(139, 152, 172);"/>
+                    <ui:Label text="PATCH NOTES" class="changelog__number" style="flex-grow: 1;"/>
                 </ui:VisualElement>
                 <ui:ScrollView name="changelogEntries" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" class="changelog__scroll"/>
                 <ui:VisualElement class="changelog__footer">

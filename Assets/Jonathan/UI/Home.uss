@@ -298,8 +298,8 @@
     background-color: rgb(255, 255, 255);
 }
 
-/* the changelog: one glass card like the profile; the bar names the newest version and its date,
-   then its picture and notes, which fade in and out at the edges as they scroll, and read more at the foot */
+/* the changelog: one glass card like the profile; the bar reads patch notes,
+   then the newest picture, each update's version and date and its notes, which fade in and out at the edges as they scroll, and read more at the foot */
 .changelog {
     position: absolute;
     right: 72px;
@@ -338,14 +338,6 @@
     letter-spacing: 5px;
 }
 
-.changelog__date {
-    margin: 0;
-    padding: 0;
-    color: rgb(120, 180, 255);
-    font-size: 14px;
-    letter-spacing: 3px;
-}
-
 .changelog__scroll {
     flex-grow: 1;
 }
@@ -380,9 +372,9 @@
 }
 
 .changelog__version {
-    margin: 6px 0 14px 0;
+    margin: 0 0 14px 0;
     padding: 0;
-    color: rgb(120, 180, 255);
+    color: rgb(139, 152, 172);
     font-size: 14px;
     letter-spacing: 3px;
 }

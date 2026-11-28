@@ -3,14 +3,14 @@ using UnityEngine.UIElements;
 
 // what's new on the menu, from Resources/Changelog.txt for now (it'll come from the auth server later).
 // "# version | date" starts an update, "## heading" a group inside it, "- text" a line.
-// the newest update's version and date sit in the card's bar, its picture leads the list,
+// the newest update's picture leads the list, each update's notes start with its version and date,
 // and everything fades in and out near the top and bottom of the list as it scrolls
 public static class Changelog
 {
     // how far from the list's edges things fade out
     private const float fade = 72f;
 
-    public static void Fill(ScrollView list, Label version, Label date, Texture2D image) {
+    public static void Fill(ScrollView list, Texture2D image) {
         if (list == null) return;
 
         var file = Resources.Load<TextAsset>("Changelog");
@@ -23,13 +23,12 @@ public static class Changelog
             var line = raw.Trim();
             if (line.StartsWith("# ")) {
                 var parts = line.Substring(2).Split('|');
-                var number = parts[0].Trim();
+                var number = parts[0].Trim().TrimStart('v', 'V');
                 var when = parts.Length > 1 ? parts[1].Trim().ToUpper() : "";
+                var heading = when == "" ? "VERSION " + number : "VERSION " + number + " - " + when;
 
                 if (body == null) {
-                    // the newest goes in the bar, with its picture first in the list
-                    if (version != null) version.text = "PATCH NOTES " + number;
-                    if (date != null) date.text = when;
+                    // the newest has its picture first in the list
                     if (image != null) {
                         var frame = new VisualElement();
                         frame.AddToClassList("changelog__image");
@@ -38,13 +37,12 @@ public static class Changelog
                         frame.Add(picture);
                         list.Add(frame);
                     }
-                    body = Body(list);
                 }
                 else {
                     list.Add(Gap());
-                    body = Body(list);
-                    body.Add(Label(when == "" ? number : number + "  ·  " + when, "changelog__version"));
                 }
+                body = Body(list);
+                body.Add(Label(heading, "changelog__version"));
             }
             else if (body == null) {
                 continue;
