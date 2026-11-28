@@ -582,8 +582,8 @@ public class AttackUIManager : MonoBehaviour
     private bool Sweep(List<HexRenderer> area) {
         var contact = area.Any(h => h.gridRef.shipSegment != null && h.gridRef.shipSegment.isAlive);
         if (contact) {
-            // a hex already shot keeps its hit or miss color
-            if (!selectedTarget.attacked) selectedTarget.hexRenderer.SetFogColorInstant(FogColor.Scan, false);
+            // a hit keeps its color, a miss turns into the contact
+            if (!selectedTarget.attacked || selectedTarget.shipSegment == null) selectedTarget.hexRenderer.SetFogColorInstant(FogColor.Scan, false);
             ShotEffects.Contact(selectedTarget.hexRenderer);
             return true;
         }

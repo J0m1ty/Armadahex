@@ -19,7 +19,7 @@ public class ShotEffects : MonoBehaviour
     private const float VOLLEY_TIME = 0.3f;
     private static float lastWave = -1;
 
-    // a hex keeps one peg, the most telling one: a hit beats a miss, and a miss beats a sonar contact (the sweep only said "somewhere near here")
+    // a hex keeps one peg: a hit stays, a miss and a sonar contact replace each other, so the latest one shows
     private enum PegKind { Contact, Miss, Hit }
 
     private readonly Dictionary<HexRenderer, GameObject> pegs = new Dictionary<HexRenderer, GameObject>();
@@ -109,9 +109,9 @@ public class ShotEffects : MonoBehaviour
         effects.GetGlow(ship).SetFloat("_GlowAll", 1);
     }
 
-    // only puts the peg down if the hex has nothing as telling yet, and takes away the one it replaces
+    // takes away the peg it replaces; nothing replaces a hit, and the same peg again stays as it is
     private void Peg(HexRenderer hex, PegKind kind, Color color, float size, float height, float duration) {
-        if (pegKinds.TryGetValue(hex, out var current) && current >= kind) return;
+        if (pegKinds.TryGetValue(hex, out var current) && (current == PegKind.Hit || current == kind)) return;
 
         if (pegs.TryGetValue(hex, out var old) && old != null) Destroy(old);
         pegs[hex] = Spawn(hex, color, size, size, 0f, height, duration, false);
