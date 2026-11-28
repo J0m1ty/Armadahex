@@ -25,7 +25,7 @@ public enum ConnectionType {
     Offline
 }
 
-// the intro: the map with the playlist over it, then the player going second and the one going first,
+// the intro: the map with the playlist over it, then the player going first and the one going second,
 // each a spiral out over their board, a flash between each, and a count into the first turn from the top view
 public class PregameManager : MonoBehaviour
 {
@@ -218,28 +218,26 @@ public class PregameManager : MonoBehaviour
         var enemy = tm.enemyTeam;
         var second = youFirst ? enemy : you;
         var first = youFirst ? you : enemy;
-        // the board the first turn plays on
-        var board = youFirst ? enemy : you;
 
         if (GameSettings.reducedMotion) {
-            yield return Still(board);
+            yield return Still(first, second);
         }
         else {
-            yield return Flash(() => {
-                ShowPlayer(!youFirst);
-                Spiral(second);
-            });
-            yield return SpiralEnd();
-
             yield return Flash(() => {
                 ShowPlayer(youFirst);
                 Spiral(first);
             });
             yield return SpiralEnd();
 
-            // back from the last flash in the top view, over the board the first turn plays on
             yield return Flash(() => {
-                ToTop(board);
+                ShowPlayer(!youFirst);
+                Spiral(second);
+            });
+            yield return SpiralEnd();
+
+            // the first turn fires at the second player's board, so the top view stays over it
+            yield return Flash(() => {
+                ToTop(second);
                 ShowHud();
             });
         }
@@ -250,18 +248,21 @@ public class PregameManager : MonoBehaviour
         tm.StartGame();
     }
 
-    // reduced motion: one cut to the top view, then the cards change over it without the spirals.
+    // reduced motion: a cut to the top view over each player's board with their card, without the spirals.
     // each step takes as long as its spiral would, so a player with it off still starts the same turn together
-    private IEnumerator Still(Team board) {
+    private IEnumerator Still(Team first, Team second) {
         var start = Time.time;
         yield return Flash(() => {
-            ShowPlayer(!youFirst);
-            ToTop(board);
+            ShowPlayer(youFirst);
+            ToTop(first);
         });
         while (Time.time - start < spiralTime) yield return null;
 
         start = Time.time;
-        yield return Fade(() => ShowPlayer(youFirst), card);
+        yield return Flash(() => {
+            ShowPlayer(!youFirst);
+            ToTop(second);
+        });
         while (Time.time - start < spiralTime) yield return null;
 
         yield return Fade(ShowHud, card, vignette);
