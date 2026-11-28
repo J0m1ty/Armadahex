@@ -537,12 +537,13 @@ public class CameraController : MonoBehaviour
 
         newPosition += positionMod;
 
-        // q is positive, e negative
-        newRotation *= Quaternion.Euler(Vector3.up * rotationAmount * rotateAction.ReadValue<float>());
+        // q is positive, e negative; per frame at 60 fps like the move speed
+        var frames = Time.deltaTime * 60f;
+        newRotation *= Quaternion.Euler(Vector3.up * rotationAmount * rotateAction.ReadValue<float>() * frames);
 
         if (allowZoomKeys) {
             // r is positive, f negative
-            newZoom += zoomAmount * zoomKeysAction.ReadValue<float>();
+            newZoom += zoomAmount * zoomKeysAction.ReadValue<float>() * frames;
         }
         
     }
