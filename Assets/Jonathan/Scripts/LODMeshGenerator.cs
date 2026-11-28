@@ -147,8 +147,6 @@ public class LODMeshGenerator : MonoBehaviour
         if (savedMesh) return;
 
         if (built == null || builtFor != settings) {
-            // the graphics setting changed since the last match, the old mesh is kept from unloading so let it go
-            if (built != null) Destroy(built);
             mesh = new Mesh();
             mesh.name = "LOD Mesh";
             mesh.hideFlags = HideFlags.DontUnloadUnusedAsset;
