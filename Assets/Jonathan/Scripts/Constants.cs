@@ -28,7 +28,10 @@ public static class Constants
     public const string PLAYER_COLOR_PREF_KEY = "PlayerColor";
     public const string ENEMY_COLOR_PREF_KEY = "EnemyColor";
     public const string REDUCED_MOTION_PREF_KEY = "ReducedMotion";
-    public const string GRAPHICS_QUALITY_PREF_KEY = "GraphicsQuality";
+    public const string FULL_RESOLUTION_PREF_KEY = "FullResolution";
+    public const string HIGH_DETAIL_PREF_KEY = "HighDetail";
+    public const string ANTI_ALIASING_PREF_KEY = "AntiAliasing";
+    public const string VSYNC_PREF_KEY = "VSync";
     public const string CAPTAIN_PREF_KEY = "Captain";
     public const string CAPTAIN_STATE_PREF_PREFIX = "CaptainState_";
     public const string MISSION_STATE_PREF_PREFIX = "MissionState_";

@@ -225,11 +225,6 @@
     transition-duration: 0.15s;
 }
 
-/* a switch with longer words than on and off */
-.switch--wide > .switch__side {
-    width: 112px;
-}
-
 .switch__side--picked {
     background-color: var(--accent);
     color: var(--accent-ink);

@@ -97,10 +97,10 @@ public class LODMeshGenerator : MonoBehaviour
     [MyBox.DefinedValues(0, 1)]
     public int uvType = 0;
 
-    // webgl builds and draws the mesh slower, so pull the fine detail in closer there, and on reduced graphics
+    // webgl builds and draws the mesh slower, so pull the fine detail in closer there, and on medium and low graphics
     public float webglDetailRange = 0.75f;
 
-    private bool lighter => Application.platform == RuntimePlatform.WebGLPlayer || GameSettings.reducedGraphics;
+    private bool lighter => Application.platform == RuntimePlatform.WebGLPlayer || GameSettings.lighterEffects;
 
     public float detailRange => bakingRange ?? (lighter ? webglDetailRange : 1f);
 

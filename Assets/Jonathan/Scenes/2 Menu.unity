@@ -471,13 +471,17 @@ MonoBehaviour:
   - trainingPage
   optionTabs:
   - gameplayTab
+  - displayTab
   - audioTab
   - controlsTab
   optionPages:
   - gameplayPage
+  - displayPage
   - settingsPage
   - controlsPage
   gameplayBack: gameplayBack
+  displayBack: displayBack
+  vSyncRow: vSyncRow
   tabs:
   - captainsTab
   - achievementsTab

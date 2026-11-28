@@ -86,6 +86,7 @@
                 <ui:Label text="OPTIONS" class="options-title"/>
                 <ui:VisualElement class="options-tabs">
                     <ui:Button name="gameplayTab" text="GAMEPLAY" focusable="false" class="tab lit"/>
+                    <ui:Button name="displayTab" text="DISPLAY" focusable="false" class="tab"/>
                     <ui:Button name="audioTab" text="AUDIO" focusable="false" class="tab"/>
                     <ui:Button name="controlsTab" text="CONTROLS" focusable="false" class="tab"/>
                 </ui:VisualElement>
@@ -99,19 +100,67 @@
                         <ui:Label text="ENEMY COLOR" class="option-name"/>
                         <ColorDropdown enemy="true"/>
                     </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="options-footer"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="displayPage" class="hidden screen options">
+            <Backdrop class="backdrop"/>
+            <ui:Button name="displayBack" class="back">
+                <KeyLabel action="UI/Cancel" format="{0}" picking-mode="Ignore" class="key-chip"/>
+                <ui:Label text="BACK" picking-mode="Ignore" class="back-text"/>
+            </ui:Button>
+            <ui:VisualElement class="options-column">
+                <ui:Label text="OPTIONS" class="options-title"/>
+                <ui:VisualElement class="options-tabs">
+                    <ui:Button name="gameplayTab" text="GAMEPLAY" focusable="false" class="tab"/>
+                    <ui:Button name="displayTab" text="DISPLAY" focusable="false" class="tab lit"/>
+                    <ui:Button name="audioTab" text="AUDIO" focusable="false" class="tab"/>
+                    <ui:Button name="controlsTab" text="CONTROLS" focusable="false" class="tab"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="options-body panel">
+                    <ui:VisualElement picking-mode="Ignore" class="panel-edge"/>
+                    <ui:VisualElement class="option-row">
+                        <ui:VisualElement class="option-label">
+                            <ui:Label text="QUALITY" class="option-name"/>
+                            <InfoTip text="Sets resolution scale and detail together. Low is smoothest on laptops and in the browser."/>
+                        </ui:VisualElement>
+                        <SettingDropdown setting="Quality"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="option-row">
+                        <ui:VisualElement class="option-label">
+                            <ui:Label text="RESOLUTION SCALE" class="option-name"/>
+                            <InfoTip text="75% draws fewer pixels and scales them up. The biggest saving, a little softer."/>
+                        </ui:VisualElement>
+                        <SettingSwitch setting="FullResolution" on-text="100%" off-text="75%"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="option-row">
+                        <ui:VisualElement class="option-label">
+                            <ui:Label text="DETAIL" class="option-name"/>
+                            <InfoTip text="Low uses lighter clouds, water and shadows. The water changes from the next match."/>
+                        </ui:VisualElement>
+                        <SettingSwitch setting="HighDetail" on-text="HIGH" off-text="LOW"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="option-row">
+                        <ui:VisualElement class="option-label">
+                            <ui:Label text="ANTI-ALIASING" class="option-name"/>
+                            <InfoTip text="Smooths jagged edges. Off is a little faster."/>
+                        </ui:VisualElement>
+                        <SettingDropdown setting="AntiAliasing"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="vSyncRow" class="option-row">
+                        <ui:VisualElement class="option-label">
+                            <ui:Label text="VSYNC" class="option-name"/>
+                            <InfoTip text="Matches the frame rate to your screen, so the picture never tears."/>
+                        </ui:VisualElement>
+                        <SettingSwitch setting="VSync"/>
+                    </ui:VisualElement>
                     <ui:VisualElement class="option-row">
                         <ui:VisualElement class="option-label">
                             <ui:Label text="REDUCED MOTION" class="option-name"/>
                             <InfoTip text="Cuts and fades instead of camera moves, no shake and a still intro."/>
                         </ui:VisualElement>
                         <SettingSwitch setting="ReducedMotion"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="option-row">
-                        <ui:VisualElement class="option-label">
-                            <ui:Label text="GRAPHICS" class="option-name"/>
-                            <InfoTip text="Reduced draws at a lower resolution with lighter clouds, water and shadows, for a smoother frame rate."/>
-                        </ui:VisualElement>
-                        <SettingSwitch setting="Graphics" on-text="FULL" off-text="REDUCED" class="switch--wide"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:VisualElement class="options-footer"/>
@@ -127,6 +176,7 @@
                 <ui:Label text="OPTIONS" class="options-title"/>
                 <ui:VisualElement class="options-tabs">
                     <ui:Button name="gameplayTab" text="GAMEPLAY" focusable="false" class="tab"/>
+                    <ui:Button name="displayTab" text="DISPLAY" focusable="false" class="tab"/>
                     <ui:Button name="audioTab" text="AUDIO" focusable="false" class="tab lit"/>
                     <ui:Button name="controlsTab" text="CONTROLS" focusable="false" class="tab"/>
                 </ui:VisualElement>
@@ -158,6 +208,7 @@
                 <ui:Label text="OPTIONS" class="options-title"/>
                 <ui:VisualElement class="options-tabs">
                     <ui:Button name="gameplayTab" text="GAMEPLAY" focusable="false" class="tab"/>
+                    <ui:Button name="displayTab" text="DISPLAY" focusable="false" class="tab"/>
                     <ui:Button name="audioTab" text="AUDIO" focusable="false" class="tab"/>
                     <ui:Button name="controlsTab" text="CONTROLS" focusable="false" class="tab lit"/>
                 </ui:VisualElement>
@@ -185,7 +236,7 @@
                         <ui:Label text="RULES" class="card-heading"/>
                         <ui:VisualElement class="option-row">
                             <ui:Label text="PRESET" class="option-name"/>
-                            <ListDropdown name="trainingPresets" class="preset-dropdown"/>
+                            <ListDropdown name="trainingPresets"/>
                         </ui:VisualElement>
                         <ui:VisualElement class="option-row">
                             <ui:VisualElement class="option-label">

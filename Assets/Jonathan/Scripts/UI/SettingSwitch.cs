@@ -2,11 +2,14 @@ using UnityEngine.UIElements;
 
 public enum Setting {
     ReducedMotion,
-    // on is full, off is reduced
-    Graphics
+    Quality,
+    FullResolution,
+    HighDetail,
+    AntiAliasing,
+    VSync
 }
 
-// a Switch for one of GameSettings, it reads and saves the setting itself so it can sit on any page
+// a Switch for one of GameSettings' on/off settings, it reads and saves the setting itself so it can sit on any page
 [UxmlElement]
 public partial class SettingSwitch : Switch
 {
@@ -23,11 +26,20 @@ public partial class SettingSwitch : Switch
     }
 
     private void Refresh() {
-        value = setting == Setting.ReducedMotion ? GameSettings.reducedMotion : !GameSettings.reducedGraphics;
+        switch (setting) {
+            case Setting.ReducedMotion: value = GameSettings.reducedMotion; break;
+            case Setting.FullResolution: value = GameSettings.fullResolution; break;
+            case Setting.HighDetail: value = GameSettings.highDetail; break;
+            case Setting.VSync: value = GameSettings.vSync; break;
+        }
     }
 
     private void Set(bool on) {
-        if (setting == Setting.ReducedMotion) GameSettings.reducedMotion = on;
-        else GameSettings.graphics = on ? GraphicsQuality.Full : GraphicsQuality.Reduced;
+        switch (setting) {
+            case Setting.ReducedMotion: GameSettings.reducedMotion = on; break;
+            case Setting.FullResolution: GameSettings.fullResolution = on; break;
+            case Setting.HighDetail: GameSettings.highDetail = on; break;
+            case Setting.VSync: GameSettings.vSync = on; break;
+        }
     }
 }

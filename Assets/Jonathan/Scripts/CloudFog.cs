@@ -36,8 +36,8 @@ public class CloudFog : MonoBehaviour
     public float hoverCarve = 0.15f;
 
     [Header("Quality")]
-    // march steps on reduced graphics, full uses the material's own
-    public float reducedSteps = 20f;
+    // march steps on medium and low graphics, high uses the material's own
+    public float lightSteps = 20f;
     private float fullSteps;
 
     private HexGrid grid;
@@ -91,7 +91,7 @@ public class CloudFog : MonoBehaviour
     }
 
     private void ApplyQuality() {
-        material.SetFloat("_Steps", GameSettings.reducedGraphics ? reducedSteps : fullSteps);
+        material.SetFloat("_Steps", GameSettings.lighterEffects ? lightSteps : fullSteps);
     }
 
     public Fog Add(HexRenderer hex) {
